@@ -436,7 +436,7 @@ function isOpen(s){return isAdmin()||!!(cfg().open||{})[s]}
 function anyOpen(){return SECS.some(function(s){return !!(cfg().open||{})[s]})}
 
 /* =================== البيانات =================== */
-function load(force){if(demoOn()&&!force)return Promise.resolve();return call('pull').then(function(r){if(!r||!r.ok)throw r||0;var docs=r.docs||{},my=me();
+function load(force){return call('pull').then(function(r){if(!r||!r.ok)throw r||0;var sig='';try{sig=JSON.stringify(r.docs||{})}catch(e){}if(!force&&D&&sig&&sig===LASTSIG)return;LASTSIG=sig;var docs=r.docs||{},my=me();
   var d={emp:null,emps:[],reqs:[],pays:[],tickets:[],ann:[],settings:{},pols:[],acks:{},imps:[],bdgs:[],vox:[],tally:{},myVotes:{},khf:null,khk:{},cfg:null,vvtKeys:[]};
   var hasTally=Object.prototype.hasOwnProperty.call(docs,'vxs:tally');
   Object.keys(docs).forEach(function(k){var o=parse(docs[k]);if(o==null)return;var p=k.split(':')[0],id=k.slice(p.length+1);
