@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<title>مرسى | Marsa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="hr-config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--teal:#287070;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--sh2:0 16px 40px rgba(16,41,43,.16);
+  --font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html[lang=en]{--font:"Inter","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%;background:radial-gradient(1200px 500px at 90% -10%,#E2EFEF 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.9);-webkit-backdrop-filter:saturate(1.3) blur(10px);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1080px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;gap:10px;min-height:64px}
+.bar img{height:48px;width:auto}.sp{flex:1}
+.lang{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font:600 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);display:flex;gap:6px;align-items:center;transition:transform .15s,box-shadow .15s}
+.lang:hover{transform:translateY(-1px);box-shadow:var(--sh2)}.lang:active{transform:scale(.96)}
+.wrap{max-width:1080px;margin:0 auto;padding:6px 20px 40px}
+.hello{margin:28px 0 24px;animation:up .5s ease both}
+.hello h1{margin:0;font-size:clamp(28px,6vw,42px);line-height:1.2;font-weight:700}
+.hello p{margin:6px 0 0;color:var(--mute);font-size:15px}
+.hello .intro{margin:14px 0 0;max-width:60ch;color:var(--ink);font-size:15.5px;line-height:1.85}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+.tile{position:relative;display:flex;flex-direction:column;background:#fff;border-radius:22px;box-shadow:var(--sh);border:1px solid rgba(221,232,232,.8);
+  text-decoration:none;color:var(--ink);overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;animation:up .55s ease both;min-height:260px}
+.tile:nth-child(2){animation-delay:.08s}.tile:nth-child(3){animation-delay:.16s}
+.tile:hover{transform:translateY(-4px);box-shadow:var(--sh2)}.tile:active{transform:scale(.985)}
+.tile:focus-visible{outline:3px solid #18A4B8;outline-offset:3px}
+.tile .top{background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;padding:20px 20px 18px;position:relative}
+.tile .top::after{content:"";position:absolute;inset-inline-end:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.1)}
+.tile .mark{position:absolute;inset-inline-end:16px;bottom:12px;width:58px;opacity:.18}
+.tile .ic{font-size:34px;line-height:1}
+.tile h2{margin:12px 0 0;font-size:22px;font-weight:700;line-height:1.3}
+.tile .sub2{font-size:13px;opacity:.8}
+.tile .bd{padding:16px 20px 18px;display:flex;flex-direction:column;flex:1}
+.tile .desc{margin:0;font-size:14.5px;color:var(--mute);flex:1}
+.tile .go{margin-top:16px;align-self:flex-start;font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;background:#EAF3F3;color:var(--deep);transition:background .2s,color .2s}
+.tile:hover .go{background:var(--c1);color:#fff}
+.tile.soon{cursor:default}.tile.soon:hover{transform:none;box-shadow:var(--sh)}.tile.soon .top{filter:saturate(.75)}.tile.soon .go,.tile.soon:hover .go{background:#F6E9DD;color:#8A5A2B}
+.tile .new{position:absolute;top:16px;inset-inline-end:16px;z-index:2;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#fff;color:var(--deep);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.ready{margin:12px 0 0;display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:#FFF6E0;color:#6A4600;font-size:13.5px;font-weight:600;border:1px solid #F4DDA0;position:relative;overflow:hidden}
+.ready .dot{width:10px;height:10px;border-radius:50%;background:#E0A21C;flex:none;margin-top:6px;box-shadow:0 0 0 0 rgba(224,162,28,.6);animation:pulse 1.8s infinite}
+.ready::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:shine 3.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,162,28,.6)}70%{box-shadow:0 0 0 10px rgba(224,162,28,0)}100%{box-shadow:0 0 0 0 rgba(224,162,28,0)}}
+@keyframes shine{0%,60%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.foot{margin-top:34px;font-size:12.5px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 22px;justify-content:space-between}
+body.leaving .wrap{opacity:0;transform:translateY(-6px);transition:opacity .22s,transform .22s}
+@media (max-width:520px){.wrap{padding:14px 16px 32px}.hello{margin:18px 0 18px}.tile{min-height:auto}.bar img{height:42px}}
+.mng{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin-top:6px;padding:14px 18px;border:1.5px dashed #BFD3D3;border-radius:18px;background:rgba(255,255,255,.7);color:var(--ink);text-decoration:none;transition:background .15s}
+.mng:hover{background:#fff}.mng .mi{font-size:22px;width:44px;height:44px;border-radius:12px;background:#EEF4F4;display:grid;place-items:center}.mng b{display:block;font-size:15px}.mng small{color:var(--mute);font-size:12.5px}.mng .ar{margin-inline-start:auto;font-size:22px;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.auth{max-width:420px;margin:10px auto 0;background:#fff;border-radius:22px;box-shadow:var(--sh2);padding:24px 22px;animation:up .45s ease both;border:1px solid var(--line)}
+.auth h2{margin:0 0 4px;font-size:21px}.auth p{margin:0 0 16px;color:var(--mute);font-size:14px}
+.auth label{display:block;font-weight:600;font-size:13.5px;margin:0 0 5px}
+.auth input{width:100%;padding:12px 13px;border:1.5px solid #CFDDDD;border-radius:12px;background:#F9FBFB;font:15px var(--font);margin-bottom:12px;direction:ltr;transition:border-color .15s,box-shadow .15s}
+.auth input:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 4px rgba(40,112,112,.14)}
+.auth .err{color:#A3261F;font-size:13.5px;min-height:20px;margin:-4px 0 8px}
+.auth button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--teal);color:#fff;font:600 15px var(--font);cursor:pointer;box-shadow:0 6px 16px rgba(40,112,112,.28);transition:transform .15s}
+.auth button:active{transform:scale(.98)}.auth button[disabled]{opacity:.6;cursor:progress}
+.auth .note{background:#E4F0F9;color:#1F5F8B;padding:10px 12px;border-radius:11px;font-size:13px;margin-bottom:14px}
+.who{display:none;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink)}.who.on{display:flex}
+.out{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 13.5px var(--font);cursor:pointer;color:#A3261F;box-shadow:var(--sh)}
+.spin{width:24px;height:24px;border:3px solid #CFE0E0;border-top-color:var(--teal);border-radius:50%;animation:rot .8s linear infinite;margin:40px auto}@keyframes rot{to{transform:rotate(360deg)}}
+@media (max-width:520px){.who .nm{display:none}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
+<div class="who" id="who"><span class="nm" id="whoNm"></span><button class="out" id="outBtn" type="button"></button></div>
+<button class="lang" id="langBtn" type="button" aria-label="Language">🌐 <span id="langTxt">English</span></button></div></header>
+<div class="wrap">
+  <section class="hello"><h1 id="greet"></h1><p id="today"></p><p class="intro" id="intro"></p></section>
+  <main class="grid" id="sections"><div class="spin"></div></main>
+  <footer class="foot"><span id="fco"></span><span id="fby"></span></footer>
+</div>
+<script>
+(function(){
+  var LANG=(function(){try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
+  var I={
+    ar:{m:'صباح الخير',e:'مساء الخير',intro:'مرسى هو تطبيق موظفي نسائم صلالة، يجمع أعمالك في مكان واحد: التدريب والتطوير، الموارد البشرية وخدمات الموظفين.',open:'فتح القسم',co:'نسائم صلالة للشقق المفروشة',by:'صُمّم وأُدير بواسطة علي البسيسي',btn:'English',newT:'جديد',
+      ready:'القسم جاهز الآن! يرجى الدخول لاستكمال بياناتك الوظيفية',sin:'تسجيل الدخول',sinP:'دخول واحد لكل أقسام مرسى — استخدم اليوزر وكلمة المرور من الموارد البشرية',u:'اسم المستخدم',p:'كلمة المرور',go:'دخول',out:'خروج',bad:'اسم المستخدم أو كلمة المرور غير صحيحة',locked:'أُوقفت المحاولات مؤقتاً، انتظر 10 دقائق',net:'تعذّر الاتصال بالخادم، تأكد من الإنترنت',chg:'تغيير كلمة المرور',chgP:'هذا أول دخول لك. اختر كلمة مرور جديدة (8 أحرف على الأقل، حروف وأرقام).',old:'كلمة المرور الحالية',nw:'كلمة المرور الجديدة',save:'حفظ ومتابعة',introIn:'اختر القسم الذي تريده — أنت مسجّل الدخول في كل الأقسام.',soon:'تحت الإعداد — قريباً',soonT:'هذا القسم يفتح قريباً',staffOff:'تحت الإعداد — قريباً',mng:'إدارة تطبيق مرسى',mngS:'إتاحة الأقسام، الاعتمادات، وإعدادات التطبيق',
+      days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']},
+    en:{m:'Good morning',e:'Good evening',intro:'Marsa is the Nassayem Salalah staff app — everything in one place: Training & Development, Human Resources and Employee Services.',open:'Open',co:'Nassayem Salalah Furnished Apartments',by:'Designed & managed by Ali Al Busaisi',btn:'العربية',newT:'New',
+      ready:'This section is live! Please sign in to complete your employment details',sin:'Sign in',sinP:'One sign-in for every Marsa section — use your HR username and password',u:'Username',p:'Password',go:'Sign in',out:'Sign out',bad:'Incorrect username or password',locked:'Too many attempts, wait 10 minutes',net:'Could not reach the server, check your connection',chg:'Change password',chgP:'First sign-in. Choose a new password (min. 8 characters, letters and numbers).',old:'Current password',nw:'New password',save:'Save & continue',introIn:'Pick a section — you are signed in to all of them.',soon:'Under preparation — soon',soonT:'This section opens soon',staffOff:'Under preparation — soon',mng:'Marsa App Management',mngS:'Section access, approvals and app settings',
+      days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months:['January','February','March','April','May','June','July','August','September','October','November','December']}
+  };
+  /* لإضافة قسم جديد: أضف عنصراً هنا وارفع صفحته بجانب هذا الملف */
+  var SECTIONS=[
+    {href:'training.html',ic:'🎓',ar:'التدريب والتطوير',en:'Training & Development',dar:'وحداتك التدريبية ومهامك ونتائج اختباراتك وشهادة الإتمام.',den:'Your training modules, tasks, quiz results and completion certificate.',c1:'#287070',c2:'#3A8C8C'},
+    {href:'hr.html',ic:'👥',ar:'الموارد البشرية',en:'Human Resources',dar:'لوحة تحكم متكاملة: الحضور، الأداء، الإجازات، الرواتب، والشكاوى.',den:'Complete dashboard: attendance, performance, leaves, payroll and grievances.',c1:'#16474A',c2:'#1F5F6B',ready:true,roles:['hr','gm','acc']},
+    {href:'ess.html?s=khareef',ic:'🌦️',ar:'جاهزية موسم الخريف',en:'Khareef Season Readiness',dar:'خطة الاستعداد لموسم الخريف: العد التنازلي، مهامك ودورك، أهداف الموسم وقائمة التحقق من جاهزيتك.',den:'Khareef season preparation: countdown, your role and tasks, season targets and readiness checklist.',c1:'#2F6B4F',c2:'#3F8A66',gate:'khareef'},
+    {href:'ess.html?s=impact',ic:'🌟',ar:'مؤشر رضا الضيوف',en:'Guest Satisfaction Index',dar:'متابعة أسبوعية لتقييم الضيوف في بنايتك، وإشادات الضيوف بفريق العمل بالاسم.',den:'Weekly guest ratings for your building, and guest mentions of team members by name.',c1:'#8A5A2B',c2:'#B8703A',gate:'impact'},
+    {href:'ess.html?s=voice',ic:'💬',ar:'صوتك إلى قرار',en:'Your Voice to Decision',dar:'قناة رسمية لرفع المقترحات إلى الإدارة ومتابعة حالتها بشفافية حتى صدور القرار.',den:'An official channel to submit proposals to management and follow them transparently to a decision.',c1:'#3E4F8A',c2:'#5367AE',gate:'voice'},
+    {href:'ess.html?s=skills',ic:'🎖️',ar:'سجل المهارات والتطوير',en:'Skills & Development Record',dar:'سجل موثّق لتدريباتك المكتملة ومستوى إتقانك لكل مهارة وشارات التقدير.',den:'A documented record of your completed training, skill proficiency levels and recognition badges.',c1:'#6B3E6E',c2:'#8C5590',gate:'skills'}
+  ];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  var API=String((window.HR_CONFIG||{}).API_URL||'').trim(),TOKEN=null,USER=null,MODE='loading',ERR='',ESS=null;
+  function essOpen(k){var o=(ESS&&ESS.open)||{};return !!o[k]}
+  function essAdmin(){return USER&&(USER.role==='hr'||USER.role==='gm')}
+  function fetchEss(){if(!TOKEN)return;api({action:'essCfg',t:TOKEN}).then(function(r){if(r&&r.ok){ESS=r.cfg||{open:{}};paint()}}).catch(function(){})}
+  try{TOKEN=localStorage.getItem('marsa_token')}catch(e){}
+  function api(b){return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(b)}).then(function(r){return r.json()})}
+  function saveSess(tok,u){TOKEN=tok;USER=u;try{localStorage.setItem('marsa_token',tok);localStorage.setItem('marsa_user',JSON.stringify(u))}catch(e){}}
+  function clearSess(){TOKEN=null;USER=null;try{localStorage.removeItem('marsa_token');localStorage.removeItem('marsa_user')}catch(e){}}
+  function authHTML(L){
+    if(MODE==='loading')return '<div class="spin"></div>';
+    if(MODE==='must')return '<form class="auth" id="chgF"><h2>🔑 '+L.chg+'</h2><div class="note">'+L.chgP+'</div><label>'+L.old+'</label><input id="aO" type="password" autocomplete="current-password"><label>'+L.nw+'</label><input id="aN" type="password" autocomplete="new-password"><div class="err" id="aE">'+esc(ERR)+'</div><button id="aB">'+L.save+'</button></form>';
+    return '<form class="auth" id="sinF"><h2>🔐 '+L.sin+'</h2><p>'+L.sinP+'</p><label>'+L.u+'</label><input id="aU" autocapitalize="none" autocomplete="username"><label>'+L.p+'</label><input id="aP" type="password" autocomplete="current-password"><div class="err" id="aE">'+esc(ERR)+'</div><button id="aB">'+L.go+'</button></form>';
+  }
+  function bindAuth(L){
+    var f=document.getElementById('sinF'),c=document.getElementById('chgF');
+    if(f)f.onsubmit=function(e){e.preventDefault();var b=document.getElementById('aB');b.disabled=true;
+      api({action:'login',u:document.getElementById('aU').value.trim(),p:document.getElementById('aP').value}).then(function(r){
+        if(!r.ok){ERR=r.error==='locked'?L.locked:L.bad;paint();return}saveSess(r.token,r.user);ERR='';MODE=r.user.must?'must':'in';paint();fetchEss()}).catch(function(){ERR=L.net;paint()})};
+    if(c)c.onsubmit=function(e){e.preventDefault();var b=document.getElementById('aB');b.disabled=true;
+      api({action:'changePassword',t:TOKEN,old:document.getElementById('aO').value,password:document.getElementById('aN').value}).then(function(r){
+        if(!r.ok){ERR=r.message||L.bad;paint();return}saveSess(r.token,r.user);ERR='';MODE='in';paint();fetchEss()}).catch(function(){ERR=L.net;paint()})};
+  }
+  function paint(){
+    var L=I[LANG],d=new Date();document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+    document.getElementById('greet').textContent=d.getHours()<12?L.m:L.e;
+    document.getElementById('today').textContent=L.days[d.getDay()]+' '+d.getDate()+' '+L.months[d.getMonth()]+' '+d.getFullYear();
+    document.getElementById('intro').textContent=L.intro;document.getElementById('fco').textContent=L.co;document.getElementById('fby').textContent=L.by;document.getElementById('langTxt').textContent=L.btn;
+    document.title=(LANG==='ar'?'مرسى':'Marsa')+' | Marsa';
+    var who=document.getElementById('who');who.classList.toggle('on',MODE==='in'||MODE==='must');document.getElementById('outBtn').textContent=L.out;document.getElementById('whoNm').textContent=USER?USER.name:'';
+    if(MODE!=='in'){document.getElementById('sections').innerHTML='<div style="grid-column:1/-1">'+authHTML(L)+'</div>';bindAuth(L);return}
+    if(USER)document.getElementById('greet').textContent=(d.getHours()<12?L.m:L.e)+'، '+String(USER.name||'').split(' ')[0];
+    document.getElementById('intro').textContent=L.introIn;
+    document.getElementById('sections').innerHTML=SECTIONS.filter(function(s){return !s.roles||(USER&&s.roles.indexOf(USER.role)>=0)}).map(function(s){var main=LANG==='ar'?s.ar:s.en,alt=LANG==='ar'?s.en:s.ar;
+      var locked=s.gate&&!essAdmin()&&!essOpen(s.gate),staffOff=s.gate&&essAdmin()&&!essOpen(s.gate);
+      if(locked)return '<div class="tile soon" role="note" style="--c1:'+s.c1+';--c2:'+s.c2+'"><span class="new">🛠️ '+L.soon+'</span>'+
+        '<div class="top"><img class="mark" src="icons/marsa-mark-white.png" alt=""><div class="ic" aria-hidden="true">'+s.ic+'</div><h2>'+esc(main)+'</h2><div class="sub2">'+esc(alt)+'</div></div>'+
+        '<div class="bd"><p class="desc">'+esc(LANG==='ar'?s.dar:s.den)+'</p><span class="go">'+L.soonT+'</span></div></div>';
+      return '<a class="tile" href="'+esc(s.href)+'" style="--c1:'+s.c1+';--c2:'+s.c2+'">'+(staffOff?'<span class="new">🛠️ '+L.staffOff+'</span>':s.isNew?'<span class="new">✨ '+L.newT+'</span>':'')+
+        '<div class="top"><img class="mark" src="icons/marsa-mark-white.png" alt=""><div class="ic" aria-hidden="true">'+s.ic+'</div><h2>'+esc(main)+'</h2><div class="sub2">'+esc(alt)+'</div></div>'+
+        '<div class="bd"><p class="desc">'+esc(LANG==='ar'?s.dar:s.den)+'</p>'+(s.ready?'<div class="ready" role="status"><span class="dot"></span><span>'+esc(L.ready)+'</span></div>':'')+'<span class="go">'+L.open+' ←</span></div></a>';
+    }).join('')+(essAdmin()?'<a class="mng" href="ess.html?s=manage"><span class="mi">⚙️</span><span><b>'+L.mng+'</b><small>'+L.mngS+'</small></span><span class="ar">'+(LANG==='ar'?'‹':'›')+'</span></a>':'');
+    if(LANG==='en')document.querySelectorAll('.go').forEach(function(g){g.textContent=L.open+' →'});
+  }
+  document.getElementById('outBtn').onclick=function(){if(TOKEN)api({action:'logout',t:TOKEN}).catch(function(){});clearSess();MODE='login';paint()};
+  document.getElementById('langBtn').onclick=function(){LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('marsa_lang',LANG)}catch(e){}paint()};
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.tile');if(!a||e.metaKey||e.ctrlKey)return;e.preventDefault();document.body.classList.add('leaving');setTimeout(function(){location.href=a.getAttribute('href')},200)});
+  window.addEventListener('pageshow',function(){document.body.classList.remove('leaving')});
+  paint();
+  if(!API){MODE='login';ERR='hr-config.js';paint()}
+  else if(TOKEN){api({action:'me',t:TOKEN}).then(function(r){if(r&&r.ok){USER=r.user;try{localStorage.setItem('marsa_user',JSON.stringify(r.user))}catch(e){}MODE=r.user.must?'must':'in';fetchEss()}else{clearSess();MODE='login'}paint()}).catch(function(){MODE='login';ERR=I[LANG].net;paint()})}
+  else{MODE='login';paint()}
+})();
+</script>
+<script>
+if("serviceWorker"in navigator&&/^https?:/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+</body>
+</html>

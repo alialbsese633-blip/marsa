@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<title>خدمات الموظفين | مرسى</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="hr-config.js"></script>
+<script src="config.js"></script>
+<style>
+/* ===== خدمات الموظفين — هوية مرسى: تيل عميق + نحاسي، ورق فاتح ===== */
+:root{color-scheme:light;
+  --teal:#287070;--deep:#16474A;--copper:#A8622E;--copperS:#F6E9DD;--mist:#5E8F6E;--mistS:#E6F0E8;
+  --paper:#F3F6F6;--card:#fff;--ink:#10292B;--mute:#5E7475;--line:#E1EAEA;--line2:#CFDDDD;
+  --ok:#1E7B4F;--okS:#E3F4EA;--warn:#9A6200;--warnS:#FFF3D6;--bad:#A3261F;--badS:#FCE6E4;--info:#1F5F8B;--infoS:#E4F0F9;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 6px 20px rgba(16,41,43,.07);--sh2:0 14px 40px rgba(16,41,43,.16);
+  --font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html[lang=en]{--font:"Inter","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html{scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
+html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font:15px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid #18A4B8;outline-offset:2px}
+.num{font-variant-numeric:tabular-nums;font-family:"Inter",var(--font)}
+/* الشريط العلوي */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(243,246,246,.93);backdrop-filter:saturate(1.3) blur(10px);-webkit-backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1040px;margin:0 auto;padding:8px 18px;display:flex;align-items:center;gap:10px;min-height:62px}
+.bar img{height:40px;display:block}.bar .sp{flex:1}
+.chip-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-weight:600;font-size:13.5px;cursor:pointer;box-shadow:var(--sh)}
+.chip-btn:active{transform:scale(.97)}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--deep);font-weight:600;font-size:13.5px;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);box-shadow:var(--sh)}
+.wrap{max-width:1040px;margin:0 auto;padding:18px 18px 120px}
+/* التبويبات (سطح المكتب) */
+.tabs{display:flex;gap:4px;margin:0 0 18px;background:#fff;padding:5px;border-radius:14px;box-shadow:var(--sh);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1;min-width:max-content;border:0;background:transparent;padding:9px 13px;border-radius:10px;font-weight:600;font-size:14px;color:var(--mute);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,color .2s}
+.tabs button.on{background:var(--deep);color:#fff}
+.tabs .lk{font-size:10.5px;padding:1px 7px;border-radius:999px;background:var(--copperS);color:var(--copper);font-weight:700}
+.tabs button.on .lk{background:rgba(255,255,255,.18);color:#fff}
+/* التنقل السفلي (الجوال) */
+.nav{position:fixed;inset-inline:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav button{flex:1;border:0;background:none;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:600;color:var(--mute);cursor:pointer;border-radius:10px;position:relative}
+.nav button b{font-size:20px;line-height:1.15;font-weight:400}
+.nav button.on{color:var(--deep);background:#EAF3F3}
+.nav .dot{position:absolute;top:4px;inset-inline-end:calc(50% - 18px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--copper);color:#fff;font-size:10.5px;line-height:17px;font-weight:700}
+@media(min-width:780px){.nav{display:none}.wrap{padding-bottom:48px}}
+@media(max-width:779px){.tabs{display:none}body.focus .ftabs{display:flex}}
+body.focus .wrap{padding-bottom:40px}
+body.embed{background:transparent}body.embed .bar{display:none}body.embed .wrap{padding-top:6px}
+.demo-bar{display:flex;flex-direction:column;gap:3px;background:#FFF6E3;border:1px dashed #D9A441;color:#6B4A0E;border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;line-height:1.7}
+.mrow{display:flex;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line);flex-wrap:wrap}.card h2+.mrow{border-top:0}
+.mrow .mi{font-size:24px;width:44px;height:44px;border-radius:12px;background:#EEF4F4;display:grid;place-items:center;flex:none}
+.mrow .grow{flex:1;min-width:200px}.mrow .grow>b{display:block}.mrow .grow>span{display:block;color:var(--mute);font-size:12.5px;line-height:1.6}
+.mlinks{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}.mlinks a{font-size:13px;font-weight:600;color:var(--teal);text-decoration:none}
+.mlinks.big a{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#FAFCFC}
+/* بطاقات وعناصر عامة */
+.card{background:var(--card);border-radius:18px;box-shadow:var(--sh);padding:18px;border:1px solid rgba(225,234,234,.8)}
+.card+.card{margin-top:14px}
+.card>h2,.sec-h{margin:0 0 12px;font-size:16.5px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:10px;line-height:1.35}
+.sec-h small,.card>h2 small{font-weight:500;color:var(--mute);font-size:12.5px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.muted{color:var(--mute)}.small{font-size:12.5px}
+.btn{border:0;background:var(--teal);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,opacity .15s;text-decoration:none;font-size:14.5px;line-height:1.3}
+.btn:active{transform:scale(.97)}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.sec{background:#EAF1F1;color:var(--ink)}.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}.btn.bad{background:var(--bad)}.btn.cu{background:var(--copper)}.btn.gh{background:transparent;color:var(--deep);padding-inline:8px}
+.btn.wide{width:100%}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:14px;background:#FAFCFC;border:1px solid var(--line)}
+button.item,a.item{cursor:pointer;text-align:start;width:100%;font:inherit;color:inherit;text-decoration:none}
+button.item:active,a.item:active{transform:scale(.99)}
+.item .av{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#E7F1F1;font-size:19px;flex:none}
+.item .t{font-weight:600;line-height:1.4}.item .s{color:var(--mute);font-size:12.5px;line-height:1.5}.item .grow{flex:1;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-ok{background:var(--okS);color:var(--ok)}.b-warn{background:var(--warnS);color:var(--warn)}.b-bad{background:var(--badS);color:var(--bad)}.b-info{background:var(--infoS);color:var(--info)}.b-mute{background:#EEF2F2;color:var(--mute)}.b-cu{background:var(--copperS);color:var(--copper)}
+.empty{text-align:center;color:var(--mute);padding:26px 12px;font-size:14px;line-height:1.8}
+.empty b{display:block;font-size:28px;margin-bottom:4px}
+.fld{margin-bottom:12px}.fld>label{display:block;font-weight:600;font-size:13.5px;margin-bottom:5px}
+.fld input:not([type=checkbox]),.fld select,.fld textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line2);border-radius:11px;background:#F9FBFB}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 4px rgba(40,112,112,.14)}
+.fld textarea{min-height:96px;resize:vertical;line-height:1.7}.fld .hint{font-size:12px;color:var(--mute);margin-top:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.6;cursor:pointer;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:#FAFCFC}
+.chk input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--teal);flex:none}
+.chk.on{border-color:var(--teal);background:#EFF7F7}
+.note{padding:10px 12px;border-radius:12px;background:var(--infoS);color:var(--info);font-size:13.5px;line-height:1.7}
+.note.w{background:var(--warnS);color:var(--warn)}.note.g{background:var(--okS);color:var(--ok)}.note.c{background:var(--copperS);color:var(--copper)}
+.err{color:var(--bad);font-size:13.5px;min-height:20px;margin:6px 0}
+.pbar{height:8px;border-radius:99px;background:#E6EEEE;overflow:hidden}.pbar i{display:block;height:100%;border-radius:99px;background:var(--teal);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.pbar.cu i{background:var(--copper)}.pbar.mi i{background:var(--mist)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.seg button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;color:var(--mute);cursor:pointer}
+.seg button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.sw{position:relative;width:46px;height:28px;flex:none}.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#CBD8D8;transition:background .2s;cursor:pointer}
+.sw span::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.sw input:checked+span{background:var(--teal)}
+html[dir=rtl] .sw input:checked+span::after{transform:translateX(-18px)}html[dir=ltr] .sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:3px solid #18A4B8;outline-offset:2px}
+table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
+table.tb th{text-align:start;font-weight:600;color:var(--mute);font-size:12.5px;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.tb td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tw{overflow-x:auto}
+table.slip{width:100%;border-collapse:collapse;font-size:14px}table.slip td{padding:8px 4px;border-bottom:1px dashed var(--line)}table.slip td:last-child{text-align:end;font-variant-numeric:tabular-nums;font-weight:600}
+table.slip tr.tot td{border-top:2px solid var(--ink);border-bottom:0;font-size:16px}
+.view{animation:fade .3s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes rot{to{transform:rotate(360deg)}}
+.spin{width:22px;height:22px;border:3px solid #CFE0E0;border-top-color:var(--teal);border-radius:50%;animation:rot .8s linear infinite;margin:40px auto}
+.toast{position:fixed;inset-inline:0;bottom:calc(88px + env(safe-area-inset-bottom,0px));margin:0 auto;width:max-content;max-width:90%;background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:120;box-shadow:var(--sh2);animation:pop .25s;font-size:14px}
+/* النوافذ */
+.mback{position:fixed;inset:0;z-index:80;background:rgba(16,41,43,.5);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.modal{background:#fff;width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:pop .3s ease both}
+.modal.wide{max-width:860px}
+@media(min-width:680px){.mback{align-items:center;padding:20px}.modal{border-radius:20px}}
+.modal h3{margin:0 0 14px;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:10px;line-height:1.35}
+.x{border:0;background:#EEF2F2;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;flex:none}
+.mf{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.mf .btn{flex:1}
+
+/* ===== الرئيسية ===== */
+.hero{position:relative;border-radius:24px;padding:22px 22px 20px;color:#fff;background:var(--deep);overflow:hidden;box-shadow:var(--sh2)}
+.hero::before{content:"";position:absolute;inset:0;background:url(icons/marsa-mark-white.png) no-repeat;background-size:190px;background-position:calc(100% + 40px) -30px;opacity:.07}
+html[dir=rtl] .hero::before{background-position:-40px -30px}
+.hero .hi{font-size:14px;opacity:.8}.hero h1{margin:2px 0 0;font-size:clamp(24px,5.4vw,32px);line-height:1.2;font-weight:700}
+.hero .meta{margin-top:6px;font-size:13.5px;opacity:.8}
+.pulse{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)}
+.ring{position:relative;width:104px;height:104px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .rv{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+.ring .rv b{font-size:28px;font-weight:700;display:block}.ring .rv span{font-size:11px;opacity:.75}
+.pulse .pl{font-size:13px;opacity:.75}.pulse .pv{font-size:17px;font-weight:700;line-height:1.4;margin-top:2px}
+.pulse .dl{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:99px;margin-top:6px;background:rgba(255,255,255,.14)}
+.todo{margin-top:16px}
+.todo a,.todo button{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--sh);width:100%;text-align:start;cursor:pointer;color:inherit;text-decoration:none;font:inherit}
+.todo a+a,.todo button+button,.todo a+button,.todo button+a{margin-top:8px}
+.todo .ti{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none;background:var(--copperS)}
+.todo .tt{font-weight:600;line-height:1.4}.todo .ts{font-size:12.5px;color:var(--mute)}
+.todo .go{margin-inline-start:auto;color:var(--mute);font-size:18px}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.quick button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px;text-align:start;cursor:pointer;box-shadow:var(--sh);font:inherit;color:inherit}
+.quick button b{display:block;font-size:22px}.quick button span{font-weight:600;font-size:14px;display:block;margin-top:6px}.quick button small{color:var(--mute);font-size:12px}
+.quick button[aria-disabled=true]{opacity:.6}
+
+/* ===== قريباً ===== */
+.soon{border-radius:24px;background:#fff;box-shadow:var(--sh2);overflow:hidden;border:1px solid var(--line)}
+.soon .top{padding:26px 22px 20px;background:var(--deep);color:#fff;position:relative}
+.soon .top h1{margin:0;font-size:clamp(22px,5vw,30px);line-height:1.25}.soon .top p{margin:8px 0 0;opacity:.82;max-width:52ch}
+.soon ol{list-style:none;margin:0;padding:6px 0}
+.soon li{display:flex;gap:14px;padding:14px 22px;border-top:1px solid var(--line);align-items:flex-start}
+.soon li:first-child{border-top:0}
+.soon li .ic{font-size:24px;line-height:1.2;flex:none;width:34px;text-align:center}
+.soon li b{display:block;font-size:15.5px}.soon li span{color:var(--mute);font-size:13.5px;line-height:1.7}
+.lockv{text-align:center;padding:40px 20px}.lockv b{font-size:40px;display:block}.lockv h2{margin:8px 0 6px}.lockv p{color:var(--mute);max-width:44ch;margin:0 auto;line-height:1.8}
+
+/* ===== السياسات ===== */
+.polhead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.polhead .big{font-size:30px;font-weight:700;line-height:1;direction:ltr}
+.polhead .grow{flex:1;min-width:200px}
+.pol{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:16px;border:1px solid var(--line);background:#fff;width:100%;text-align:start;cursor:pointer;font:inherit;color:inherit;position:relative}
+.pol+.pol{margin-top:10px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.pcard{display:flex;flex-direction:column;gap:8px;text-align:start;padding:18px;border-radius:18px;border:1px solid var(--line);background:#fff;box-shadow:var(--sh);cursor:pointer;font:inherit;color:inherit;border-top:5px solid var(--teal);transition:transform .15s,box-shadow .15s;min-height:190px}
+.pcard:hover{transform:translateY(-2px)}.pcard.done{border-top-color:var(--ok)}.pcard.upd{border-top-color:#C98A1B}.pcard.locked{opacity:.55;cursor:not-allowed;border-top-color:#B9C6C6}
+.pc-top{display:flex;justify-content:space-between;align-items:center}.pc-ic{font-size:30px;width:52px;height:52px;border-radius:14px;background:#EEF4F4;display:grid;place-items:center}
+.pc-no{font-size:12px;color:var(--mute)}.pc-t{font-weight:700;font-size:16.5px;line-height:1.45}.pc-s{color:var(--mute);font-size:13px;line-height:1.65;flex:1}
+.chl{margin:6px 0 4px;padding-inline-start:22px;line-height:2}
+.pol .n{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;flex:none;background:#EEF4F4;color:var(--deep);font-family:"Inter",var(--font)}
+.pol.done .n{background:var(--ok);color:#fff}.pol.todo .n{background:var(--copper);color:#fff}.pol.upd .n{background:var(--warn);color:#fff}
+.pol.locked{cursor:not-allowed;background:#FAFCFC}.pol.locked .n{background:#E3EAEA;color:#90A3A4}.pol.locked .pt{color:var(--mute)}
+.pol .pt{font-weight:700;font-size:15.5px;line-height:1.4}.pol .ps{color:var(--mute);font-size:13px;margin-top:2px;line-height:1.6}
+.pol .pm{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pol:not(:last-child)::after{content:"";position:absolute;inset-inline-start:31px;top:52px;bottom:-12px;width:2px;background:var(--line);z-index:0}
+/* القارئ */
+.reader{position:fixed;inset:0;z-index:90;background:var(--paper);display:flex;flex-direction:column;animation:fade .2s}
+.rd-top{background:#fff;border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
+.rd-top .rt{display:flex;align-items:center;gap:10px}.rd-top h3{margin:0;font-size:16px;flex:1;line-height:1.35}
+.rd-steps{display:flex;gap:4px;margin-top:10px}.rd-steps i{flex:1;height:5px;border-radius:9px;background:#E3EAEA}.rd-steps i.on{background:var(--teal)}.rd-steps i.cur{background:var(--copper)}
+.rd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.rd-in{max-width:680px;margin:0 auto;padding:22px 20px 40px}
+.rd-in .kick{color:var(--copper);font-weight:700;font-size:13px}
+.rd-in h2{margin:4px 0 14px;font-size:clamp(20px,4.6vw,25px);line-height:1.35}
+.prose{font-size:16px;line-height:1.95}.prose p{margin:0 0 12px}.prose ul{margin:0 0 12px;padding-inline-start:22px}.prose li{margin-bottom:6px}
+.rd-end{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px;margin-top:26px;padding-top:14px;border-top:1px dashed var(--line2)}
+.rd-foot{background:#fff;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.rd-foot .in{max-width:680px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.rd-foot .hint{flex:1;font-size:12.5px;color:var(--mute)}
+.sig{font-size:18px!important;letter-spacing:.3px;border-style:dashed!important}
+
+/* ===== الأثر ===== */
+.imp-hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.imp-hero .ring{width:128px;height:128px}.imp-hero .ring .rv b{font-size:34px;color:var(--deep)}.imp-hero .ring .rv span{color:var(--mute);opacity:1}
+.imp-hero h2{margin:0;font-size:19px;line-height:1.4}.imp-hero p{margin:6px 0 0;color:var(--mute);font-size:14px;line-height:1.7}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--mute);margin-top:8px}.legend i{display:inline-block;width:18px;height:3px;border-radius:3px;vertical-align:middle;margin-inline-end:6px}
+.rank .item{background:#fff}.rank .item.me{border-color:var(--teal);background:#EFF7F7}
+.rank .pos{width:30px;text-align:center;font-weight:700;color:var(--mute);font-family:"Inter",var(--font)}
+.kudo{padding:16px;border-radius:16px;background:var(--copperS);color:#4A2A10;position:relative}
+.kudo+.kudo{margin-top:10px}
+.kudo q{display:block;font-size:15.5px;line-height:1.8;quotes:"«" "»"}
+.kudo .who{font-size:12.5px;margin-top:8px;opacity:.8}
+
+/* ===== المهارات ===== */
+.tier{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.tier .pts{font-size:40px;font-weight:700;line-height:1;color:var(--deep)}
+.tier .grow{flex:1;min-width:220px}
+.path{display:flex;margin-top:14px;gap:4px}
+.path div{flex:1;text-align:center;font-size:11.5px;color:var(--mute);position:relative;padding-top:18px;line-height:1.4}
+.path div::before{content:"";position:absolute;top:4px;inset-inline:0;height:6px;border-radius:9px;background:#E3EAEA}
+.path div.on::before{background:var(--teal)}.path div.cur{color:var(--ink);font-weight:700}.path div.cur::before{background:var(--copper)}
+.skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.sk{border-radius:18px;border:1px solid var(--line);padding:16px 14px;background:#fff;text-align:center}
+.sk .si{font-size:30px;line-height:1}.sk .sn{font-weight:700;margin-top:8px}.sk .sl{font-size:12.5px;color:var(--mute)}
+.pips{display:flex;justify-content:center;gap:5px;margin-top:10px}.pips i{width:22px;height:6px;border-radius:9px;background:#E3EAEA}.pips i.on{background:var(--teal)}
+.sk.l3{border-color:var(--copper);background:linear-gradient(180deg,#FFF9F3,#fff)}.sk.l3 .pips i.on{background:var(--copper)}
+.sk.l0{opacity:.62}
+.bdgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.bdg{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:#FAFCFC;border:1px solid var(--line)}
+.bdg .bi{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:var(--copperS);flex:none}
+
+/* ===== صوتك ===== */
+.vstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.vstats div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.vstats b{display:block;font-size:26px;line-height:1.1;color:var(--deep)}.vstats span{font-size:12.5px;color:var(--mute)}
+.idea{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+.idea+.idea{margin-top:12px}
+.idea .ih{display:flex;gap:10px;align-items:flex-start}
+.idea h4{margin:0;font-size:16px;line-height:1.45;flex:1}
+.idea .id{color:var(--ink);font-size:14.5px;line-height:1.8;margin-top:6px;white-space:pre-line}
+.idea .im{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12.5px;color:var(--mute)}
+.track{display:flex;margin-top:14px;gap:4px}
+.track span{flex:1;font-size:11.5px;text-align:center;color:var(--mute);padding-top:16px;position:relative;line-height:1.35}
+.track span::before{content:"";position:absolute;top:3px;inset-inline:0;height:5px;border-radius:9px;background:#E3EAEA}
+.track span.on::before{background:var(--teal)}.track span.on{color:var(--ink);font-weight:600}
+.track span.no::before{background:var(--bad)}.track span.no{color:var(--bad);font-weight:600}
+.reply{margin-top:12px;padding:10px 12px;border-radius:12px;background:#F1F6F6;border-inline-start:3px solid var(--teal);font-size:13.5px;line-height:1.75}
+.reply b{display:block;font-size:12px;color:var(--deep)}
+.vote{border:1.5px solid var(--line2);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;color:var(--deep)}
+.vote.on{background:var(--deep);border-color:var(--deep);color:#fff}
+.vote[disabled]{cursor:default;opacity:.7}
+
+/* ===== الخريف ===== */
+.kh{border-radius:24px;overflow:hidden;background:#fff;box-shadow:var(--sh2);border:1px solid var(--line)}
+.kh .top{padding:24px 22px;color:#fff;background:linear-gradient(170deg,#3F6F58 0%,#5E8F6E 55%,#8DB39A 100%);position:relative;overflow:hidden}
+.kh .top::after{content:"";position:absolute;inset:auto -10% -40px -10%;height:90px;background:radial-gradient(60% 100% at 50% 100%,rgba(255,255,255,.35),transparent 70%)}
+.kh .top h1{margin:0;font-size:clamp(22px,5vw,30px);line-height:1.25}.kh .top p{margin:8px 0 0;opacity:.9;line-height:1.8;max-width:56ch}
+.cd{display:flex;gap:10px;margin-top:16px;position:relative;z-index:1}
+.cd div{background:rgba(255,255,255,.16);border-radius:14px;padding:10px 14px;min-width:78px;text-align:center}
+.cd b{display:block;font-size:26px;line-height:1.1}.cd span{font-size:12px;opacity:.85}
+.kh .bd{padding:18px 22px}
+.tgt+.tgt{margin-top:14px}.tgt .tl{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;gap:10px}.tgt .tl b{font-weight:600}
+.stars{display:flex;flex-direction:column;gap:8px}
+
+/* ===== الإدارة ===== */
+.adm-note{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--copperS);color:#5B3413;font-size:13.5px;margin-bottom:14px;line-height:1.7}
+.tog{display:flex;align-items:center;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.tog:last-child{border-bottom:0}.tog .grow{flex:1}.tog b{display:block;font-size:14.5px}.tog span{font-size:12.5px;color:var(--mute)}
+.secrow{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:#FAFCFC}
+.secrow .sr-h{display:flex;gap:8px;align-items:center;margin-bottom:8px}.secrow .sr-h b{flex:1;font-size:13.5px}
+.ops{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;background:var(--copper);color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:17px}
+@media(max-width:520px){.wrap{padding:14px 14px 118px}.card{padding:16px 14px}.row2{grid-template-columns:1fr}.imp-hero{grid-template-columns:1fr;justify-items:start}.pulse{gap:14px}.ring{width:92px;height:92px}.vstats b{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== الطباعة ===== */
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block!important;color:#111;font:12.5pt/1.75 var(--font);background:#fff}
+  html,body{background:#fff!important;padding:0!important}
+}
+.pd-head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #16474A;padding-bottom:10px;margin-bottom:16px}
+.pd-head img{width:62px;height:62px;object-fit:contain}.pd-head .co{flex:1}.pd-head .co b{display:block;font-size:14pt}.pd-head .co span{font-size:10pt;color:#555}
+.pd-head .ref{font-size:9.5pt;color:#555;text-align:end;line-height:1.6}
+.pd-title{font-size:17pt;margin:0 0 4px}.pd-sub{color:#555;font-size:10.5pt;margin:0 0 14px}
+.pd-sec{page-break-inside:avoid;margin-bottom:12px}.pd-sec h3{font-size:12.5pt;margin:0 0 6px;color:#16474A}
+.pd-box{border:1px solid #999;border-radius:6px;padding:12px 14px;margin:12px 0}
+.pd-tb{width:100%;border-collapse:collapse;font-size:10.5pt}.pd-tb td,.pd-tb th{border:1px solid #aaa;padding:6px 8px;text-align:start;vertical-align:top}.pd-tb th{background:#EEF3F3}
+.pd-sign{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:34px}.pd-sign div{border-top:1px solid #333;padding-top:6px;font-size:10.5pt;text-align:center}
+.pd-foot{margin-top:22px;font-size:9pt;color:#666;border-top:1px solid #ccc;padding-top:6px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a href="./" class="back" id="homeLink" aria-label="الرئيسية">‹ <img src="icons/marsa-lockup.png" alt="مرسى Marsa" style="height:26px"><span id="crumb" style="white-space:nowrap;font-weight:600;font-size:13.5px;color:var(--mute);margin-inline-start:6px"></span></a>
+  <span class="sp"></span>
+  <button class="chip-btn" id="langBtn" type="button">English</button>
+  <button class="chip-btn" id="outBtn" type="button" hidden></button>
+</div></header>
+<div class="wrap" id="app"><div class="spin"></div></div>
+<nav class="nav" id="nav" hidden></nav>
+<div id="printArea"></div>
+<script>
+(function(){
+'use strict';
+/* =====================================================================
+   مرسى — خدمات الموظفين (الإصدار 13)
+   الأقسام: السياسات والإقرار المتسلسل • الأثر • رصيد المهارات • صوتك • جاهزية الخريف • طلباتي
+   كل قسم يظهر للموظفين بعلامة «قريباً» حتى تفتحه الموارد البشرية من تبويب الإدارة.
+   ===================================================================== */
+var API=String((window.HR_CONFIG||{}).API_URL||'').trim(),TD_API=String((window.TD_CONFIG||{}).API_URL||'').trim(),TK='marsa_token';
+var LANG=(function(){try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
+var W={
+ title:['خدمات الموظفين','Employee Services'],manage:['إدارة تطبيق مرسى','Marsa App Management'],out:['خروج','Sign out'],home:['الرئيسية','Home'],
+ policies:['سياسات العمل','Work Policies'],impact:['مؤشر رضا الضيوف','Guest Satisfaction Index'],skills:['سجل المهارات والتطوير','Skills & Development Record'],voice:['صوتك إلى قرار','Your Voice to Decision'],khareef:['جاهزية موسم الخريف','Khareef Season Readiness'],services:['طلباتي','Requests'],admin:['الإدارة','Manage'],more:['المزيد','More'],
+ soon:['قريباً','Soon'],hi:['أهلاً','Hello'],gm_:['صباح الخير','Good morning'],ge_:['مساء الخير','Good evening'],
+ neterr:['تعذّر الاتصال بالخادم، تأكد من الإنترنت ثم أعد المحاولة','Could not reach the server. Check your connection and try again'],
+ saved:['تم الحفظ','Saved'],sent:['تم الإرسال','Sent'],close:['إغلاق','Close'],cancel:['إلغاء','Cancel'],save:['حفظ','Save'],del:['حذف','Delete'],edit:['تعديل','Edit'],print:['طباعة','Print'],next:['التالي','Next'],prev:['السابق','Back'],
+ noEmp:['حسابك غير مربوط بملف موظف بعد. تواصل مع الموارد البشرية لربطه.','Your account is not linked to an employee file yet. Ask HR to link it.'],
+ days:['يوم','days'],day:['يوم','day'],week:['أسبوع','week'],of:['من','of'],
+ /* قريباً */
+ soonH:['خدمات الموظفين بشكلها الجديد','Employee Services, rebuilt'],soonP:['نجهّز لك قسماً يربط شغلك اليومي بنتيجته، ويوثّق حقوقك وواجباتك، ويوصل صوتك للإدارة. يفتح قريباً.','A section that links your daily work to its results, documents your rights and duties, and carries your voice to management. Opening soon.'],
+ soonLock:['هذا القسم يفتح قريباً','This section opens soon'],soonLockP:['تجهّزه الموارد البشرية الآن. ستصلك رسالة عند فتحه.','HR is preparing it now. You will be told when it opens.'],
+ d_policies:['سياسات العمل المعتمدة من الإدارة: اطّلع على فصولها وسجّل إقرارك إلكترونياً، واحفظ نسختك بصيغة PDF.','Read work policies step by step, acknowledge electronically, and print your copy.'],
+ d_impact:['متابعة أسبوعية لتقييم الضيوف في بنايتك، وإشادات الضيوف بفريق العمل بالاسم.','See your building’s weekly guest rating and the guest words that named you.'],
+ d_skills:['سجل موثّق لتدريباتك المكتملة ومستوى إتقانك لكل مهارة وشارات التقدير، ومسارك نحو مسؤوليات أكبر.','Every training you pass becomes a skill badge and points toward bigger responsibility.'],
+ d_voice:['قناة رسمية لرفع المقترحات إلى الإدارة ومتابعة حالتها بشفافية: مستلم، قيد الدراسة، معتمد للتنفيذ، أو معتذر عنه مع ذكر السبب.','Submit an idea and follow its fate in the open: received, studying, done, or declined with a reason.'],
+ d_khareef:['خطة الاستعداد لموسم الخريف: العد التنازلي، مهامك ودورك، أهداف الموسم وقائمة التحقق من جاهزيتك.','Everything about the Khareef season: countdown, your role, season targets and your readiness.'],
+ d_services:['إجازاتك، كشوف رواتبك، ورسائل الدعم والشكاوى.','Your leaves, payslips and support messages.'],
+ /* الرئيسية */
+ yourTodo:['بانتظارك','Waiting for you'],allClear:['لا شيء بانتظارك الآن','Nothing waiting for you'],
+ polTodo:['سياسات بانتظار إقرارك','Policies awaiting your acknowledgement'],polUpd:['سياسة تحدّثت وتحتاج إقراراً جديداً','A policy changed and needs a new acknowledgement'],
+ khTodo:['أكمل قائمة جاهزيتك للخريف','Complete your Khareef readiness list'],annNew:['تعاميم الشركة','Company circulars'],noAnn:['لا توجد تعاميم حالياً','No circulars right now'],
+ bRating:['تقييم ضيوف بنايتك','Your building’s guest rating'],coRating:['متوسط تقييم الشركة','Company average rating'],noRating:['لم تُسجّل تقييمات بعد','No ratings recorded yet'],
+ vsLast:['عن الأسبوع السابق','vs last week'],thisWeek:['أسبوع','Week of'],
+ /* السياسات */
+ polTitle:['سياسات العمل','Work policies'],polLead:['اقرأ كل سياسة حتى نهايتها ثم سجّل إقرارك. السياسات تُفتح بالترتيب.','Read each policy to the end, then acknowledge. Policies open in order.'],
+ polLeadFree:['اقرأ كل سياسة حتى نهايتها ثم سجّل إقرارك.','Read each policy to the end, then acknowledge.'],
+ ackd:['أقررت بها','Acknowledged'],needAck:['بحاجة لإقرارك','Needs your acknowledgement'],updated:['تحدّثت — أقرّ من جديد','Updated — acknowledge again'],lockedP:['تُفتح بعد إقرار السياسة السابقة','Opens after the previous policy'],
+ ver:['الإصدار','Version'],sections:['فصول','sections'],noPols:['لا توجد سياسات منشورة بعد','No published policies yet'],doneOf:['أقررت بـ','Acknowledged'],
+ readToEnd:['اقرأ حتى نهاية الفصل للمتابعة','Read to the end of this section to continue'],endSec:['نهاية الفصل','End of section'],
+ ackStep:['الإقرار','Acknowledgement'],ackLead:['أكّد البنود التالية، ثم اكتب اسمك الكامل كتوقيع إلكتروني.','Confirm the statements below, then type your full name as an electronic signature.'],
+ fullName:['اسمك الكامل (توقيع إلكتروني)','Your full name (e-signature)'],nameHint:['كما في ملفك:','As in your file:'],
+ ackBtn:['تسجيل إقراري','Record my acknowledgement'],ackErrS:['أكّد جميع البنود أولاً','Confirm all statements first'],ackErrN:['اكتب اسمك الكامل (كلمتان على الأقل)','Type your full name (at least two words)'],
+ ackDone:['تم تسجيل إقرارك','Your acknowledgement is recorded'],ackDoneP:['حُفظ الإقرار باسمك ووقته ورقم الإصدار. تقدر تطبع إيصالك الآن أو لاحقاً من القائمة.','Saved with your name, time and version. Print your receipt now or later from the list.'],
+ printPol:['طباعة السياسة','Print policy'],printAck:['طباعة إيصال الإقرار','Print receipt'],ackedOn:['أقررت بتاريخ','Acknowledged on'],
+ defStmt:['اطلعت على هذه السياسة كاملة وفهمت محتواها وألتزم بتطبيقها.','I have read this policy in full, understood it and will comply with it.'],
+ /* الأثر */
+ impTitle:['مؤشر رضا الضيوف','Guest Satisfaction Index'],impLead:['أداء فريق كل بناية ينعكس مباشرة على تجربة الضيف، وهذه مؤشراته الأسبوعية.','Your work in your building shows up directly in the guest experience. Here are the numbers.'],
+ trend:['آخر 8 أسابيع','Last 8 weeks'],yourB:['بنايتك','Your building'],coAvg:['متوسط الشركة','Company average'],rankT:['ترتيب البنايات هذا الأسبوع','Building ranking this week'],
+ kudosMe:['ضيوف ذكروك بالاسم','Guests who named you'],kudosTeam:['كلمات ضيوف بنايتك','Guest words for your building'],noKudos:['لا توجد كلمات بعد. أول كلمة ضيف تذكرك ستظهر هنا.','No words yet. The first guest mention of you will appear here.'],
+ reviews:['تقييم','reviews'],best:['أفضل أسبوع','Best week'],impNoB:['ملفك غير مربوط ببناية. يظهر لك متوسط الشركة.','Your file has no building. Showing the company average.'],
+ upBy:['أعلى بـ','Up'],downBy:['أقل بـ','Down'],same:['بدون تغيير','No change'],
+ /* المهارات */
+ skTitle:['سجل المهارات والتطوير','Skills & Development Record'],pts:['نقطة','pts'],nextTier:['للمستوى التالي','to next level'],topTier:['وصلت أعلى مستوى في المسار','You reached the top of the path'],
+ suggest:['خطوتك التالية','Your next step'],skCats:['مهاراتك','Your skills'],bdgT:['شارات التقدير','Recognition badges'],noBdg:['لا توجد شارات بعد. الشارات تمنحها الإدارة تقديراً لموقف أو إنجاز.','No badges yet. Management awards badges for a standout moment or achievement.'],
+ lv0:['لم تبدأ','Not started'],lv1:['مبتدئ','Beginner'],lv2:['متمكن','Proficient'],lv3:['خبير','Expert'],modsP:['وحدات','modules'],tdErr:['تعذّر تحميل بيانات التدريب','Could not load training data'],openTr:['افتح التدريب','Open training'],
+ allDone:['أنهيت كل الوحدات المسندة لك','You finished every assigned module'],
+ /* صوتك */
+ vTitle:['صوتك إلى قرار','Your Voice to Decision'],vLead:['كل مقترح يُسجَّل هنا بحالته الفعلية، وترد الإدارة عليه بشكل معلن.','Every idea appears here with its real status, and management replies in the open.'],
+ vNew:['قدّم فكرة','Share an idea'],vTot:['مقترح','ideas'],vDone:['طُبّق','done'],vResp:['متوسط الرد','avg. reply'],vRespU:['يوم','days'],
+ vAll:['الكل','All'],vMine:['مقترحاتي','Mine'],noIdeas:['لا توجد مقترحات بعد. كن أول من يقترح.','No ideas yet. Be the first.'],
+ vT:['عنوان الفكرة','Idea title'],vD:['وش المشكلة، ووش تقترح؟','What is the problem, and what do you suggest?'],vC:['المجال','Area'],vAnon:['أخفِ اسمي عن الزملاء (الإدارة تعرف صاحب المقترح)','Hide my name from colleagues (management can see it)'],
+ vSupport:['أؤيد','Support'],colleague:['زميل','A colleague'],you:['أنت','You'],mgmtReply:['رد الإدارة','Management reply'],vUpd:['تحديث الحالة','Update status'],vNote:['رد علني للموظفين','Public reply to staff'],
+ st_received:['مستلمة','Received'],st_studying:['قيد الدراسة','Studying'],st_planned:['اعتُمدت للتنفيذ','Approved'],st_done:['طُبّقت','Done'],st_declined:['لم تُعتمد','Declined'],
+ /* الخريف */
+ khStart:['يبدأ الموسم بعد','Season starts in'],khLeft:['باقي على نهاية الموسم','Left in the season'],khOver:['انتهى الموسم','The season has ended'],khDay:['اليوم','Day'],
+ khTargets:['أهداف الموسم','Season targets'],khRole:['دورك في الموسم','Your season role'],khNoRole:['لم يُحدَّد دورك بعد','Your role is not set yet'],khReady:['قائمة جاهزيتك','Your readiness list'],khRewards:['مكافآت الموسم','Season rewards'],khStars:['نجوم الموسم','Season stars'],
+ khOff:['لا يوجد موسم نشط حالياً','No active season right now'],hours:['ساعة','hours'],
+ /* طلباتي */
+ leaves:['الإجازات','Leaves'],pay:['الرواتب','Payslips'],support:['الدعم','Support'],bal:['رصيد الإجازات','Leave balance'],newLeave:['طلب إجازة','Request leave'],myLeaves:['طلبات إجازاتي','My leave requests'],noLeaves:['لم تقدّم أي طلب إجازة بعد','No leave requests yet'],
+ type:['نوع الإجازة','Leave type'],from:['من','From'],to:['إلى','To'],reason:['السبب / ملاحظات','Reason / notes'],send:['إرسال','Submit'],cancelReq:['إلغاء الطلب','Cancel request'],confirmCancel:['هل تريد إلغاء هذا الطلب؟','Cancel this request?'],
+ slips:['كشوف الرواتب','Payslips'],noSlips:['لا توجد كشوف رواتب معتمدة بعد','No approved payslips yet'],slip:['كشف راتب','Payslip'],
+ basic:['الراتب الأساسي','Basic salary'],allow:['البدلات','Allowances'],ot:['العمل الإضافي','Overtime'],rewards:['المكافآت','Rewards'],earn:['إجمالي المستحقات','Total earnings'],absent:['خصم الغياب','Absence deduction'],leaveDed:['خصم الإجازات','Leave deduction'],penalties:['الجزاءات','Penalties'],advance:['قسط السلفة','Advance instalment'],spf:['الحماية الاجتماعية','Social protection'],ded:['إجمالي الاستقطاعات','Total deductions'],net:['صافي الراتب','Net salary'],
+ newTicket:['رسالة جديدة','New message'],myTickets:['رسائلي','My messages'],noTickets:['لا توجد رسائل بعد','No messages yet'],kind:['النوع','Type'],supp:['طلب دعم','Support request'],comp:['شكوى / تظلّم','Complaint / grievance'],cat:['التصنيف','Category'],subj:['الموضوع','Subject'],details:['التفاصيل','Details'],anon:['إرسال بشكل سري','Send confidentially'],
+ ideasHere:['عندك فكرة تطويرية؟ قدّمها في «صوتك إلى قرار» وتابع مصيرها علناً.','Have an improvement idea? Share it in “Your voice” and follow it openly.'],
+ st_pending:['قيد الإجراء','Pending'],st_approved:['معتمد','Approved'],st_rejected:['مرفوض','Rejected'],st_cancelled:['ملغي','Cancelled'],
+ c_new:['جديدة','New'],c_review:['مستلمة','Received'],c_investigating:['قيد المعالجة','In progress'],c_escalated:['مصعّدة','Escalated'],c_resolved:['تمت المعالجة','Resolved'],c_closed:['مغلقة','Closed'],
+ sup:['المشرف','Supervisor'],hr:['الموارد البشرية','HR'],gm:['المدير العام','General Manager'],
+ errDates:['تأكد من التواريخ','Check the dates'],errBal:['المدة أكبر من رصيدك','Duration exceeds your balance'],errReq:['أكمل الحقول المطلوبة','Complete the required fields'],dur:['المدة','Duration'],status:['الحالة','Status']
+};
+function t(k){var e=W[k];return e?e[LANG==='ar'?0:1]:k}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-5)}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function today(){return ymd(new Date())}
+var MON={ar:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']};
+function dt(s){if(!s)return null;var d=new Date(String(s).length>10?s:s+'T00:00:00');return isNaN(d)?null:d}
+function fdate(s){var d=dt(s);return d?d.getDate()+' '+MON[LANG][d.getMonth()]+' '+d.getFullYear():'—'}
+function fshort(s){var d=dt(s);return d?d.getDate()+' '+MON[LANG][d.getMonth()]:'—'}
+function ftime(s){var d=dt(s);return d?fdate(s)+' — '+pad(d.getHours())+':'+pad(d.getMinutes()):'—'}
+function mname(m){var p=String(m).split('-');return MON[LANG][+p[1]-1]+' '+p[0]}
+function omr(n){return (Number(n)||0).toFixed(3)+(LANG==='ar'?' ر.ع':' OMR')}
+function dayDiff(a,b){return Math.round((dt(b)-dt(a))/864e5)}
+function days(a,b){return dayDiff(a,b)+1}
+function r1(n){return Math.round(n*10)/10}
+function toast(m){var x=document.createElement('div');x.className='toast';x.setAttribute('role','status');x.textContent=m;document.body.appendChild(x);setTimeout(function(){x.remove()},2800)}
+function parse(v){try{return JSON.parse(v)}catch(e){return null}}
+function fmtText(s){var L=String(s||'').split('\n'),h='',ul=false;L.forEach(function(l){l=l.trim();if(!l){if(ul){h+='</ul>';ul=false}return}
+  if(/^[-•]\s+/.test(l)){if(!ul){h+='<ul>';ul=true}h+='<li>'+esc(l.replace(/^[-•]\s+/,''))+'</li>'}else{if(ul){h+='</ul>';ul=false}h+='<p>'+esc(l)+'</p>'}});return h+(ul?'</ul>':'')}
+function api(body){
+  var ctl=typeof AbortController==='function'?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},30000);
+  return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
+    .then(function(r){return r.text()}).then(function(x){clearTimeout(tm);return JSON.parse(x)},function(e){clearTimeout(tm);throw e})}
+
+var BUILDINGS=['الإدارة العامة','الحي التجاري','صلالة الوسطى / المعتزة','عوقد الشمالية','الوادي','الحصيلة','السعادة','السعادة نستو'];
+var LT=[['annual','سنوية','Annual'],['sick','مرضية','Sick'],['emergency','طارئة (من السنوية)','Emergency (from annual)'],['unpaid','بدون أجر','Unpaid'],['marriage','زواج','Marriage'],['death','وفاة قريب','Bereavement'],['hajj','حج','Hajj'],['maternity','وضع (أمومة)','Maternity'],['paternity','أبوة','Paternity']];
+var CATS=[['بيئة العمل','Work environment'],['التعامل مع زميل','Colleague relations'],['التعامل مع المشرف / المدير','Supervisor relations'],['الراتب والمستحقات','Salary & dues'],['السكن والمواصلات','Housing & transport'],['الجدول والورديات','Schedule & shifts'],['إساءة أو تحرش','Abuse or harassment'],['أخرى','Other']];
+var VCATS=[['guests','تجربة الضيوف','Guest experience','🛎️'],['ops','التشغيل والنظافة','Operations & housekeeping','🧹'],['cost','توفير التكاليف','Cost saving','💰'],['work','بيئة العمل','Work environment','🤝'],['tech','التقنية والأنظمة','Tech & systems','📱'],['other','أخرى','Other','💡']];
+var VST=['received','studying','planned','done'];
+var SKC={service:['🛎️','خدمة النزلاء','Guest service'],housekeeping:['🧺','تجهيز الشقق','Housekeeping'],safety:['🦺','السلامة','Safety'],finance:['📊','المالية','Finance'],general:['🧭','عام','General']};
+var BADGES=[['⭐','نجم الضيوف','Guest star'],['🧹','معيار النظافة','Cleanliness standard'],['🛠️','حلّال المشاكل','Problem solver'],['🤝','روح الفريق','Team spirit'],['🌦️','بطل الخريف','Khareef hero'],['⏱️','الانضباط','Punctuality'],['🎓','متعلّم سريع','Fast learner']];
+var TIERS=[[0,'بداية المسار','Getting started'],[30,'موظف متمكن','Proficient'],[80,'موظف متميز','Distinguished'],[150,'جاهز لمسؤولية أكبر','Ready for more']];
+var SECS=['policies','impact','skills','voice','khareef'];
+var SEC_IC={manage:'⚙️',home:'🏠',policies:'📜',impact:'🌟',skills:'🎖️',voice:'💬',khareef:'🌦️',services:'🗂️',admin:'⚙️',more:'☰'};
+
+var TOKEN=null,USER=null,D=null,TD=null,TAB='home',SUB='access',poll=null,VFILTER='all',PSUB='leaves';
+/* كل قسم يُفتح كصفحة مستقلة من قالبه في الرئيسية: ess.html?s=impact  (والسياسات من داخل الموارد البشرية) */
+var FOCUS=(function(){var q='';try{q=new URLSearchParams(location.search).get('s')||''}catch(e){}if(!q&&/admin-policies/.test(location.hash))q='policies';return (SECS.indexOf(q)>=0||q==='manage')?q:''})();
+var EMBED=/[?&]embed=1/.test(location.search),LASTSIG='';
+var FSUB={policies:'policies',impact:'impact',skills:'badges',voice:'voice',khareef:'khareef'};
+if(!FOCUS){location.replace('./');return}
+TAB=FOCUS;SUB=FSUB[FOCUS]||'';if(/admin/.test(location.hash))TAB='admin';
+try{TOKEN=localStorage.getItem(TK)}catch(e){}
+if(!TOKEN){location.replace('./');return}
+function call(a,extra){var b={action:a,t:TOKEN};for(var k in extra)b[k]=extra[k];return api(b).then(function(r){if(r&&r.error==='auth')logout(true);return r})}
+function logout(silent){if(TOKEN&&!silent)api({action:'logout',t:TOKEN}).catch(function(){});TOKEN=null;clearInterval(poll);try{localStorage.removeItem(TK);localStorage.removeItem('marsa_user')}catch(e){}location.replace('./')}
+function isAdmin(){return !!USER&&(USER.role==='hr'||USER.role==='gm')}
+function me(){return String((USER&&USER.empId)||'')}
+function cfg(){return (D&&D.cfg)||{open:{},seq:true}}
+function isOpen(s){return isAdmin()||!!(cfg().open||{})[s]}
+function anyOpen(){return SECS.some(function(s){return !!(cfg().open||{})[s]})}
+
+/* =================== البيانات =================== */
+function load(force){if(demoOn()&&!force)return Promise.resolve();return call('pull').then(function(r){if(!r||!r.ok)throw r||0;var docs=r.docs||{},my=me();
+  var d={emp:null,emps:[],reqs:[],pays:[],tickets:[],ann:[],settings:{},pols:[],acks:{},imps:[],bdgs:[],vox:[],tally:{},myVotes:{},khf:null,khk:{},cfg:null,vvtKeys:[]};
+  var hasTally=Object.prototype.hasOwnProperty.call(docs,'vxs:tally');
+  Object.keys(docs).forEach(function(k){var o=parse(docs[k]);if(o==null)return;var p=k.split(':')[0],id=k.slice(p.length+1);
+    if(p==='emp'){d.emps.push(o);if(String(o.id)===my)d.emp=o}
+    else if(p==='req'&&String(o.empId)===my)d.reqs.push(o);
+    else if(p==='pay'&&o.lines&&o.status!=='draft'){var ln=o.lines.filter(function(l){return String(l.empId)===my})[0];if(ln)d.pays.push({month:id,line:ln,status:o.status})}
+    else if(p==='cmp'&&String(o.empId)===my)d.tickets.push(o);
+    else if(p==='ann')d.ann.push(o);
+    else if(k==='cfg:settings')d.settings=o;
+    else if(p==='spl')d.pols.push(o);
+    else if(p==='spa')d.acks[id]=o;
+    else if(p==='imp')d.imps.push(o);
+    else if(p==='bdg')d.bdgs.push(o);
+    else if(p==='vox')d.vox.push(o);
+    else if(p==='vvt'){d.vvtKeys.push({k:k,voxId:o.voxId});if(!hasTally)d.tally[o.voxId]=(d.tally[o.voxId]||0)+1;if(String(o.empId)===my)d.myVotes[o.voxId]=1}
+    else if(k==='vxs:tally'&&hasTally)d.tally=o||{};
+    else if(k==='khf:season')d.khf=o;
+    else if(p==='khk')d.khk[id]=o;
+    else if(k==='esx:cfg')d.cfg=o;});
+  var by=function(f){return function(a,b){return String(b[f]||'').localeCompare(String(a[f]||''))}};
+  d.reqs.sort(by('createdAt'));d.tickets.sort(by('createdAt'));d.pays.sort(function(a,b){return b.month.localeCompare(a.month)});
+  d.ann.sort(function(a,b){return String(b.date||b.at||'').localeCompare(String(a.date||a.at||''))});
+  d.pols.sort(function(a,b){return (a.order||0)-(b.order||0)||String(a.createdAt||'').localeCompare(String(b.createdAt||''))});
+  d.vox.sort(by('createdAt'));d.bdgs.sort(by('at'));
+  d.emps.sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'ar')});
+  D=d;render()})}
+function push(ops){if(demoOn()&&TAB!=='admin'&&!ops.every(function(o){return o.k==='esx:cfg'})){toast(LANG==='ar'?'وضع العرض: هذه بيانات نموذجية ولا تُحفظ':'Demo mode: sample data is not saved');return Promise.reject({demo:1})}return call('push',{ops:ops}).then(function(r){if(!r||!r.ok)throw r||0;return load().then(function(){return r})})}
+function loadTD(force){
+  if(TD&&!force&&!TD.loading)return Promise.resolve(TD);
+  if(!TD_API){TD={err:true};return Promise.resolve(TD)}
+  TD={loading:true};
+  return fetch(TD_API+(TD_API.indexOf('?')<0?'?':'&')+'action=pull').then(function(r){return r.json()}).then(function(j){
+    var mods=[],res={},my=me();
+    Object.keys((j&&j.docs)||{}).forEach(function(k){var o=parse(j.docs[k]);if(!o)return;
+      if(k.indexOf('mod:')===0)mods.push(o);else if(k==='res:'+my)res=o||{}});
+    TD={mods:mods,res:res};if(TAB==='skills'||TAB==='home')render();return TD}).catch(function(){TD={err:true};if(TAB==='skills')render();return TD})}
+function activeEmps(){return D.emps.filter(function(e){return !e.status||e.status==='active'})}
+function empName(id){var e=D.emps.filter(function(x){return String(x.id)===String(id)})[0];return e?e.name:''}
+
+/* =================== السياسات: الحالة =================== */
+function visiblePols(){var b=D.emp&&D.emp.building;return D.pols.filter(function(p){return p.status==='published'&&(!p.audience||p.audience==='all'||p.audience===b)})}
+function ackOf(pid,emp){return D.acks[String(emp||me())+'.'+pid]||null}
+function polStates(){var seq=cfg().seq!==false,blocked=false;return visiblePols().map(function(p){var a=ackOf(p.id),st=a&&Number(a.v)>=Number(p.version||1)?'done':a?'upd':'todo';
+  var locked=seq&&blocked&&st!=='done';if(st!=='done')blocked=true;return {p:p,a:a,st:st,locked:locked}})}
+function polPending(){if(!isOpen('policies')||!D.emp)return 0;return polStates().filter(function(x){return x.st!=='done'}).length}
+
+/* =================== الأثر: الحسابات =================== */
+function ratings(){return D.imps.filter(function(x){return x.kind==='rating'&&x.week&&Number(x.rating)>0})}
+function weeksList(n){var s={};ratings().forEach(function(r){s[r.week]=1});return Object.keys(s).sort().slice(-(n||8))}
+function bRating(b,w){var l=ratings().filter(function(r){return r.building===b&&r.week===w});if(!l.length)return null;var sum=0,rv=0;l.forEach(function(r){sum+=Number(r.rating);rv+=Number(r.reviews||0)});return {v:sum/l.length,reviews:rv,note:l[l.length-1].note||''}}
+function coRating(w){var l=ratings().filter(function(r){return r.week===w});if(!l.length)return null;var sum=0;l.forEach(function(r){sum+=Number(r.rating)});return {v:sum/l.length,n:l.length}}
+function myImpact(){var b=D.emp&&D.emp.building,ws=weeksList(8),cur=null,prev=null,w=null,pw=null;
+  var useB=b&&ratings().some(function(r){return r.building===b});
+  for(var i=ws.length-1;i>=0;i--){var v=useB?bRating(b,ws[i]):coRating(ws[i]);if(v){if(!cur){cur=v;w=ws[i]}else if(!prev){prev=v;pw=ws[i];break}}}
+  return {b:b,useB:useB,cur:cur,prev:prev,week:w,weeks:ws}}
+function ringSVG(val,max,color,track){var p=Math.max(0,Math.min(1,(val||0)/max)),c=2*Math.PI*44;
+  return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="'+(track||'rgba(255,255,255,.16)')+'" stroke-width="9"/><circle cx="50" cy="50" r="44" fill="none" stroke="'+color+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(c*p).toFixed(1)+' '+c.toFixed(1)+'"/></svg>'}
+function deltaTxt(cur,prev){if(!cur||!prev)return '';var d=r1(cur.v-prev.v);if(Math.abs(d)<0.05)return '• '+t('same');return (d>0?'▲ '+t('upBy')+' ':'▼ '+t('downBy')+' ')+Math.abs(d).toFixed(1)+' '+t('vsLast')}
+
+/* =================== المهارات: الحسابات =================== */
+function skillData(){if(!TD||TD.err||TD.loading)return null;var my=me(),res=TD.res||{};
+  var mods=TD.mods.filter(function(m){return !m.assignees||m.assignees==='all'||(Array.isArray(m.assignees)&&m.assignees.map(String).indexOf(my)>=0)});
+  var cats={},pts=0,next=null;
+  mods.forEach(function(m){var c=SKC[m.category]?m.category:'general',r=res[m.id]||{};cats[c]=cats[c]||{total:0,passed:0,sum:0};cats[c].total++;
+    if(r.passed){cats[c].passed++;cats[c].sum+=Number(r.score||0);pts+=Math.round(Number(r.score||0)/10)}
+    else if(!next||String(m.dueDate||'9')<String(next.dueDate||'9'))next=m});
+  Object.keys(cats).forEach(function(c){var x=cats[c],avg=x.passed?x.sum/x.passed:0;x.avg=avg;x.lv=!x.passed?0:(x.passed===x.total&&avg>=85)?3:(x.passed/x.total>=.5&&avg>=75)?2:1});
+  var mine=D.bdgs.filter(function(b){return String(b.empId)===my});mine.forEach(function(b){pts+=Number(b.points||10)});
+  var ti=0;TIERS.forEach(function(x,i){if(pts>=x[0])ti=i});
+  return {cats:cats,pts:pts,tier:ti,next:next,mods:mods,badges:mine}}
+
+/* =================== الخريف =================== */
+function khActive(){var k=D.khf;return !!(k&&k.active&&k.start&&k.end)}
+function khPhase(){var k=D.khf,td=today();if(!khActive())return null;if(td<k.start)return {ph:'before',n:dayDiff(td,k.start)};if(td>k.end)return {ph:'after'};return {ph:'during',day:dayDiff(k.start,td)+1,total:dayDiff(k.start,k.end)+1,left:dayDiff(td,k.end)}}
+function khMine(){return D.khk[me()]||{items:{}}}
+function khPending(){if(!isOpen('khareef')||!khActive()||!D.emp)return 0;var it=(D.khf.checklist||[]),m=khMine().items||{};return it.filter(function(x){return !m[x.id]}).length}
+
+/* =================== الهيكل والتنقل =================== */
+function tabsList(){return isAdmin()?[FOCUS,'admin']:[FOCUS]}
+function applyLang(){document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';$('#langBtn').textContent=LANG==='ar'?'English':'العربية';$('#outBtn').textContent=t('out');document.title=t(FOCUS)+' | Marsa';document.body.classList.add('focus');if(EMBED)document.body.classList.add('embed');var hl=$('#homeLink');if(hl){hl.href=FOCUS==='policies'?'hr.html':'./';hl.setAttribute('aria-label',FOCUS==='policies'?(LANG==='ar'?'الموارد البشرية':'Human Resources'):t('home'))}var cr=$('#crumb');if(cr)cr.textContent=FOCUS==='policies'?(LANG==='ar'?'الموارد البشرية':'Human Resources'):''}
+$('#langBtn').onclick=function(){LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('marsa_lang',LANG)}catch(e){}render()};
+$('#outBtn').onclick=function(){logout()};
+function go(tab){if(tab!=='admin')tab=FOCUS;TAB=tab;try{history.replaceState(null,'',location.pathname+location.search+(tab==='admin'?'#admin':''))}catch(e){}render();window.scrollTo({top:0,behavior:'smooth'});if(tab==='skills'||tab==='home')loadTD()}
+function badgeFor(s){if(s==='policies')return polPending();if(s==='khareef')return khPending();return 0}
+function render(){applyLang();var app=$('#app'),nav=$('#nav');$('#outBtn').hidden=!USER;
+  if(!D){app.innerHTML='<div class="spin"></div>';nav.hidden=true;return}
+  nav.hidden=true;var tabs=tabsList();if(tabs.indexOf(TAB)<0)TAB=FOCUS;
+  if(FOCUS==='manage'&&!isAdmin()){location.replace('./');return}
+  if(FOCUS!=='manage'&&!isAdmin()&&!isOpen(FOCUS)){app.innerHTML='<div class="view">'+vLocked(FOCUS)+'</div>';return}
+  if(FOCUS==='manage'){if(!isAdmin()){location.replace('./');return}app.innerHTML='<div class="view">'+vManage()+'</div>';bManage();return}
+  if(true){var realD=D,realTD=TD,demo=demoOn()&&TAB!=='admin';
+    try{if(demo)D=demoData(realD);var fb=(TAB==='admin'?vAdmin():({policies:vPolicies,impact:vImpact,skills:vSkills,voice:vVoice,khareef:vKhareef}[FOCUS])());
+    var ftabs=isAdmin()?'<div class="tabs ftabs" role="tablist">'+tabs.map(function(s){return '<button type="button" data-tab="'+s+'" class="'+(TAB===s?'on':'')+'">'+SEC_IC[s]+' '+(s==='admin'?t('admin'):t(s))+(s!=='admin'&&!(cfg().open||{})[s]?' <span class="lk">🛠️ '+(LANG==='ar'?'تحت الإعداد':'Under preparation')+'</span>':'')+'</button>'}).join('')+'</div>':'';
+    app.innerHTML=ftabs+'<div class="view">'+fb+'</div>';
+    $$('[data-tab]').forEach(function(b){b.onclick=function(){go(b.getAttribute('data-tab'))}});
+    if(TAB==='admin')bAdmin();else ({policies:bPolicies,impact:bImpact,skills:bSkills,voice:bVoice,khareef:bKhareef}[FOCUS])();
+    if(demo)app.querySelector('.view').innerHTML=demoBanner()+app.querySelector('.view').innerHTML;
+    return}catch(e){console.error('render:',e)}}
+  var lk=function(s){return s!=='home'&&s!=='admin'&&!isOpen(s)};
+  var adminLk=function(s){return isAdmin()&&SECS.indexOf(s)>=0&&!(cfg().open||{})[s]};
+  var tabBtn=function(s){var n=badgeFor(s);return '<button type="button" data-tab="'+s+'" class="'+(TAB===s?'on':'')+'">'+SEC_IC[s]+' '+t(s)+(lk(s)?' <span class="lk">'+t('soon')+'</span>':adminLk(s)?' <span class="lk" title="مغلق للموظفين">🔒</span>':'')+(n?' <span class="pill">'+n+'</span>':'')+'</button>'};
+  var mob=['home','policies','impact','voice'],rest=tabs.filter(function(s){return mob.indexOf(s)<0});
+  nav.hidden=false;nav.innerHTML=mob.map(function(s){var n=badgeFor(s);return '<button type="button" data-tab="'+s+'" class="'+(TAB===s?'on':'')+'"><b>'+SEC_IC[s]+'</b>'+t(s)+(n?'<span class="dot">'+n+'</span>':'')+'</button>'}).join('')+
+    '<button type="button" id="moreBtn" class="'+(mob.indexOf(TAB)<0?'on':'')+'"><b>'+(mob.indexOf(TAB)<0?SEC_IC[TAB]:SEC_IC.more)+'</b>'+(mob.indexOf(TAB)<0?t(TAB):t('more'))+(rest.some(badgeFor)?'<span class="dot">•</span>':'')+'</button>';
+  var body;
+  if(lk(TAB))body=vLocked(TAB);
+  else body=({home:vHome,policies:vPolicies,impact:vImpact,skills:vSkills,voice:vVoice,khareef:vKhareef,services:vServices,admin:vAdmin}[TAB]||vHome)();
+  app.innerHTML='<div class="tabs" role="tablist">'+tabs.map(tabBtn).join('')+'</div><div class="view">'+body+'</div>';
+  $$('[data-tab]').forEach(function(b){b.onclick=function(){go(b.getAttribute('data-tab'))}});
+  var mb=$('#moreBtn');if(mb)mb.onclick=function(){moreSheet(rest,lk)};
+  ({home:bHome,policies:bPolicies,impact:bImpact,skills:bSkills,voice:bVoice,khareef:bKhareef,services:bServices,admin:bAdmin}[TAB]||function(){})();
+  $$('[data-go]',app).forEach(function(b){b.onclick=function(){go(b.getAttribute('data-go'))}});
+}
+function moreSheet(rest,lk){modal(t('more'),'<div class="list">'+rest.map(function(s){var n=badgeFor(s);return '<button type="button" class="item" data-m="'+s+'"><div class="av">'+SEC_IC[s]+'</div><div class="grow"><div class="t">'+t(s)+(n?' <span class="pill">'+n+'</span>':'')+'</div>'+(s!=='admin'?'<div class="s">'+esc(t('d_'+s))+'</div>':'')+'</div>'+(lk(s)?'<span class="badge b-cu">'+t('soon')+'</span>':'')+'</button>'}).join('')+'</div>',function(b,close){$$('[data-m]',b).forEach(function(x){x.onclick=function(){close();go(x.getAttribute('data-m'))}})})}
+function modal(title,html,onMount,wide){var b=document.createElement('div');b.className='mback';b.innerHTML='<div class="modal'+(wide?' wide':'')+'" role="dialog" aria-modal="true" aria-label="'+esc(String(title).replace(/<[^>]+>/g,''))+'"><h3><span>'+title+'</span><button class="x" type="button" aria-label="'+t('close')+'">✕</button></h3>'+html+'</div>';
+  var close=function(){b.remove();document.removeEventListener('keydown',kd)},kd=function(e){if(e.key==='Escape')close()};
+  b.addEventListener('click',function(e){if(e.target===b)close()});$('.x',b).onclick=close;document.addEventListener('keydown',kd);document.body.appendChild(b);onMount&&onMount(b,close);return close}
+function sectionHead(title,lead,act){return '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 16px"><div><h1 style="margin:0;font-size:clamp(22px,5vw,28px);line-height:1.25">'+title+'</h1>'+(lead?'<p class="muted" style="margin:6px 0 0;max-width:62ch;line-height:1.75">'+lead+'</p>':'')+'</div>'+(act||'')+'</div>'}
+
+/* =================== قريباً =================== */
+function vSoonAll(){var nm=(D.emp&&D.emp.name)||(USER&&USER.name)||'';
+  return '<div class="soon view"><div class="top"><div class="muted" style="color:#fff;opacity:.75;font-size:14px">'+t('hi')+'، '+esc(String(nm).split(' ')[0])+'</div><h1>'+t('soonH')+'</h1><p>'+t('soonP')+'</p></div><ol>'+
+   SECS.map(function(s){return '<li><span class="ic" aria-hidden="true">'+SEC_IC[s]+'</span><div><b>'+t(s)+'</b><span>'+esc(t('d_'+s))+'</span></div></li>'}).join('')+'</ol></div>'}
+function vLocked(s){return '<div class="card lockv"><b aria-hidden="true">'+SEC_IC[s]+'</b><h2>'+t(s)+' — '+t('soonLock')+'</h2><p>'+esc(t('d_'+s))+'</p><p style="margin-top:10px" class="small">'+t('soonLockP')+'</p></div>'}
+
+/* =================== الرئيسية =================== */
+function vHome(){var nm=(D.emp&&D.emp.name)||USER.name||'',h=new Date().getHours(),imp=myImpact();
+  var ringCol='#E7B98E',v=imp.cur?imp.cur.v:0;
+  var pulse=isOpen('impact')?'<div class="pulse"><div class="ring">'+ringSVG(v,5,ringCol)+'<div class="rv"><div><b class="num">'+(imp.cur?v.toFixed(1):'—')+'</b><span>/ 5</span></div></div></div>'+
+    '<div><div class="pl">'+(imp.useB?t('bRating')+' — '+esc(imp.b):t('coRating'))+'</div><div class="pv">'+(imp.cur?t('thisWeek')+' '+fshort(imp.week):t('noRating'))+'</div>'+(imp.prev?'<span class="dl">'+deltaTxt(imp.cur,imp.prev)+'</span>':'')+'</div></div>':'';
+  var hero='<section class="hero"><div class="hi">'+(h<12?t('gm_'):t('ge_'))+'</div><h1>'+esc(nm)+'</h1><div class="meta">'+esc([D.emp&&D.emp.job,D.emp&&D.emp.building].filter(Boolean).join(' — '))+'</div>'+pulse+'</section>';
+  var todo=[],pp=polPending(),kp=khPending();
+  if(pp){var upd=polStates().filter(function(x){return x.st==='upd'}).length;todo.push(['📜',upd&&upd===pp?t('polUpd'):t('polTodo'),pp+' '+t('of')+' '+visiblePols().length,'policies'])}
+  if(kp)todo.push(['🌦️',t('khTodo'),kp+' '+t('of')+' '+(D.khf.checklist||[]).length,'khareef']);
+  var todoH='<div class="todo"><div class="sec-h" style="margin-top:18px">'+t('yourTodo')+'</div>'+(todo.length?todo.map(function(x){return '<button type="button" data-go="'+x[3]+'"><span class="ti" aria-hidden="true">'+x[0]+'</span><span><span class="tt">'+x[1]+'</span><br><span class="ts">'+x[2]+'</span></span><span class="go" aria-hidden="true">'+(LANG==='ar'?'‹':'›')+'</span></button>'}).join(''):'<div class="card empty" style="padding:18px">✓ '+t('allClear')+'</div>')+'</div>';
+  var quick='<div class="quick">'+['voice','skills','services'].concat(khActive()?['khareef']:[]).map(function(s){return '<button type="button" data-go="'+s+'" '+(isOpen(s)?'':'aria-disabled="true"')+'><b aria-hidden="true">'+SEC_IC[s]+'</b><span>'+t(s)+'</span><small>'+(isOpen(s)?esc(quickSub(s)):t('soon'))+'</small></button>'}).join('')+'</div>';
+  var ann='<div class="card" style="margin-top:14px"><h2>📢 '+t('annNew')+'</h2>'+(D.ann.length?'<div class="list">'+D.ann.slice(0,4).map(function(a){return '<div class="item"><div class="av">📢</div><div class="grow"><div class="t">'+esc(a.title||'')+'</div><div class="s">'+esc(String(a.body||'').slice(0,160))+'</div><div class="s">'+fdate(a.date||a.at)+'</div></div></div>'}).join('')+'</div>':'<div class="empty">'+t('noAnn')+'</div>')+'</div>';
+  return hero+todoH+quick+ann}
+function quickSub(s){if(s==='voice'){var m=D.vox.filter(function(v){return v.mine}).length;return m?m+' '+t('vTot'):t('vNew')}
+  if(s==='skills'){var sd=skillData();return sd?sd.pts+' '+t('pts'):'…'}
+  if(s==='services')return t('bal')+': '+(D.emp?(D.emp.annualBalance||0)+' '+t('days'):'—');
+  if(s==='khareef'){var p=khPhase();return !p?'':p.ph==='before'?t('khStart')+' '+p.n+' '+t('days'):p.ph==='during'?t('khDay')+' '+p.day+'/'+p.total:t('khOver')}return ''}
+function bHome(){}
+
+/* =================== السياسات =================== */
+function vPolicies(){
+  if(!D.emp&&!isAdmin())return '<div class="card empty">'+t('noEmp')+'</div>';
+  var S=polStates(),done=S.filter(function(x){return x.st==='done'}).length,seq=cfg().seq!==false;
+  var head=sectionHead(t('polTitle'),seq?t('polLead'):t('polLeadFree'),isAdmin()?'<button class="btn sec sm" type="button" data-adm="policies">⚙️ '+t('admin')+'</button>':'');
+  if(!S.length)return head+'<div class="card empty"><b>📜</b>'+t('noPols')+'</div>';
+  var pct=Math.round(done/S.length*100);
+  var sum='<div class="card" style="margin-bottom:14px"><div class="polhead"><div class="big num">'+done+'<span class="muted" style="font-size:18px">/'+S.length+'</span></div><div class="grow"><div style="font-weight:600;margin-bottom:6px">'+t('doneOf')+' '+done+' '+t('of')+' '+S.length+'</div><div class="pbar"><i style="width:'+pct+'%"></i></div></div></div></div>';
+  var list='<div class="pgrid">'+S.map(function(x,i){var p=x.p,cls=x.locked?'locked':x.st;
+    var chip=x.locked?'<span class="badge b-mute">🔒 '+t('lockedP')+'</span>':x.st==='done'?'<span class="badge b-ok">✓ '+t('ackd')+'</span>':x.st==='upd'?'<span class="badge b-warn">↻ '+t('updated')+'</span>':'<span class="badge b-cu">'+t('needAck')+'</span>';
+    return '<button type="button" class="pcard '+cls+'" data-pol="'+esc(p.id)+'" '+(x.locked?'aria-disabled="true"':'')+'><span class="pc-top"><span class="pc-ic" aria-hidden="true">'+esc(p.icon||'📜')+'</span><span class="pc-no num">'+esc(p.no||'')+'</span></span><span class="pc-t">'+esc(p.title)+'</span><span class="pc-s">'+esc(p.summary||'')+'</span><span class="pm">'+chip+'<span class="badge b-mute">'+(p.sections||[]).length+' '+t('sections')+'</span><span class="badge b-mute">'+t('ver')+' '+(p.version||1)+'</span></span></button>'}).join('')+'</div>';
+  return head+sum+list}
+function bPolicies(){$$('[data-pol]').forEach(function(b){b.onclick=function(){var x=polStates().filter(function(y){return y.p.id===b.getAttribute('data-pol')})[0];if(!x)return;if(x.locked){toast(t('lockedP'));return}
+    polSheet(x)}});
+  $$('[data-adm]').forEach(function(b){b.onclick=function(){SUB=b.getAttribute('data-adm');go('admin')}})}
+function polSheet(x){var p=x.p,a=x.a,done=x.st==='done',ar=LANG==='ar';
+  modal((p.icon||'📜')+' '+esc(p.title),(done?'<div class="note g">✓ '+t('ackedOn')+' '+ftime(a.at)+' — '+t('ver')+' '+a.v+'</div>':x.st==='upd'?'<div class="note">↻ '+t('updated')+'</div>':'')+
+   (p.summary?'<p class="muted" style="line-height:1.8;margin-top:0">'+esc(p.summary)+'</p>':'')+
+   '<div class="sec-h">'+(ar?'فصول السياسة':'Chapters')+' <small>'+(p.sections||[]).length+'</small></div><ol class="chl">'+(p.sections||[]).map(function(s){return '<li>'+esc(s.title||'')+'</li>'}).join('')+'</ol>'+
+   '<div class="small muted" style="margin:8px 0 2px">'+esc(p.no||'')+' — '+t('ver')+' '+(p.version||1)+(p.approvedBy?' — '+(ar?'اعتمدها: ':'Approved by: ')+esc(p.approvedBy)+' ('+fdate(p.approvedAt)+')':'')+'</div>'+
+   '<div class="mf"><button class="btn" type="button" id="rr">📖 '+(done?(ar?'قراءة السياسة':'Read policy'):(ar?'قراءة الفصول والإقرار':'Read & acknowledge'))+'</button><button class="btn sec" type="button" id="pp">📄 '+(ar?'تنزيل PDF':'Download PDF')+'</button>'+(done?'<button class="btn sec" type="button" id="pa">🧾 '+t('printAck')+'</button>':'')+'</div>'+
+   '<div class="small muted" style="margin-top:8px">'+(ar?'للحفظ كملف: اختر «حفظ بصيغة PDF» من نافذة الطباعة.':'To save a file, choose "Save as PDF" in the print dialog.')+'</div>',function(b,close){
+  $('#rr',b).onclick=function(){close();openReader(p,done)};$('#pp',b).onclick=function(){printPolicy(p)};var pa=$('#pa',b);if(pa)pa.onclick=function(){printReceipt(p,a,D.emp)}})}
+
+/* القارئ: فصول متسلسلة، زر «التالي» لا يعمل إلا بعد الوصول لنهاية الفصل */
+function openReader(p,reviewOnly){
+  if(!D.emp&&!reviewOnly){toast(t('noEmp'));return}
+  var secs=(p.sections||[]).filter(function(s){return (s.title||'')+(s.body||'')}),total=secs.length+(reviewOnly?0:1),step=0,reached={};
+  var stmts=(p.statements&&p.statements.length?p.statements:[t('defStmt')]);
+  var el=document.createElement('div');el.className='reader';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');document.body.appendChild(el);document.body.style.overflow='hidden';
+  var io=null,close=function(){if(io)io.disconnect();el.remove();document.body.style.overflow=''};
+  function paint(){
+    var isAck=!reviewOnly&&step===secs.length,s=secs[step];
+    el.innerHTML='<div class="rd-top"><div class="rt"><button class="x" type="button" id="rdX" aria-label="'+t('close')+'">✕</button><h3>'+esc(p.icon||'📜')+' '+esc(p.title)+'</h3><span class="small muted num">'+(step+1)+'/'+total+'</span></div><div class="rd-steps">'+
+      Array.apply(null,Array(total)).map(function(_,i){return '<i class="'+(i<step?'on':i===step?'cur':'')+'"></i>'}).join('')+'</div></div>'+
+      '<div class="rd-body" id="rdB"><div class="rd-in">'+(isAck?ackForm():'<div class="kick">'+(LANG==='ar'?'الفصل ':'Section ')+(step+1)+' '+t('of')+' '+secs.length+'</div><h2>'+esc(s.title||'')+'</h2><div class="prose">'+fmtText(s.body)+'</div><div class="rd-end" id="rdEnd">⎯ '+t('endSec')+'</div>')+'</div></div>'+
+      '<div class="rd-foot"><div class="in">'+(step>0?'<button class="btn sec" type="button" id="rdP">'+t('prev')+'</button>':'')+'<span class="hint" id="rdH">'+(isAck?'':(reached[step]||reviewOnly?'':t('readToEnd')))+'</span>'+
+      (isAck?'<button class="btn cu" type="button" id="rdA">✍️ '+t('ackBtn')+'</button>':(step<secs.length-1||!reviewOnly)?'<button class="btn" type="button" id="rdN" '+(reached[step]||reviewOnly?'':'disabled')+'>'+t('next')+'</button>':'<button class="btn" type="button" id="rdC">'+t('close')+'</button>')+'</div></div>';
+    $('#rdX',el).onclick=close;var pb=$('#rdP',el);if(pb)pb.onclick=function(){step--;paint()};
+    var nb=$('#rdN',el);if(nb)nb.onclick=function(){step++;paint();$('#rdB',el).scrollTop=0};
+    var cb=$('#rdC',el);if(cb)cb.onclick=close;
+    if(!isAck&&!reached[step]&&!reviewOnly){var end=$('#rdEnd',el),mark=function(){reached[step]=true;var n=$('#rdN',el);if(n)n.disabled=false;var h=$('#rdH',el);if(h)h.textContent=''};
+      if(io)io.disconnect();
+      if('IntersectionObserver' in window){io=new IntersectionObserver(function(en){if(en.some(function(e){return e.isIntersecting})){mark();io.disconnect()}},{root:$('#rdB',el),threshold:1});io.observe(end)}
+      else setTimeout(mark,1500)}
+    if(isAck)bindAck()}
+  function ackForm(){return '<div class="kick">'+t('ackStep')+'</div><h2>'+esc(p.title)+' — '+t('ver')+' '+(p.version||1)+'</h2><p class="muted" style="line-height:1.8">'+t('ackLead')+'</p>'+
+    '<div class="list" style="margin:14px 0">'+stmts.map(function(s,i){return '<label class="chk"><input type="checkbox" data-st="'+i+'"><span>'+esc(s)+'</span></label>'}).join('')+'</div>'+
+    '<div class="fld"><label for="sigN">'+t('fullName')+'</label><input id="sigN" class="sig" autocomplete="name"><div class="hint">'+t('nameHint')+' '+esc(D.emp.name||'')+'</div></div><div class="err" id="ackE" role="alert"></div>'}
+  function bindAck(){$$('[data-st]',el).forEach(function(c){c.onchange=function(){c.closest('.chk').classList.toggle('on',c.checked)}});
+    $('#rdA',el).onclick=function(){var all=$$('[data-st]',el).every(function(c){return c.checked}),nm=$('#sigN',el).value.trim().replace(/\s+/g,' ');
+      if(!all){$('#ackE',el).textContent=t('ackErrS');return}if(nm.split(' ').length<2){$('#ackE',el).textContent=t('ackErrN');return}
+      var btn=this;btn.disabled=true;var a={empId:me(),pid:p.id,v:Number(p.version||1),at:new Date().toISOString(),name:nm,statements:stmts,title:p.title,no:p.no||'',code:D.emp.code||'',building:D.emp.building||'',ref:'SPA-'+String(p.no||p.id).replace(/[^A-Za-z0-9-]/g,'')+'-V'+(p.version||1)+'-'+(D.emp.code||me())};
+      push([{k:'spa:'+me()+'.'+p.id,v:JSON.stringify(a)}]).then(function(r){if(r&&r.skipped){throw 0}
+        $('#rdB',el).innerHTML='<div class="rd-in" style="text-align:center;padding-top:40px"><div style="font-size:52px">✅</div><h2>'+t('ackDone')+'</h2><p class="muted" style="line-height:1.8;max-width:44ch;margin:0 auto">'+t('ackDoneP')+'</p><div class="mf" style="max-width:420px;margin:22px auto 0"><button class="btn" type="button" id="okR">🧾 '+t('printAck')+'</button><button class="btn sec" type="button" id="okP">🖨️ '+t('printPol')+'</button></div></div>';
+        $('.rd-foot',el).innerHTML='<div class="in"><span class="hint"></span><button class="btn" type="button" id="okC">'+t('close')+'</button></div>';
+        $('#okR',el).onclick=function(){printReceipt(p,a,D.emp)};$('#okP',el).onclick=function(){printPolicy(p)};$('#okC',el).onclick=function(){close();render()}
+      }).catch(function(){btn.disabled=false;$('#ackE',el).textContent=t('neterr')})}}
+  paint()}
+
+/* =================== الطباعة =================== */
+var CO_AR='نسائم صلالة للشقق المفروشة',CO_EN='Nassayem Salalah Furnished Apartments';
+function pdHead(ref){return '<div class="pd-head"><img src="icons/logo-full.png" alt=""><div class="co"><b>'+CO_AR+'</b><span>'+CO_EN+'</span></div><div class="ref">'+(ref||'')+'<br>'+fdate(today())+'</div></div>'}
+function pdFoot(){return '<div class="pd-foot"><span>'+CO_AR+' — مرسى، '+(FOCUS==='policies'?'الموارد البشرية':W[FOCUS][0])+'</span><span>'+ftime(new Date().toISOString())+'</span></div>'}
+function printHTML(html){var pa=$('#printArea');pa.innerHTML=html;var imgs=$$('img',pa),n=imgs.length,done=false;
+  var go_=function(){if(done)return;done=true;setTimeout(function(){window.print()},60)};   /* لا نمسح المحتوى بعد الطباعة: في آيفون نافذة الطباعة لا توقف الصفحة */
+  if(!n)return go_();imgs.forEach(function(im){if(im.complete)n--;else{im.onload=im.onerror=function(){if(--n<=0)go_()}}});if(n<=0)go_();setTimeout(go_,2500)}
+function printPolicy(p){printHTML(pdHead((p.no||'')+' — الإصدار '+(p.version||1))+'<h1 class="pd-title">'+esc(p.title)+'</h1>'+(p.summary?'<p class="pd-sub">'+esc(p.summary)+'</p>':'')+
+  (p.sections||[]).map(function(s,i){return '<div class="pd-sec"><h3>'+(i+1)+'. '+esc(s.title||'')+'</h3>'+fmtText(s.body)+'</div>'}).join('')+
+  '<div class="pd-box"><b>بنود الإقرار</b><ul>'+(p.statements&&p.statements.length?p.statements:[W.defStmt[0]]).map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ul></div>'+
+  '<table class="pd-tb" style="margin-top:14px"><tr><th style="width:32%">إعداد</th><td>الموارد البشرية</td></tr><tr><th>الاعتماد</th><td>'+(p.approvedBy?esc(p.approvedBy)+' — المدير العام — '+fdate(p.approvedAt):'المدير العام')+'</td></tr><tr><th>رقم السياسة / الإصدار</th><td>'+esc(p.no||'')+' — الإصدار '+(p.version||1)+'</td></tr></table>'+pdFoot())}
+function printReceipt(p,a,e){e=e||{};printHTML(pdHead(esc(a.ref||''))+'<h1 class="pd-title">إيصال إقرار بالاطلاع على سياسة عمل</h1><p class="pd-sub">Policy Acknowledgement Receipt</p>'+
+  '<table class="pd-tb"><tr><th style="width:32%">الموظف</th><td>'+esc(e.name||a.name)+'</td></tr><tr><th>الرقم الوظيفي</th><td>'+esc(e.code||a.code||'')+'</td></tr><tr><th>البناية / القسم</th><td>'+esc(e.building||a.building||'')+'</td></tr>'+
+  '<tr><th>السياسة</th><td>'+esc(p.title||a.title)+(p.no?' ('+esc(p.no)+')':'')+'</td></tr><tr><th>رقم الإصدار</th><td>'+esc(a.v)+'</td></tr><tr><th>تاريخ ووقت الإقرار</th><td>'+ftime(a.at)+'</td></tr><tr><th>التوقيع الإلكتروني (الاسم المكتوب)</th><td>'+esc(a.name)+'</td></tr><tr><th>المرجع</th><td dir="ltr" style="text-align:left">'+esc(a.ref||'')+'</td></tr></table>'+
+  '<div class="pd-box"><b>أقرّ الموظف إلكترونياً عبر تطبيق مرسى بما يلي:</b><ul>'+(a.statements||[]).map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ul><div style="font-size:10pt;color:#555">سُجّل الإقرار بعد قراءة جميع فصول السياسة حتى نهايتها.</div></div>'+
+  '<div class="pd-sign"><div>توقيع الموظف</div><div>الموارد البشرية</div></div>'+pdFoot())}
+
+/* =================== الأثر =================== */
+function lineChart(ws,a,b){var W_=340,H_=150,px=24,py=16,n=ws.length;if(n<2)return '';
+  var x=function(i){var r=px+i*(W_-2*px)/(n-1);return LANG==='ar'?W_-r:r},lo=Infinity,hi=-Infinity;
+  a.concat(b).forEach(function(v){if(v!=null){lo=Math.min(lo,v);hi=Math.max(hi,v)}});lo=Math.max(0,Math.floor((lo-.3)*2)/2);hi=Math.min(5,Math.ceil((hi+.2)*2)/2);if(hi-lo<1)lo=Math.max(0,hi-1);
+  var y=function(v){return py+(hi-v)*(H_-2*py)/(hi-lo)};
+  var path=function(arr){var d='',pen=false;arr.forEach(function(v,i){if(v==null){pen=false;return}d+=(pen?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ';pen=true});return d};
+  var dots=function(arr,c){return arr.map(function(v,i){return v==null?'':'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="3.4" fill="#fff" stroke="'+c+'" stroke-width="2"/>'}).join('')};
+  var grid=[lo,(lo+hi)/2,hi].map(function(g){return '<line x1="'+px+'" x2="'+(W_-px)+'" y1="'+y(g).toFixed(1)+'" y2="'+y(g).toFixed(1)+'" stroke="#E3EAEA" stroke-dasharray="3 4"/><text x="'+(LANG==='ar'?W_-4:4)+'" y="'+(y(g)+4).toFixed(1)+'" font-size="9" fill="#8AA0A1" text-anchor="'+(LANG==='ar'?'end':'start')+'">'+g.toFixed(1)+'</text>'}).join('');
+  var labs=ws.map(function(w,i){return (i===0||i===n-1||i===Math.floor((n-1)/2))?'<text x="'+x(i).toFixed(1)+'" y="'+(H_+2)+'" font-size="9.5" fill="#6B8283" text-anchor="middle">'+fshort(w)+'</text>':''}).join('');
+  return '<svg class="chart" viewBox="0 0 '+W_+' '+(H_+10)+'" role="img" aria-label="'+t('trend')+'">'+grid+'<path d="'+path(b)+'" fill="none" stroke="#B9C9C9" stroke-width="2" stroke-dasharray="5 4"/><path d="'+path(a)+'" fill="none" stroke="#287070" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+dots(b,'#B9C9C9')+dots(a,'#287070')+labs+'</svg>'}
+function vImpact(){var imp=myImpact(),ws=imp.weeks,my=me();
+  var head=sectionHead(t('impTitle'),t('impLead'),isAdmin()?'<button class="btn sec sm" type="button" data-adm="impact">⚙️ '+t('admin')+'</button>':'');
+  var v=imp.cur?imp.cur.v:0;
+  var top='<div class="card"><div class="imp-hero"><div class="ring">'+ringSVG(v,5,'#287070','#E6EEEE')+'<div class="rv"><div><b class="num">'+(imp.cur?v.toFixed(1):'—')+'</b><span>/ 5</span></div></div></div><div>'+
+    '<h2>'+(imp.useB?t('yourB')+': '+esc(imp.b):t('coAvg'))+'</h2><p>'+(imp.cur?t('thisWeek')+' '+fdate(imp.week)+(imp.cur.reviews?' — '+imp.cur.reviews+' '+t('reviews'):''):t('noRating'))+'</p>'+
+    (imp.prev?'<p style="font-weight:700;color:'+(imp.cur.v>=imp.prev.v?'var(--ok)':'var(--bad)')+'">'+deltaTxt(imp.cur,imp.prev)+'</p>':'')+(imp.cur&&imp.cur.note?'<p>'+esc(imp.cur.note)+'</p>':'')+
+    (!imp.useB&&!isAdmin()?'<p class="small">'+t('impNoB')+'</p>':'')+'</div></div></div>';
+  var a=ws.map(function(w){var r=imp.useB?bRating(imp.b,w):coRating(w);return r?r1(r.v):null}),b=ws.map(function(w){var r=coRating(w);return r?r1(r.v):null});
+  var chart=ws.length>1?'<div class="card"><h2>'+t('trend')+'</h2>'+lineChart(ws,a,b)+'<div class="legend"><span><i style="background:#287070"></i>'+(imp.useB?t('yourB'):t('coAvg'))+'</span>'+(imp.useB?'<span><i style="background:#B9C9C9"></i>'+t('coAvg')+'</span>':'')+'</div></div>':'';
+  var lw=ws[ws.length-1],rank='';
+  if(lw){var rows=BUILDINGS.map(function(bn){var r=bRating(bn,lw);return r?{b:bn,v:r.v}:null}).filter(Boolean).sort(function(x,y){return y.v-x.v});
+    if(rows.length>1)rank='<div class="card rank"><h2>'+t('rankT')+' <small>'+fdate(lw)+'</small></h2><div class="list">'+rows.map(function(r,i){return '<div class="item'+(r.b===imp.b?' me':'')+'"><span class="pos">'+(i+1)+'</span><div class="grow"><div class="t">'+esc(r.b)+'</div><div class="pbar" style="margin-top:6px"><i style="width:'+(r.v/5*100)+'%"></i></div></div><b class="num">'+r.v.toFixed(1)+'</b></div>'}).join('')+'</div></div>'}
+  var kd=D.imps.filter(function(x){return x.kind==='kudos'}).sort(function(x,y){return String(y.date||'').localeCompare(String(x.date||''))});
+  var mine=kd.filter(function(k){return (k.empIds||[]).map(String).indexOf(my)>=0}),team=kd.filter(function(k){return k.building&&k.building===imp.b&&mine.indexOf(k)<0});
+  var kHTML=function(k){return '<div class="kudo"><q>'+esc(k.quote)+'</q><div class="who">'+esc([k.source,fdate(k.date),(k.names||[]).join('، ')].filter(Boolean).join(' — '))+'</div></div>'};
+  var kud='<div class="grid g2" style="margin-top:14px"><div class="card" style="margin:0"><h2>💬 '+t('kudosMe')+' <small class="num">'+mine.length+'</small></h2>'+(mine.length?mine.slice(0,6).map(kHTML).join(''):'<div class="empty">'+t('noKudos')+'</div>')+'</div>'+
+    (team.length?'<div class="card" style="margin:0"><h2>🏢 '+t('kudosTeam')+'</h2>'+team.slice(0,6).map(kHTML).join('')+'</div>':'')+'</div>';
+  return head+top+chart+rank+kud}
+function bImpact(){$$('[data-adm]').forEach(function(b){b.onclick=function(){SUB=b.getAttribute('data-adm');go('admin')}})}
+
+/* =================== المهارات =================== */
+function vSkills(){var head=sectionHead(t('skTitle'),LANG==='ar'?'تدريباتك المكتملة وشارات التقدير تتحول إلى نقاط ومستوى واضح في مسارك الوظيفي.':'Completed training and recognition badges turn into points and a clear level on your path.',isAdmin()?'<button class="btn sec sm" type="button" data-adm="badges">⚙️ '+t('admin')+'</button>':'');
+  if(!D.emp)return head+'<div class="card empty">'+t('noEmp')+'</div>';
+  if(!TD||TD.loading){loadTD();return head+'<div class="spin"></div>'}
+  if(TD.err)return head+'<div class="card empty"><b>⚠️</b>'+t('tdErr')+'<br><button class="btn sm" type="button" id="tdR" style="margin-top:10px">↻</button></div>';
+  var sd=skillData(),tier=TIERS[sd.tier],nt=TIERS[sd.tier+1];
+  var prog=nt?Math.round((sd.pts-tier[0])/(nt[0]-tier[0])*100):100;
+  var top='<div class="card"><div class="tier"><div><div class="pts num">'+sd.pts+'</div><div class="small muted">'+t('pts')+'</div></div><div class="grow"><div style="font-weight:700;font-size:17px">'+esc(LANG==='ar'?tier[1]:tier[2])+'</div>'+
+    '<div class="pbar cu" style="margin:8px 0 6px"><i style="width:'+prog+'%"></i></div><div class="small muted">'+(nt?(nt[0]-sd.pts)+' '+t('pts')+' '+t('nextTier')+': '+esc(LANG==='ar'?nt[1]:nt[2]):t('topTier'))+'</div></div></div>'+
+    '<div class="path">'+TIERS.map(function(x,i){return '<div class="'+(i<sd.tier?'on':i===sd.tier?'cur':'')+'">'+esc(LANG==='ar'?x[1]:x[2])+'</div>'}).join('')+'</div></div>';
+  var nx='<div class="card"><h2>'+t('suggest')+'</h2>'+(sd.next?'<a class="item" href="training.html"><div class="av">'+(SKC[sd.next.category]||SKC.general)[0]+'</div><div class="grow"><div class="t">'+esc((sd.next.title&&(sd.next.title[LANG]||sd.next.title.ar))||'')+'</div><div class="s">'+(sd.next.dueDate?(LANG==='ar'?'الموعد: ':'Due: ')+fdate(sd.next.dueDate):'')+'</div></div><span class="badge b-cu">'+t('openTr')+'</span></a>':'<div class="empty">🎉 '+t('allDone')+'</div>')+'</div>';
+  var cats=Object.keys(SKC).filter(function(c){return sd.cats[c]}),sk='<div class="card"><h2>'+t('skCats')+'</h2><div class="skills">'+(cats.length?cats.map(function(c){var x=sd.cats[c],s=SKC[c];
+    return '<div class="sk l'+x.lv+'"><div class="si" aria-hidden="true">'+s[0]+'</div><div class="sn">'+esc(LANG==='ar'?s[1]:s[2])+'</div><div class="sl">'+t('lv'+x.lv)+' — '+x.passed+'/'+x.total+' '+t('modsP')+'</div><div class="pips" aria-label="'+t('lv'+x.lv)+'">'+[1,2,3].map(function(i){return '<i class="'+(x.lv>=i?'on':'')+'"></i>'}).join('')+'</div></div>'}).join(''):'<div class="empty" style="grid-column:1/-1">—</div>')+'</div></div>';
+  var bd='<div class="card"><h2>🏅 '+t('bdgT')+' <small class="num">'+sd.badges.length+'</small></h2>'+(sd.badges.length?'<div class="bdgs">'+sd.badges.map(function(b){return '<div class="bdg"><div class="bi" aria-hidden="true">'+esc(b.icon||'⭐')+'</div><div><div style="font-weight:700">'+esc(b.title)+'</div><div class="small muted">'+esc(b.note||'')+'</div><div class="small muted">'+fdate(b.at)+' — +'+(b.points||10)+' '+t('pts')+'</div></div></div>'}).join('')+'</div>':'<div class="empty">'+t('noBdg')+'</div>')+'</div>';
+  return head+top+nx+sk+bd}
+function bSkills(){var r=$('#tdR');if(r)r.onclick=function(){loadTD(true).then(render)};$$('[data-adm]').forEach(function(b){b.onclick=function(){SUB=b.getAttribute('data-adm');go('admin')}})}
+
+/* =================== صوتك =================== */
+function vcat(k){for(var i=0;i<VCATS.length;i++)if(VCATS[i][0]===k)return VCATS[i];return VCATS[VCATS.length-1]}
+function vStats(){var tot=D.vox.length,done=D.vox.filter(function(v){return v.status==='done'}).length,rs=[];
+  D.vox.forEach(function(v){var u=(v.updates||[])[0];if(u&&u.at&&v.createdAt)rs.push(Math.max(0,(dt(u.at)-dt(v.createdAt))/864e5))});
+  var av=rs.length?rs.reduce(function(a,b){return a+b},0)/rs.length:null;return {tot:tot,done:done,resp:av==null?null:av<1?'<1':r1(av)}}
+function trackHTML(v){if(v.status==='declined'){return '<div class="track"><span class="on">'+t('st_received')+'</span><span class="on">'+t('st_studying')+'</span><span class="no">✕ '+t('st_declined')+'</span></div>'}
+  var ix=VST.indexOf(v.status);return '<div class="track">'+VST.map(function(s,i){return '<span class="'+(i<=ix?'on':'')+'">'+t('st_'+s)+'</span>'}).join('')+'</div>'}
+function vVoice(){var st=vStats(),head=sectionHead(t('vTitle'),t('vLead'),'<button class="btn cu" type="button" id="vNew">＋ '+t('vNew')+'</button>');
+  var stats='<div class="vstats" style="margin-bottom:14px"><div><b class="num">'+st.tot+'</b><span>'+t('vTot')+'</span></div><div><b class="num">'+st.done+'</b><span>'+t('vDone')+'</span></div><div><b class="num">'+(st.resp==null?'—':st.resp)+'</b><span>'+t('vResp')+(st.resp==null?'':' ('+t('vRespU')+')')+'</span></div></div>';
+  var fl=[['all',t('vAll')],['mine',t('vMine')]].concat(VST.concat(['declined']).map(function(s){return [s,t('st_'+s)]}));
+  var seg='<div class="seg" role="group">'+fl.map(function(f){return '<button type="button" data-vf="'+f[0]+'" class="'+(VFILTER===f[0]?'on':'')+'">'+f[1]+'</button>'}).join('')+'</div>';
+  var list=D.vox.filter(function(v){return VFILTER==='all'||(VFILTER==='mine'?(v.mine||String(v.empId)===me()):v.status===VFILTER)});
+  var cards=list.length?list.map(function(v){var c=vcat(v.category),n=D.tally[v.id]||0,mv=!!D.myVotes[v.id],own=v.mine||String(v.empId||'')===me();
+    var who=own?t('you'):(v.by&&!v.anonymous?esc(v.by):(isAdmin()&&v.by?esc(v.by)+' <span class="badge b-mute">🔒</span>':t('colleague')));
+    return '<article class="idea"><div class="ih"><h4>'+esc(v.title)+'</h4><button type="button" class="vote'+(mv?' on':'')+'" data-vote="'+esc(v.id)+'" '+(own?'disabled':'')+' aria-pressed="'+mv+'">▲ <span class="num">'+n+'</span> <span>'+t('vSupport')+'</span></button></div>'+
+      '<div class="id">'+esc(v.details||'')+'</div><div class="im"><span class="badge b-mute">'+c[3]+' '+esc(LANG==='ar'?c[1]:c[2])+'</span><span>'+who+'</span><span>'+fdate(v.createdAt)+'</span><span class="num">'+esc(v.no||'')+'</span></div>'+trackHTML(v)+
+      (v.reply?'<div class="reply"><b>'+t('mgmtReply')+'</b>'+esc(v.reply)+'</div>':'')+(isAdmin()?'<div class="ops" style="margin-top:10px"><button class="btn sm sec" type="button" data-vu="'+esc(v.id)+'">✎ '+t('vUpd')+'</button>'+(USER.role==='hr'?'<button class="btn sm gh" type="button" data-vdel="'+esc(v.id)+'">'+t('del')+'</button>':'')+'</div>':'')+'</article>'}).join(''):'<div class="card empty"><b>💬</b>'+t('noIdeas')+'</div>';
+  return head+stats+seg+cards}
+function bVoice(){$('#vNew').onclick=voxForm;$$('[data-vf]').forEach(function(b){b.onclick=function(){VFILTER=b.getAttribute('data-vf');render()}});
+  $$('[data-vote]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-vote'),my=me();if(!my){toast(t('noEmp'));return}b.disabled=true;
+    var op=D.myVotes[id]?{k:'vvt:'+id+'.'+my,del:1}:{k:'vvt:'+id+'.'+my,v:JSON.stringify({voxId:id,empId:my,at:new Date().toISOString()})};
+    push([op]).catch(function(){b.disabled=false;toast(t('neterr'))})}});
+  $$('[data-vu]').forEach(function(b){b.onclick=function(){voxUpdate(b.getAttribute('data-vu'))}});
+  $$('[data-vdel]').forEach(function(b){b.onclick=function(){if(!confirm(LANG==='ar'?'حذف هذا المقترح نهائياً؟':'Delete this idea permanently?'))return;var id=b.getAttribute('data-vdel');
+    var ops=[{k:'vox:'+id,del:1}];(D.vvtKeys||[]).forEach(function(x){if(x.voxId===id)ops.push({k:x.k,del:1})});push(ops).then(function(){toast(t('saved'))}).catch(function(){toast(t('neterr'))})}})}
+function voxForm(){if(!me()){toast(t('noEmp'));return}
+  modal('💡 '+t('vNew'),'<div class="fld"><label for="vt">'+t('vT')+'</label><input id="vt" maxlength="110"></div><div class="fld"><label for="vc">'+t('vC')+'</label><select id="vc">'+VCATS.map(function(c){return '<option value="'+c[0]+'">'+c[3]+' '+(LANG==='ar'?c[1]:c[2])+'</option>'}).join('')+'</select></div>'+
+   '<div class="fld"><label for="vd">'+t('vD')+'</label><textarea id="vd" maxlength="1500"></textarea></div><label class="chk"><input type="checkbox" id="va"><span>'+t('vAnon')+'</span></label><div class="err" id="ve" role="alert"></div>'+
+   '<div class="mf"><button class="btn cu" type="button" id="vgo">'+t('send')+'</button><button class="btn sec" type="button" id="vx">'+t('cancel')+'</button></div>',function(b,close){
+   $('#vx',b).onclick=close;$('#vgo',b).onclick=function(){var ti=$('#vt',b).value.trim(),de=$('#vd',b).value.trim();if(!ti||!de){$('#ve',b).textContent=t('errReq');return}
+     var now=new Date().toISOString(),id=uid(),v={id:id,no:'IDEA-'+Date.now().toString(36).toUpperCase().slice(-5),empId:me(),by:(D.emp&&D.emp.name)||USER.name,anonymous:$('#va',b).checked,title:ti,details:de,category:$('#vc',b).value,status:'received',createdAt:now,updates:[],reply:''};
+     var nid=uid(),n={id:nid,to:'role:hr',ic:'💡',title:'مقترح جديد في «صوتك إلى قرار»',body:v.no+' — '+ti,link:null,at:now,read:false};
+     var btn=this;btn.disabled=true;push([{k:'vox:'+id,v:JSON.stringify(v)},{k:'ntf:'+nid,v:JSON.stringify(n)}]).then(function(){close();VFILTER='all';toast(t('sent'))}).catch(function(){btn.disabled=false;$('#ve',b).textContent=t('neterr')})}})}
+function voxUpdate(id){var v=D.vox.filter(function(x){return x.id===id})[0];if(!v)return;
+  modal('✎ '+t('vUpd'),'<div class="note" style="margin-bottom:12px"><b>'+esc(v.title)+'</b><br>'+esc(v.details||'')+'</div><div class="fld"><label for="us">'+t('status')+'</label><select id="us">'+VST.concat(['declined']).map(function(s){return '<option value="'+s+'" '+(v.status===s?'selected':'')+'>'+t('st_'+s)+'</option>'}).join('')+'</select></div>'+
+   '<div class="fld"><label for="un">'+t('vNote')+'</label><textarea id="un" placeholder="'+(LANG==='ar'?'مثال: شكراً على الفكرة، ندرس تكلفتها مع المحاسبة وسنرد خلال أسبوعين.':'')+'">'+esc(v.reply||'')+'</textarea><div class="hint">'+(LANG==='ar'?'يظهر الرد لكل الموظفين تحت المقترح. عند عدم الاعتماد اذكر السبب بوضوح.':'Visible to all staff under the idea.')+'</div></div><div class="err" id="ue"></div>'+
+   '<div class="mf"><button class="btn" type="button" id="ugo">'+t('save')+'</button><button class="btn sec" type="button" id="ux">'+t('cancel')+'</button></div>',function(b,close){$('#ux',b).onclick=close;
+   $('#ugo',b).onclick=function(){var s=$('#us',b).value,nt=$('#un',b).value.trim();if(s==='declined'&&!nt){$('#ue',b).textContent=LANG==='ar'?'اذكر سبب عدم الاعتماد':'Give the reason';return}
+     var nv=JSON.parse(JSON.stringify(v));delete nv.mine;nv.status=s;nv.reply=nt;nv.updates=(nv.updates||[]).concat([{at:new Date().toISOString(),status:s,note:nt,by:USER.name}]);
+     var ops=[{k:'vox:'+id,v:JSON.stringify(nv)}];if(v.empId){var nid=uid();ops.push({k:'ntf:'+nid,v:JSON.stringify({id:nid,to:'emp:'+v.empId,ic:'💡',title:'تحديث على مقترحك',body:v.title+' — '+W['st_'+s][0],link:null,at:new Date().toISOString(),read:false})})}
+     var btn=this;btn.disabled=true;push(ops).then(function(){close();toast(t('saved'))}).catch(function(){btn.disabled=false;$('#ue',b).textContent=t('neterr')})}})}
+
+/* =================== الخريف =================== */
+function vKhareef(){var k=D.khf,head='';
+  if(!khActive())return sectionHead(t('khareef'))+'<div class="card empty"><b>🌦️</b>'+t('khOff')+(isAdmin()?'<br><button class="btn sm" type="button" data-adm="khareef" style="margin-top:10px">⚙️ '+t('admin')+'</button>':'')+'</div>';
+  var p=khPhase(),cd='';
+  if(p.ph==='before')cd='<div class="cd"><div><b class="num">'+p.n+'</b><span>'+t('days')+'</span></div></div><p style="position:relative;z-index:1;margin-top:8px;font-weight:600">'+t('khStart')+' — '+fdate(k.start)+'</p>';
+  else if(p.ph==='during')cd='<div class="cd"><div><b class="num">'+p.day+'</b><span>'+t('khDay')+' / '+p.total+'</span></div><div><b class="num">'+p.left+'</b><span>'+t('khLeft')+'</span></div></div><div class="pbar" style="margin-top:12px;background:rgba(255,255,255,.22);position:relative;z-index:1"><i style="width:'+Math.round(p.day/p.total*100)+'%;background:#fff"></i></div>';
+  else cd='<p style="position:relative;z-index:1;font-weight:700;margin-top:12px">'+t('khOver')+'</p>';
+  var top='<div class="kh"><div class="top"><div style="font-size:13.5px;opacity:.85;position:relative;z-index:1">'+fdate(k.start)+' — '+fdate(k.end)+'</div><h1 style="position:relative;z-index:1">'+esc(k.title||'موسم الخريف')+'</h1>'+(k.message?'<p style="position:relative;z-index:1">'+esc(k.message)+'</p>':'')+cd+'</div></div>';
+  var role=(k.roles||[]).filter(function(r){return String(r.empId)===me()})[0];
+  var roleC='<div class="card"><h2>🧭 '+t('khRole')+'</h2>'+(role?'<div class="item"><div class="av">🧭</div><div class="grow"><div class="t">'+esc(role.role)+'</div>'+(role.note?'<div class="s">'+esc(role.note)+'</div>':'')+'</div></div>':'<div class="empty" style="padding:14px">'+t('khNoRole')+'</div>')+'</div>';
+  var tg=(k.targets||[]),tgC=tg.length?'<div class="card"><h2>🎯 '+t('khTargets')+'</h2>'+tg.map(function(x){var pc=x.target?Math.min(100,Math.round(Number(x.cur||0)/Number(x.target)*100)):0;return '<div class="tgt"><div class="tl"><b>'+esc(x.label)+'</b><span class="num">'+esc(x.cur||0)+' / '+esc(x.target)+' '+esc(x.unit||'')+'</span></div><div class="pbar mi"><i style="width:'+pc+'%"></i></div></div>'}).join('')+'</div>':'';
+  var cl=(k.checklist||[]),m=khMine().items||{},dn=cl.filter(function(x){return m[x.id]}).length;
+  var clC=cl.length?'<div class="card"><h2>✅ '+t('khReady')+' <small class="num">'+dn+'/'+cl.length+'</small></h2><div class="pbar mi" style="margin-bottom:12px"><i style="width:'+Math.round(dn/cl.length*100)+'%"></i></div><div class="list">'+cl.map(function(x){return '<label class="chk'+(m[x.id]?' on':'')+'"><input type="checkbox" data-kc="'+esc(x.id)+'" '+(m[x.id]?'checked':'')+' '+(me()?'':'disabled')+'><span>'+esc(x.text)+'</span></label>'}).join('')+'</div></div>':'';
+  var st=(k.stars||[]),rw=(k.rewards||st.length)?'<div class="card"><h2>🏆 '+t('khRewards')+'</h2>'+(k.rewards?'<div class="prose" style="font-size:14.5px">'+fmtText(k.rewards)+'</div>':'')+(st.length?'<div class="sec-h" style="margin-top:12px">⭐ '+t('khStars')+'</div><div class="stars">'+st.map(function(s){return '<div class="item"><div class="av">⭐</div><div class="grow"><div class="t">'+esc(s.name)+'</div>'+(s.note?'<div class="s">'+esc(s.note)+'</div>':'')+'</div></div>'}).join('')+'</div>':'')+'</div>':'';
+  var adm=isAdmin()?'<div style="margin-top:14px"><button class="btn sec sm" type="button" data-adm="khareef">⚙️ '+t('admin')+'</button></div>':'';
+  return top+'<div class="grid g2" style="margin-top:14px;align-items:start"><div>'+roleC+clC+'</div><div>'+tgC+rw+'</div></div>'+adm}
+function bKhareef(){$$('[data-adm]').forEach(function(b){b.onclick=function(){SUB=b.getAttribute('data-adm');go('admin')}});
+  $$('[data-kc]').forEach(function(c){c.onchange=function(){var cur=JSON.parse(JSON.stringify(khMine()));cur.empId=me();cur.items=cur.items||{};if(c.checked)cur.items[c.getAttribute('data-kc')]=new Date().toISOString();else delete cur.items[c.getAttribute('data-kc')];cur.at=new Date().toISOString();
+    c.disabled=true;push([{k:'khk:'+me(),v:JSON.stringify(cur)}]).catch(function(){c.disabled=false;c.checked=!c.checked;toast(t('neterr'))})}})}
+
+/* =================== طلباتي (الإجازات، الرواتب، الدعم) =================== */
+function badgeReq(s){var m={pending:'b-warn',approved:'b-ok',rejected:'b-bad',cancelled:'b-mute'};return '<span class="badge '+(m[s]||'b-mute')+'">'+t('st_'+s)+'</span>'}
+function badgeCmp(s){var m={new:'b-warn',review:'b-info',investigating:'b-info',escalated:'b-warn',resolved:'b-ok',closed:'b-mute'};return '<span class="badge '+(m[s]||'b-mute')+'">'+t('c_'+s)+'</span>'}
+function ltName(k){for(var i=0;i<LT.length;i++)if(LT[i][0]===k)return LANG==='ar'?LT[i][1]:LT[i][2];return k}
+function stepsHTML(r){return '<div class="track" style="margin-top:8px">'+(r.steps||[]).map(function(s){return '<span class="'+(s.status==='approved'?'on':s.status==='rejected'?'no':'')+'">'+t(s.role)+'</span>'}).join('')+'</div>'}
+function vServices(){if(!D.emp)return sectionHead(t('services'))+'<div class="card empty">'+t('noEmp')+'</div>';
+  var seg='<div class="seg">'+[['leaves','🌴'],['pay','💳'],['support','🛟']].map(function(x){return '<button type="button" data-ps="'+x[0]+'" class="'+(PSUB===x[0]?'on':'')+'">'+x[1]+' '+t(x[0])+'</button>'}).join('')+'</div>',body='';
+  if(PSUB==='pay')body='<div class="card"><h2>💳 '+t('slips')+'</h2>'+(D.pays.length?'<div class="list">'+D.pays.map(function(p){return '<button type="button" class="item" data-pay="'+esc(p.month)+'"><div class="av">🧾</div><div class="grow"><div class="t">'+mname(p.month)+'</div><div class="s">'+t('net')+'</div></div><b class="num">'+omr(p.line.net)+'</b></button>'}).join('')+'</div>':'<div class="empty">'+t('noSlips')+'</div>')+'</div>';
+  else if(PSUB==='support')body='<div class="note c" style="margin-bottom:12px">💡 '+t('ideasHere')+' <button class="btn sm cu" type="button" data-go="voice" style="margin-inline-start:6px">'+t('voice')+'</button></div><div class="card"><h2>🛟 '+t('myTickets')+'<button class="btn sm" type="button" id="nT">＋ '+t('newTicket')+'</button></h2>'+(D.tickets.length?'<div class="list">'+D.tickets.map(function(c){return '<div class="item"><div class="av">'+(c.category==='اقتراح تطوير'?'💡':'📨')+'</div><div class="grow"><div class="t">'+esc(c.subject)+'</div><div class="s">'+esc(c.no||'')+' — '+fdate(String(c.createdAt).slice(0,10))+(c.resolution?' — '+esc(c.resolution):'')+'</div></div>'+badgeCmp(c.status)+'</div>'}).join('')+'</div>':'<div class="empty">'+t('noTickets')+'</div>')+'</div>';
+  else{var lv=D.reqs.filter(function(r){return r.type==='leave'});body='<div class="card"><div class="polhead"><div class="big num">'+(D.emp.annualBalance||0)+'</div><div class="grow"><b>'+t('bal')+'</b><div class="small muted">'+t('days')+'</div></div><button class="btn" type="button" id="nL">＋ '+t('newLeave')+'</button></div></div>'+
+    '<div class="card"><h2>🌴 '+t('myLeaves')+'</h2>'+(lv.length?'<div class="list">'+lv.map(function(r){var d=r.data||{};return '<button type="button" class="item" data-req="'+esc(r.id)+'" style="align-items:flex-start"><div class="av">🌴</div><div class="grow"><div class="t">'+esc(ltName(d.leaveType))+' — '+(d.days||0)+' '+t('days')+'</div><div class="s">'+fdate(d.from)+' ← '+fdate(d.to)+' — '+esc(r.no||'')+'</div>'+stepsHTML(r)+'</div>'+badgeReq(r.status)+'</button>'}).join('')+'</div>':'<div class="empty">'+t('noLeaves')+'</div>')+'</div>'}
+  return sectionHead(t('services'),esc(t('d_services')))+seg+body}
+function bServices(){$$('[data-ps]').forEach(function(b){b.onclick=function(){PSUB=b.getAttribute('data-ps');render()}});var l=$('#nL');if(l)l.onclick=leaveForm;var n=$('#nT');if(n)n.onclick=ticketForm;
+  $$('[data-req]').forEach(function(b){b.onclick=function(){openReq(b.getAttribute('data-req'))}});$$('[data-pay]').forEach(function(b){b.onclick=function(){openSlip(b.getAttribute('data-pay'))}})}
+function leaveForm(){var e=D.emp;var tp=LT.filter(function(x){return x[0]!=='maternity'||e.gender==='f'});
+  modal('🌴 '+t('newLeave'),'<div class="note" style="margin-bottom:12px">'+t('bal')+': <b>'+(e.annualBalance||0)+'</b> '+t('days')+'</div><div class="fld"><label for="lt">'+t('type')+'</label><select id="lt">'+tp.map(function(x){return '<option value="'+x[0]+'">'+(LANG==='ar'?x[1]:x[2])+'</option>'}).join('')+'</select></div>'+
+   '<div class="row2"><div class="fld"><label for="lf">'+t('from')+'</label><input type="date" id="lf" value="'+today()+'"></div><div class="fld"><label for="lto">'+t('to')+'</label><input type="date" id="lto" value="'+today()+'"></div></div>'+
+   '<div class="note" id="ldur" style="margin-bottom:12px"></div><div class="fld"><label for="lr">'+t('reason')+'</label><textarea id="lr"></textarea></div><div class="err" id="lerr"></div><div class="mf"><button class="btn" type="button" id="lgo">'+t('send')+'</button><button class="btn sec" type="button" id="lx">'+t('cancel')+'</button></div>',function(b,close){
+   var up=function(){var n=days($('#lf',b).value,$('#lto',b).value);$('#ldur',b).textContent=t('dur')+': '+(n>0?n:0)+' '+t('days')};$('#lf',b).oninput=up;$('#lto',b).oninput=up;up();$('#lx',b).onclick=close;
+   $('#lgo',b).onclick=function(){var ty=$('#lt',b).value,f=$('#lf',b).value,to=$('#lto',b).value,n=days(f,to),err='';
+     if(!f||!to||!(n>=1))err=t('errDates');else if((ty==='annual'||ty==='emergency')&&n>(e.annualBalance||0))err=t('errBal');if(err){$('#lerr',b).textContent=err;return}
+     var flow=['sup','hr'];if(ty==='maternity'||n>((D.settings&&D.settings.gmLeaveDays)||5))flow.push('gm');if(!e.supervisorId)flow=flow.filter(function(x){return x!=='sup'});
+     var now=new Date().toISOString(),id=uid(),r={id:id,no:'REQ-W'+Date.now().toString(36).toUpperCase().slice(-5),type:'leave',empId:e.id,data:{leaveType:ty,from:f,to:to,days:n,subId:null,reason:$('#lr',b).value.trim()},status:'pending',cur:0,createdAt:now,
+       steps:flow.map(function(role,i){return {role:role,status:i?'waiting':'pending',by:null,at:null,note:''}})};
+     var nid=uid(),n1={id:nid,to:flow[0]==='sup'?'emp:'+e.supervisorId:'role:'+flow[0],ic:'🌴',title:'طلب إجازة بانتظار اعتمادك',body:e.name+' — '+r.no,link:{view:'approvals'},at:now,read:false};
+     var btn=this;btn.disabled=true;push([{k:'req:'+id,v:JSON.stringify(r)},{k:'ntf:'+nid,v:JSON.stringify(n1)}]).then(function(){close();toast(t('sent'))}).catch(function(){btn.disabled=false;$('#lerr',b).textContent=t('neterr')})}})}
+function openReq(id){var r=D.reqs.filter(function(x){return x.id===id})[0];if(!r)return;var d=r.data||{};
+  modal('🌴 '+esc(ltName(d.leaveType)),'<table class="slip"><tr><td>'+t('status')+'</td><td>'+badgeReq(r.status)+'</td></tr><tr><td>'+t('from')+'</td><td>'+fdate(d.from)+'</td></tr><tr><td>'+t('to')+'</td><td>'+fdate(d.to)+'</td></tr><tr><td>'+t('dur')+'</td><td>'+d.days+' '+t('days')+'</td></tr>'+(d.reason?'<tr><td>'+t('reason')+'</td><td>'+esc(d.reason)+'</td></tr>':'')+'</table>'+stepsHTML(r)+
+   '<div class="mf">'+(r.status==='pending'?'<button class="btn bad" type="button" id="rc">'+t('cancelReq')+'</button>':'')+'<button class="btn sec" type="button" id="rx">'+t('close')+'</button></div>',function(b,close){$('#rx',b).onclick=close;var c=$('#rc',b);
+   if(c)c.onclick=function(){if(!confirm(t('confirmCancel')))return;var nr=JSON.parse(JSON.stringify(r));nr.status='cancelled';c.disabled=true;push([{k:'req:'+r.id,v:JSON.stringify(nr)}]).then(function(){close();toast(t('saved'))}).catch(function(){c.disabled=false;toast(t('neterr'))})}})}
+function openSlip(m){var p=D.pays.filter(function(x){return x.month===m})[0];if(!p)return;var l=p.line,row=function(k,v,neg){return '<tr><td>'+t(k)+'</td><td>'+(neg&&v?'− ':'')+omr(v)+'</td></tr>'};
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px"><div><b>'+esc(D.emp.name||'')+'</b><div class="small muted">'+esc(D.emp.code||'')+' — '+esc(D.emp.building||'')+'</div></div><span class="badge b-info">'+mname(m)+'</span></div>'+
+   '<table class="slip">'+row('basic',l.basic)+row('allow',l.allow)+row('ot',l.ot)+row('rewards',l.rewards)+'<tr><td><b>'+t('earn')+'</b></td><td>'+omr(l.earn)+'</td></tr>'+row('absent',l.absent,1)+row('leaveDed',l.leaveDed,1)+row('penalties',l.penalties,1)+row('advance',l.advance,1)+row('spf',l.spf,1)+'<tr><td><b>'+t('ded')+'</b></td><td>'+omr(l.ded)+'</td></tr><tr class="tot"><td>'+t('net')+'</td><td>'+omr(l.net)+'</td></tr></table>';
+  modal('🧾 '+t('slip'),html+'<div class="mf"><button class="btn" type="button" id="sp">'+t('print')+'</button><button class="btn sec" type="button" id="sx">'+t('close')+'</button></div>',function(b,close){$('#sx',b).onclick=close;$('#sp',b).onclick=function(){printHTML(pdHead(mname(m))+'<h1 class="pd-title">'+t('slip')+'</h1>'+html+pdFoot())}})}
+function ticketForm(){var e=D.emp;
+  modal('🛟 '+t('newTicket'),'<div class="fld"><label for="tk">'+t('kind')+'</label><select id="tk"><option value="supp">'+t('supp')+'</option><option value="comp">'+t('comp')+'</option></select></div><div class="fld" id="tcw" hidden><label for="tc">'+t('cat')+'</label><select id="tc">'+CATS.map(function(c){return '<option value="'+esc(c[0])+'">'+(LANG==='ar'?c[0]:c[1])+'</option>'}).join('')+'</select></div>'+
+   '<div class="fld"><label for="ts">'+t('subj')+'</label><input id="ts" maxlength="120"></div><div class="fld"><label for="td">'+t('details')+'</label><textarea id="td"></textarea></div><label class="chk" id="taw" hidden><input type="checkbox" id="ta"><span>'+t('anon')+'</span></label><div class="err" id="terr"></div>'+
+   '<div class="mf"><button class="btn" type="button" id="tgo">'+t('send')+'</button><button class="btn sec" type="button" id="tx">'+t('cancel')+'</button></div>',function(b,close){
+   var up=function(){var c=$('#tk',b).value==='comp';$('#tcw',b).hidden=!c;$('#taw',b).hidden=!c};$('#tk',b).onchange=up;$('#tx',b).onclick=close;
+   $('#tgo',b).onclick=function(){var k=$('#tk',b).value,s=$('#ts',b).value.trim(),d=$('#td',b).value.trim();if(!s||!d){$('#terr',b).textContent=t('errReq');return}
+     var cat=k==='supp'?'أخرى':$('#tc',b).value,now=new Date(),id=uid(),add=function(n){var x=new Date(now);x.setDate(x.getDate()+n);return ymd(x)},st=D.settings||{};
+     var c={id:id,no:'CMP-W'+Date.now().toString(36).toUpperCase().slice(-5),empId:e.id,anonymous:k==='comp'&&$('#ta',b).checked,category:cat,againstType:'',against:'',subject:(k==='supp'?'[دعم] ':'')+s,details:d,priority:'عادية',attachment:'',status:'new',createdAt:now.toISOString(),ackDue:add(st.complaintAckDays||2),due:add(st.complaintResolveDays||10),log:[],resolution:'',rating:0};
+     var nid=uid(),n1={id:nid,to:'role:hr',ic:k==='supp'?'🛟':'📨',title:k==='supp'?'طلب دعم جديد':'شكوى جديدة',body:c.no+' — '+cat,link:{view:'complaints'},at:now.toISOString(),read:false};
+     var btn=this;btn.disabled=true;push([{k:'cmp:'+id,v:JSON.stringify(c)},{k:'ntf:'+nid,v:JSON.stringify(n1)}]).then(function(){close();toast(t('sent'))}).catch(function(){btn.disabled=false;$('#terr',b).textContent=t('neterr')})}})}
+
+/* =================== الإدارة (الموارد البشرية والمدير العام) =================== */
+var ADM=[['access','🔓','إتاحة الأقسام'],['policies','📜','السياسات'],['impact','🌟','الأثر'],['badges','🏅','الشارات'],['voice','💬','صوتك'],['khareef','🌦️','الخريف']];
+function vAdmin(){if(!isAdmin())return vHome();
+  var seg='<div class="seg">'+ADM.map(function(a){return '<button type="button" data-sub="'+a[0]+'" class="'+(SUB===a[0]?'on':'')+'">'+a[1]+' '+a[2]+'</button>'}).join('')+'</div>';
+  SUB=FSUB[FOCUS];var body=({policies:aPolicies,impact:aImpact,badges:aBadges,voice:aVoice,khareef:aKhareef}[SUB])();
+  return sectionHead('⚙️ إدارة: '+W[FOCUS][0],FOCUS==='policies'?'تُعِدّ الموارد البشرية السياسة ثم ترسلها لاعتماد المدير العام، ولا تظهر للموظفين إلا بعد الاعتماد والنشر.':'هذه الصفحة تظهر للموارد البشرية والمدير العام فقط.')+aAccess()+body}
+function bAdmin(){bAccess();({policies:bAPolicies,impact:bAImpact,badges:bABadges,voice:function(){},khareef:bAKhareef}[SUB]||function(){})()}
+function save1(k,obj,msg){return push([{k:k,v:JSON.stringify(obj)}]).then(function(){toast(msg||t('saved'))}).catch(function(e){toast(e&&e.error==='forbidden'?'ليست لديك صلاحية لهذا التعديل':t('neterr'));throw e})}
+function empOptions(sel,filterB){return activeEmps().filter(function(e){return !filterB||e.building===filterB}).map(function(e){return '<option value="'+esc(e.id)+'" '+(String(sel)===String(e.id)?'selected':'')+'>'+esc(e.name)+(e.building?' — '+esc(e.building):'')+'</option>'}).join('')}
+
+/* --- إتاحة الأقسام --- */
+function aAccess(){var o=cfg().open||{},on=!!o[FOCUS];
+  return '<div class="card" style="margin-bottom:14px"><div class="tog"><span style="font-size:22px" aria-hidden="true">'+SEC_IC[FOCUS]+'</span><div class="grow"><b>إتاحة «'+W[FOCUS][0]+'» للموظفين</b><span>'+(on?'مفتوح: يظهر لكل الموظفين الآن.':'مغلق: يظهر للموظفين بعلامة «قريباً». أنت تراه دائماً لتجهيزه قبل الفتح.')+'</span></div><span class="badge '+(on?'b-ok':'b-cu')+'">'+(on?'مفتوح':'قريباً')+'</span><label class="sw" aria-label="إتاحة"><input type="checkbox" data-open="'+FOCUS+'" '+(on?'checked':'')+'><span></span></label></div>'+
+   (FOCUS==='policies'?'<div class="tog"><span style="font-size:22px">🔢</span><div class="grow"><b>تسلسل السياسات إلزامي</b><span>لا تُفتح السياسة التالية للموظف إلا بعد إقراره بالسابقة.</span></div><label class="sw" aria-label="تسلسل"><input type="checkbox" id="seqT" '+(cfg().seq!==false?'checked':'')+'><span></span></label></div>':'')+'</div>'}
+function bAccess(){var sv=function(){var c=JSON.parse(JSON.stringify(cfg()));c.open=c.open||{};$$('[data-open]').forEach(function(x){c.open[x.getAttribute('data-open')]=x.checked});var sq=$('#seqT');if(sq)c.seq=sq.checked;c.updatedAt=new Date().toISOString();c.by=USER.name;
+    $$('.sw input').forEach(function(x){x.disabled=true});save1('esx:cfg',c).catch(function(){render()})};
+  $$('[data-open]').forEach(function(x){x.onchange=sv});var sq=$('#seqT');if(sq)sq.onchange=sv}
+
+/* --- السياسات --- */
+function polAud(p){return activeEmps().filter(function(e){return !p.audience||p.audience==='all'||e.building===p.audience})}
+function polAckN(p){return polAud(p).filter(function(e){var a=D.acks[e.id+'.'+p.id];return a&&Number(a.v)>=Number(p.version||1)}).length}
+function aPolicies(){var P=D.pols;
+  var top='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn" type="button" id="pNew">＋ سياسة جديدة</button>'+(P.length?'<button class="btn sec" type="button" id="pRep">🖨️ تقرير الامتثال</button>':'')+'<button class="btn sec" type="button" id="pTpl">📋 إضافة نماذج جاهزة</button></div>';
+  var nPend=P.filter(function(p){return p.status==='pending'||p.rev}).length;
+  top+=nPend?'<div class="adm-note">'+(GMR()?'📌 لديك '+nPend+' سياسة بانتظار اعتمادك.':'⏳ '+nPend+' سياسة بانتظار اعتماد المدير العام.')+'</div>':'';
+  if(!P.length)return top+'<div class="card empty"><b>📜</b>لا توجد سياسات بعد. ابدأ بسياسة جديدة، أو أضف النماذج الجاهزة كمسودات وعدّلها قبل النشر.</div>';
+  return top+'<div class="card"><div class="list">'+P.map(function(p,i){var aud=polAud(p).length,n=p.status==='published'?polAckN(p):0;
+    return '<div class="item" style="flex-wrap:wrap;align-items:flex-start"><div class="av">'+esc(p.icon||'📜')+'</div><div class="grow" style="min-width:200px"><div class="t">'+(i+1)+'. '+esc(p.title)+' <span class="small muted num">'+esc(p.no||'')+'</span></div>'+
+      '<div class="s">'+(p.status==='published'?'<span class="badge b-ok">منشورة</span>'+(p.rev?' <span class="badge b-warn">تحديث بانتظار اعتماد المدير العام</span>':''):p.status==='pending'?'<span class="badge b-warn">بانتظار اعتماد المدير العام</span>':'<span class="badge b-mute">مسودة</span>')+' <span class="badge b-mute">الإصدار '+(p.version||1)+'</span> <span class="badge b-mute">'+(p.sections||[]).length+' فصول</span> <span class="badge b-mute">'+(p.audience&&p.audience!=='all'?esc(p.audience):'جميع الموظفين')+'</span></div>'+
+      (p.returnNote&&p.status==='draft'?'<div class="small" style="color:var(--bad);margin-top:6px">↩︎ ملاحظة المدير العام: '+esc(p.returnNote)+'</div>':'')+(p.approvedBy&&p.status==='published'?'<div class="small muted" style="margin-top:4px">اعتمدها '+esc(p.approvedBy)+' — '+fdate(p.approvedAt)+'</div>':'')+
+      (p.status==='published'?'<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><div class="pbar" style="flex:1"><i style="width:'+(aud?n/aud*100:0)+'%"></i></div><span class="small num">'+n+'/'+aud+'</span></div>':'')+'</div>'+
+      '<div class="ops"><button class="btn sm sec" type="button" data-pe="'+p.id+'">تعديل</button>'+(p.status==='published'?'<button class="btn sm sec" type="button" data-pt="'+p.id+'">المتابعة</button>'+(p.rev&&GMR()?'<button class="btn sm" type="button" data-rok="'+p.id+'">اعتماد التحديث</button><button class="btn sm gh" type="button" data-rno="'+p.id+'">رفض التحديث</button>':''):
+        GMR()?'<button class="btn sm" type="button" data-pub="'+p.id+'">اعتماد ونشر</button>'+(p.status==='pending'?'<button class="btn sm gh" type="button" data-pret="'+p.id+'">إعادة للتعديل</button>':''):
+        p.status==='pending'?'<button class="btn sm gh" type="button" data-pret="'+p.id+'">سحب للتعديل</button>':'<button class="btn sm" type="button" data-psend="'+p.id+'">إرسال للاعتماد</button>')+
+      '<button class="btn sm gh" type="button" data-pu="'+p.id+'" '+(i?'':'disabled')+' aria-label="أعلى">▲</button><button class="btn sm gh" type="button" data-pd="'+p.id+'" '+(i<P.length-1?'':'disabled')+' aria-label="أسفل">▼</button>'+
+      (p.status==='published'?'<button class="btn sm gh" type="button" data-unpub="'+p.id+'">إيقاف</button>':'')+(USER.role==='hr'?'<button class="btn sm gh" type="button" data-pdel="'+p.id+'" style="color:var(--bad)">حذف</button>':'')+'</div></div>'}).join('')+'</div></div>'}
+function GMR(){return !!USER&&USER.role==='gm'}
+function nextPolNo(){var mx=0;D.pols.forEach(function(p){var m=String(p.no||'').match(/(\d+)$/);if(m)mx=Math.max(mx,+m[1])});return 'POL-'+pad(mx+1)}
+function bAPolicies(){var find=function(id){return D.pols.filter(function(p){return p.id===id})[0]};
+  var pn=$('#pNew');if(pn)pn.onclick=function(){polEditor(null)};var pr=$('#pRep');if(pr)pr.onclick=complianceReport;var tp=$('#pTpl');if(tp)tp.onclick=addTemplates;
+  $$('[data-pe]').forEach(function(b){b.onclick=function(){polEditor(find(b.getAttribute('data-pe')))}});
+  $$('[data-pt]').forEach(function(b){b.onclick=function(){polTrack(find(b.getAttribute('data-pt')))}});
+  $$('[data-pub]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-pub'))));if(!(p.sections||[]).length){toast('أضف فصلاً واحداً على الأقل قبل النشر');return}
+    if(!GMR()){toast('النشر يحتاج اعتماد المدير العام');return}
+    if(!confirm('اعتماد «'+p.title+'» ونشرها للموظفين؟ ستظهر لهم وتطلب إقرارهم.'))return;var now=new Date().toISOString();p.status='published';p.publishedAt=now;p.updatedAt=now;p.approvedBy=USER.name;p.approvedAt=now;delete p.returnNote;p.history=(p.history||[]).concat([{v:p.version||1,at:now,by:USER.name,approved:1}]);save1('spl:'+p.id,p,'تم الاعتماد والنشر')}});
+  $$('[data-psend]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-psend'))));if(!(p.sections||[]).length){toast('أضف فصلاً واحداً على الأقل');return}
+    if(!confirm('إرسال «'+p.title+'» لاعتماد المدير العام؟'))return;p.status='pending';p.sentAt=new Date().toISOString();p.sentBy=USER.name;delete p.returnNote;save1('spl:'+p.id,p,'أُرسلت لاعتماد المدير العام')}});
+  $$('[data-pret]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-pret'))));var note='';
+    if(GMR()){note=prompt('ملاحظاتك على السياسة (تظهر للموارد البشرية):','');if(note===null)return}else if(!confirm('سحب «'+p.title+'» من الاعتماد لتعديلها؟'))return;
+    p.status='draft';if(note)p.returnNote=note.trim();save1('spl:'+p.id,p,GMR()?'أُعيدت للموارد البشرية':t('saved'))}});
+  $$('[data-rok]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-rok'))));var r=p.rev;if(!r)return;
+    if(!confirm('اعتماد تحديث «'+r.title+'»؟ سيُرفع الإصدار ويُطلب من الموظفين إقرار جديد.'))return;var now=new Date().toISOString();
+    ['title','icon','summary','audience','sections','statements'].forEach(function(k){if(r[k]!=null)p[k]=r[k]});p.version=(p.version||1)+1;p.history=(p.history||[]).concat([{v:p.version,at:now,by:r.by,approved:USER.name}]);
+    p.approvedBy=USER.name;p.approvedAt=now;p.updatedAt=now;delete p.rev;save1('spl:'+p.id,p,'تم اعتماد التحديث')}});
+  $$('[data-rno]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-rno'))));var note=prompt('سبب رفض التحديث (يظهر للموارد البشرية):','');if(note===null)return;
+    delete p.rev;p.returnNote=note.trim();save1('spl:'+p.id,p,'رُفض التحديث وبقي الإصدار الحالي')}});
+  $$('[data-unpub]').forEach(function(b){b.onclick=function(){var p=JSON.parse(JSON.stringify(find(b.getAttribute('data-unpub'))));if(!confirm('إيقاف «'+p.title+'»؟ ستختفي عن الموظفين وتبقى إقراراتهم محفوظة.'))return;p.status='draft';save1('spl:'+p.id,p)}});
+  $$('[data-pdel]').forEach(function(b){b.onclick=function(){var p=find(b.getAttribute('data-pdel'));if(!confirm('حذف «'+p.title+'» نهائياً؟ الإقرارات السابقة تبقى في السجل.'))return;push([{k:'spl:'+p.id,del:1}]).then(function(){toast('تم الحذف')}).catch(function(){toast(t('neterr'))})}});
+  var mv=function(id,dir){var L=D.pols.slice(),i=L.map(function(p){return p.id}).indexOf(id),j=i+dir;if(j<0||j>=L.length)return;var x=L[i];L[i]=L[j];L[j]=x;
+    push(L.map(function(p,k){var q=JSON.parse(JSON.stringify(p));q.order=k+1;return {k:'spl:'+q.id,v:JSON.stringify(q)}})).catch(function(){toast(t('neterr'))})};
+  $$('[data-pu]').forEach(function(b){b.onclick=function(){mv(b.getAttribute('data-pu'),-1)}});$$('[data-pd]').forEach(function(b){b.onclick=function(){mv(b.getAttribute('data-pd'),1)}})}
+var PICONS=['📜','👔','🔑','🧳','🧹','🛎️','🦺','📱','🕘','💰','🤝','🚭'];
+function polEditor(p0){var isNew=!p0,p=p0?JSON.parse(JSON.stringify(p0)):{id:uid(),no:nextPolNo(),icon:'📜',title:'',summary:'',audience:'all',sections:[{id:uid(),title:'',body:''}],statements:[W.defStmt[0]],status:'draft',version:1,order:D.pols.length+1,createdAt:new Date().toISOString()};
+  var pub=p.status==='published',gm=GMR(),hasRev=!!(p0&&p0.rev);
+  if(hasRev)['title','icon','summary','audience','sections','statements'].forEach(function(k){if(p0.rev[k]!=null)p[k]=JSON.parse(JSON.stringify(p0.rev[k]))});
+  var secRow=function(s,i){return '<div class="secrow" data-sid="'+esc(s.id)+'"><div class="sr-h"><b>الفصل '+(i+1)+'</b><button class="btn sm gh" type="button" data-su aria-label="أعلى">▲</button><button class="btn sm gh" type="button" data-sd aria-label="أسفل">▼</button><button class="btn sm gh" type="button" data-sx style="color:var(--bad)">حذف</button></div>'+
+    '<div class="fld"><input data-st placeholder="عنوان الفصل" value="'+esc(s.title)+'"></div><div class="fld" style="margin:0"><textarea data-sb placeholder="نص الفصل. السطر الذي يبدأ بـ - يظهر كبند." style="min-height:140px">'+esc(s.body)+'</textarea></div></div>'};
+  modal((isNew?'＋ سياسة جديدة':'تعديل: '+esc(p.title))+' <span class="small muted num">'+esc(p.no)+'</span>',
+   '<div class="row2"><div class="fld"><label for="pT">عنوان السياسة</label><input id="pT" value="'+esc(p.title)+'" placeholder="مثال: سياسة الزي والمظهر"></div><div class="fld"><label for="pI">الأيقونة</label><select id="pI">'+PICONS.map(function(x){return '<option '+(p.icon===x?'selected':'')+'>'+x+'</option>'}).join('')+'</select></div></div>'+
+   '<div class="fld"><label for="pS">ملخص قصير (يظهر في القائمة)</label><input id="pS" value="'+esc(p.summary||'')+'" maxlength="200"></div>'+
+   '<div class="fld"><label for="pA">الموجهة إليهم</label><select id="pA"><option value="all">جميع الموظفين</option>'+BUILDINGS.map(function(b){return '<option '+(p.audience===b?'selected':'')+'>'+esc(b)+'</option>'}).join('')+'</select></div>'+
+   '<div class="sec-h" style="margin-top:6px">الفصول <small>يقرؤها الموظف بالترتيب، فصلاً فصلاً</small></div><div id="secs">'+(p.sections||[]).map(secRow).join('')+'</div><button class="btn sec sm" type="button" id="addS">＋ إضافة فصل</button>'+
+   '<div class="fld" style="margin-top:14px"><label for="pSt">بنود الإقرار (بند في كل سطر — يؤكدها الموظف كلها قبل التوقيع)</label><textarea id="pSt" style="min-height:90px">'+esc((p.statements||[]).join('\n'))+'</textarea></div>'+
+   (pub?'<div class="card" style="padding:12px;margin-top:6px;box-shadow:none;background:#FAFCFC"><b style="font-size:14px">نوع التعديل</b><label class="chk on" style="margin-top:8px"><input type="radio" name="ver" value="major" checked><span><b>تحديث جوهري</b> — يرفع الإصدار إلى '+((p.version||1)+1)+' ويطلب من كل الموظفين إقراراً جديداً</span></label><label class="chk" style="margin-top:8px"><input type="radio" name="ver" value="minor"><span><b>تصحيح بسيط</b> (إملائي أو صياغة) — يبقى الإصدار '+(p.version||1)+' والإقرارات سارية</span></label></div>':'')+
+   '<div class="err" id="pE"></div><div class="mf">'+(pub?'<button class="btn" type="button" id="pSave">'+(gm?'حفظ التعديل':'حفظ التعديل (الجوهري يُرسل للاعتماد)')+'</button>':(gm?'<button class="btn" type="button" id="pPub">اعتماد ونشر</button>':'<button class="btn" type="button" id="pSend">حفظ وإرسال للاعتماد</button>')+'<button class="btn sec" type="button" id="pDraft">حفظ كمسودة</button>')+'<button class="btn sec" type="button" id="pPrev">👁️ معاينة</button></div>',function(b,close){
+   var collect=function(){p.title=$('#pT',b).value.trim();p.icon=$('#pI',b).value;p.summary=$('#pS',b).value.trim();p.audience=$('#pA',b).value;
+     p.sections=$$('.secrow',b).map(function(r){return {id:r.getAttribute('data-sid'),title:$('[data-st]',r).value.trim(),body:$('[data-sb]',r).value.trim()}}).filter(function(s){return s.title||s.body});
+     p.statements=$('#pSt',b).value.split('\n').map(function(x){return x.trim()}).filter(Boolean);if(!p.statements.length)p.statements=[W.defStmt[0]];return p};
+   var bindRows=function(){$$('.secrow',b).forEach(function(r,i){$('.sr-h b',r).textContent='الفصل '+(i+1);$('[data-sx]',r).onclick=function(){if($$('.secrow',b).length>1||confirm('حذف الفصل الوحيد؟')){r.remove();bindRows()}};
+     $('[data-su]',r).onclick=function(){var pv=r.previousElementSibling;if(pv){r.parentNode.insertBefore(r,pv);bindRows()}};$('[data-sd]',r).onclick=function(){var nx=r.nextElementSibling;if(nx){r.parentNode.insertBefore(nx,r);bindRows()}}})};bindRows();
+   $('#addS',b).onclick=function(){var d=document.createElement('div');d.innerHTML=secRow({id:uid(),title:'',body:''},$$('.secrow',b).length);$('#secs',b).appendChild(d.firstChild);bindRows();$$('.secrow',b).slice(-1)[0].querySelector('[data-st]').focus()};
+   $$('input[name=ver]',b).forEach(function(r){r.onchange=function(){$$('input[name=ver]',b).forEach(function(x){x.closest('.chk').classList.toggle('on',x.checked)})}});
+   var valid=function(){collect();if(!p.title){$('#pE',b).textContent='اكتب عنوان السياسة';return false}if(!p.sections.length){$('#pE',b).textContent='أضف فصلاً واحداً على الأقل';return false}return true};
+   var doSave=function(status,btn){if(!valid())return;var now=new Date().toISOString();
+     if(pub&&!gm&&(hasRev||(($('input[name=ver]:checked',b)||{}).value==='major'))){var q=JSON.parse(JSON.stringify(p0));q.rev={title:p.title,icon:p.icon,summary:p.summary,audience:p.audience,sections:p.sections,statements:p.statements,at:now,by:USER.name};delete q.returnNote;
+       btn.disabled=true;save1('spl:'+q.id,q,'أُرسل التحديث لاعتماد المدير العام — الإصدار الحالي يبقى ساري').then(close).catch(function(){btn.disabled=false});return}
+     if(status==='published'&&!pub){p.approvedBy=USER.name;p.approvedAt=now;delete p.returnNote}
+     if(status==='pending'){p.sentAt=now;p.sentBy=USER.name;delete p.returnNote}
+     if(pub&&gm){p.approvedBy=USER.name;p.approvedAt=now;delete p.rev}
+     if(pub){var major=($('input[name=ver]:checked',b)||{}).value==='major';if(major){p.version=(p.version||1)+1;p.history=(p.history||[]).concat([{v:p.version,at:now,by:USER.name}])}}
+     else{p.status=status;if(status==='published'){p.publishedAt=now;p.history=[{v:p.version||1,at:now,by:USER.name}]}}
+     p.updatedAt=now;p.by=USER.name;btn.disabled=true;save1('spl:'+p.id,p,status==='published'&&!pub?'تم الاعتماد والنشر':status==='pending'?'أُرسلت لاعتماد المدير العام':t('saved')).then(close).catch(function(){btn.disabled=false})};
+   if($('#pSave',b))$('#pSave',b).onclick=function(){doSave('published',this)};
+   if($('#pPub',b))$('#pPub',b).onclick=function(){doSave('published',this)};
+   if($('#pDraft',b))$('#pDraft',b).onclick=function(){doSave('draft',this)};
+   if($('#pSend',b))$('#pSend',b).onclick=function(){doSave('pending',this)};
+   $('#pPrev',b).onclick=function(){collect();openReader(JSON.parse(JSON.stringify(p)),true)}},true)}
+function polTrack(p){var L=polAud(p);
+  var rows=L.map(function(e){var a=D.acks[e.id+'.'+p.id],ok=a&&Number(a.v)>=Number(p.version||1);return {e:e,a:a,ok:ok}}).sort(function(x,y){return (x.ok?1:0)-(y.ok?1:0)});
+  var n=rows.filter(function(r){return r.ok}).length;
+  modal('📊 متابعة: '+esc(p.title),'<div class="polhead" style="margin-bottom:12px"><div class="big num">'+n+'<span class="muted" style="font-size:18px">/'+L.length+'</span></div><div class="grow"><div class="pbar"><i style="width:'+(L.length?n/L.length*100:0)+'%"></i></div><div class="small muted" style="margin-top:6px">أقرّوا بالإصدار '+(p.version||1)+'</div></div><button class="btn sec sm" type="button" id="trP">🖨️ طباعة القائمة</button></div>'+
+   '<div class="tw"><table class="tb"><thead><tr><th>الموظف</th><th>البناية</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td><b>'+esc(r.e.name)+'</b><div class="small muted">'+esc(r.e.code||'')+'</div></td><td class="small">'+esc(r.e.building||'')+'</td><td>'+(r.ok?'<span class="badge b-ok">✓ أقرّ</span>':r.a?'<span class="badge b-warn">إصدار '+r.a.v+' قديم</span>':'<span class="badge b-cu">لم يقرّ</span>')+'</td><td class="small">'+(r.a?ftime(r.a.at):'—')+'</td><td>'+(r.a?'<button class="btn sm sec" type="button" data-rc="'+esc(r.e.id)+'">🧾</button>':'')+'</td></tr>'}).join('')+'</tbody></table></div>',function(b){
+   $$('[data-rc]',b).forEach(function(x){x.onclick=function(){var e=L.filter(function(y){return String(y.id)===x.getAttribute('data-rc')})[0];printReceipt(p,D.acks[e.id+'.'+p.id],e)}});
+   $('#trP',b).onclick=function(){printHTML(pdHead(esc(p.no||'')+' — الإصدار '+(p.version||1))+'<h1 class="pd-title">متابعة الإقرار: '+esc(p.title)+'</h1><p class="pd-sub">أقرّ '+n+' من '+L.length+'</p><table class="pd-tb"><tr><th>#</th><th>الموظف</th><th>الرقم</th><th>البناية</th><th>الحالة</th><th>التاريخ والوقت</th><th>الاسم المكتوب</th></tr>'+
+     rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(r.e.name)+'</td><td>'+esc(r.e.code||'')+'</td><td>'+esc(r.e.building||'')+'</td><td>'+(r.ok?'أقرّ':r.a?'إصدار قديم ('+r.a.v+')':'لم يقرّ')+'</td><td>'+(r.a?ftime(r.a.at):'—')+'</td><td>'+(r.a?esc(r.a.name):'')+'</td></tr>'}).join('')+'</table>'+pdFoot())}},true)}
+function complianceReport(){var P=D.pols.filter(function(p){return p.status==='published'}),E=activeEmps();
+  printHTML(pdHead('تقرير الامتثال')+'<h1 class="pd-title">تقرير الامتثال لسياسات العمل</h1><p class="pd-sub">✓ أقرّ بالإصدار الحالي — ○ إصدار قديم — ✕ لم يقرّ — (فارغ) غير مشمول</p><table class="pd-tb"><tr><th>الموظف</th><th>البناية</th>'+P.map(function(p,i){return '<th title="'+esc(p.title)+'">'+(i+1)+'</th>'}).join('')+'<th>النسبة</th></tr>'+
+   E.map(function(e){var inc=0,ok=0;var cells=P.map(function(p){if(p.audience&&p.audience!=='all'&&p.audience!==e.building)return '<td></td>';inc++;var a=D.acks[e.id+'.'+p.id];if(a&&Number(a.v)>=Number(p.version||1)){ok++;return '<td>✓</td>'}return '<td>'+(a?'○':'✕')+'</td>'}).join('');
+     return '<tr><td>'+esc(e.name)+'</td><td>'+esc(e.building||'')+'</td>'+cells+'<td>'+(inc?Math.round(ok/inc*100)+'%':'—')+'</td></tr>'}).join('')+'</table><div class="pd-box">'+P.map(function(p,i){return (i+1)+'. '+esc(p.title)+' (الإصدار '+(p.version||1)+')'}).join('<br>')+'</div>'+pdFoot())}
+function addTemplates(){var base=D.pols.length,now=new Date().toISOString(),mk=function(i,icon,title,summary,secs,st){return {id:uid(),no:'POL-'+pad(base+i+1),icon:icon,title:title,summary:summary,audience:'all',sections:secs.map(function(s){return {id:uid(),title:s[0],body:s[1]}}),statements:st,status:'draft',version:1,order:base+i+1,createdAt:now,updatedAt:now,by:USER.name}};
+  var T=[
+   mk(0,'👔','سياسة الزي والمظهر المهني','كيف نظهر أمام الضيوف: الزي الموحد، البطاقة التعريفية، والعناية الشخصية.',[
+    ['الغرض ونطاق التطبيق','تهدف هذه السياسة إلى توحيد المظهر المهني لموظفي نسائم صلالة أمام الضيوف بما يعكس هوية الشركة.\nتنطبق على جميع الموظفين خلال ساعات العمل وداخل مباني الشركة.'],
+    ['الزي الموحد والبطاقة','- يلتزم الموظف بارتداء الزي الموحد المعتمد نظيفاً ومكوياً.\n- تُثبَّت البطاقة التعريفية بشكل ظاهر طوال الدوام.\n- يُبلَّغ المشرف فوراً عن أي تلف في الزي لاستبداله.'],
+    ['العناية الشخصية','- المحافظة على النظافة الشخصية والمظهر المرتب.\n- تجنّب الروائح النفاذة والإكسسوارات الملفتة أثناء خدمة الضيوف.'],
+    ['المخالفة','عدم الالتزام بهذه السياسة يُعامل وفق لائحة الجزاءات المعتمدة في اللائحة الداخلية.']],
+    ['اطلعت على سياسة الزي والمظهر المهني وفهمتها.','ألتزم بارتداء الزي الموحد والبطاقة التعريفية طوال الدوام.']),
+   mk(1,'🔑','سياسة استلام وتسليم المفاتيح','ضبط حركة مفاتيح الشقق بين الاستقبال والمشرفين وفريق التجهيز.',[
+    ['الغرض','حماية ممتلكات الضيوف والشركة عبر توثيق كل حركة لمفاتيح الشقق.'],
+    ['قواعد الاستلام والتسليم','- لا يُسلَّم أي مفتاح إلا بتسجيله في سجل المفاتيح (الاسم، الشقة، الوقت).\n- يُعاد المفتاح في نفس الوردية ما لم يأذن المشرف كتابياً.\n- يُمنع نسخ المفاتيح أو إعارتها لأي شخص.'],
+    ['فقدان المفتاح','- يُبلَّغ المشرف فوراً عند فقدان أي مفتاح.\n- تتحمل الشركة أو الموظف تكلفة الاستبدال وفق نتيجة التحقق.']],
+    ['اطلعت على سياسة المفاتيح وفهمتها.','ألتزم بتسجيل كل استلام وتسليم للمفاتيح.']),
+   mk(2,'🧳','سياسة المفقودات وممتلكات الضيوف','ماذا تفعل إذا وجدت غرضاً لضيف أثناء التجهيز أو التنظيف.',[
+    ['المبدأ','ممتلكات الضيوف أمانة، وأي غرض يُعثر عليه يُعامل بشفافية كاملة.'],
+    ['الإجراء','- لا يُنقل الغرض إلا إلى الاستقبال مباشرة.\n- يُسجَّل في سجل المفقودات: الوصف، الشقة، التاريخ، اسم من وجده.\n- يُحفظ الغرض 90 يوماً قبل التصرف فيه بقرار من الإدارة.'],
+    ['ممنوعات','- الاحتفاظ بأي غرض أو استخدامه ولو مؤقتاً.\n- التواصل الشخصي مع الضيف بشأن الغرض دون علم الاستقبال.']],
+    ['اطلعت على سياسة المفقودات وفهمتها.','ألتزم بتسليم أي غرض أجده للاستقبال فوراً.'])];
+  if(!confirm('إضافة 3 سياسات نموذجية كمسودات؟ تقدر تعدّلها أو تحذفها قبل النشر.'))return;
+  push(T.map(function(p){return {k:'spl:'+p.id,v:JSON.stringify(p)}})).then(function(){toast('أُضيفت النماذج كمسودات')}).catch(function(){toast(t('neterr'))})}
+
+/* --- الأثر --- */
+function weekStart(s){var d=dt(s)||new Date();d.setDate(d.getDate()-d.getDay());return ymd(d)}
+function aImpact(){var ws=weeksList(4).reverse(),bIdx=function(b){return BUILDINGS.indexOf(b)};
+  var form='<div class="card"><h2>⭐ تقييم الضيوف الأسبوعي</h2><p class="small muted" style="margin-top:-6px">أدخل متوسط تقييم الضيوف لكل بناية (من Booking أو Google أو استبيانكم). يظهر فوراً لموظفي البناية في «مؤشر رضا الضيوف».</p>'+
+   '<div class="row2"><div class="fld"><label for="iB">البناية</label><select id="iB">'+BUILDINGS.map(function(b){return '<option>'+esc(b)+'</option>'}).join('')+'</select></div><div class="fld"><label for="iW">الأسبوع (يبدأ الأحد)</label><input type="date" id="iW" value="'+weekStart(today())+'"></div></div>'+
+   '<div class="row2"><div class="fld"><label for="iR">التقييم من 5</label><input type="number" id="iR" min="1" max="5" step="0.1" inputmode="decimal" placeholder="4.6"></div><div class="fld"><label for="iN">عدد التقييمات</label><input type="number" id="iN" min="0" step="1" inputmode="numeric" placeholder="12"></div></div>'+
+   '<div class="fld"><label for="iO">ملاحظة للفريق (اختياري)</label><input id="iO" maxlength="160" placeholder="مثال: ارتفع تقييم النظافة بعد تطبيق قائمة التجهيز الجديدة"></div><button class="btn" type="button" id="iSave">حفظ التقييم</button></div>';
+  var grid=ws.length?'<div class="card"><h2>آخر الأسابيع</h2><div class="tw"><table class="tb"><thead><tr><th>البناية</th>'+ws.map(function(w){return '<th class="num">'+fshort(w)+'</th>'}).join('')+'</tr></thead><tbody>'+BUILDINGS.map(function(b){return '<tr><td>'+esc(b)+'</td>'+ws.map(function(w){var r=ratings().filter(function(x){return x.building===b&&x.week===w})[0];return '<td class="num">'+(r?'<button class="btn sm gh" type="button" data-idel="'+esc(r.id)+'" title="حذف">'+Number(r.rating).toFixed(1)+' ✕</button>':'—')+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div></div>':'';
+  var kd=D.imps.filter(function(x){return x.kind==='kudos'}).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))});
+  var kform='<div class="card"><h2>💬 كلمة ضيف عن موظف</h2><p class="small muted" style="margin-top:-6px">لما يذكر ضيف موظفاً بالاسم في تقييمه، سجّلها هنا. تظهر للموظف في «ضيوف ذكروك بالاسم»، ولزملاء بنايته.</p>'+
+   '<div class="fld"><label for="kQ">كلام الضيف</label><textarea id="kQ" style="min-height:80px" placeholder="مثال: سالم كان متعاوناً جداً ورتّب لنا الشقة بسرعة"></textarea></div>'+
+   '<div class="row2"><div class="fld"><label for="kS">المصدر</label><select id="kS"><option>Booking.com</option><option>Google</option><option>Airbnb</option><option>استبيان الشركة</option><option>مباشرة للاستقبال</option></select></div><div class="fld"><label for="kD">التاريخ</label><input type="date" id="kD" value="'+today()+'"></div></div>'+
+   '<div class="fld"><label for="kB">البناية</label><select id="kB">'+BUILDINGS.map(function(b){return '<option>'+esc(b)+'</option>'}).join('')+'</select></div><div class="fld"><label>الموظفون المذكورون</label><div class="list" id="kE" style="max-height:220px;overflow:auto"></div></div><button class="btn cu" type="button" id="kSave">حفظ الكلمة</button></div>';
+  var klist=kd.length?'<div class="card"><h2>الكلمات المسجّلة</h2><div class="list">'+kd.slice(0,20).map(function(k){return '<div class="item"><div class="av">💬</div><div class="grow"><div class="t">«'+esc(k.quote)+'»</div><div class="s">'+esc([(k.names||[]).join('، '),k.building,k.source,fdate(k.date)].filter(Boolean).join(' — '))+'</div></div><button class="btn sm gh" type="button" data-idel="'+esc(k.id)+'" style="color:var(--bad)">حذف</button></div>'}).join('')+'</div></div>':'';
+  return '<div class="grid g2" style="align-items:start"><div>'+form+grid+'</div><div>'+kform+klist+'</div></div>'}
+function bAImpact(){var fillE=function(){var b=$('#kB').value,L=activeEmps(),sel=L.filter(function(e){return e.building===b}),oth=L.filter(function(e){return e.building!==b});
+    $('#kE').innerHTML=sel.concat(oth).map(function(e){return '<label class="chk"><input type="checkbox" value="'+esc(e.id)+'"><span>'+esc(e.name)+' <span class="small muted">'+esc(e.building||'')+'</span></span></label>'}).join('')||'<div class="small muted">لا يوجد موظفون نشطون</div>'};
+  $('#kB').onchange=fillE;fillE();
+  $('#iSave').onclick=function(){var b=$('#iB').value,w=weekStart($('#iW').value),r=Number($('#iR').value);if(!(r>=1&&r<=5)){toast('التقييم بين 1 و 5');return}
+    var id='r'+w.replace(/-/g,'')+'b'+BUILDINGS.indexOf(b),o={id:id,kind:'rating',building:b,week:w,rating:r1(r),reviews:Number($('#iN').value||0),note:$('#iO').value.trim(),at:new Date().toISOString(),by:USER.name};
+    this.disabled=true;save1('imp:'+id,o,'حُفظ تقييم '+b)};
+  $('#kSave').onclick=function(){var q=$('#kQ').value.trim(),ids=$$('#kE input:checked').map(function(x){return x.value});if(!q){toast('اكتب كلام الضيف');return}if(!ids.length){toast('اختر موظفاً واحداً على الأقل');return}
+    var id=uid(),o={id:id,kind:'kudos',quote:q,source:$('#kS').value,date:$('#kD').value||today(),building:$('#kB').value,empIds:ids,names:ids.map(empName),at:new Date().toISOString(),by:USER.name};this.disabled=true;save1('imp:'+id,o,'حُفظت الكلمة')};
+  $$('[data-idel]').forEach(function(b){b.onclick=function(){if(!confirm('حذف هذا السجل؟'))return;push([{k:'imp:'+b.getAttribute('data-idel'),del:1}]).then(function(){toast('تم الحذف')}).catch(function(){toast(t('neterr'))})}})}
+
+/* --- الشارات --- */
+function aBadges(){var L=D.bdgs;
+  return '<div class="grid g2" style="align-items:start"><div class="card"><h2>🏅 منح شارة تقدير</h2><p class="small muted" style="margin-top:-6px">الشارة تظهر في «سجل المهارات والتطوير» عند الموظف وتضيف نقاطاً لرصيده.</p>'+
+   '<div class="fld"><label for="bE">الموظف</label><select id="bE">'+empOptions()+'</select></div><div class="fld"><label for="bK">الشارة</label><select id="bK">'+BADGES.map(function(x,i){return '<option value="'+i+'">'+x[0]+' '+x[1]+'</option>'}).join('')+'<option value="c">✨ شارة مخصصة…</option></select></div>'+
+   '<div class="fld" id="bCw" hidden><label for="bC">اسم الشارة المخصصة</label><input id="bC" maxlength="40"></div><div class="fld"><label for="bN">سبب المنح (يراه الموظف)</label><input id="bN" maxlength="160" placeholder="مثال: تعامل ممتاز مع شكوى ضيف في عطلة نهاية الأسبوع"></div>'+
+   '<div class="fld"><label for="bP">النقاط</label><input type="number" id="bP" value="10" min="1" max="50"></div><button class="btn cu" type="button" id="bGo">منح الشارة</button></div>'+
+   '<div class="card"><h2>الشارات الممنوحة <small class="num">'+L.length+'</small></h2>'+(L.length?'<div class="list">'+L.slice(0,40).map(function(b){return '<div class="item"><div class="av">'+esc(b.icon||'⭐')+'</div><div class="grow"><div class="t">'+esc(b.title)+' — '+esc(empName(b.empId)||'')+'</div><div class="s">'+esc(b.note||'')+' — '+fdate(b.at)+' — +'+(b.points||10)+'</div></div><button class="btn sm gh" type="button" data-bdel="'+esc(b.id)+'" style="color:var(--bad)">حذف</button></div>'}).join('')+'</div>':'<div class="empty">لم تُمنح شارات بعد</div>')+'</div></div>'}
+function bABadges(){$('#bK').onchange=function(){$('#bCw').hidden=this.value!=='c'};
+  $('#bGo').onclick=function(){var e=$('#bE').value,k=$('#bK').value,x=k==='c'?['✨',$('#bC').value.trim()]:BADGES[+k];if(!e){toast('اختر الموظف');return}if(!x[1]){toast('اكتب اسم الشارة');return}
+    var id=uid(),o={id:id,empId:e,icon:x[0],title:x[1],note:$('#bN').value.trim(),points:Math.max(1,Math.min(50,Number($('#bP').value)||10)),at:new Date().toISOString(),by:USER.name};this.disabled=true;save1('bdg:'+id,o,'مُنحت الشارة لـ '+empName(e))};
+  $$('[data-bdel]').forEach(function(b){b.onclick=function(){if(!confirm('حذف هذه الشارة؟'))return;push([{k:'bdg:'+b.getAttribute('data-bdel'),del:1}]).then(function(){toast('تم الحذف')}).catch(function(){toast(t('neterr'))})}})}
+
+/* --- صوتك --- */
+function aVoice(){var st=vStats(),wait=D.vox.filter(function(v){return v.status==='received'}).length;
+  return '<div class="card"><h2>💬 إدارة المقترحات</h2><p class="muted" style="line-height:1.8">الرد والتحديث يتمّان من داخل «صوتك إلى قرار» مباشرة: كل مقترح يظهر تحته زر «تحديث الحالة». اسم صاحب المقترح يظهر لك دائماً، ويُخفى عن الزملاء إذا طلب ذلك.</p>'+
+   '<div class="vstats" style="margin:12px 0"><div><b class="num">'+st.tot+'</b><span>إجمالي</span></div><div><b class="num">'+wait+'</b><span>بانتظار أول رد</span></div><div><b class="num">'+(st.resp==null?'—':st.resp)+'</b><span>متوسط الرد (يوم)</span></div></div>'+
+   '<div class="note c">نصيحة: الرد الأول خلال 3 أيام حتى لو كان «قيد الدراسة» يرفع ثقة الموظفين في القسم أكثر من أي شيء آخر.</div><button class="btn" type="button" data-go="voice" style="margin-top:12px">افتح «صوتك إلى قرار»</button></div>'}
+
+/* --- الخريف --- */
+function aKhareef(){var k=D.khf||{active:false,title:'موسم الخريف '+new Date().getFullYear(),start:new Date().getFullYear()+'-06-21',end:new Date().getFullYear()+'-09-21',message:'',targets:[],checklist:[],rewards:'',stars:[],roles:[]};
+  var E=activeEmps(),rmap={};(k.roles||[]).forEach(function(r){rmap[r.empId]=r});
+  var cl=k.checklist||[],ready=E.filter(function(e){var m=(D.khk[e.id]||{}).items||{};return cl.length&&cl.every(function(x){return m[x.id]})}).length;
+  return '<div class="grid g2" style="align-items:start"><div class="card"><h2>🌦️ إعداد الموسم</h2>'+
+   '<div class="tog" style="padding-top:0"><div class="grow"><b>تفعيل قسم الخريف</b><span>يظهر للموظفين بعد التفعيل وفتح القسم من مفتاح الإتاحة أعلى هذه الصفحة.</span></div><label class="sw" aria-label="تفعيل"><input type="checkbox" id="kA" '+(k.active?'checked':'')+'><span></span></label></div>'+
+   '<div class="fld" style="margin-top:12px"><label for="kT">عنوان الموسم</label><input id="kT" value="'+esc(k.title||'')+'"></div><div class="row2"><div class="fld"><label for="kSd">البداية</label><input type="date" id="kSd" value="'+esc(k.start||'')+'"></div><div class="fld"><label for="kEd">النهاية</label><input type="date" id="kEd" value="'+esc(k.end||'')+'"></div></div>'+
+   '<div class="fld"><label for="kM">رسالة الإدارة للموظفين</label><textarea id="kM" style="min-height:80px">'+esc(k.message||'')+'</textarea></div>'+
+   '<div class="fld"><label for="kTg">أهداف الموسم — سطر لكل هدف: العنوان | المحقق | المستهدف | الوحدة</label><textarea id="kTg" dir="auto" style="min-height:90px" placeholder="نسبة الإشغال | 72 | 90 | %\nمتوسط تقييم الضيوف | 4.5 | 4.7 | من 5">'+esc((k.targets||[]).map(function(x){return [x.label,x.cur,x.target,x.unit].join(' | ')}).join('\n'))+'</textarea></div>'+
+   '<div class="fld"><label for="kCl">قائمة الجاهزية — بند في كل سطر</label><textarea id="kCl" style="min-height:90px" placeholder="استلمت الزي الموسمي\nراجعت إجراءات الدخول السريع للضيوف\nأعرف أرقام الطوارئ والصيانة">'+esc(cl.map(function(x){return x.text}).join('\n'))+'</textarea></div>'+
+   '<div class="fld"><label for="kRw">مكافآت الموسم</label><textarea id="kRw" style="min-height:70px" placeholder="- مكافأة 50 ر.ع لأعلى بناية تقييماً\n- شارة «بطل الخريف» لثلاثة موظفين">'+esc(k.rewards||'')+'</textarea></div>'+
+   '<div class="fld"><label for="kSt">نجوم الموسم — سطر لكل نجم: الاسم | السبب</label><textarea id="kSt" style="min-height:70px">'+esc((k.stars||[]).map(function(s){return s.name+(s.note?' | '+s.note:'')}).join('\n'))+'</textarea></div>'+
+   '<button class="btn" type="button" id="kGo">حفظ إعداد الموسم</button></div>'+
+   '<div><div class="card"><h2>🧭 أدوار الموظفين في الموسم</h2><p class="small muted" style="margin-top:-6px">اكتب دور كل موظف (اتركه فارغاً إن لم يتغير دوره). يراه الموظف في «دورك في الموسم».</p><div class="list" style="max-height:420px;overflow:auto">'+E.map(function(e){var r=rmap[e.id]||{};return '<div class="secrow" style="margin:0"><div class="small" style="font-weight:600;margin-bottom:6px">'+esc(e.name)+' <span class="muted">'+esc(e.building||'')+'</span></div><input data-role="'+esc(e.id)+'" value="'+esc(r.role||'')+'" placeholder="مثال: دعم الاستقبال في الحصيلة — وردية مسائية" style="width:100%;padding:9px 11px;border:1.5px solid var(--line2);border-radius:10px;background:#fff"></div>'}).join('')+'</div></div>'+
+   '<div class="card"><h2>✅ جاهزية الفريق <small class="num">'+ready+'/'+E.length+'</small></h2>'+(cl.length?'<div class="list">'+E.map(function(e){var m=(D.khk[e.id]||{}).items||{},n=cl.filter(function(x){return m[x.id]}).length;return '<div class="item"><div class="grow"><div class="t" style="font-size:14px">'+esc(e.name)+'</div><div class="pbar mi" style="margin-top:6px"><i style="width:'+Math.round(n/cl.length*100)+'%"></i></div></div><span class="small num">'+n+'/'+cl.length+'</span></div>'}).join('')+'</div>':'<div class="empty">أضف بنود قائمة الجاهزية أولاً</div>')+'</div></div></div>'}
+function bAKhareef(){$('#kGo').onclick=function(){var old=D.khf||{},oldCl=old.checklist||[];
+  var s=$('#kSd').value,e=$('#kEd').value;if(!s||!e||e<s){toast('تأكد من تاريخي البداية والنهاية');return}
+  var cl=$('#kCl').value.split('\n').map(function(x){return x.trim()}).filter(Boolean).map(function(txt){var ex=oldCl.filter(function(o){return o.text===txt})[0];return {id:ex?ex.id:uid(),text:txt}});
+  var tg=$('#kTg').value.split('\n').map(function(l){var p=l.split('|').map(function(x){return x.trim()});return p[0]?{label:p[0],cur:Number(p[1])||0,target:Number(p[2])||0,unit:p[3]||''}:null}).filter(Boolean);
+  var st=$('#kSt').value.split('\n').map(function(l){var p=l.split('|').map(function(x){return x.trim()});return p[0]?{name:p[0],note:p[1]||''}:null}).filter(Boolean);
+  var roles=$$('[data-role]').map(function(i){return i.value.trim()?{empId:i.getAttribute('data-role'),name:empName(i.getAttribute('data-role')),role:i.value.trim()}:null}).filter(Boolean);
+  var o={active:$('#kA').checked,title:$('#kT').value.trim()||'موسم الخريف',start:s,end:e,message:$('#kM').value.trim(),targets:tg,checklist:cl,rewards:$('#kRw').value.trim(),stars:st,roles:roles,updatedAt:new Date().toISOString(),by:USER.name};
+  this.disabled=true;var btn=this;save1('khf:season',o,'حُفظ إعداد الموسم').catch(function(){btn.disabled=false})}}
+
+/* =================== وضع العرض التوضيحي (القسم تحت الإعداد) =================== */
+function demoOn(){return isAdmin()&&SECS.indexOf(FOCUS)>=0&&FOCUS!=='policies'&&!(cfg().open||{})[FOCUS]}
+function demoBanner(){return '<div class="demo-bar"><b>🧪 '+(LANG==='ar'?'عرض توضيحي — القسم تحت الإعداد':'Demo — section under preparation')+'</b><span>'+(LANG==='ar'?'البيانات المعروضة نماذج لشرح فكرة القسم، لا تُحفظ ولا يراها الموظفون، وتختفي تلقائياً عند فتح القسم.':'Sample data to explain the section. Not saved, not visible to staff, removed automatically when the section opens.')+'</span></div>'}
+function dAdd(n){var d=new Date();d.setDate(d.getDate()+n);return ymd(d)}
+function dIso(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString()}
+function demoData(R){var d={};for(var k in R)d[k]=R[k];var my=me(),nm=(R.emp&&R.emp.name)||(USER&&USER.name)||'';
+  if(!d.emp)d.emp={id:my,name:nm,building:'الحي التجاري',job:'مشرف بناية'};
+  if(FOCUS==='impact'){var B=['الحي التجاري','صلالة الوسطى / المعتزة','عوقد الشمالية','الوادي','الحصيلة','السعادة'],base=[4.6,4.4,4.2,4.5,4.3,4.1],imps=[];
+    for(var w=5;w>=0;w--){var wk=weekStart(dAdd(-7*w));B.forEach(function(b,i){imps.push({id:'demo-r'+w+i,kind:'rating',week:wk,building:b,rating:Math.min(5,r1(base[i]+(5-w)*0.06+((w+i)%3-1)*0.08)),reviews:6+((w*3+i*5)%11),note:w===0&&i===0?'تحسّن ملحوظ في نظافة الشقق وسرعة تسليم المفاتيح':''})})}
+    imps.push({id:'demo-k1',kind:'kudos',quote:'الاستقبال كان ممتازاً والشقة نظيفة جداً، شكراً للمشرف على سرعة التجاوب.',source:'Booking.com',date:dAdd(-3),empIds:[my],names:[nm],building:d.emp.building});
+    imps.push({id:'demo-k2',kind:'kudos',quote:'تعامل راقٍ ومساعدة في كل طلب، سنعود في موسم الخريف القادم.',source:'Google',date:dAdd(-9),empIds:[my],names:[nm],building:d.emp.building});
+    imps.push({id:'demo-k3',kind:'kudos',quote:'فريق البناية متعاون والشقة مجهزة بالكامل.',source:'Airbnb',date:dAdd(-5),empIds:[],names:[],building:d.emp.building});
+    d.imps=imps}
+  if(FOCUS==='voice'){d.vox=[
+    {id:'demo-v1',no:'VX-004',title:'تركيب صناديق مفاتيح ذكية للدخول الذاتي',details:'تقلل انتظار الضيوف ليلاً وتخفف الضغط على المشرفين في أوقات الذروة.',category:'guests',status:'planned',by:'مشرف الحي التجاري',createdAt:dIso(-20),updates:[{at:dIso(-18),status:'studying'},{at:dIso(-6),status:'planned'}],reply:'تم اعتماد التجربة في بنايتين قبل بداية الموسم، وسيتم تقييمها بعد شهر.'},
+    {id:'demo-v2',no:'VX-003',title:'جدول موحّد لتبديل المفارش والمناشف',details:'تحديد أيام ثابتة لكل بناية لتقليل التأخير وضمان جودة التجهيز.',category:'ops',status:'done',by:'مشرف الوادي',createdAt:dIso(-40),updates:[{at:dIso(-38),status:'studying'},{at:dIso(-30),status:'done'}],reply:'طُبّق في جميع البنايات وانخفضت ملاحظات النظافة.'},
+    {id:'demo-v3',no:'VX-002',title:'شراء مواد التنظيف بالجملة كل ربع سنة',details:'توحيد الشراء يخفض التكلفة ويضمن توفر المواد.',category:'cost',status:'studying',anonymous:true,by:'',createdAt:dIso(-8),updates:[{at:dIso(-7),status:'studying'}]},
+    {id:'demo-v4',no:'VX-001',title:'تغيير موعد الوردية المسائية',details:'تقديم الوردية ساعة لتتوافق مع أوقات وصول الضيوف.',category:'work',status:'declined',by:'موظف',createdAt:dIso(-60),updates:[{at:dIso(-55),status:'declined'}],reply:'نعتذر حالياً لأن أغلب الوصول بعد الساعة 9 مساءً، وسنعيد الدراسة بعد الموسم.'},
+    {id:'demo-v5',no:'VX-005',title:'رسالة ترحيب واتساب تلقائية للضيف',details:'إرسال تعليمات الوصول والواي فاي قبل الوصول بيوم.',category:'tech',status:'received',by:'',createdAt:dIso(-1),updates:[]}];
+    d.tally={'demo-v1':14,'demo-v2':21,'demo-v3':9,'demo-v4':3,'demo-v5':6};d.myVotes={'demo-v2':1}}
+  if(FOCUS==='khareef'){var y=new Date().getFullYear()+(new Date().getMonth()>7?1:0);
+    d.khf={active:true,title:'موسم الخريف '+y,start:y+'-06-21',end:y+'-09-21',message:'استعدادنا المبكر هو ما يصنع تجربة الضيف. هذه خطتك للموسم.',
+      targets:[{label:'نسبة الإشغال',cur:0,target:95,unit:'%'},{label:'متوسط تقييم الضيوف',cur:0,target:4.7,unit:'/5'},{label:'زمن تجهيز الشقة بعد المغادرة',cur:0,target:90,unit:'دقيقة'}],
+      checklist:[{id:'c1',text:'فحص المكيفات وأجهزة إزالة الرطوبة في كل الشقق'},{id:'c2',text:'تجهيز مخزون إضافي من المفارش والمناشف'},{id:'c3',text:'مراجعة صناديق المفاتيح وبطاقات الدخول'},{id:'c4',text:'إكمال تدريب «استقبال ضيوف الموسم» في مرسى'},{id:'c5',text:'تحديث أرقام الطوارئ والصيانة لكل بناية'}],
+      rewards:'- مكافأة للبناية الأعلى تقييماً في نهاية الموسم\n- شهادة «بطل الخريف» لأفضل 3 موظفين\n- أولوية في اختيار الإجازة بعد الموسم',
+      stars:[{name:'مشرف الحي التجاري',note:'أعلى تقييم في الموسم الماضي 4.8'},{name:'فريق الوادي',note:'صفر شكاوى نظافة لمدة 6 أسابيع'}],
+      roles:[{empId:my,role:'مسؤول جاهزية البناية',note:'متابعة قائمة التحقق اليومية ورفع أي نقص قبل وصول الضيوف'}]};
+    d.khk={};d.khk[my]={empId:my,items:{c1:dIso(-2),c2:dIso(-1)}}}
+  if(FOCUS==='skills'){d.bdgs=[{id:'demo-b1',empId:my,icon:'⭐',title:'نجم الضيوف',note:'إشادة ضيف باسمك على Booking.com',points:10,at:dIso(-10)},{id:'demo-b2',empId:my,icon:'🧹',title:'معيار النظافة',note:'تقييم نظافة كامل لشهرين متتاليين',points:10,at:dIso(-30)}]}
+  return d}
+function demoTD(R){if(FOCUS!=='skills')return R;var my=me(),res={};
+  var mods=[['m1','service','أساسيات استقبال الضيوف',95],['m2','service','التعامل مع شكاوى الضيوف',88],['m3','housekeeping','معايير تجهيز الشقة',92],['m4','housekeeping','فحص الشقة بعد المغادرة',80],['m5','safety','السلامة ومكافحة الحريق',0],['m6','general','ثقافة نسائم وقيمها',100]].map(function(x,i){if(x[3])res['demo-'+x[0]]={passed:true,score:x[3]};return {id:'demo-'+x[0],category:x[1],title:{ar:x[2],en:x[2]},assignees:'all',dueDate:x[3]?'':dAdd(12)}});
+  return {mods:mods,res:res}}
+
+/* =================== إدارة تطبيق مرسى =================== */
+function vManage(){var o=cfg().open||{},P=D.pols,pend=P.filter(function(p){return p.status==='pending'||p.rev}).length,vw=D.vox.filter(function(v){return v.status==='received'}).length;
+  var row=function(s){var on=!!o[s];return '<div class="mrow"><span class="mi" aria-hidden="true">'+SEC_IC[s]+'</span><div class="grow"><b>'+W[s][0]+'</b><span>'+esc(W['d_'+s][0])+'</span>'+
+    '<div class="mlinks">'+(s==='policies'?'<a href="hr.html#spol">📜 فتح في الموارد البشرية</a>':'<a href="ess.html?s='+s+'">👁️ عرض القسم</a><a href="ess.html?s='+s+'#admin">⚙️ إدارة المحتوى</a>')+'</div></div><span class="badge '+(on?'b-ok':'b-cu')+'">'+(on?'مفتوح للموظفين':'تحت الإعداد — قريباً')+'</span><label class="sw" aria-label="'+W[s][0]+'"><input type="checkbox" data-open="'+s+'" '+(on?'checked':'')+'><span></span></label></div>'};
+  return sectionHead('⚙️ إدارة تطبيق مرسى','لوحة واحدة لإتاحة الأقسام للموظفين وإدارة محتواها. تظهر للموارد البشرية والمدير العام فقط.')+
+   '<div class="vstats" style="margin-bottom:14px"><div><b class="num">'+SECS.filter(function(s){return o[s]}).length+'/'+SECS.length+'</b><span>أقسام مفتوحة</span></div><div><b class="num">'+pend+'</b><span>سياسات بانتظار الاعتماد</span></div><div><b class="num">'+vw+'</b><span>مقترحات بانتظار الرد</span></div></div>'+
+   '<div class="card"><h2>🔓 إتاحة الأقسام</h2>'+SECS.map(row).join('')+
+   '<div class="mrow"><span class="mi">🔢</span><div class="grow"><b>تسلسل السياسات إلزامي</b><span>لا تُفتح السياسة التالية للموظف إلا بعد إقراره بالسابقة.</span></div><label class="sw" aria-label="تسلسل"><input type="checkbox" id="seqT" '+(cfg().seq!==false?'checked':'')+'><span></span></label></div></div>'+
+   '<div class="card"><h2>🧭 أنظمة مرسى</h2><div class="mlinks big"><a href="hr.html">👥 نظام الموارد البشرية</a><a href="training.html">🎓 التدريب والتطوير</a><a href="hr.html#spol">📜 سياسات العمل والاعتماد</a></div></div>'+
+   (cfg().updatedAt?'<div class="small muted">آخر تعديل: '+ftime(cfg().updatedAt)+(cfg().by?' — '+esc(cfg().by):'')+'</div>':'')}
+function bManage(){bAccess()}
+
+/* =================== التشغيل =================== */
+function start(){
+  render();load().then(function(){if(TAB==='skills'||TAB==='home')loadTD()}).catch(function(){$('#app').innerHTML='<div class="card empty"><b>⚠️</b>'+t('neterr')+'<br><button class="btn sm" type="button" id="rt" style="margin-top:12px">↻</button></div>';var r=$('#rt');if(r)r.onclick=function(){$('#app').innerHTML='<div class="spin"></div>';start()}});
+  clearInterval(poll);poll=setInterval(function(){if(TOKEN&&!document.querySelector('.mback,.reader')&&!document.hidden)load().catch(function(){})},90000)}
+applyLang();
+if(!API){$('#app').innerHTML='<div class="card empty">hr-config.js</div>'}
+else call('me').then(function(r){if(r&&r.ok){if(r.user.must){location.replace('./');return}USER=r.user;start()}else logout(true)}).catch(function(){$('#app').innerHTML='<div class="card empty"><b>⚠️</b>'+t('neterr')+'</div>'});
+})();
+</script>
+<script>if("serviceWorker"in navigator&&/^https?:/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+/* هوية «مرسى» فوق تطبيق التدريب — CSS فقط، دون تعديل كود التطبيق.
+   الشريط العلوي: شعار مرسى الكامل بدل شعار الشركة، وخلفية الهوية الفاتحة. */
+.app-root header.sticky{background:rgba(243,246,246,.94)!important;border-bottom-color:#D6E3E3!important}
+.app-root header.sticky>div>div:first-child{position:relative;width:148px;height:46px;flex:none}
+.app-root header.sticky>div>div:first-child>*{visibility:hidden}
+.app-root header.sticky>div>div:first-child::before{content:"";position:absolute;inset:0;background:url(icons/marsa-lockup.png) no-repeat right center/contain}
+.app-root[dir=ltr] header.sticky>div>div:first-child::before{background-position:left center}
+.app-root header.sticky>div>div:first-child::after{content:"التدريب والتطوير";display:none;position:absolute;top:50%;inset-inline-start:162px;transform:translateY(-50%);white-space:nowrap;font-size:13px;color:#5E7475}
+.app-root[lang=en] header.sticky>div>div:first-child::after{content:"Training & Development"}
+@media (min-width:768px){.app-root header.sticky>div>div:first-child::after{display:block}}
+/* شاشة اختيار الاسم: شعار مرسى بدل شعار الشركة (يعمل في Chrome وEdge وSafari) */
+.app-root img.mx-auto{content:url(icons/marsa-lockup.png);width:230px!important;height:auto!important}
