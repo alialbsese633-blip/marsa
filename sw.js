@@ -1,7 +1,7 @@
 /* Service Worker — يجعل التطبيق يفتح بسرعة وحتى بدون إنترنت.
    الصفحة نفسها: الشبكة أولاً (لتصلك آخر نسخة دائماً) ثم النسخة المحفوظة عند انقطاع الاتصال.
    طلبات قاعدة البيانات (Google) لا تمرّ من هنا أبداً. */
-const V = "ns-v16";
+const V = "ns-v17";
 const FONTS = 'td-fonts-v1';
 const SHELL = ['./', 'index.html', 'training.html', 'hr.html', 'ess.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
   'icons/marsa-mark-white.png', 'icons/marsa-lockup.png', 'icons/marsa-lockup-white.png', 'marsa-training.css',
