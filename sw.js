@@ -1,11 +1,11 @@
 /* Service Worker — يجعل التطبيق يفتح بسرعة وحتى بدون إنترنت.
    الصفحة نفسها: الشبكة أولاً (لتصلك آخر نسخة دائماً) ثم النسخة المحفوظة عند انقطاع الاتصال.
    طلبات قاعدة البيانات (Google) لا تمرّ من هنا أبداً. */
-const V = "ns-v21";
+const V = "ns-v22";
 const FONTS = 'td-fonts-v1';
 const SHELL = ['./', 'index.html', 'training.html', 'hr.html', 'ess.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
   'icons/marsa-mark-white.png', 'icons/marsa-lockup.png', 'icons/marsa-lockup-white.png', 'marsa-training.css',
-  'icons/m3-192.png', 'icons/m3-512.png', 'icons/m3-apple-180.png', 'icons/logo-full.png', 'icons/parent-logo.png'];
+  'icons/m3-192.png', 'icons/m3-512.png', 'icons/m3-apple-180.png', 'icons/logo-full.png', 'icons/parent-logo.png', 'ops.html'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
