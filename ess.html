@@ -274,6 +274,7 @@ html[dir=rtl] .hero::before{background-position:-40px -30px}
 
 /* ===== الطباعة ===== */
 #printArea{display:none}
+@media print{:root{--font:Tahoma,"Segoe UI",Arial,sans-serif!important;--kufi:Tahoma,"Segoe UI",Arial,sans-serif!important}}
 @media print{
   @page{size:A4;margin:14mm}
   body>*:not(#printArea){display:none!important}
@@ -658,7 +659,7 @@ function printHTML(html){
     var old=document.getElementById('printFrame');if(old)old.remove();
     var css=[].map.call(document.querySelectorAll('style'),function(x){return x.textContent}).join('\n');
     var links=[].map.call(document.querySelectorAll('link[rel="stylesheet"]'),function(l){return l.outerHTML}).join('');
-    var doc='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><base href="'+location.href.replace(/"/g,'&quot;')+'"><title>مرسى — طباعة</title>'+links+'<style>'+css+'</style><style>:root{color-scheme:light}html,body{background:#fff!important;color:#111!important;margin:0!important;padding:0!important}#printArea{display:block!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><div id="printArea">'+html+'</div></body></html>';
+    var doc='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><base href="'+location.href.replace(/"/g,'&quot;')+'"><title>مرسى — طباعة</title><style>'+css+'</style><style>:root{--font:Tahoma,"Segoe UI",Arial,sans-serif!important;--kufi:Tahoma,"Segoe UI",Arial,sans-serif!important}:root{color-scheme:light}html,body{background:#fff!important;color:#111!important;margin:0!important;padding:0!important}#printArea{display:block!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><div id="printArea">'+html+'</div></body></html>';
     var f=document.createElement('iframe');f.id='printFrame';f.setAttribute('aria-hidden','true');f.tabIndex=-1;
     f.style.cssText='position:fixed;left:0;bottom:0;width:820px;height:1160px;border:0;opacity:0;pointer-events:none;z-index:-1';
     var done=false;
