@@ -283,6 +283,7 @@ html[dir=rtl] .hero::before{background-position:-40px -30px}
 .pd-head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #16474A;padding-bottom:10px;margin-bottom:16px}
 .pd-head img{width:62px;height:62px;object-fit:contain}.pd-head .co{flex:1}.pd-head .co b{display:block;font-size:14pt}.pd-head .co span{font-size:10pt;color:#555}
 .pd-head .ref{font-size:9.5pt;color:#555;text-align:end;line-height:1.6}
+.pd-head .co span.pa{display:block;font-size:9pt;color:#666}.pd-head img.pd-parent{width:auto;height:62px;max-width:96px}
 .pd-title{font-size:17pt;margin:0 0 4px}.pd-sub{color:#555;font-size:10.5pt;margin:0 0 14px}
 .pd-sec{page-break-inside:avoid;margin-bottom:12px}.pd-sec h3{font-size:12.5pt;margin:0 0 6px;color:#16474A}
 .pd-box{border:1px solid #999;border-radius:6px;padding:12px 14px;margin:12px 0}
@@ -643,11 +644,31 @@ function openReader(p,reviewOnly){
 
 /* =================== الطباعة =================== */
 var CO_AR='نسائم صلالة للشقق المفروشة',CO_EN='Nassayem Salalah Furnished Apartments';
-function pdHead(ref){return '<div class="pd-head"><img src="icons/logo-full.png" alt=""><div class="co"><b>'+CO_AR+'</b><span>'+CO_EN+'</span></div><div class="ref">'+(ref||'')+'<br>'+fdate(today())+'</div></div>'}
+var CO_PARENT='العالمية السعيدة المتحدة ش.م.م — س.ت 1428061';
+function pdHead(ref){return '<div class="pd-head"><img src="icons/logo-full.png" alt="نسائم صلالة"><div class="co"><b>'+CO_AR+'</b><span>'+CO_EN+'</span><span class="pa">'+CO_PARENT+'</span></div><div class="ref">'+(ref||'')+'<br>'+fdate(today())+'</div><img class="pd-parent" src="icons/parent-logo.png" alt="العالمية السعيدة المتحدة ش.م.م"></div>'}
 function pdFoot(){return '<div class="pd-foot"><span>'+CO_AR+' — مرسى، '+(FOCUS==='policies'?'الموارد البشرية':W[FOCUS][0])+'</span><span>'+ftime(new Date().toISOString())+'</span></div>'}
-function printHTML(html){var pa=$('#printArea');pa.innerHTML=html;var imgs=$$('img',pa),n=imgs.length,done=false;
+function printInline(html){var pa=$('#printArea');pa.innerHTML=html;var imgs=$$('img',pa),n=imgs.length,done=false;
   var go_=function(){if(done)return;done=true;setTimeout(function(){window.print()},60)};   /* لا نمسح المحتوى بعد الطباعة: في آيفون نافذة الطباعة لا توقف الصفحة */
   if(!n)return go_();imgs.forEach(function(im){if(im.complete)n--;else{im.onload=im.onerror=function(){if(--n<=0)go_()}}});if(n<=0)go_();setTimeout(go_,2500)}
+var IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+/* على الكمبيوتر: الطباعة عبر إطار مستقل فيه المستند فقط (يمنع الصفحة البيضاء). على آيفون: الطريقة المعتادة */
+function printHTML(html){
+  if(IS_IOS)return printInline(html);
+  try{
+    var old=document.getElementById('printFrame');if(old)old.remove();
+    var css=[].map.call(document.querySelectorAll('style'),function(x){return x.textContent}).join('\n');
+    var links=[].map.call(document.querySelectorAll('link[rel="stylesheet"]'),function(l){return l.outerHTML}).join('');
+    var doc='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><base href="'+location.href.replace(/"/g,'&quot;')+'"><title>مرسى — طباعة</title>'+links+'<style>'+css+'</style><style>:root{color-scheme:light}html,body{background:#fff!important;color:#111!important;margin:0!important;padding:0!important}#printArea{display:block!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><div id="printArea">'+html+'</div></body></html>';
+    var f=document.createElement('iframe');f.id='printFrame';f.setAttribute('aria-hidden','true');f.tabIndex=-1;
+    f.style.cssText='position:fixed;left:0;bottom:0;width:820px;height:1160px;border:0;opacity:0;pointer-events:none;z-index:-1';
+    var done=false;
+    f.onload=function(){if(done)return;done=true;var w=f.contentWindow,d=f.contentDocument,imgs=[].slice.call(d.images),n=imgs.length,fired=false;
+      var go_=function(){if(fired)return;fired=true;setTimeout(function(){try{w.focus();w.print()}catch(e){printInline(html)}},150)};
+      imgs.forEach(function(im){if(im.complete)n--;else im.onload=im.onerror=function(){if(--n<=0)go_()}});
+      if(n<=0)go_();setTimeout(go_,3000)};
+    f.srcdoc=doc;document.body.appendChild(f);
+  }catch(e){printInline(html)}
+}
 function printPolicy(p){printHTML(pdHead((p.no||'')+' — الإصدار '+(p.version||1))+'<h1 class="pd-title">'+esc(p.title)+'</h1>'+(p.summary?'<p class="pd-sub">'+esc(p.summary)+'</p>':'')+
   (p.sections||[]).map(function(s,i){return '<div class="pd-sec"><h3>'+(i+1)+'. '+esc(s.title||'')+'</h3>'+fmtText(s.body)+'</div>'}).join('')+
   '<div class="pd-box"><b>بنود الإقرار</b><ul>'+(p.statements&&p.statements.length?p.statements:[W.defStmt[0]]).map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ul></div>'+

@@ -953,12 +953,13 @@ html,body{margin:0;background:#F3F6F6}
       '.bar{padding:12px;text-align:center}.bar button{background:#287070;color:#fff;border:0;border-radius:12px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer}' +
       '.page{width:297mm;min-height:200mm;margin:0 auto 20px;background:#fff;padding:14mm;position:relative}' +
       '.frame{border:3px solid #287070;outline:1px solid #b7d8d8;outline-offset:-9px;height:100%;min-height:172mm;padding:12mm 16mm;text-align:center;display:flex;flex-direction:column;justify-content:space-between}' +
+      '.logos{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.logos img{height:50px;width:auto}' +
       '.co{color:#287070;font-weight:700;font-size:20px;letter-spacing:.5px}.prog{color:#64748b;font-size:14px;margin-top:2px}' +
       'h1{font-size:44px;margin:14px 0 4px;color:#194747}.sub{color:#475569;font-size:17px}.name{font-size:38px;font-weight:700;margin:12px 0;color:#0F6E6E;border-bottom:2px solid #b7d8d8;display:inline-block;padding:0 28px 6px}' +
       'table{margin:10px auto 0;border-collapse:collapse;min-width:60%;font-size:14px}td,th{border:1px solid #d9e2e2;padding:6px 14px}th{background:#F0F7F7}td.n{text-align:center;width:90px}' +
       '.meta{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:14px;color:#334155}.sig{border-top:1px solid #94a3b8;padding-top:6px;min-width:180px}' +
       '@media print{body{background:#fff}.bar{display:none}.page{margin:0;width:auto}}</style></head><body><div class="bar"><button onclick="window.print()">' + esc(t('certPrint')) + '</button></div>' +
-      '<div class="page"><div class="frame"><div><div class="co">' + esc(t('certCompany')) + '</div><div class="prog">' + esc(t('certProgram')) + '</div><h1>' + esc(t('certHead')) + '</h1><div class="sub">' + esc(t('certBody1')) + '</div>' +
+      '<div class="page"><div class="frame"><div><div class="logos"><img src="' + new URL('icons/logo-full.png', location.href).href + '" alt=""><img src="' + new URL('icons/parent-logo.png', location.href).href + '" alt=""></div><div class="co">' + esc(t('certCompany')) + '</div><div class="prog">' + esc(t('certProgram')) + '</div><h1>' + esc(t('certHead')) + '</h1><div class="sub">' + esc(t('certBody1')) + '</div>' +
       '<div class="name">' + esc(nm(me.name)) + '</div><div class="sub">' + esc(t('certBody2')) + '</div></div>' +
       '<table><thead><tr><th>' + esc(t('certModule')) + '</th><th>' + esc(t('certScore')) + '</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       '<div class="meta"><div>' + esc(t('certDate')) + ': <b>' + esc(d) + '</b></div><div>' + esc(t('certAvg')) + ': <b>' + esc(c.avg) + '%</b></div><div class="sig">' + esc(an ? nm(an) : '') + '<br>' + esc(t('certSign')) + '</div></div></div></div></body></html>';
