@@ -1,7 +1,7 @@
 /* Service Worker — يجعل التطبيق يفتح بسرعة وحتى بدون إنترنت.
    الصفحة نفسها: الشبكة أولاً (لتصلك آخر نسخة دائماً) ثم النسخة المحفوظة عند انقطاع الاتصال.
    طلبات قاعدة البيانات (Google) لا تمرّ من هنا أبداً. */
-const V = "ns-v19";
+const V = "ns-v20";
 const FONTS = 'td-fonts-v1';
 const SHELL = ['./', 'index.html', 'training.html', 'hr.html', 'ess.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
   'icons/marsa-mark-white.png', 'icons/marsa-lockup.png', 'icons/marsa-lockup-white.png', 'marsa-training.css',
@@ -39,7 +39,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;   // الخادم، يوتيوب…: مباشرة من الشبكة
 
   e.respondWith(
-    fetch(req)
+    fetch(req, { cache: 'no-cache' })   // تجاوز ذاكرة المتصفح: كل تحديث على GitHub يصل فوراً
       .then((res) => {
         if (res && res.ok) { const copy = res.clone(); caches.open(V).then((c) => c.put(req, copy)); }
         return res;

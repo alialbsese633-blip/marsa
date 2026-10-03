@@ -313,6 +313,10 @@ tfoot td{font-weight:700;background:var(--surface-2)}
 .chap .body ul{margin:0 0 8px;padding-inline-start:20px}
 .chap .body li{margin-bottom:4px}
 @media (max-width:620px){.doc .dh2{grid-template-columns:1fr auto!important}.doc .dh2 .dh-t{grid-column:1/-1;order:3}.doc .dh2 .dh-co>div{display:none}.doc .dh2 img{height:46px!important}}
+.hrf-fill .fxc{background:#FFFBE6;outline:1px dashed #E3C567;outline-offset:-2px;cursor:text}.hrf-fill .fxc>div,.hrf-fill .fxc[contenteditable]{min-height:1.5em;outline:none}
+.hrf-fill .fxi{display:inline-block;min-width:70px;border-bottom:1px dotted #8a6d1f;background:#FFFBE6;padding:0 3px;outline:none;cursor:text}
+.hrf-fill .fxi:focus,.hrf-fill .fxc:focus-within{background:#FFF1B8}
+.hrf-fill .ck{cursor:pointer;color:#00717F;font-weight:700;padding:0 2px;border-radius:3px}.hrf-fill .ck:hover{background:#E3F4F6}
 /* ===== print ===== */
 #print{display:none}
 @media print{
@@ -1116,26 +1120,32 @@ function toCSV(rows){return '\ufeff'+rows.map(r=>r.map(c=>{const s=String(c??'')
 const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function printInline(html){$('#print').innerHTML=html;setTimeout(()=>window.print(),80)}
 /* الطباعة عبر إطار مستقل: مستند نظيف فيه النموذج فقط، فلا تظهر صفحة بيضاء في Edge/Chrome أو في وضع التطبيق المثبّت */
+const APP_VER='v20';
+function printDocString(html,title,withBar){
+  const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
+  const links=[...document.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.outerHTML).join('');
+  const bar=withBar?`<div class="pbar"><b>مرسى ${APP_VER}</b><span>${esc(title)}</span><button type="button" onclick="window.print()">🖨️ طباعة / حفظ PDF</button><button type="button" class="g" onclick="window.close()">إغلاق</button></div>`:'';
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>${links}<style>${css}</style><style>:root{color-scheme:light}html,body{background:#fff!important;color:#000!important;margin:0!important;padding:0!important;min-height:0!important}#print{display:block!important;color:#000;font:13px/1.7 var(--font)}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.pbar{position:sticky;top:0;z-index:9;display:flex;gap:10px;align-items:center;padding:10px 16px;background:#0E3B3F;color:#fff;font:14px/1.4 var(--font)}.pbar span{flex:1;opacity:.85}.pbar button{font:inherit;border:0;border-radius:8px;padding:8px 16px;background:#18A4B8;color:#fff;cursor:pointer}.pbar button.g{background:#ffffff22}@media screen{#print{max-width:820px;margin:18px auto;padding:0 12px}}@media print{.pbar{display:none!important}}</style></head><body>${bar}<div id="print">${html}</div></body></html>`;
+}
+function whenImagesReady(d,cb){const imgs=[...d.images];let n=imgs.length,fired=false;const go=()=>{if(fired)return;fired=true;setTimeout(cb,200)};imgs.forEach(im=>{if(im.complete)n--;else im.onload=im.onerror=()=>{if(--n<=0)go()}});if(n<=0)go();setTimeout(go,3500)}
+/* الطباعة: على الكمبيوتر تُفتح نافذة مستقلة فيها المستند فقط (تُطبع أو تُحفظ PDF)، وإن منعها المتصفح نطبع عبر إطار مخفي. على آيفون: الطريقة المعتادة */
 function printHTML(html,title){
+  const t=title||((html.match(/(?:HR|AU)-F-\d+/)||[])[0])||'مرسى — طباعة';
   if(IS_IOS)return printInline(html);
+  let w=null;try{w=window.open('','_blank','width=940,height=1000')}catch(e){w=null}
+  if(w&&w.document){
+    try{w.document.open();w.document.write(printDocString(html,t,true));w.document.close();
+      whenImagesReady(w.document,()=>{try{w.focus();w.print()}catch(e){}});return}catch(e){try{w.close()}catch(_){}} }
   try{
     const old=document.getElementById('printFrame');if(old)old.remove();
-    const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
-    const links=[...document.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.outerHTML).join('');
-    const t=title||((html.match(/(?:HR|AU)-F-\d+/)||[])[0])||'مرسى — طباعة';
-    const doc=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(t)}</title>${links}<style>${css}</style><style>:root{color-scheme:light}html,body{background:#fff!important;color:#000!important;margin:0!important;padding:0!important;min-height:0!important}#print{display:block!important;color:#000;font:13px/1.7 var(--font)}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><div id="print">${html}</div></body></html>`;
     const f=document.createElement('iframe');f.id='printFrame';f.setAttribute('aria-hidden','true');f.tabIndex=-1;
-    f.style.cssText='position:fixed;left:0;bottom:0;width:820px;height:1160px;border:0;opacity:0;pointer-events:none;z-index:-1';
+    f.style.cssText='position:fixed;left:-10000px;top:0;width:820px;height:1160px;border:0';
     let done=false;
-    f.onload=async()=>{
-      if(done)return;done=true;const w=f.contentWindow,d=f.contentDocument;
-      try{await Promise.race([Promise.all([...d.images].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r}))),new Promise(r=>setTimeout(r,4000))])}catch(e){}
-      try{if(d.fonts)await Promise.race([d.fonts.ready,new Promise(r=>setTimeout(r,1500))])}catch(e){}
-      setTimeout(()=>{try{w.focus();w.print()}catch(e){printInline(html)}},150);
-    };
-    f.srcdoc=doc;document.body.appendChild(f);
+    f.onload=()=>{if(done)return;done=true;whenImagesReady(f.contentDocument,()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){printInline(html)}})};
+    f.srcdoc=printDocString(html,t,false);document.body.appendChild(f);
   }catch(e){printInline(html)}
 }
+
 function empOptions(list,sel,withBlank){return (withBlank?`<option value="">— اختر —</option>`:'')+list.map(e=>`<option value="${e.id}" ${e.id===sel?'selected':''}>${esc(e.name)} — ${esc(e.building)}</option>`).join('')}
 function scopeEmps(){const R=role();if(R==='sup')return team(S.session.supId);if(R==='emp')return [emp(S.session.empId)];return activeEmps()}
 
@@ -1209,17 +1219,17 @@ const IC={
  swap:'<path d="M7 7h13l-3-3M17 17H4l3 3"/>',
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
 
 const NAV={
- emp:[['dash','🏠','الرئيسية'],['newreq','➕','طلب جديد'],['approvals','🔁','بانتظاري'],['myreqs','📋','طلباتي'],['myleaves','🌴','إجازاتي'],['mypay','💳','رواتبي'],['myviol','⚠️','مخالفاتي'],['myassets','🔑','عهدي وسلفي'],['mycomplaints','📨','شكاواي'],['profile','🪪','ملفي الشخصي'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل']],
- sup:[['dash','🏠','الرئيسية'],['approvals','✅','الموافقات'],['team','👥','فريقي'],['attendance','🕘','الحضور والمخالفات'],['perf','⭐','التقييم والمكافآت'],['assets','🔑','العهد والنثريات'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل']],
+ emp:[['dash','🏠','الرئيسية'],['newreq','➕','طلب جديد'],['approvals','🔁','بانتظاري'],['myreqs','📋','طلباتي'],['myleaves','🌴','إجازاتي'],['mypay','💳','رواتبي'],['myviol','⚠️','مخالفاتي'],['myassets','🔑','عهدي وسلفي'],['mycomplaints','📨','شكاواي'],['profile','🪪','ملفي الشخصي'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','نماذجي']],
+ sup:[['dash','🏠','الرئيسية'],['approvals','✅','الموافقات'],['team','👥','فريقي'],['attendance','🕘','الحضور والمخالفات'],['perf','⭐','التقييم والمكافآت'],['assets','🔑','العهد والنثريات'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','النماذج']],
  hr:[['dash','🏠','لوحة التحكم'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['docs','🪪','صلاحية الوثائق'],['leaves','🌴','الإجازات'],['attendance','🕘','الحضور والمخالفات'],['complaints','📨','الشكاوى'],['reqreport','🧾','تقرير الطلبات'],['sep'],['payroll','💳','الرواتب'],['advances','💵','السلف'],['assets','🔑','العهد والنثريات'],['perf','⭐','الأداء والمكافآت'],['sep'],['announce','📣','التعاميم'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['policies','📘','اللائحة الداخلية'],['forms','🖨️','النماذج'],['archive','🗄️','الأرشيف الرقمي'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['settings','⚙️','الإعدادات'],['audit','🧾','سجل العمليات']],
- acc:[['dash','🏠','الرئيسية'],['approvals','✅','بانتظاري'],['payroll','💳','الرواتب'],['advances','💵','السلف وأذونات الصرف'],['assets','🔑','العهد والنثريات'],['reports','📊','التقارير'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل']],
- gm:[['dash','🏠','لوحة المدير العام'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['payroll','💳','الرواتب'],['complaints','📨','الشكاوى'],['perf','⭐','الأداء والمكافآت'],['attendance','🕘','المخالفات'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['audit','🧾','سجل العمليات']]
+ acc:[['dash','🏠','الرئيسية'],['approvals','✅','بانتظاري'],['payroll','💳','الرواتب'],['advances','💵','السلف وأذونات الصرف'],['assets','🔑','العهد والنثريات'],['reports','📊','التقارير'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','النماذج']],
+ gm:[['dash','🏠','لوحة المدير العام'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['payroll','💳','الرواتب'],['complaints','📨','الشكاوى'],['perf','⭐','الأداء والمكافآت'],['attendance','🕘','المخالفات'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['myforms','🖨️','النماذج'],['audit','🧾','سجل العمليات']]
 };
 function approvalItems(){
   const R=role(),it={req:pendingForMe(),vio:[],ret:[],rwd:[],pay:[],rev:[]};
@@ -1258,9 +1268,9 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log'};
+const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log'};
 const ROLE_EN={emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
-const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms'};
+const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
   document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
   const lt=document.getElementById('langTxt');if(lt)lt.textContent=LANG==='ar'?'EN':'ع';
@@ -2358,8 +2368,85 @@ function hrfHTML(c){const f=HRF.find(x=>x.c===c);if(!f)return '';return `<div cl
 function hrfAll(){return HRF.map((f,i)=>`<div style="${i?'page-break-before:always':''}">${hrfHTML(f.c)}</div>`).join('')}
 VIEWS.forms=()=>ph('النماذج الرسمية ثنائية اللغة','Bilingual Forms — كل نموذج يُطبع فارغاً من هنا، أو معبأً تلقائياً من داخل الطلب')+`<div class="grid g3">${FORMS.map(([k,a,en])=>`<div class="card"><div class="b" style="font-size:15px">${a}</div><div class="muted small" dir="ltr" style="text-align:right">${en}</div><div class="row" style="margin-top:12px"><button class="btn sm sec" data-fprev="${k}">معاينة</button><button class="btn sm" data-fpr="${k}">🖨️ طباعة فارغ</button></div></div>`).join('')}</div>`+`<div class="sec-h" style="margin:26px 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">📑 نماذج دليل السياسات والإجراءات — الفصل الثالث</h2><span class="muted small">HR-F-01 إلى HR-F-17 · الإصدار 1.0 · 21 سبتمبر 2026</span><button class="btn sm sec" id="hrfAll" style="margin-inline-start:auto">🖨️ طباعة جميع النماذج</button></div>
 <div class="note" style="margin-bottom:12px">تُعبأ النماذج بخط واضح أو إلكترونياً، ويُمنح كل نموذج مكتمل رقم مرجع بصيغة: رمز النموذج / السنة / الرقم التسلسلي، ولا يُعتد به قبل استكمال توقيعات جهات الاعتماد، ويُحفظ الأصل الموقّع في الملف الوظيفي.</div>
-<div class="grid g3">${HRF.map(f=>`<div class="card hrf-card"><div class="code">${f.c} · البند ${f.s}</div><div class="b" style="font-size:15px;margin-top:4px">${f.a}</div><div class="muted small" dir="ltr" style="text-align:right">${f.e}</div><div class="small muted" style="margin-top:6px">يعبّئه: ${f.by} · يعتمده: ${f.ap}</div><div class="row" style="margin-top:12px"><button class="btn sm sec" data-hprev="${f.c}">معاينة</button><button class="btn sm" data-hpr="${f.c}">🖨️ طباعة</button></div></div>`).join('')}</div>`;
-BIND.forms=()=>{$$('[data-hpr]').forEach(b=>b.onclick=()=>printHTML(hrfHTML(b.dataset.hpr)));$$('[data-hprev]').forEach(b=>b.onclick=()=>{const f=HRF.find(x=>x.c===b.dataset.hprev);modal({title:f.c+' — '+f.a,wide:true,body:`<div class="preview">${hrfHTML(f.c)}</div>`,foot:[{t:'🖨️ طباعة',fn:()=>{printHTML(hrfHTML(f.c));return false}},{t:'إغلاق',cls:'sec'}]})});$('#hrfAll')&&($('#hrfAll').onclick=()=>printHTML(hrfAll()));$$('[data-fpr]').forEach(b=>b.onclick=()=>printForm(b.dataset.fpr));$$('[data-fprev]').forEach(b=>b.onclick=()=>modal({title:FORMS.find(f=>f[0]===b.dataset.fprev)[1],wide:true,body:`<div class="preview">${formHTML(b.dataset.fprev)}</div>`,foot:[{t:'🖨️ طباعة',fn:()=>{printForm(b.dataset.fprev);return false}},{t:'إغلاق',cls:'sec'}]}))};
+<div class="grid g3">${HRF.map(f=>`<div class="card hrf-card"><div class="code">${f.c} · البند ${f.s}</div><div class="b" style="font-size:15px;margin-top:4px">${f.a}</div><div class="muted small" dir="ltr" style="text-align:right">${f.e}</div><div class="small muted" style="margin-top:6px">يعبّئه: ${f.by} · يعتمده: ${f.ap}</div><div class="row" style="margin-top:12px"><button class="btn sm sec" data-hprev="${f.c}">معاينة</button><button class="btn sm sec" data-hfill="${f.c}">✍️ تعبئة</button><button class="btn sm" data-hpr="${f.c}">🖨️ طباعة</button></div></div>`).join('')}</div>`;
+BIND.forms=()=>{$$('[data-hfill]').forEach(b=>b.onclick=()=>hrfFill(b.dataset.hfill));$$('[data-hpr]').forEach(b=>b.onclick=()=>printHTML(hrfHTML(b.dataset.hpr)));$$('[data-hprev]').forEach(b=>b.onclick=()=>{const f=HRF.find(x=>x.c===b.dataset.hprev);modal({title:f.c+' — '+f.a,wide:true,body:`<div class="preview">${hrfHTML(f.c)}</div>`,foot:[{t:'🖨️ طباعة',fn:()=>{printHTML(hrfHTML(f.c));return false}},{t:'إغلاق',cls:'sec'}]})});$('#hrfAll')&&($('#hrfAll').onclick=()=>printHTML(hrfAll()));$$('[data-fpr]').forEach(b=>b.onclick=()=>printForm(b.dataset.fpr));$$('[data-fprev]').forEach(b=>b.onclick=()=>modal({title:FORMS.find(f=>f[0]===b.dataset.fprev)[1],wide:true,body:`<div class="preview">${formHTML(b.dataset.fprev)}</div>`,foot:[{t:'🖨️ طباعة',fn:()=>{printForm(b.dataset.fprev);return false}},{t:'إغلاق',cls:'sec'}]}))};
+/* ---------- تعبئة النماذج إلكترونياً (HR-F) ---------- */
+const HRF_ROLE={
+  emp:['HR-F-04','HR-F-06','HR-F-09','HR-F-15'],
+  sup:['HR-F-04','HR-F-05','HR-F-06','HR-F-07','HR-F-08','HR-F-09','HR-F-11','HR-F-12','HR-F-13','HR-F-14','HR-F-15'],
+  acc:['HR-F-04','HR-F-06','HR-F-09','HR-F-15','HR-F-16'],
+  gm:null, hr:null};
+const hrfForRole=r=>{const l=HRF_ROLE[r];return l?HRF.filter(f=>l.includes(f.c)):HRF};
+const HRF_MAP=[
+  [/^(اسم الموظف|الاسم الكامل|الموظف محل التحقيق)$/,e=>e.name],
+  [/^الرقم الوظيفي$/,e=>e.code],
+  [/^(الوظيفة|المسمى الوظيفي|الوظيفة التي شغلها|صفته الوظيفية)$/,e=>e.job],
+  [/^(القسم \/ البناية|البناية \/ الموقع|البناية \/ موقع العمل)$/,e=>[e.dept,e.building].filter(Boolean).join(' / ')],
+  [/^الوظيفة \/ البناية$/,e=>[e.job,e.building].filter(Boolean).join(' / ')],
+  [/^(رقم الهاتف|رقم التواصل أثناء الإجازة)$/,e=>e.phone],
+  [/^الجنسية$/,e=>e.nationality],
+  [/^تاريخ التعيين$/,e=>e.joinDate?fdate(e.joinDate):''],
+  [/^رقم البطاقة \/ الجواز$/,e=>e.civil||e.passport],
+  [/^المسؤول المباشر|^المشرف المباشر$/,e=>e.supervisorId?empName(e.supervisorId):''],
+  [/^تاريخ الطلب$/,()=>fdate(TODAY)]];
+const DOTS=/\.{5,}/g;
+function hrfMakeFillable(root){
+  const hasDots=t=>/\.{5,}/.test(t);
+  const wrapText=el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
+    nodes.forEach(n=>{const v=n.nodeValue;if(!/☐|\.{5,}/.test(v))return;const frag=document.createDocumentFragment();
+      v.split(/(☐|\.{5,})/).forEach(part=>{if(!part)return;if(part==='☐'){const c=document.createElement('span');c.className='ck';c.textContent='☐';c.tabIndex=0;c.setAttribute('role','checkbox');frag.appendChild(c)}
+        else if(/^\.{5,}$/.test(part)){const x=document.createElement('span');x.className='fxi';x.contentEditable='true';x.dataset.dots=part;frag.appendChild(x)}
+        else frag.appendChild(document.createTextNode(part))});n.replaceWith(frag)})};
+  $$('td',root).forEach(td=>{
+    if(/background/i.test(td.getAttribute('style')||'')){if(/☐|\.{5,}/.test(td.textContent))wrapText(td);return}
+    if(/☐/.test(td.textContent)||hasDots(td.textContent)){wrapText(td);return}
+    const d=td.querySelector(':scope>div')||td;d.contentEditable='true';td.classList.add('fxc');if(!d.textContent.trim())d.innerHTML=''});
+  /* نصوص خارج الجداول فيها نقاط */
+  $$('p,div',root).forEach(el=>{if(el.closest('td')||el.closest('.dh'))return;if([...el.childNodes].some(n=>n.nodeType===3&&/☐|\.{5,}/.test(n.nodeValue)))wrapText(el)});
+}
+function hrfBindChecks(root,onChange){
+  root.addEventListener('click',ev=>{const c=ev.target.closest('.ck');if(c){c.textContent=c.textContent==='☐'?'☑':'☐';onChange&&onChange()}});
+  root.addEventListener('keydown',ev=>{const c=ev.target.closest&&ev.target.closest('.ck');if(c&&(ev.key===' '||ev.key==='Enter')){ev.preventDefault();c.click()}});
+}
+function hrfAutofill(root,e){
+  if(!e)return;
+  $$('td',root).forEach(td=>{if(!/background/i.test(td.getAttribute('style')||''))return;const lab=td.textContent.replace(/\s+/g,' ').trim();
+    const m=HRF_MAP.find(([re])=>re.test(lab));if(!m)return;const v=m[1](e);if(!v)return;
+    const nx=td.nextElementSibling;if(!nx||!nx.classList.contains('fxc'))return;const d=nx.querySelector('[contenteditable]')||nx;if(!d.textContent.trim())d.textContent=v});
+  /* أول خانة "التاريخ" في رأس النموذج = تاريخ اليوم */
+  const dt=$$('td',root).find(td=>/^\s*التاريخ\s*:/.test(td.textContent));
+  if(dt){const xs=$$('.fxi',dt);if(xs.length===3&&!xs.some(x=>x.textContent.trim())){const [y,mo,da]=TODAY.split('-');xs[0].textContent=da;xs[1].textContent=mo;xs[2].textContent=y}}
+}
+function hrfCleanHTML(root){
+  const c=root.cloneNode(true);
+  $$('[contenteditable]',c).forEach(x=>x.removeAttribute('contenteditable'));
+  $$('.fxi',c).forEach(x=>{if(!x.textContent.trim())x.textContent=x.dataset.dots||'............';else x.style.cssText='font-weight:700;padding:0 3px';x.removeAttribute('data-dots');x.className=''});
+  $$('.fxc',c).forEach(x=>{x.classList.remove('fxc');const d=x.querySelector('div');if(d&&d.textContent.trim())d.style.fontWeight='700';if(d&&!d.textContent.trim())d.innerHTML='&nbsp;'});
+  $$('.ck',c).forEach(x=>{x.removeAttribute('tabindex');x.removeAttribute('role');x.className='';if(x.textContent==='☑')x.style.cssText='font-weight:700;color:#000'});
+  return c.innerHTML;
+}
+const hrfDraftKey=(code,eid)=>`marsa_hrf:${code}:${eid||'_'}`;
+function hrfFill(code,presetEmp){
+  const f=HRF.find(x=>x.c===code);if(!f)return;
+  const R=role();const list=R==='emp'?[emp(S.session.empId)].filter(Boolean):scopeEmps();
+  let eid=presetEmp||(R==='emp'?S.session.empId:(R==='sup'?'':''));
+  const pick=R==='emp'?'':`<div class="fld" style="margin:0 0 10px;max-width:420px"><label>تعبئة بيانات الموظف تلقائياً</label><select id="hfEmp">${empOptions(list,eid,true)}</select></div>`;
+  modal({title:'✍️ تعبئة '+f.c,sub:esc(f.a)+' — اكتب في الخانات المظللة، واضغط على ☐ للتأشير',wide:true,
+    body:`${pick}<div class="note" style="margin-bottom:10px">يُحفظ ما تكتبه تلقائياً على هذا الجهاز حتى تطبعه. التوقيعات تتم يدوياً على النسخة المطبوعة.</div><div class="preview"><div class="doc hrf hrf-fill" id="hfDoc"></div></div>`,
+    foot:[{t:'🖨️ طباعة / حفظ PDF',fn:b=>{const d=$('#hfDoc',b);printHTML(`<div class="doc hrf">${hrfCleanHTML(d)}</div>`,f.c+' — '+(eid?empName(eid):f.a));return false}},
+          {t:'↺ مسح التعبئة',cls:'sec',fn:b=>{try{localStorage.removeItem(hrfDraftKey(code,eid))}catch(e){}draw(b,true);toast('تم مسح التعبئة');return false}},
+          {t:'إغلاق',cls:'sec'}],
+    onMount:b=>{const d=$('#hfDoc',b);hrfBindChecks(d,()=>saveDraft(d));d.addEventListener('input',()=>saveDraft(d));draw(b);const sel=$('#hfEmp',b);if(sel)sel.onchange=()=>{eid=sel.value;draw(b)}}});
+  function saveDraft(d){try{localStorage.setItem(hrfDraftKey(code,eid),d.innerHTML)}catch(e){}}
+  function draw(b,fresh){
+    const d=$('#hfDoc',b);let saved=null;if(!fresh){try{saved=localStorage.getItem(hrfDraftKey(code,eid))}catch(e){}}
+    if(saved)d.innerHTML=saved;
+    else{d.innerHTML=docHead(f.a,f.e,f.c+' — الإصدار 1.0')+f.h+`<div class="hrf-foot">${f.f}</div>`;hrfMakeFillable(d);hrfAutofill(d,eid?emp(eid):null)}
+  }
+}
+VIEWS.myforms=()=>{const R=role(),L=hrfForRole(R);return ph(R==='emp'?'نماذجي':'النماذج','عبّئ النموذج إلكترونياً ثم اطبعه أو احفظه PDF، أو اطبعه فارغاً للتعبئة اليدوية')+
+  `<div class="grid g3">${L.map(f=>`<div class="card hrf-card"><div class="code">${f.c} · البند ${f.s}</div><div class="b" style="font-size:15px;margin-top:4px">${f.a}</div><div class="muted small" dir="ltr" style="text-align:right">${f.e}</div><div class="small muted" style="margin-top:6px">يعبّئه: ${f.by} · يعتمده: ${f.ap}</div><div class="row" style="margin-top:12px"><button class="btn sm" data-mfill="${f.c}">✍️ تعبئة</button><button class="btn sm sec" data-mpr="${f.c}">🖨️ طباعة فارغ</button></div></div>`).join('')}</div>`};
+BIND.myforms=()=>{$$('[data-mfill]').forEach(b=>b.onclick=()=>hrfFill(b.dataset.mfill));$$('[data-mpr]').forEach(b=>b.onclick=()=>printHTML(hrfHTML(b.dataset.mpr)))};
 function printLetter(r){const e=emp(r.empId),d=r.data;const en=d.lang==='English',both=d.lang==='عربي + English';
   const ar=d.letterType==='شهادة خبرة'?`تشهد شركة نسائم صلالة للشقق المفروشة بأن السيد/ة ${e.name}، ${e.nationality}، قد عمل/ت لدينا بوظيفة ${e.job} منذ ${fdate(e.joinDate)} وحتى تاريخه، وقد كان/ت مثالاً للالتزام وحسن السيرة والسلوك.`:
    d.letterType==='خطاب عدم ممانعة'?`تفيد شركة نسائم صلالة للشقق المفروشة بأنه لا مانع لديها من ${esc(d.reason)||'……'} للموظف/ة ${e.name}، الذي يعمل لدينا بوظيفة ${e.job} منذ ${fdate(e.joinDate)}.`:
