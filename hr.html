@@ -2330,11 +2330,11 @@ VIEWS.authman=()=>{
   `<div class="toolbar"><div class="seg">${tabs.map(([k,n])=>`<button data-amt="${k}" class="${T===k?'on':''}">${n}</button>`).join('')}</div><div class="seg" style="margin-inline-start:auto">${[['ar','عربي'],['en','English'],['both','ثنائي']].map(([k,n])=>`<button data-aml="${k}" class="${L===k?'on':''}">${n}</button>`).join('')}</div></div>`+body;
 };
 BIND.authman=()=>{
-  $('[data-amt]').forEach(b=>b.onclick=()=>{V.sub.amt=b.dataset.amt;render()});
-  $('[data-aml]').forEach(b=>b.onclick=()=>{V.sub.aml=b.dataset.aml;render()});
-  $('[data-amr]').forEach(b=>b.onclick=()=>{V.sub.amr=b.dataset.amr;render()});
-  $('[data-amm]').forEach(b=>b.onclick=()=>{V.sub.amm=b.dataset.amm;render()});
-  $('[data-amf]').forEach(b=>b.onclick=()=>{const h=amFormHTML(b.dataset.amf);if(b.dataset.amp==='1')printHTML(h);else modal({title:AM_FORMS.find(f=>f[0]===b.dataset.amf)[1],wide:true,body:h,foot:[{t:'إغلاق',cls:'sec'}]})});
+  $$('[data-amt]').forEach(b=>b.onclick=()=>{V.sub.amt=b.dataset.amt;render()});
+  $$('[data-aml]').forEach(b=>b.onclick=()=>{V.sub.aml=b.dataset.aml;render()});
+  $$('[data-amr]').forEach(b=>b.onclick=()=>{V.sub.amr=b.dataset.amr;render()});
+  $$('[data-amm]').forEach(b=>b.onclick=()=>{V.sub.amm=b.dataset.amm;render()});
+  $$('[data-amf]').forEach(b=>b.onclick=()=>{const h=amFormHTML(b.dataset.amf);if(b.dataset.amp==='1')printHTML(h);else modal({title:AM_FORMS.find(f=>f[0]===b.dataset.amf)[1],wide:true,body:h,foot:[{t:'إغلاق',cls:'sec'}]})});
 };
 
 /* ---------- النماذج ثنائية اللغة والطباعة ---------- */
