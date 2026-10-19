@@ -427,8 +427,9 @@ const DEPTS=['الإدارة','الاستقبال','النظافة والتدب�
 
 /* ---------- المشتريات — سياسة المشتريات PUR-01 ---------- */
 const PUR_KINDS=['منتج','خدمة','صيانة','أصل بديل (استبدال تالف)','أصل جديد'];
-const PUR_FLOW=['review','gm','approved','bought','received','posted','paid'];
-const PUR_STATUS_LABEL={review:'بانتظار رئيس الحسابات',gm:'بانتظار المدير العام',rejected:'مرفوض',approved:'معتمد — بانتظار الشراء',bought:'تم الشراء — بانتظار الاستلام',received:'تم الاستلام — بانتظار القيد',posted:'بانتظار السداد',paid:'مسدّدة ومكتملة'};
+const PUR_FLOW=['review','gm','approved','received','paid'];
+const PUR_STEP={review:'رئيس الحسابات',gm:'المدير العام',approved:'الشراء والاستلام',received:'السداد',paid:'مكتمل'};
+const PUR_STATUS_LABEL={review:'بانتظار رئيس الحسابات',gm:'بانتظار المدير العام',rejected:'مرفوض',approved:'معتمد — بانتظار الشراء',bought:'تم الشراء — بانتظار الاستلام',received:'تم الشراء والاستلام — بانتظار السداد',posted:'بانتظار السداد',paid:'مسدّدة ومكتملة'};
 
 /* أنواع الإجازات — وفق قانون العمل العماني (المرسوم السلطاني 53/2023) مع سياسات داخلية مقترحة */
 const LEAVE_TYPES=[
@@ -2090,7 +2091,7 @@ const PUR_OPS=['sup','hr','acc','gm'];
 function purCanAct(p){const R=role();return (p.status==='review'&&R==='acc')||(p.status==='gm'&&R==='gm')}
 /* كل ما ينتظر إجراءً من دوري الحالي (اعتماد، تنفيذ، استلام، قيد، سداد) */
 function purNeedsMe(p){const R=role();
-  if(R==='acc')return ['review','received','posted'].includes(p.status);
+  if(R==='acc')return ['review','received','posted'].includes(p.status);  // received = بانتظار السداد
   if(R==='gm')return p.status==='gm';
   if(R==='hr'||R==='sup')return ['approved','bought'].includes(p.status);
   return false}
@@ -2103,9 +2104,9 @@ function purStatusBadge(p){
   if(p.status==='review'||p.status==='gm')return badge(PUR_STATUS_LABEL[p.status],'w');
   return badge(PUR_STATUS_LABEL[p.status],'i');
 }
-function purStepCls(p,s){if(p.status==='rejected')return '';const i=PUR_FLOW.indexOf(s),cur=PUR_FLOW.indexOf(p.status);return i<cur?'ok':i===cur?'cur':''}
+function purStepCls(p,s){if(p.status==='rejected')return '';const st={bought:'approved',posted:'received'}[p.status]||p.status;const i=PUR_FLOW.indexOf(s),cur=PUR_FLOW.indexOf(st);return (i<cur||st==='paid')?'ok':i===cur?'cur':''}
 function purSummary(p){return `${esc(p.building)} — ${esc(p.kind)} — ${omr(purTotal(p))}`}
-function purLineRow(i){return `<div class="frow" style="grid-template-columns:2fr 70px 90px 100px;gap:6px"><input placeholder="الصنف / الوصف" id="p${i}d"><input type="number" min="0" step="1" placeholder="الكمية" id="p${i}q"><input placeholder="الوحدة" id="p${i}u"><input type="number" min="0" step="0.001" placeholder="السعر التقديري" id="p${i}p"></div>`}
+function purLineRow(i){return `<div class="frow" data-prow="${i}" style="grid-template-columns:2fr 70px 110px;gap:6px;margin-bottom:6px"><input placeholder="الصنف (مثال: خرطوم مياه)" id="p${i}d"><input type="number" min="0" step="1" value="1" placeholder="الكمية" id="p${i}q"><input type="number" min="0" step="0.001" placeholder="السعر التقريبي" id="p${i}p"><input type="hidden" id="p${i}u" value=""></div>`}
 VIEWS.procurement=()=>{
   const R=role(),tab=V.sub.pu||'open';
   const list=S.purchases.slice().reverse().filter(p=>{
@@ -2131,25 +2132,32 @@ BIND.procurement=()=>{
 function purchaseForm(){
   const R=role(),bld=R==='sup'?(emp(S.session.supId)||{}).building||BUILDINGS[0]:BUILDINGS[0];
   const assetsList=S.assets.filter(a=>a.status!=='disposed');
-  modal({title:'🛒 طلب شراء جديد',sub:'وفق سياسة المشتريات PUR-01',wide:true,
-  body:`<div class="frow"><div class="fld"><label>الفرع / المبنى</label><select id="pb">${BUILDINGS.map(b=>`<option ${b===bld?'selected':''}>${b}</option>`).join('')}</select></div><div class="fld"><label>نوع الطلب</label><select id="pk">${PUR_KINDS.map(k=>`<option>${k}</option>`).join('')}</select></div></div>
-  <div class="frow"><div class="fld"><label>الأولوية</label><select id="ppr"><option value="عادي">عادي</option><option value="عاجل">عاجل (سلامة / تعطّل خدمة)</option></select></div><div class="fld"><label>قابل للتحميل على مستأجر</label><select id="pch"><option value="0">لا</option><option value="1">نعم</option></select></div></div>
-  <div class="fld"><label>بنود الطلب</label>${[1,2,3,4].map(purLineRow).join('')}</div>
-  <div class="fld"><label>سبب الطلب</label><textarea id="preason"></textarea></div>
-  <div class="frow"><div class="fld"><label>المورد</label><select id="pva"><option value="1">معتمد</option><option value="0">غير معتمد</option></select></div><div class="fld"><label>اسم المورد</label><input id="pvn"></div></div>
-  <div class="frow"><div class="fld"><label>عدد عروض الأسعار المرفقة</label><input type="number" id="pqc" min="0" value="1"></div><div class="fld"><label>مبرر الاختيار (إن لم يكن الأقل سعراً)</label><input id="pqn"></div></div>
-  <label class="chk"><input type="checkbox" id="prepl"> هذا طلب استبدال أصل تالف</label>
-  <div id="preplWrap" hidden><div class="frow"><div class="fld"><label>الأصل التالف</label><select id="passet"><option value="">— اختر —</option>${assetsList.map(a=>`<option value="${a.id}">${esc(a.no)} — ${esc(a.name)}${a.empId?' — '+esc(empName(a.empId)):''}</option>`).join('')}</select></div><div class="fld"><label>سبب التلف</label><input id="pdmg" placeholder="مثال: كسر بسبب سوء استخدام"></div></div></div>
-  <div class="note small" id="ptotal"></div>`,
+  modal({title:'🛒 طلب شراء جديد',sub:'وفق سياسة المشتريات PUR-01',
+  body:`<div class="note small" style="margin:0 0 12px">اكتب ما تحتاجه وسببه فقط — يصل الطلب لرئيس الحسابات ثم المدير العام للاعتماد.</div>
+  <div class="fld"><label>المبنى</label><select id="pb">${BUILDINGS.map(b=>`<option ${b===bld?'selected':''}>${b}</option>`).join('')}</select></div>
+  <div class="fld"><label>ماذا تحتاج؟</label>${[1,2,3,4].map(purLineRow).join('')}<button type="button" class="btn sm sec" id="pmore">➕ بند آخر</button></div>
+  <div class="fld"><label>سبب الطلب</label><textarea id="preason" placeholder="مثال: الخرطوم في الشقة 12 تالف ويسرّب الماء"></textarea></div>
+  <div class="note small" id="ptotal"></div>
+  <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:600">تفاصيل إضافية (اختيارية)</summary><div style="margin-top:10px">
+  <div class="frow"><div class="fld"><label>نوع الطلب</label><select id="pk">${PUR_KINDS.map(k=>`<option>${k}</option>`).join('')}</select></div><div class="fld"><label>الأولوية</label><select id="ppr"><option value="عادي">عادي</option><option value="عاجل">عاجل (سلامة / تعطّل خدمة)</option></select></div></div>
+  <div class="frow"><div class="fld"><label>اسم المورد</label><input id="pvn"></div><div class="fld"><label>المورد</label><select id="pva"><option value="1">معتمد</option><option value="0">غير معتمد</option></select></div></div>
+  <div class="frow"><div class="fld"><label>عدد عروض الأسعار</label><input type="number" id="pqc" min="0" value="1"></div><div class="fld"><label>قابل للتحميل على مستأجر</label><select id="pch"><option value="0">لا</option><option value="1">نعم</option></select></div></div>
+  <input type="hidden" id="pqn" value="">
+  <label class="chk"><input type="checkbox" id="prepl"> استبدال أصل تالف من العهد</label>
+  <div id="preplWrap" hidden><div class="frow"><div class="fld"><label>الأصل التالف</label><select id="passet"><option value="">— اختر —</option>${assetsList.map(a=>`<option value="${a.id}">${esc(a.no)} — ${esc(a.name)}${a.empId?' — '+esc(empName(a.empId)):''}</option>`).join('')}</select></div><div class="fld"><label>سبب التلف</label><input id="pdmg"></div></div></div>
+  </div></details>`,
   onMount:b=>{
-    const upd=()=>{let t=0;[1,2,3,4].forEach(i=>{t+=(+fv(b,'p'+i+'q')||0)*(+fv(b,'p'+i+'p')||0)});$('#ptotal',b).textContent='الإجمالي التقديري: '+omr(r3(t))};
+    const upd=()=>{let t=0;[1,2,3,4].forEach(i=>{t+=(+fv(b,'p'+i+'q')||0)*(+fv(b,'p'+i+'p')||0)});$('#ptotal',b).textContent='الإجمالي التقريبي: '+omr(r3(t))};
     [1,2,3,4].forEach(i=>{$('#p'+i+'q',b).oninput=upd;$('#p'+i+'p',b).oninput=upd});upd();
+    $$('[data-prow]',b).forEach(r=>{if(r.dataset.prow!=='1')r.hidden=true});
+    $('#pmore',b).onclick=()=>{const h=$$('[data-prow]',b).find(r=>r.hidden);if(h)h.hidden=false;if(!$$('[data-prow]',b).some(r=>r.hidden))$('#pmore',b).hidden=true};
     $('#prepl',b).onchange=()=>{$('#preplWrap',b).hidden=!$('#prepl',b).checked};
   },
   foot:[{t:'إرسال للمراجعة',fn:b=>{
     const items=[];for(let i=1;i<=4;i++){const d=fv(b,'p'+i+'d');if(!d)continue;items.push({desc:d,qty:+fv(b,'p'+i+'q')||0,unit:fv(b,'p'+i+'u')||'',price:r3(+fv(b,'p'+i+'p')||0)})}
     const reason=fv(b,'preason'),isRepl=!!fv(b,'prepl');
-    if(!items.length){toast('أضف بندًا واحدًا على الأقل');return false}
+    if(!items.length){toast('اكتب ما تحتاجه');return false}
+    if(items.some(i=>!(i.price>0))){toast('اكتب السعر التقريبي لكل بند');return false}
     if(!reason){toast('اكتب سبب الطلب');return false}
     if(isRepl&&!fv(b,'passet')){toast('اختر الأصل التالف المطلوب استبداله');return false}
     const p={id:uid(),no:nextNo('PUR'),building:fv(b,'pb'),kind:fv(b,'pk'),priority:fv(b,'ppr'),chargeable:fv(b,'pch')==='1',
@@ -2169,7 +2177,7 @@ function openPurchase(id){
   let body=`<dl class="kv"><dt>الفرع / المبنى</dt><dd>${esc(p.building)}</dd><dt>النوع</dt><dd>${esc(p.kind)}${p.priority==='عاجل'?' — <b>عاجل</b>':''}</dd><dt>مقدم الطلب</dt><dd>${esc(p.by)}</dd><dt>سبب الطلب</dt><dd>${esc(p.reason)}</dd></dl>
   <div class="tw"><table><thead><tr><th>البند</th><th class="n">الكمية</th><th>الوحدة</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr></thead><tbody>${p.items.map(it=>`<tr><td>${esc(it.desc)}</td><td class="n">${it.qty}</td><td>${esc(it.unit)}</td><td class="n">${money(it.price)}</td><td class="n">${money(it.qty*it.price)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4">الإجمالي التقديري</td><td class="n b">${money(est)}</td></tr></tfoot></table></div>
   <dl class="kv"><dt>المورد</dt><dd>${p.vendor.approved?'معتمد':'غير معتمد'}${p.vendor.name?' — '+esc(p.vendor.name):''}</dd><dt>عروض الأسعار</dt><dd>${p.quotes.count} عرض${p.quotes.note?' — '+esc(p.quotes.note):''}</dd>${p.replacedAsset&&p.replacedAsset.isReplacement?`<dt>استبدال أصل</dt><dd>${esc((S.assets.find(a=>a.id===p.replacedAsset.assetId)||{}).no||'')} — ${esc(p.replacedAsset.damageNote||'')}</dd>`:''}${p.chargeable?'<dt>ملاحظة</dt><dd>قابل للتحميل على مستأجر</dd>':''}</dl>
-  <div class="steps">${PUR_FLOW.map((s,i)=>`${i?'<i>←</i>':''}<span class="${purStepCls(p,s)}">${PUR_STATUS_LABEL[s]}</span>`).join('')}</div>`;
+  <div class="steps">${PUR_FLOW.map((s,i)=>`${i?'<i>←</i>':''}<span class="${purStepCls(p,s)}">${PUR_STEP[s]}</span>`).join('')}</div>`;
   if(p.status==='rejected')body+=`<div class="note c" style="margin-top:10px">مرفوض — ${esc((p.gmNote||p.reviewNote||''))}</div>`;
   if(p.status==='review'&&R==='acc'){
     body+=`<div class="card flat" style="margin-top:10px"><label class="chk"><input type="checkbox" id="pbok" checked> ضمن الموازنة الشهرية والسنوية للبند والفرع</label><div class="fld"><label>ملاحظة المراجعة</label><textarea id="pbn"></textarea></div></div>`;
@@ -2181,47 +2189,47 @@ function openPurchase(id){
     foot.push({t:'✅ اعتماد نهائي',cls:'good',fn:b=>{p.status='approved';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');notify(purReqTo(p),'✅','تم اعتماد طلب الشراء',`${p.no} — يمكن تنفيذ الشراء الآن`,{view:'procurement'});log(`اعتماد نهائي لطلب الشراء ${p.no}`);commit('تم الاعتماد')}});
     foot.push({t:'⛔ رفض',cls:'crit',fn:b=>{if(!fv(b,'pgn')){toast('اكتب سبب الرفض');return false}p.status='rejected';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');notify(purReqTo(p),'⛔','تم رفض طلب الشراء',`${p.no} — ${fv(b,'pgn')}`,{view:'procurement'});log(`رفض طلب الشراء ${p.no} (المدير العام)`);commit('تم الرفض')}});
   }
+  const doReceive=()=>{
+    if(p.replacedAsset&&p.replacedAsset.isReplacement&&p.replacedAsset.assetId){
+      const old=S.assets.find(a=>a.id===p.replacedAsset.assetId);
+      if(old){old.status='disposed';old.condition='تالفة — مستبدلة';old.history=old.history||[];old.history.push({at:TODAY,t:`استبدال — طلب شراء ${p.no}: ${p.replacedAsset.damageNote||''}`});
+        const na={id:uid(),no:nextNo('AST'),type:old.type,name:(p.items[0]&&p.items[0].desc)||old.name,serial:'',value:p.purchase?p.purchase.actual:est,empId:old.empId,issuedAt:TODAY,status:old.empId?'issued':'store',condition:'جيدة',history:[{at:TODAY,t:`استبدال للأصل ${old.no} — طلب شراء ${p.no}`}],replacedFrom:old.no,building:p.building};
+        S.assets.push(na);p.newAssetNo=na.no;
+      }
+    }
+    p.status='received';
+    notify('role:acc','💳','مشتريات مستلمة بانتظار السداد',`${p.no} — ${p.building} — ${omr(p.purchase?p.purchase.actual:est)}`,{view:'procurement'});
+  };
+  /* خطوة واحدة بعد الاعتماد: تم الشراء والاستلام */
   if(p.status==='approved'&&PUR_OPS.includes(R)){
-    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">تنفيذ الشراء</div><div class="frow"><div class="fld"><label>رقم الفاتورة</label><input id="pinv"></div><div class="fld"><label>المبلغ الفعلي (ر.ع)</label><input type="number" id="pact" step="0.001" value="${est}"></div></div><div class="fld"><label>المورد الفعلي</label><input id="pvf" value="${esc(p.vendor.name||'')}"></div></div>`;
-    foot.push({t:'🧾 تسجيل الشراء',fn:b=>{
+    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">تم الشراء والاستلام</div><div class="frow"><div class="fld"><label>رقم الفاتورة</label><input id="pinv"></div><div class="fld"><label>المبلغ الفعلي (ر.ع)</label><input type="number" id="pact" step="0.001" value="${est}"></div></div><div class="frow"><div class="fld"><label>المورد</label><input id="pvf" value="${esc(p.vendor.name||'')}"></div><div class="fld"><label>استلمه</label><input id="prec" value="${esc(me().name)}"></div></div></div>`;
+    foot.push({t:'✅ تم الشراء والاستلام',cls:'good',fn:b=>{
       const act=r3(+fv(b,'pact')||0),inv=fv(b,'pinv');
       if(!inv||!(act>0)){toast('أدخل رقم الفاتورة والمبلغ الفعلي');return false}
-      const variance=est>0?Math.abs(act-est)/est*100:0;
+      const variance=est>0?(act-est)/est*100:0;
       p.purchase={invoice:inv,vendor:fv(b,'pvf'),actual:act,at:nowTs(),by:me().name};
       if(variance>S.settings.purVarPct){
-        p.status='review';p.reviewBy=null;p.reviewAt=null;p.reviewNote=`زيادة السعر الفعلي ${variance.toFixed(1)}% عن المعتمد — يلزم إعادة الاعتماد (البند 6.7)`;p.gmBy=null;p.gmAt=null;p.gmNote='';
-        notify('role:acc','⚠️','طلب شراء يحتاج إعادة اعتماد',`${p.no} — ارتفاع السعر ${variance.toFixed(1)}% عن المعتمد`,{view:'procurement'});
-        log(`إعادة اعتماد طلب الشراء ${p.no} لتجاوز السعر`);commit('السعر الفعلي تجاوز الحد المسموح ('+S.settings.purVarPct+'%) — أعيد الطلب للاعتماد');return;
+        p.status='review';p.reviewBy=null;p.reviewAt=null;p.reviewNote=`السعر الفعلي أعلى من المعتمد بـ ${variance.toFixed(1)}% — يلزم إعادة الاعتماد (البند 6.7)`;p.gmBy=null;p.gmAt=null;p.gmNote='';
+        notify('role:acc','⚠️','طلب شراء يحتاج إعادة اعتماد',`${p.no} — السعر أعلى بـ ${variance.toFixed(1)}% من المعتمد`,{view:'procurement'});
+        log(`إعادة اعتماد طلب الشراء ${p.no} لارتفاع السعر`);commit('السعر أعلى من المعتمد بأكثر من '+S.settings.purVarPct+'% — أُعيد الطلب للاعتماد');return;
       }
-      p.status='bought';log(`تنفيذ الشراء لطلب ${p.no}`);commit('تم تسجيل الشراء — بانتظار الاستلام');
+      p.receipt={by:fv(b,'prec')||me().name,co:'',note:'',at:nowTs()};doReceive();
+      log(`شراء واستلام طلب الشراء ${p.no}`);commit('تم تسجيل الشراء والاستلام — أُرسل للحسابات للسداد'+(p.newAssetNo?' — سُجّل الأصل الجديد '+p.newAssetNo:''));
     }});
   }
+  /* طلبات قديمة بالحالة السابقة "تم الشراء" */
   if(p.status==='bought'&&PUR_OPS.includes(R)){
-    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">الاستلام وختم الاستلام</div><div class="frow"><div class="fld"><label>استلم بواسطة (مشرف البنايات)</label><input id="prec" value="${esc(me().name)}"></div><div class="fld"><label>الصيانة / مسؤول البناية</label><input id="prec2"></div></div><div class="fld"><label>ملاحظات الاستلام</label><input id="precn"></div></div>`;
-    foot.push({t:'📥 تأكيد الاستلام',fn:b=>{
-      if(!fv(b,'prec')){toast('أدخل اسم المستلم');return false}
-      p.receipt={by:fv(b,'prec'),co:fv(b,'prec2'),note:fv(b,'precn'),at:nowTs()};p.status='received';
-      if(p.replacedAsset&&p.replacedAsset.isReplacement&&p.replacedAsset.assetId){
-        const old=S.assets.find(a=>a.id===p.replacedAsset.assetId);
-        if(old){old.status='disposed';old.condition='تالفة — مستبدلة';old.history=old.history||[];old.history.push({at:TODAY,t:`استبدال — طلب شراء ${p.no}: ${p.replacedAsset.damageNote||''}`});
-          const na={id:uid(),no:nextNo('AST'),type:old.type,name:(p.items[0]&&p.items[0].desc)||old.name,serial:'',value:p.purchase?p.purchase.actual:est,empId:old.empId,issuedAt:TODAY,status:old.empId?'issued':'store',condition:'جيدة',history:[{at:TODAY,t:`استبدال للأصل ${old.no} — طلب شراء ${p.no}`}],replacedFrom:old.no,building:p.building};
-          S.assets.push(na);p.newAssetNo=na.no;
-        }
-      }
-      notify('role:acc','📥','تم استلام مشتريات بانتظار القيد',`${p.no} — ${p.building}`,{view:'procurement'});
-      log(`استلام مشتريات طلب الشراء ${p.no}`);commit('تم تأكيد الاستلام'+(p.newAssetNo?' — سُجّل الأصل الجديد '+p.newAssetNo:''));
-    }});
+    foot.push({t:'📥 تأكيد الاستلام',fn:()=>{p.receipt={by:me().name,co:'',note:'',at:nowTs()};doReceive();log(`استلام مشتريات طلب الشراء ${p.no}`);commit('تم تأكيد الاستلام')}});
   }
-  if(p.status==='received'&&(R==='acc'||R==='gm')){
-    foot.push({t:'📒 قيد الفاتورة (ذمة على الشركة)',fn:()=>{p.accounting={by:me().name,at:nowTs()};p.status='posted';log(`قيد فاتورة طلب الشراء ${p.no}`);commit('تم القيد — بانتظار السداد')}});
-  }
-  if(p.status==='posted'&&R==='acc'){
-    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">السداد</div><div class="frow"><div class="fld"><label>طريقة السداد</label><select id="pm"><option value="شيك">شيك</option><option value="تحويل بنكي">تحويل بنكي</option></select></div><div class="fld"><label>رقم السند / المرجع</label><input id="pref"></div></div></div>`;
-    foot.push({t:'💳 تسوية وسداد',cls:'good',fn:b=>{
+  /* السداد (يشمل قيد الفاتورة) */
+  if((p.status==='received'||p.status==='posted')&&R==='acc'){
+    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">السداد</div><div class="frow"><div class="fld"><label>طريقة السداد</label><select id="pm"><option value="تحويل بنكي">تحويل بنكي</option><option value="شيك">شيك</option></select></div><div class="fld"><label>رقم السند / المرجع</label><input id="pref"></div></div></div>`;
+    foot.push({t:'💳 تم السداد',cls:'good',fn:b=>{
       if(!fv(b,'pref')){toast('أدخل رقم السند');return false}
+      if(!p.accounting)p.accounting={by:me().name,at:nowTs()};
       p.settlement={method:fv(b,'pm'),ref:fv(b,'pref'),by:me().name,at:nowTs()};p.status='paid';
       notify(purReqTo(p),'💳','تم سداد طلب الشراء',p.no,{view:'procurement'});
-      log(`سداد طلب الشراء ${p.no}`);commit('تم السداد — اكتملت دورة الشراء');
+      log(`سداد طلب الشراء ${p.no}`);commit('تم السداد — اكتمل الطلب');
     }});
   }
   foot.push({t:'🖨️ طباعة / PDF',cls:'sec',fn:()=>{printForm('purchase',p);return false}});
@@ -2261,10 +2269,10 @@ VIEWS.purreports=()=>{const per=V.sub.prp||'month';
   const flags=[];
   S.purchases.forEach(p=>{
     if(p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays)flags.push([p,'اعتُمد ولم يُنفَّذ خلال '+S.settings.purValidDays+' يوماً — يلزم إعادة الاعتماد (البند 6.7)']);
-    if(p.status==='received'&&p.receipt&&diffDays(p.receipt.at.slice(0,10),TODAY)>1)flags.push([p,'استُلم ولم تُقيَّد فاتورته بعد']);
+    if(p.status==='received'&&p.receipt&&diffDays(p.receipt.at.slice(0,10),TODAY)>30)flags.push([p,'استُلم منذ أكثر من شهر ولم يُسدَّد']);
     if(p.status==='review'&&p.purchase)flags.push([p,'أُعيد للاعتماد بسبب فرق السعر عن المعتمد']);
     const need=p.vendor&&p.vendor.approved?2:3;
-    if(p.status!=='rejected'&&p.quotes&&p.quotes.count<need)flags.push([p,`عروض الأسعار ${p.quotes.count} والمطلوب ${need} (${need===2?'مورد معتمد':'مورد غير معتمد'}) — يحتاج استثناء مكتوباً من المدير العام`]);
+    if(p.status!=='rejected'&&p.quotes&&p.quotes.count<need&&purTotal(p)>S.settings.purCashCap)flags.push([p,`عروض الأسعار ${p.quotes.count} والمطلوب ${need} (${need===2?'مورد معتمد':'مورد غير معتمد'}) — يحتاج استثناء مكتوباً من المدير العام`]);
   });
   return ph('تقارير المشتريات','الإنفاق حسب المبنى ونوع الطلب، الملاحظات الرقابية، وسجل استبدال الأصول',`<button class="btn sec" id="purCsv">⬇️ تصدير CSV</button>`)+
   `<div class="toolbar"><div class="seg">${[['month','هذا الشهر'],['prev','الشهر السابق'],['year','هذه السنة'],['all','الكل']].map(([k,n])=>`<button data-prp="${k}" class="${per===k?'on':''}">${n}</button>`).join('')}</div></div>
