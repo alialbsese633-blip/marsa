@@ -423,13 +423,12 @@ const ROLES={
 };
 const STEP_LABEL={sub:'الموظف البديل',sup:'المشرف المباشر',hr:'الموارد البشرية',acc:'المحاسبة',gm:'المدير العام'};
 const BUILDINGS=['الإدارة العامة','الحي التجاري','صلالة الوسطى / المعتزة','عوقد الشمالية','الوادي','الحصيلة','السعادة','السعادة نستو'];
-const DEPTS=['الإدارة','الاستقبال','النظافة والتدبير','الصيانة','المغسلة','الحسابات','التسويق والحجوزات','الحراسة'];
+const DEPTS=['الإدارة','الاستقبال','النظافة والتدبير','الصيانة','المغسلة','الحسابات','التسويق والحجوزات','الحراسة','المشتريات'];
 
 /* ---------- المشتريات — سياسة المشتريات PUR-01 ---------- */
-const PUR_KINDS=['منتج','خدمة','صيانة','أصل بديل (استبدال تالف)','أصل جديد'];
-const PUR_FLOW=['review','gm','approved','received','paid'];
-const PUR_STEP={review:'رئيس الحسابات',gm:'المدير العام',approved:'الشراء والاستلام',received:'السداد',paid:'مكتمل'};
-const PUR_STATUS_LABEL={review:'بانتظار رئيس الحسابات',gm:'بانتظار المدير العام',rejected:'مرفوض',approved:'معتمد — بانتظار الشراء',bought:'تم الشراء — بانتظار الاستلام',received:'تم الشراء والاستلام — بانتظار السداد',posted:'بانتظار السداد',paid:'مسدّدة ومكتملة'};
+const PUR_FLOW=['sup','acc','gm','approved','done'];
+const PUR_STEP={new:'الاستقبال',sup:'المشرف',acc:'الحسابات',gm:'المدير العام',approved:'المشتريات',done:'تم الشراء'};
+const PUR_STATUS_LABEL={sup:'بانتظار المشرف',acc:'بانتظار الحسابات',gm:'بانتظار المدير العام',approved:'معتمد — بانتظار المشتريات',done:'تم الشراء',rejected:'مرفوض',review:'بانتظار الحسابات',received:'تم الشراء',posted:'تم الشراء',paid:'تم الشراء',bought:'تم الشراء'};
 
 /* أنواع الإجازات — وفق قانون العمل العماني (المرسوم السلطاني 53/2023) مع سياسات داخلية مقترحة */
 const LEAVE_TYPES=[
@@ -466,7 +465,9 @@ const DEFAULT_SETTINGS={
   objectionDays:3, penaltyLookback:180, maxMonthlyPenaltyDays:5,
   otDay:25, otNight:50, otHoliday:100, maxPermHours:4,
   spfPct:7, docWarnDays:60, complaintAckDays:2, complaintResolveDays:7, resignNoticeDays:30,
-  purCashCap:100, purUrgentCap:300, purVarPct:5, purValidDays:15, purSettleDays:7
+  purCashCap:100, purUrgentCap:300, purVarPct:5, purValidDays:15, purSettleDays:7,
+  /* حسابات المصروفات والموازنة الشهرية (تقديرية — تُعدَّل من الإدارة المالية ← الحسابات والموازنات) */
+  expAccounts:[{code:'5101',name:'صيانة المباني والشقق',budget:1500},{code:'5102',name:'قطع غيار وأدوات صحية وكهربائية',budget:600},{code:'5103',name:'مواد النظافة',budget:500},{code:'5104',name:'البياضات والمفروشات',budget:800},{code:'5105',name:'أجهزة ومعدات صغيرة',budget:1000},{code:'5106',name:'خدمات التنظيف والعمالة',budget:1200},{code:'5107',name:'مستلزمات الاستقبال والضيافة',budget:300},{code:'5108',name:'مصاريف إدارية متنوعة',budget:300}]
 };
 /* لائحة الجزاءات — مقترح داخلي قابل للتعديل (القيم: warn = إنذار كتابي، رقم أقل من 1 = نسبة من الأجر اليومي، رقم ≥1 = أيام) */
 const DEFAULT_MATRIX=[
@@ -1227,7 +1228,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'book'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1242,10 +1243,11 @@ const NAV={
 /* قسم الإدارة المالية: نفس التطبيق ونفس الحساب، يُفتح من الواجهة بـ hr.html?app=fin */
 const APP=(()=>{try{return new URLSearchParams(location.search).get('app')==='fin'?'fin':'hr'}catch(e){return 'hr'}})();
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['purreports','📊','تقارير المشتريات']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['purreports','📊','تقارير المشتريات']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['purreports','📊','تقارير المشتريات']],
- sup:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء']]
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات']],
+ sup:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء']],
+ emp:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء']]
 };
 function navFor(R){return (APP==='fin'&&FIN_NAV[R])?FIN_NAV[R]:NAV[R]}
 function applyAppShell(){
@@ -1254,8 +1256,8 @@ function applyAppShell(){
   document.title=t+(en?' | Marsa':' | مرسى');
   $$('.side-brand .sec, .top-brand .sec').forEach(x=>x.textContent=t);
   const h=$('#login .lg-panel h1');if(h)h.textContent=en?'Finance System':'نظام الإدارة المالية';
-  const pp=$('#login .lg-panel h1+p');if(pp)pp.textContent='طلبات الشراء واعتمادها، تنفيذ الشراء والاستلام، قيد الفواتير والسداد — وفق سياسة المشتريات PUR-01 وبمسار اعتماد إلكتروني واضح.';
-  const f=$('#login .lg-feats');if(f)f.innerHTML='<span><i></i>اعتماد رئيس الحسابات ثم المدير العام</span><span><i></i>رقابة على فرق الأسعار</span><span><i></i>سجل استبدال الأصول لكل مبنى</span>';
+  const pp=$('#login .lg-panel h1+p');if(pp)pp.textContent='طلب الشراء يبدأ من الاستقبال، يوافق عليه المشرف، تحدد الحسابات حساب المصروف وتراجع الموازنة، يعتمده المدير العام، ثم تنفّذه المشتريات — وفق سياسة المشتريات PUR-01.';
+  const f=$('#login .lg-feats');if(f)f.innerHTML='<span><i></i>مسار اعتماد من 4 مراحل</span><span><i></i>موازنة شهرية لكل حساب مصروف</span><span><i></i>سبب مكتوب لكل رفض</span>';
 }
 function approvalItems(){
   const R=role(),it={req:pendingForMe(),vio:[],ret:[],rwd:[],pay:[],rev:[]};
@@ -1297,7 +1299,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports'};
+const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets'};
 const ROLE_EN={emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -2085,44 +2087,83 @@ VIEWS.myassets=()=>{const id=S.session.empId;const adv=S.advances.filter(a=>a.em
   `<div class="card"><h2>أذونات صرف السلف</h2>${advTable(adv,false)}</div><div class="card" style="margin-top:14px"><h2>العهد المادية المسلّمة لي</h2>${assetTable(S.assets.filter(a=>a.empId===id),false)}</div><div class="card" style="margin-top:14px"><h2>العهد المالية (النثرية)</h2>${cashTable(S.cash.filter(c=>c.empId===id).slice().reverse())}</div>`};
 BIND.myassets=()=>{bindAdv();bindAssets();$('[data-new-adv]').onclick=()=>requestForm('advance')};
 
-/* ---------- المشتريات — وفق سياسة المشتريات PUR-01 ---------- */
+/* ---------- المشتريات — وفق سياسة المشتريات PUR-01 ----------
+   المسار: الاستقبال (ينشئ الطلب + صورة) ← المشرف ← الحسابات (يحدد حساب المصروف ويرى الموازنة) ← المدير العام ← المشتريات (تنفّذ الشراء)
+   كل رفض يلزمه سبب مكتوب. */
 function purTotal(p){return r3((p.items||[]).reduce((s,it)=>s+(+it.qty||0)*(+it.price||0),0))}
-const PUR_OPS=['sup','hr','acc','gm'];
-function purCanAct(p){const R=role();return (p.status==='review'&&R==='acc')||(p.status==='gm'&&R==='gm')}
-/* كل ما ينتظر إجراءً من دوري الحالي (اعتماد، تنفيذ، استلام، قيد، سداد) */
-function purNeedsMe(p){const R=role();
-  if(R==='acc')return ['review','received','posted'].includes(p.status);  // received = بانتظار السداد
-  if(R==='gm')return p.status==='gm';
-  if(R==='hr'||R==='sup')return ['approved','bought'].includes(p.status);
-  return false}
-function purReqTo(p){return p.byRole==='sup'&&p.byId?'sup:'+p.byId:'role:'+(p.byRole||'hr')}
 function purActual(p){return p.purchase?r3(p.purchase.actual):0}
+function purVal(p){return p.purchase?purActual(p):purTotal(p)}
+const myEmp=()=>emp(S.session.empId)||{};
+const isReception=()=>role()==='emp'&&myEmp().dept==='الاستقبال';
+const isPurchasing=()=>role()==='emp'&&myEmp().dept==='المشتريات';
+function purStaff(){return activeEmps().filter(e=>e.dept==='المشتريات')}
+/* ما ينتظر إجراءً من المستخدم الحالي */
+function purNeedsMe(p){const R=role();
+  if(p.status==='sup')return R==='sup'&&(!p.supId||p.supId===S.session.supId);
+  if(p.status==='acc')return R==='acc';
+  if(p.status==='gm')return R==='gm';
+  if(p.status==='approved')return isPurchasing();
+  return false}
 function purchasesPendingForMe(){return S.purchases.filter(purNeedsMe)}
+/* من يرى الطلب */
+function purVisible(p){const R=role();
+  if(R==='hr'||R==='acc'||R==='gm')return true;
+  if(R==='sup')return !p.supId||p.supId===S.session.supId;
+  if(isPurchasing())return ['approved','done'].includes(p.status);
+  return p.empId===S.session.empId}
 function purStatusBadge(p){
   if(p.status==='rejected')return badge('مرفوض','c');
-  if(p.status==='paid')return badge('مكتملة ومسدّدة','g');
-  if(p.status==='review'||p.status==='gm')return badge(PUR_STATUS_LABEL[p.status],'w');
-  return badge(PUR_STATUS_LABEL[p.status],'i');
+  if(p.status==='done'||p.status==='paid')return badge('تم الشراء','g');
+  if(['sup','acc','gm','review'].includes(p.status))return badge(PUR_STATUS_LABEL[p.status]||p.status,'w');
+  return badge(PUR_STATUS_LABEL[p.status]||p.status,'i');
 }
-function purStepCls(p,s){if(p.status==='rejected')return '';const st={bought:'approved',posted:'received'}[p.status]||p.status;const i=PUR_FLOW.indexOf(s),cur=PUR_FLOW.indexOf(st);return (i<cur||st==='paid')?'ok':i===cur?'cur':''}
-function purSummary(p){return `${esc(p.building)} — ${esc(p.kind)} — ${omr(purTotal(p))}`}
-function purLineRow(i){return `<div class="frow" data-prow="${i}" style="grid-template-columns:2fr 70px 110px;gap:6px;margin-bottom:6px"><input placeholder="الصنف (مثال: خرطوم مياه)" id="p${i}d"><input type="number" min="0" step="1" value="1" placeholder="الكمية" id="p${i}q"><input type="number" min="0" step="0.001" placeholder="السعر التقريبي" id="p${i}p"><input type="hidden" id="p${i}u" value=""></div>`}
+function purStepCls(p,s){if(s==='new')return 'ok';const st={review:'acc',received:'done',posted:'done',bought:'done',paid:'done'}[p.status]||p.status;
+  if(st==='rejected')return s===p.rejectAt?'no':PUR_FLOW.indexOf(s)<PUR_FLOW.indexOf(p.rejectAt||'sup')?'ok':'';
+  const i=PUR_FLOW.indexOf(s),cur=PUR_FLOW.indexOf(st);return (i<cur||st==='done')?'ok':i===cur?'cur':''}
+function purStepsHTML(p){return `<div class="steps">${['new',...PUR_FLOW].map((s,i)=>`${i?'<i>←</i>':''}<span class="${purStepCls(p,s)}">${PUR_STEP[s]}</span>`).join('')}</div>`}
+function purSummary(p){return `${esc(p.items.map(i=>i.desc).join('، '))} — ${omr(purTotal(p))}`}
+function purReqTo(p){return p.empId?'emp:'+p.empId:'role:hr'}
+/* ---- الحسابات والموازنات ---- */
+function expAccounts(){return (S.settings.expAccounts&&S.settings.expAccounts.length)?S.settings.expAccounts:DEFAULT_SETTINGS.expAccounts}
+function expAcc(code){return expAccounts().find(a=>a.code===code)}
+/* المصروف المحمَّل على الحساب في الشهر: كل طلب اعتمدته الحسابات فما بعد */
+function accSpent(code,month,exceptId){return r3(S.purchases.filter(p=>p.id!==exceptId&&p.account&&p.account.code===code&&['gm','approved','done'].includes(p.status)&&(p.account.month||p.createdAt.slice(0,7))===month).reduce((s,p)=>s+purVal(p),0))}
+function budgetInfo(code,amount,exceptId,month){month=month||MONTH;const a=expAcc(code);if(!a)return null;const budget=r3(+a.budget||0),spent=accSpent(code,month,exceptId),after=r3(spent+(+amount||0));
+  return {code,name:a.name,budget,spent,remaining:r3(budget-spent),after,remainingAfter:r3(budget-after),pct:budget?Math.round(after/budget*100):0,pctBefore:budget?Math.round(spent/budget*100):0,month}}
+function budgetHTML(bi,amount){if(!bi)return '';const over=bi.remainingAfter<0,tone=over?'c':bi.pct>=80?'w':'g';
+  return `<div class="note ${tone}" style="margin-top:8px"><div class="between"><b>${esc(bi.code)} — ${esc(bi.name)}</b><span>${monthName(bi.month)}</span></div>
+  <div class="hb" style="grid-template-columns:1fr 64px;margin-top:8px"><div class="bar"><i style="width:${Math.min(100,bi.pct)}%;background:var(--${over?'critical':bi.pct>=80?'warning':'good'})"></i></div><b class="num">${bi.pct}%</b></div>
+  <dl class="kv" style="margin-top:6px"><dt>الموازنة الشهرية</dt><dd>${omr(bi.budget)}</dd><dt>المصروف حتى الآن</dt><dd>${omr(bi.spent)} (${bi.pctBefore}%)</dd><dt>المتبقي في الحساب</dt><dd><b>${omr(bi.remaining)}</b></dd><dt>هذا الطلب</dt><dd>${omr(amount)}</dd><dt>المتبقي بعد الطلب</dt><dd><b>${omr(bi.remainingAfter)}</b>${over?' — تجاوز الموازنة':''}</dd></dl></div>`}
+/* ---- الصور: تُرفع للخادم، وإن تعذّر تُحفظ نسخة مصغّرة داخل الطلب ---- */
+async function purPhoto(file){
+  if(!file)return null;
+  if(!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic)$/i.test(file.name)){toast('الملف يجب أن يكون صورة');return null}
+  try{
+    let b64='';for(const [side,q] of [[1400,0.68],[1100,0.55],[900,0.45]]){const d=await polCompress(file,side,q);b64=d.split(',')[1]||'';if(b64.length<=590000)break}
+    const up=TOKEN?await call('upload',{mime:'image/jpeg',b64}).catch(()=>null):null;
+    if(up&&up.ok)return {id:up.id};
+    const th=await polCompress(file,560,0.5);return {thumb:th};
+  }catch(e){toast('تعذّر قراءة الصورة');return null}
+}
+function purPhotoView(ph,title){if(!ph)return;
+  const m=modal({title:title||'الصورة المرفقة',wide:true,body:'<div id="phBox" class="muted" style="padding:20px;text-align:center">جارٍ تحميل الصورة…</div>',foot:[{t:'إغلاق',cls:'sec'}]});
+  const put=src=>{const b=m.el.querySelector('#phBox');if(b)b.innerHTML=`<img src="${src}" alt="" style="max-width:100%;border-radius:10px;border:1px solid var(--border)">`};
+  if(ph.thumb)return put(ph.thumb);
+  call('file',{id:ph.id}).then(r=>{if(r&&r.ok)put(`data:${r.mime};base64,${r.b64}`);else{const b=m.el.querySelector('#phBox');if(b)b.textContent='تعذّر تحميل الصورة'}}).catch(()=>{const b=m.el.querySelector('#phBox');if(b)b.textContent='تعذّر تحميل الصورة'});
+}
+function purLineRow(i){return `<div class="frow" data-prow="${i}" style="grid-template-columns:2fr 70px 110px;gap:6px;margin-bottom:6px"><input placeholder="الصنف (مثال: خرطوم مياه)" id="p${i}d"><input type="number" min="0" step="1" value="1" placeholder="الكمية" id="p${i}q"><input type="number" min="0" step="0.001" placeholder="السعر التقريبي" id="p${i}p"></div>`}
+function purRow(p){return `<div class="li click" data-pview="${p.id}"><div class="av">🛒</div><div><div class="t">${p.no} <span class="muted small">${esc(p.building)}</span></div><div class="s">${purSummary(p)}${p.priority==='عاجل'?' · <b>عاجل</b>':''}${p.photo?' · 📷':''}</div></div>${purStatusBadge(p)}</div>`}
+function purNewBtn(){return isReception()?`<button class="btn" id="nPur">🛒 طلب شراء جديد</button>`:''}
+
 VIEWS.procurement=()=>{
-  const R=role(),tab=V.sub.pu||'open';
-  const list=S.purchases.slice().reverse().filter(p=>{
-    if(tab==='open')return !['rejected','paid'].includes(p.status);
-    if(tab==='done')return p.status==='paid';
-    if(tab==='rejected')return p.status==='rejected';
-    if(tab==='replace')return p.replacedAsset&&p.replacedAsset.isReplacement;
-    return true;
-  });
-  const monthList=S.purchases.filter(p=>p.createdAt.slice(0,7)===MONTH&&p.status!=='rejected');
-  const approvedVal=S.purchases.filter(p=>!['review','gm','rejected'].includes(p.status)).reduce((s,p)=>s+purTotal(p),0);
-  const overdue=S.purchases.filter(p=>p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays).length;
-  return ph('طلبات الشراء','سياسة المشتريات PUR-01 — طلب شراء، اعتماد، تنفيذ، استلام، وسداد',PUR_OPS.includes(R)?`<button class="btn" id="nPur">🛒 طلب شراء جديد</button>`:'')+
-  `<div class="grid g4">${kpi('طلبات هذا الشهر',monthList.length)}${kpi('قيمة المعتمد (إجمالي)',omr(approvedVal))}${kpi('بانتظار الاعتماد',S.purchases.filter(p=>p.status==='review'||p.status==='gm').length,'','w')}${kpi('تجاوزت مهلة الشراء ('+S.settings.purValidDays+' يوم)',overdue,'','c')}</div>
-  <div class="toolbar" style="margin-top:14px"><div class="seg">${[['open','قيد الإجراء'],['done','مكتملة'],['rejected','مرفوضة'],['replace','سجل استبدال الأصول'],['all','الكل']].map(([k,n])=>`<button data-pu="${k}" class="${tab===k?'on':''}">${n}</button>`).join('')}</div></div>
-  <div class="card">${list.length?`<div class="list">${list.map(p=>`<div class="li click" data-pview="${p.id}"><div class="av">🛒</div><div><div class="t">${p.no} <span class="muted small">${esc(p.building)} — ${esc(p.kind)}</span></div><div class="s">${esc(purSummary(p))}${p.priority==='عاجل'?' · <b>عاجل</b>':''}${p.replacedAsset&&p.replacedAsset.isReplacement?' · استبدال أصل':''}</div></div>${purStatusBadge(p)}</div>`).join('')}</div>`:'<div class="empty">لا توجد طلبات</div>'}</div>`;
+  const tab=V.sub.pu||'open';
+  const mine=S.purchases.filter(purVisible);
+  const list=mine.slice().reverse().filter(p=>tab==='open'?!['rejected','done','paid'].includes(p.status):tab==='done'?['done','paid'].includes(p.status):tab==='rejected'?p.status==='rejected':true);
+  const late=mine.filter(p=>p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays).length;
+  return ph('طلبات الشراء','الاستقبال ← المشرف ← الحسابات ← المدير العام ← المشتريات',purNewBtn())+
+  `<div class="grid g4">${kpi('بانتظار إجرائك',mine.filter(purNeedsMe).length,'',mine.filter(purNeedsMe).length?'w':'')}${kpi('قيد الاعتماد',mine.filter(p=>['sup','acc','gm'].includes(p.status)).length)}${kpi('بانتظار المشتريات',mine.filter(p=>p.status==='approved').length,late?late+' تجاوزت '+S.settings.purValidDays+' يوماً':'',late?'c':'')}${kpi('تم الشراء هذا الشهر',mine.filter(p=>p.status==='done'&&p.purchase&&p.purchase.at.slice(0,7)===MONTH).length)}</div>
+  <div class="toolbar" style="margin-top:14px"><div class="seg">${[['open','قيد الإجراء'],['done','تم الشراء'],['rejected','مرفوضة'],['all','الكل']].map(([k,n])=>`<button data-pu="${k}" class="${tab===k?'on':''}">${n}</button>`).join('')}</div></div>
+  <div class="card">${list.length?`<div class="list">${list.map(purRow).join('')}</div>`:`<div class="empty">${isReception()?'لا توجد طلبات. ابدأ من زر "طلب شراء جديد".':'لا توجد طلبات'}</div>`}</div>`;
 };
 BIND.procurement=()=>{
   $$('[data-pu]').forEach(b=>b.onclick=()=>{V.sub.pu=b.dataset.pu;render()});
@@ -2130,159 +2171,174 @@ BIND.procurement=()=>{
   $('#nPur')&&($('#nPur').onclick=purchaseForm);
 };
 function purchaseForm(){
-  const R=role(),bld=R==='sup'?(emp(S.session.supId)||{}).building||BUILDINGS[0]:BUILDINGS[0];
-  const assetsList=S.assets.filter(a=>a.status!=='disposed');
+  if(!isReception()){toast('طلبات الشراء يقدّمها الاستقبال فقط');return}
+  const e=myEmp();let photoFile=null;
   modal({title:'🛒 طلب شراء جديد',sub:'وفق سياسة المشتريات PUR-01',
-  body:`<div class="note small" style="margin:0 0 12px">اكتب ما تحتاجه وسببه فقط — يصل الطلب لرئيس الحسابات ثم المدير العام للاعتماد.</div>
-  <div class="fld"><label>المبنى</label><select id="pb">${BUILDINGS.map(b=>`<option ${b===bld?'selected':''}>${b}</option>`).join('')}</select></div>
+  body:`<div class="note small" style="margin:0 0 12px">اكتب ما تحتاجه وسببه وأرفق صورة — يصل الطلب لمشرفك ثم الحسابات ثم المدير العام.</div>
+  <div class="fld"><label>المبنى</label><select id="pb">${BUILDINGS.map(b=>`<option ${b===e.building?'selected':''}>${b}</option>`).join('')}</select></div>
   <div class="fld"><label>ماذا تحتاج؟</label>${[1,2,3,4].map(purLineRow).join('')}<button type="button" class="btn sm sec" id="pmore">➕ بند آخر</button></div>
   <div class="fld"><label>سبب الطلب</label><textarea id="preason" placeholder="مثال: الخرطوم في الشقة 12 تالف ويسرّب الماء"></textarea></div>
+  <div class="fld"><label>صورة (العطل أو الصنف التالف)</label><input type="file" id="pphoto" accept="image/*" capture="environment"><div id="pphPrev" style="margin-top:8px"></div></div>
   <div class="note small" id="ptotal"></div>
-  <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:600">تفاصيل إضافية (اختيارية)</summary><div style="margin-top:10px">
-  <div class="frow"><div class="fld"><label>نوع الطلب</label><select id="pk">${PUR_KINDS.map(k=>`<option>${k}</option>`).join('')}</select></div><div class="fld"><label>الأولوية</label><select id="ppr"><option value="عادي">عادي</option><option value="عاجل">عاجل (سلامة / تعطّل خدمة)</option></select></div></div>
-  <div class="frow"><div class="fld"><label>اسم المورد</label><input id="pvn"></div><div class="fld"><label>المورد</label><select id="pva"><option value="1">معتمد</option><option value="0">غير معتمد</option></select></div></div>
-  <div class="frow"><div class="fld"><label>عدد عروض الأسعار</label><input type="number" id="pqc" min="0" value="1"></div><div class="fld"><label>قابل للتحميل على مستأجر</label><select id="pch"><option value="0">لا</option><option value="1">نعم</option></select></div></div>
-  <input type="hidden" id="pqn" value="">
-  <label class="chk"><input type="checkbox" id="prepl"> استبدال أصل تالف من العهد</label>
-  <div id="preplWrap" hidden><div class="frow"><div class="fld"><label>الأصل التالف</label><select id="passet"><option value="">— اختر —</option>${assetsList.map(a=>`<option value="${a.id}">${esc(a.no)} — ${esc(a.name)}${a.empId?' — '+esc(empName(a.empId)):''}</option>`).join('')}</select></div><div class="fld"><label>سبب التلف</label><input id="pdmg"></div></div></div>
-  </div></details>`,
+  <div class="frow"><div class="fld"><label>الأولوية</label><select id="ppr"><option value="عادي">عادي</option><option value="عاجل">عاجل (سلامة / تعطّل خدمة)</option></select></div><div class="fld"><label>قابل للتحميل على مستأجر</label><select id="pch"><option value="0">لا</option><option value="1">نعم</option></select></div></div>`,
   onMount:b=>{
     const upd=()=>{let t=0;[1,2,3,4].forEach(i=>{t+=(+fv(b,'p'+i+'q')||0)*(+fv(b,'p'+i+'p')||0)});$('#ptotal',b).textContent='الإجمالي التقريبي: '+omr(r3(t))};
     [1,2,3,4].forEach(i=>{$('#p'+i+'q',b).oninput=upd;$('#p'+i+'p',b).oninput=upd});upd();
     $$('[data-prow]',b).forEach(r=>{if(r.dataset.prow!=='1')r.hidden=true});
     $('#pmore',b).onclick=()=>{const h=$$('[data-prow]',b).find(r=>r.hidden);if(h)h.hidden=false;if(!$$('[data-prow]',b).some(r=>r.hidden))$('#pmore',b).hidden=true};
-    $('#prepl',b).onchange=()=>{$('#preplWrap',b).hidden=!$('#prepl',b).checked};
+    $('#pphoto',b).onchange=ev=>{photoFile=ev.target.files[0]||null;const pv=$('#pphPrev',b);pv.innerHTML='';if(photoFile){const u=URL.createObjectURL(photoFile);pv.innerHTML=`<img src="${u}" alt="" style="max-height:140px;border-radius:10px;border:1px solid var(--border)">`}};
   },
-  foot:[{t:'إرسال للمراجعة',fn:b=>{
-    const items=[];for(let i=1;i<=4;i++){const d=fv(b,'p'+i+'d');if(!d)continue;items.push({desc:d,qty:+fv(b,'p'+i+'q')||0,unit:fv(b,'p'+i+'u')||'',price:r3(+fv(b,'p'+i+'p')||0)})}
-    const reason=fv(b,'preason'),isRepl=!!fv(b,'prepl');
+  foot:[{t:'إرسال للمشرف',fn:b=>{
+    const items=[];for(let i=1;i<=4;i++){const d=fv(b,'p'+i+'d');if(!d)continue;items.push({desc:d,qty:+fv(b,'p'+i+'q')||1,unit:'',price:r3(+fv(b,'p'+i+'p')||0)})}
+    const reason=fv(b,'preason');
     if(!items.length){toast('اكتب ما تحتاجه');return false}
     if(items.some(i=>!(i.price>0))){toast('اكتب السعر التقريبي لكل بند');return false}
     if(!reason){toast('اكتب سبب الطلب');return false}
-    if(isRepl&&!fv(b,'passet')){toast('اختر الأصل التالف المطلوب استبداله');return false}
-    const p={id:uid(),no:nextNo('PUR'),building:fv(b,'pb'),kind:fv(b,'pk'),priority:fv(b,'ppr'),chargeable:fv(b,'pch')==='1',
-      items,reason,vendor:{approved:fv(b,'pva')==='1',name:fv(b,'pvn')},quotes:{count:+fv(b,'pqc')||0,note:fv(b,'pqn')},
-      replacedAsset:{isReplacement:isRepl,assetId:isRepl?fv(b,'passet'):null,damageNote:isRepl?fv(b,'pdmg'):''},
-      byRole:R,byId:R==='sup'?S.session.supId:null,by:me().name,createdAt:nowTs(),
-      status:'review',reviewBy:null,reviewAt:null,reviewNote:'',budgetOk:null,
-      gmBy:null,gmAt:null,gmNote:'',purchase:null,receipt:null,accounting:null,settlement:null};
-    S.purchases.push(p);
-    notify('role:acc','🛒','طلب شراء جديد بانتظار المراجعة',`${p.no} — ${p.building} — ${omr(purTotal(p))}`,{view:'procurement'});
-    log(`طلب شراء جديد ${p.no}`);V.view='procurement';commit('تم إرسال الطلب لرئيس الحسابات');
+    const btn=[...b.querySelectorAll('.mf .btn')][0];if(btn){btn.disabled=true;btn.textContent='جارٍ الإرسال…'}
+    (async()=>{
+      const photo=await purPhoto(photoFile);
+      const p={id:uid(),no:nextNo('PUR'),building:fv(b,'pb'),kind:'',priority:fv(b,'ppr'),chargeable:fv(b,'pch')==='1',items,reason,photo,
+        empId:e.id||null,supId:e.supervisorId||null,by:me().name,byRole:'reception',createdAt:nowTs(),status:'sup',
+        supBy:null,supAt:null,supNote:'',account:null,accBy:null,accAt:null,accNote:'',gmBy:null,gmAt:null,gmNote:'',
+        purchase:null,rejectAt:null,rejectBy:null,rejectNote:''};
+      S.purchases.push(p);
+      notify(p.supId?'sup:'+p.supId:'role:sup','🛒','طلب شراء بانتظار موافقتك',`${p.no} — ${p.building} — ${purSummary(p)}`,{view:'procurement'});
+      log(`طلب شراء جديد ${p.no}`);b.remove();V.view='procurement';commit('تم إرسال الطلب للمشرف');
+    })();
+    return false;
   }},{t:'إلغاء',cls:'sec'}]});
 }
+/* الرفض: السبب إلزامي دائماً */
+function purReject(p,stage,b,noteId){const n=fv(b,noteId);if(!n){toast('اكتب سبب الرفض — إلزامي');return false}
+  p.status='rejected';p.rejectAt=stage;p.rejectBy=me().name;p.rejectNote=n;p.rejectedAt=nowTs();
+  notify(purReqTo(p),'⛔','تم رفض طلب الشراء',`${p.no} — ${PUR_STEP[stage]}: ${n}`,{view:'procurement'});
+  log(`رفض طلب الشراء ${p.no} (${PUR_STEP[stage]})`);commit('تم الرفض وإبلاغ مقدّم الطلب بالسبب')}
 function openPurchase(id){
   const p=S.purchases.find(x=>x.id===id);if(!p)return;const R=role(),est=purTotal(p);
   const foot=[];
-  let body=`<dl class="kv"><dt>الفرع / المبنى</dt><dd>${esc(p.building)}</dd><dt>النوع</dt><dd>${esc(p.kind)}${p.priority==='عاجل'?' — <b>عاجل</b>':''}</dd><dt>مقدم الطلب</dt><dd>${esc(p.by)}</dd><dt>سبب الطلب</dt><dd>${esc(p.reason)}</dd></dl>
-  <div class="tw"><table><thead><tr><th>البند</th><th class="n">الكمية</th><th>الوحدة</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr></thead><tbody>${p.items.map(it=>`<tr><td>${esc(it.desc)}</td><td class="n">${it.qty}</td><td>${esc(it.unit)}</td><td class="n">${money(it.price)}</td><td class="n">${money(it.qty*it.price)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4">الإجمالي التقديري</td><td class="n b">${money(est)}</td></tr></tfoot></table></div>
-  <dl class="kv"><dt>المورد</dt><dd>${p.vendor.approved?'معتمد':'غير معتمد'}${p.vendor.name?' — '+esc(p.vendor.name):''}</dd><dt>عروض الأسعار</dt><dd>${p.quotes.count} عرض${p.quotes.note?' — '+esc(p.quotes.note):''}</dd>${p.replacedAsset&&p.replacedAsset.isReplacement?`<dt>استبدال أصل</dt><dd>${esc((S.assets.find(a=>a.id===p.replacedAsset.assetId)||{}).no||'')} — ${esc(p.replacedAsset.damageNote||'')}</dd>`:''}${p.chargeable?'<dt>ملاحظة</dt><dd>قابل للتحميل على مستأجر</dd>':''}</dl>
-  <div class="steps">${PUR_FLOW.map((s,i)=>`${i?'<i>←</i>':''}<span class="${purStepCls(p,s)}">${PUR_STEP[s]}</span>`).join('')}</div>`;
-  if(p.status==='rejected')body+=`<div class="note c" style="margin-top:10px">مرفوض — ${esc((p.gmNote||p.reviewNote||''))}</div>`;
-  if(p.status==='review'&&R==='acc'){
-    body+=`<div class="card flat" style="margin-top:10px"><label class="chk"><input type="checkbox" id="pbok" checked> ضمن الموازنة الشهرية والسنوية للبند والفرع</label><div class="fld"><label>ملاحظة المراجعة</label><textarea id="pbn"></textarea></div></div>`;
-    foot.push({t:'✅ اعتماد ورفع للمدير العام',cls:'good',fn:b=>{p.reviewBy=me().name;p.reviewAt=nowTs();p.reviewNote=fv(b,'pbn');p.budgetOk=!!fv(b,'pbok');p.status='gm';notify('role:gm','🛒','طلب شراء بانتظار اعتمادك',`${p.no} — ${p.building} — ${omr(est)}`,{view:'procurement'});log(`مراجعة طلب الشراء ${p.no} (رئيس الحسابات)`);commit('تم الرفع للمدير العام')}});
-    foot.push({t:'⛔ رفض',cls:'crit',fn:b=>{if(!fv(b,'pbn')){toast('اكتب سبب الرفض في الملاحظة');return false}p.status='rejected';p.reviewBy=me().name;p.reviewAt=nowTs();p.reviewNote=fv(b,'pbn');notify(purReqTo(p),'⛔','تم رفض طلب الشراء',`${p.no} — ${fv(b,'pbn')}`,{view:'procurement'});log(`رفض طلب الشراء ${p.no}`);commit('تم الرفض')}});
+  const who=(n,at,note)=>n?`${esc(n)} — ${ftime(at)}${note?' — '+esc(note):''}`:'—';
+  let body=`${purStepsHTML(p)}
+  <dl class="kv" style="margin-top:10px"><dt>المبنى</dt><dd>${esc(p.building)}${p.priority==='عاجل'?' — <b>عاجل</b>':''}</dd><dt>مقدّم الطلب (الاستقبال)</dt><dd>${esc(p.by)} — ${ftime(p.createdAt)}</dd><dt>سبب الطلب</dt><dd>${esc(p.reason)}</dd>${p.chargeable?'<dt>ملاحظة</dt><dd>قابل للتحميل على مستأجر</dd>':''}</dl>
+  <div class="tw"><table><thead><tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr></thead><tbody>${p.items.map(it=>`<tr><td>${esc(it.desc)}</td><td class="n">${it.qty}</td><td class="n">${money(it.price)}</td><td class="n">${money(it.qty*it.price)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">الإجمالي التقريبي</td><td class="n b">${money(est)}</td></tr></tfoot></table></div>
+  ${p.photo?`<div style="margin-top:10px"><div class="b small" style="margin-bottom:6px">📷 الصورة المرفقة</div><div id="pPhIn" class="muted small" style="cursor:zoom-in">${p.photo.thumb?`<img src="${p.photo.thumb}" alt="" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid var(--border)">`:'جارٍ تحميل الصورة…'}</div></div>`:''}`;
+  if(p.supBy)body+=`<dl class="kv" style="margin-top:10px"><dt>المشرف</dt><dd>✓ ${who(p.supBy,p.supAt,p.supNote)}</dd>${p.accBy?`<dt>الحسابات</dt><dd>✓ ${who(p.accBy,p.accAt,p.accNote)}</dd>`:''}${p.gmBy?`<dt>المدير العام</dt><dd>✓ ${who(p.gmBy,p.gmAt,p.gmNote)}</dd>`:''}${p.purchase?`<dt>المشتريات</dt><dd>✓ ${who(p.purchase.by,p.purchase.at)} — فاتورة ${esc(p.purchase.invoice)} — ${omr(p.purchase.actual)}${p.purchase.vendor?' — '+esc(p.purchase.vendor):''}</dd>`:''}</dl>`;
+  if(p.account&&['acc','gm','hr'].includes(R)&&!(p.status==='acc'&&R==='acc'))body+=budgetHTML(budgetInfo(p.account.code,purVal(p),p.id,p.account.month),purVal(p));
+  if(p.status==='rejected')body+=`<div class="note c" style="margin-top:10px"><b>مرفوض من ${PUR_STEP[p.rejectAt]||''}</b> — ${esc(p.rejectBy||'')}<br>السبب: ${esc(p.rejectNote||p.gmNote||p.reviewNote||'')}</div>`;
+  if(p.reapprove)body+=`<div class="note w" style="margin-top:10px">${esc(p.reapprove)}</div>`;
+  /* 1) المشرف */
+  if(p.status==='sup'&&purNeedsMe(p)){
+    body+=`<div class="fld" style="margin-top:10px"><label>ملاحظة (إلزامية عند الرفض)</label><textarea id="psn"></textarea></div>`;
+    foot.push({t:'✅ موافقة ورفع للحسابات',cls:'good',fn:b=>{p.status='acc';p.supBy=me().name;p.supAt=nowTs();p.supNote=fv(b,'psn');notify('role:acc','🛒','طلب شراء بانتظار الحسابات',`${p.no} — ${p.building} — ${omr(est)}`,{view:'procurement'});log(`موافقة المشرف على طلب الشراء ${p.no}`);commit('تمت الموافقة — أُرسل للحسابات')}});
+    foot.push({t:'⛔ رفض',cls:'crit',fn:b=>purReject(p,'sup',b,'psn')});
   }
+  /* 2) الحسابات: تحديد حساب المصروف + الموازنة */
+  if(p.status==='acc'&&R==='acc'){
+    body+=`<div class="card flat" style="margin-top:10px"><div class="fld"><label>حساب المصروف</label><select id="pacc"><option value="">— اختر الحساب —</option>${expAccounts().map(a=>`<option value="${esc(a.code)}" ${p.account&&p.account.code===a.code?'selected':''}>${esc(a.code)} — ${esc(a.name)}</option>`).join('')}</select></div><div id="pbud"></div><div class="fld"><label>ملاحظة (إلزامية عند الرفض)</label><textarea id="pan"></textarea></div></div>`;
+    foot.push({t:'✅ اعتماد ورفع للمدير العام',cls:'good',fn:b=>{const code=fv(b,'pacc');if(!code){toast('اختر حساب المصروف أولاً');return false}
+      const bi=budgetInfo(code,purVal(p),p.id);p.account={code,name:bi.name,month:MONTH,budget:bi.budget,spentBefore:bi.spent,remainingAfter:bi.remainingAfter,pct:bi.pct};
+      p.status='gm';p.accBy=me().name;p.accAt=nowTs();p.accNote=fv(b,'pan');p.reapprove='';
+      notify('role:gm','🛒','طلب شراء بانتظار اعتمادك',`${p.no} — ${p.building} — ${omr(purVal(p))} — ${bi.name} (${bi.pct}% من الموازنة)`,{view:'procurement'});log(`اعتماد الحسابات لطلب الشراء ${p.no} على حساب ${code}`);commit('تم الاعتماد — أُرسل للمدير العام')}});
+    foot.push({t:'⛔ رفض',cls:'crit',fn:b=>purReject(p,'acc',b,'pan')});
+  }
+  /* 3) المدير العام */
   if(p.status==='gm'&&R==='gm'){
-    body+=`<div class="note">مراجعة رئيس الحسابات: ${p.budgetOk?'ضمن الموازنة':'⚠️ يحتاج انتباه'}${p.reviewNote?' — '+esc(p.reviewNote):''}</div><div class="fld"><label>ملاحظة</label><textarea id="pgn"></textarea></div>`;
-    foot.push({t:'✅ اعتماد نهائي',cls:'good',fn:b=>{p.status='approved';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');notify(purReqTo(p),'✅','تم اعتماد طلب الشراء',`${p.no} — يمكن تنفيذ الشراء الآن`,{view:'procurement'});log(`اعتماد نهائي لطلب الشراء ${p.no}`);commit('تم الاعتماد')}});
-    foot.push({t:'⛔ رفض',cls:'crit',fn:b=>{if(!fv(b,'pgn')){toast('اكتب سبب الرفض');return false}p.status='rejected';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');notify(purReqTo(p),'⛔','تم رفض طلب الشراء',`${p.no} — ${fv(b,'pgn')}`,{view:'procurement'});log(`رفض طلب الشراء ${p.no} (المدير العام)`);commit('تم الرفض')}});
+    body+=`<div class="fld" style="margin-top:10px"><label>ملاحظة (إلزامية عند الرفض)</label><textarea id="pgn"></textarea></div>`;
+    foot.push({t:'✅ اعتماد نهائي',cls:'good',fn:b=>{p.status='approved';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');
+      const st=purStaff();if(st.length)st.forEach(x=>notify('emp:'+x.id,'🛒','طلب شراء معتمد — نفّذ الشراء',`${p.no} — ${p.building} — ${purSummary(p)}`,{view:'procurement'}));else notify('role:hr','🛒','طلب شراء معتمد بانتظار المشتريات',p.no,{view:'procurement'});
+      notify(purReqTo(p),'✅','تم اعتماد طلب الشراء',`${p.no} — أُرسل لقسم المشتريات`,{view:'procurement'});
+      log(`اعتماد نهائي لطلب الشراء ${p.no}`);commit('تم الاعتماد — أُرسل لقسم المشتريات')}});
+    foot.push({t:'⛔ رفض',cls:'crit',fn:b=>purReject(p,'gm',b,'pgn')});
   }
-  const doReceive=()=>{
-    if(p.replacedAsset&&p.replacedAsset.isReplacement&&p.replacedAsset.assetId){
-      const old=S.assets.find(a=>a.id===p.replacedAsset.assetId);
-      if(old){old.status='disposed';old.condition='تالفة — مستبدلة';old.history=old.history||[];old.history.push({at:TODAY,t:`استبدال — طلب شراء ${p.no}: ${p.replacedAsset.damageNote||''}`});
-        const na={id:uid(),no:nextNo('AST'),type:old.type,name:(p.items[0]&&p.items[0].desc)||old.name,serial:'',value:p.purchase?p.purchase.actual:est,empId:old.empId,issuedAt:TODAY,status:old.empId?'issued':'store',condition:'جيدة',history:[{at:TODAY,t:`استبدال للأصل ${old.no} — طلب شراء ${p.no}`}],replacedFrom:old.no,building:p.building};
-        S.assets.push(na);p.newAssetNo=na.no;
-      }
-    }
-    p.status='received';
-    notify('role:acc','💳','مشتريات مستلمة بانتظار السداد',`${p.no} — ${p.building} — ${omr(p.purchase?p.purchase.actual:est)}`,{view:'procurement'});
-  };
-  /* خطوة واحدة بعد الاعتماد: تم الشراء والاستلام */
-  if(p.status==='approved'&&PUR_OPS.includes(R)){
-    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">تم الشراء والاستلام</div><div class="frow"><div class="fld"><label>رقم الفاتورة</label><input id="pinv"></div><div class="fld"><label>المبلغ الفعلي (ر.ع)</label><input type="number" id="pact" step="0.001" value="${est}"></div></div><div class="frow"><div class="fld"><label>المورد</label><input id="pvf" value="${esc(p.vendor.name||'')}"></div><div class="fld"><label>استلمه</label><input id="prec" value="${esc(me().name)}"></div></div></div>`;
-    foot.push({t:'✅ تم الشراء والاستلام',cls:'good',fn:b=>{
+  /* 4) المشتريات */
+  if(p.status==='approved'&&isPurchasing()){
+    let invFile=null;
+    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">تنفيذ الشراء</div><div class="frow"><div class="fld"><label>رقم الفاتورة</label><input id="pinv"></div><div class="fld"><label>المبلغ الفعلي (ر.ع)</label><input type="number" id="pact" step="0.001" value="${est}"></div></div><div class="fld"><label>المورد</label><input id="pvf"></div><div class="fld"><label>صورة الفاتورة (اختياري)</label><input type="file" id="pinvph" accept="image/*" capture="environment"></div></div>`;
+    foot.push({t:'✅ تم الشراء',cls:'good',fn:b=>{
       const act=r3(+fv(b,'pact')||0),inv=fv(b,'pinv');
       if(!inv||!(act>0)){toast('أدخل رقم الفاتورة والمبلغ الفعلي');return false}
-      const variance=est>0?(act-est)/est*100:0;
-      p.purchase={invoice:inv,vendor:fv(b,'pvf'),actual:act,at:nowTs(),by:me().name};
-      if(variance>S.settings.purVarPct){
-        p.status='review';p.reviewBy=null;p.reviewAt=null;p.reviewNote=`السعر الفعلي أعلى من المعتمد بـ ${variance.toFixed(1)}% — يلزم إعادة الاعتماد (البند 6.7)`;p.gmBy=null;p.gmAt=null;p.gmNote='';
-        notify('role:acc','⚠️','طلب شراء يحتاج إعادة اعتماد',`${p.no} — السعر أعلى بـ ${variance.toFixed(1)}% من المعتمد`,{view:'procurement'});
-        log(`إعادة اعتماد طلب الشراء ${p.no} لارتفاع السعر`);commit('السعر أعلى من المعتمد بأكثر من '+S.settings.purVarPct+'% — أُعيد الطلب للاعتماد');return;
-      }
-      p.receipt={by:fv(b,'prec')||me().name,co:'',note:'',at:nowTs()};doReceive();
-      log(`شراء واستلام طلب الشراء ${p.no}`);commit('تم تسجيل الشراء والاستلام — أُرسل للحسابات للسداد'+(p.newAssetNo?' — سُجّل الأصل الجديد '+p.newAssetNo:''));
+      const f=$('#pinvph',b).files[0];
+      (async()=>{
+        const iph=await purPhoto(f);
+        const variance=est>0?(act-est)/est*100:0;
+        p.purchase={invoice:inv,vendor:fv(b,'pvf'),actual:act,at:nowTs(),by:me().name,photo:iph};
+        b.remove();
+        if(variance>S.settings.purVarPct){
+          p.status='acc';p.accBy=null;p.accAt=null;p.gmBy=null;p.gmAt=null;p.gmNote='';p.reapprove=`السعر الفعلي أعلى من المعتمد بـ ${variance.toFixed(1)}% — يلزم إعادة الاعتماد (البند 6.7)`;
+          notify('role:acc','⚠️','طلب شراء يحتاج إعادة اعتماد',`${p.no} — السعر أعلى بـ ${variance.toFixed(1)}% من المعتمد`,{view:'procurement'});
+          log(`إعادة اعتماد طلب الشراء ${p.no} لارتفاع السعر`);commit('السعر أعلى من المعتمد بأكثر من '+S.settings.purVarPct+'% — أُعيد الطلب للحسابات');return;
+        }
+        p.status='done';
+        notify(purReqTo(p),'✅','تم شراء طلبك',`${p.no} — ${purSummary(p)}`,{view:'procurement'});notify('role:acc','🧾','فاتورة مشتريات جديدة',`${p.no} — ${omr(act)} — فاتورة ${inv}`,{view:'procurement'});
+        log(`تنفيذ الشراء لطلب ${p.no}`);commit('تم تسجيل الشراء — اكتمل الطلب');
+      })();
+      return false;
     }});
   }
-  /* طلبات قديمة بالحالة السابقة "تم الشراء" */
-  if(p.status==='bought'&&PUR_OPS.includes(R)){
-    foot.push({t:'📥 تأكيد الاستلام',fn:()=>{p.receipt={by:me().name,co:'',note:'',at:nowTs()};doReceive();log(`استلام مشتريات طلب الشراء ${p.no}`);commit('تم تأكيد الاستلام')}});
-  }
-  /* السداد (يشمل قيد الفاتورة) */
-  if((p.status==='received'||p.status==='posted')&&R==='acc'){
-    body+=`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">السداد</div><div class="frow"><div class="fld"><label>طريقة السداد</label><select id="pm"><option value="تحويل بنكي">تحويل بنكي</option><option value="شيك">شيك</option></select></div><div class="fld"><label>رقم السند / المرجع</label><input id="pref"></div></div></div>`;
-    foot.push({t:'💳 تم السداد',cls:'good',fn:b=>{
-      if(!fv(b,'pref')){toast('أدخل رقم السند');return false}
-      if(!p.accounting)p.accounting={by:me().name,at:nowTs()};
-      p.settlement={method:fv(b,'pm'),ref:fv(b,'pref'),by:me().name,at:nowTs()};p.status='paid';
-      notify(purReqTo(p),'💳','تم سداد طلب الشراء',p.no,{view:'procurement'});
-      log(`سداد طلب الشراء ${p.no}`);commit('تم السداد — اكتمل الطلب');
-    }});
-  }
+  if(p.purchase&&p.purchase.photo)foot.push({t:'🧾 صورة الفاتورة',cls:'sec',fn:()=>{purPhotoView(p.purchase.photo,'صورة الفاتورة');return false}});
   foot.push({t:'🖨️ طباعة / PDF',cls:'sec',fn:()=>{printForm('purchase',p);return false}});
   foot.push({t:'إغلاق',cls:'sec'});
-  modal({title:'🛒 '+p.no,sub:PUR_STATUS_LABEL[p.status]||'',wide:true,body,foot});
+  modal({title:'🛒 '+p.no,sub:PUR_STATUS_LABEL[p.status]||'',wide:true,body,foot,onMount:b=>{
+    const ph=$('#pPhIn',b);if(ph){ph.onclick=()=>purPhotoView(p.photo);if(p.photo.id)call('file',{id:p.photo.id}).then(r=>{if(r&&r.ok)ph.innerHTML=`<img src="data:${r.mime};base64,${r.b64}" alt="" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid var(--border)">`;else ph.textContent='تعذّر تحميل الصورة — اضغط للمحاولة'}).catch(()=>{ph.textContent='تعذّر تحميل الصورة — اضغط للمحاولة'})}
+    const sel=$('#pacc',b);if(sel){const up=()=>{$('#pbud',b).innerHTML=sel.value?budgetHTML(budgetInfo(sel.value,purVal(p),p.id),purVal(p)):'<div class="muted small">اختر الحساب لعرض المتبقي ونسبة الموازنة</div>'};sel.onchange=up;up()}
+  }});
 }
-/* ---------- لوحة الإدارة المالية وتقارير المشتريات ---------- */
+
+/* ---------- لوحة الإدارة المالية والتقارير والموازنات ---------- */
 function purMonthOf(p){return ((p.purchase&&p.purchase.at)||p.createdAt).slice(0,7)}
 function purSpent(list){return r3(list.reduce((s,p)=>s+purActual(p),0))}
-function purRow(p){return `<div class="li click" data-pview="${p.id}"><div class="av">🛒</div><div><div class="t">${p.no} <span class="muted small">${esc(p.building)} — ${esc(p.kind)}</span></div><div class="s">${esc(p.items.map(i=>i.desc).join('، '))} — ${omr(purTotal(p))}${p.priority==='عاجل'?' · <b>عاجل</b>':''}</div></div>${purStatusBadge(p)}</div>`}
+function accBars(){return expAccounts().map(a=>{const bi=budgetInfo(a.code,0);return `<div class="hb" style="grid-template-columns:150px 1fr 56px"><span class="small">${esc(a.name)}</span><div class="bar"><i style="width:${Math.min(100,bi.pctBefore)}%;background:var(--${bi.pctBefore>100?'critical':bi.pctBefore>=80?'warning':'accent'})"></i></div><span class="num small">${bi.pctBefore}%</span></div>`}).join('')}
 VIEWS.fdash=()=>{const R=role();
-  const mine=S.purchases.filter(purNeedsMe).slice().reverse();
-  const bought=S.purchases.filter(p=>p.purchase&&p.status!=='rejected');
-  const mSpent=purSpent(bought.filter(p=>purMonthOf(p)===MONTH));
-  const ySpent=purSpent(bought.filter(p=>purMonthOf(p).slice(0,4)===MONTH.slice(0,4)));
-  const waiting=S.purchases.filter(p=>p.status==='review'||p.status==='gm').length;
-  const late=S.purchases.filter(p=>p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays).length;
-  const byB=BUILDINGS.map(b=>({b,v:purSpent(bought.filter(p=>p.building===b&&purMonthOf(p)===MONTH))})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
-  const mx=Math.max(1,...byB.map(x=>x.v));
-  const qt={acc:'بانتظار مراجعتك أو قيدك أو سدادك',gm:'بانتظار اعتمادك',hr:'بانتظار التنفيذ أو الاستلام',sup:'بانتظار التنفيذ أو الاستلام'}[R]||'بانتظار إجرائك';
-  return ph('لوحة الإدارة المالية','المشتريات والمصروفات التشغيلية — وفق سياسة المشتريات PUR-01',PUR_OPS.includes(R)?`<button class="btn" id="nPur">🛒 طلب شراء جديد</button>`:'')+
-  `<div class="grid g4">${kpi('بانتظار إجرائك',mine.length,'',mine.length?'w':'','procurement')}${kpi('قيد الاعتماد',waiting,'لدى رئيس الحسابات والمدير العام')}${kpi('مصروفات '+monthName(MONTH),omr(mSpent),'منذ بداية السنة '+omr(ySpent))}${kpi('تجاوزت مهلة الشراء',late,S.settings.purValidDays+' يوماً من الاعتماد',late?'c':'')}</div>
-  <div class="grid g2" style="margin-top:14px">
+  const vis=S.purchases.filter(purVisible),mine=vis.filter(purNeedsMe).slice().reverse();
+  const doneM=vis.filter(p=>p.status==='done'&&purMonthOf(p)===MONTH);
+  const waiting=vis.filter(p=>['sup','acc','gm'].includes(p.status)).length;
+  const over=expAccounts().filter(a=>{const bi=budgetInfo(a.code,0);return bi.budget&&bi.spent>bi.budget}).length;
+  const qt={sup:'بانتظار موافقتك',acc:'بانتظار تحديد الحساب والاعتماد',gm:'بانتظار اعتمادك'}[R]||(isPurchasing()?'معتمدة — بانتظار الشراء':'بانتظار إجرائك');
+  const money_=['hr','acc','gm'].includes(R);
+  return ph('لوحة الإدارة المالية','المشتريات والمصروفات التشغيلية — وفق سياسة المشتريات PUR-01',purNewBtn())+
+  `<div class="grid g4">${kpi('بانتظار إجرائك',mine.length,'',mine.length?'w':'','procurement')}${kpi('قيد الاعتماد',waiting,'المشرف ← الحسابات ← المدير العام')}${money_?kpi('مشتريات '+monthName(MONTH),omr(purSpent(doneM)),doneM.length+' طلب'):kpi('طلباتي',vis.length)}${money_?kpi('حسابات تجاوزت الموازنة',over,'هذا الشهر',over?'c':''):kpi('تم شراؤها',vis.filter(p=>p.status==='done').length)}</div>
+  <div class="grid ${money_?'g2':''}" style="margin-top:14px">
    <div class="card"><h2>${qt}</h2>${mine.length?`<div class="list">${mine.slice(0,8).map(purRow).join('')}</div>`:'<div class="empty">لا يوجد ما ينتظرك الآن</div>'}</div>
-   <div class="card"><h2>الإنفاق حسب المبنى — ${monthName(MONTH)}</h2>${byB.length?byB.map(x=>`<div class="hb" style="grid-template-columns:150px 1fr 90px"><span class="small">${esc(x.b)}</span><div class="bar"><i style="width:${x.v/mx*100}%"></i></div><span class="num small">${money(x.v)}</span></div>`).join(''):'<div class="empty">لا توجد مصروفات مسجلة هذا الشهر</div>'}</div>
+   ${money_?`<div class="card"><h2>استهلاك الموازنة — ${monthName(MONTH)}</h2>${accBars()}</div>`:''}
   </div>
-  <div class="card" style="margin-top:14px"><h2>آخر الطلبات</h2>${S.purchases.length?`<div class="list">${S.purchases.slice(-6).reverse().map(purRow).join('')}</div>`:'<div class="empty">لا توجد طلبات شراء بعد. ابدأ من زر "طلب شراء جديد".</div>'}</div>`;
+  <div class="card" style="margin-top:14px"><h2>آخر الطلبات</h2>${vis.length?`<div class="list">${vis.slice(-6).reverse().map(purRow).join('')}</div>`:`<div class="empty">${isReception()?'لا توجد طلبات بعد. ابدأ من زر "طلب شراء جديد".':'لا توجد طلبات شراء بعد'}</div>`}</div>`;
 };
 BIND.fdash=()=>{$$('[data-pview]').forEach(b=>b.onclick=()=>openPurchase(b.dataset.pview));$('#nPur')&&($('#nPur').onclick=purchaseForm)};
+VIEWS.budgets=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R);
+  const rows=expAccounts().map(a=>({a,bi:budgetInfo(a.code,0)}));
+  const tot=rows.reduce((s,x)=>({b:s.b+x.bi.budget,sp:s.sp+x.bi.spent}),{b:0,sp:0});
+  return ph('الحسابات والموازنات','حسابات المصروفات التي تختار منها الحسابات عند اعتماد كل طلب، والموازنة الشهرية لكل حساب',canEdit?`<button class="btn sec" id="budAdd">➕ حساب جديد</button><button class="btn" id="budSave">حفظ</button>`:'')+
+  `<div class="tw"><table><thead><tr><th>رمز الحساب</th><th>اسم الحساب</th><th class="n">الموازنة الشهرية (ر.ع)</th><th class="n">المصروف ${monthName(MONTH)}</th><th class="n">المتبقي</th><th class="n">النسبة</th></tr></thead><tbody id="budBody">${rows.map(({a,bi},i)=>`<tr><td>${canEdit?`<input data-bc="${i}" value="${esc(a.code)}" style="width:90px">`:esc(a.code)}</td><td>${canEdit?`<input data-bn="${i}" value="${esc(a.name)}" style="width:100%;min-width:200px">`:esc(a.name)}</td><td class="n">${canEdit?`<input data-bb="${i}" type="number" step="0.001" value="${bi.budget}" style="width:110px;text-align:center">`:money(bi.budget)}</td><td class="n">${money(bi.spent)}</td><td class="n ${bi.remaining<0?'b':''}">${money(bi.remaining)}</td><td class="n">${badge(bi.pctBefore+'%',bi.pctBefore>100?'c':bi.pctBefore>=80?'w':'g')}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${money(tot.b)}</td><td class="n">${money(tot.sp)}</td><td class="n">${money(tot.b-tot.sp)}</td><td class="n">${tot.b?Math.round(tot.sp/tot.b*100)+'%':'—'}</td></tr></tfoot></table></div>
+  <div class="note small" style="margin-top:10px">المصروف = كل طلب اعتمدته الحسابات على الحساب خلال الشهر (بالمبلغ الفعلي بعد الشراء). الأرقام الافتراضية تقديرية — عدّلها بموازنة الشركة المعتمدة.</div>`;
+};
+BIND.budgets=()=>{
+  $('#budAdd')&&($('#budAdd').onclick=()=>{const a=expAccounts().slice();a.push({code:String(5101+a.length),name:'حساب جديد',budget:0});S.settings.expAccounts=a;commit()});
+  $('#budSave')&&($('#budSave').onclick=()=>{const a=expAccounts().map((x,i)=>({code:($(`[data-bc="${i}"]`).value||'').trim(),name:($(`[data-bn="${i}"]`).value||'').trim(),budget:r3(+$(`[data-bb="${i}"]`).value||0)})).filter(x=>x.code&&x.name);
+    if(new Set(a.map(x=>x.code)).size!==a.length){toast('رمز الحساب مكرر');return}
+    S.settings.expAccounts=a;log('تعديل حسابات المصروفات والموازنات');commit('تم حفظ الحسابات والموازنات')});
+};
 VIEWS.purreports=()=>{const per=V.sub.prp||'month';
   const inPer=p=>{const m=purMonthOf(p);return per==='month'?m===MONTH:per==='prev'?m===prevMonth(MONTH):per==='year'?m.slice(0,4)===MONTH.slice(0,4):true};
   const L=S.purchases.filter(p=>p.status!=='rejected'&&inPer(p));
-  const agg=(key,vals)=>vals.map(k=>{const g=L.filter(p=>p[key]===k);return {k,n:g.length,est:r3(g.reduce((s,p)=>s+purTotal(p),0)),act:purSpent(g),rep:g.filter(p=>p.replacedAsset&&p.replacedAsset.isReplacement).length}}).filter(x=>x.n);
-  const byB=agg('building',BUILDINGS),byK=agg('kind',PUR_KINDS);
-  const tbl=(rows,h)=>`<div class="tw"><table><thead><tr><th>${h}</th><th class="n">الطلبات</th><th class="n">التقديري</th><th class="n">الفعلي</th><th class="n">استبدال أصول</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.k)}</b></td><td class="n">${x.n}</td><td class="n">${money(x.est)}</td><td class="n">${money(x.act)}</td><td class="n">${x.rep||'—'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">لا توجد بيانات لهذه الفترة</td></tr>'}</tbody>${rows.length?`<tfoot><tr><td>الإجمالي</td><td class="n">${L.length}</td><td class="n">${money(rows.reduce((s,x)=>s+x.est,0))}</td><td class="n">${money(rows.reduce((s,x)=>s+x.act,0))}</td><td class="n">${rows.reduce((s,x)=>s+x.rep,0)}</td></tr></tfoot>`:''}</table></div>`;
-  const reps=S.purchases.filter(p=>p.replacedAsset&&p.replacedAsset.isReplacement&&p.receipt).slice().reverse();
+  const agg=(keyFn,vals)=>vals.map(([k,label])=>{const g=L.filter(p=>keyFn(p)===k);return {k:label,n:g.length,est:r3(g.reduce((s,p)=>s+purTotal(p),0)),act:purSpent(g)}}).filter(x=>x.n);
+  const byB=agg(p=>p.building,BUILDINGS.map(b=>[b,b])),byA=agg(p=>p.account&&p.account.code,expAccounts().map(a=>[a.code,a.code+' — '+a.name]));
+  const tbl=(rows,h)=>`<div class="tw"><table><thead><tr><th>${h}</th><th class="n">الطلبات</th><th class="n">التقديري</th><th class="n">الفعلي</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.k)}</b></td><td class="n">${x.n}</td><td class="n">${money(x.est)}</td><td class="n">${money(x.act)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">لا توجد بيانات لهذه الفترة</td></tr>'}</tbody></table></div>`;
   const flags=[];
   S.purchases.forEach(p=>{
-    if(p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays)flags.push([p,'اعتُمد ولم يُنفَّذ خلال '+S.settings.purValidDays+' يوماً — يلزم إعادة الاعتماد (البند 6.7)']);
-    if(p.status==='received'&&p.receipt&&diffDays(p.receipt.at.slice(0,10),TODAY)>30)flags.push([p,'استُلم منذ أكثر من شهر ولم يُسدَّد']);
-    if(p.status==='review'&&p.purchase)flags.push([p,'أُعيد للاعتماد بسبب فرق السعر عن المعتمد']);
-    const need=p.vendor&&p.vendor.approved?2:3;
-    if(p.status!=='rejected'&&p.quotes&&p.quotes.count<need&&purTotal(p)>S.settings.purCashCap)flags.push([p,`عروض الأسعار ${p.quotes.count} والمطلوب ${need} (${need===2?'مورد معتمد':'مورد غير معتمد'}) — يحتاج استثناء مكتوباً من المدير العام`]);
+    if(p.status==='approved'&&diffDays((p.gmAt||p.createdAt).slice(0,10),TODAY)>S.settings.purValidDays)flags.push([p,'معتمد ولم تشترِه المشتريات خلال '+S.settings.purValidDays+' يوماً']);
+    if(p.reapprove&&p.status==='acc')flags.push([p,p.reapprove]);
+    if(p.account&&p.account.remainingAfter<0&&p.status!=='rejected')flags.push([p,`تجاوز موازنة حساب ${p.account.name} عند الاعتماد (${p.account.pct}%)`]);
+    if(['sup','acc','gm'].includes(p.status)&&diffDays(p.createdAt.slice(0,10),TODAY)>3)flags.push([p,'متوقف في الاعتماد أكثر من 3 أيام']);
   });
-  return ph('تقارير المشتريات','الإنفاق حسب المبنى ونوع الطلب، الملاحظات الرقابية، وسجل استبدال الأصول',`<button class="btn sec" id="purCsv">⬇️ تصدير CSV</button>`)+
+  const rej=S.purchases.filter(p=>p.status==='rejected'&&inPer(p));
+  return ph('تقارير المشتريات','الإنفاق حسب المبنى وحساب المصروف، الملاحظات الرقابية، والطلبات المرفوضة وأسبابها',`<button class="btn sec" id="purCsv">⬇️ تصدير CSV</button>`)+
   `<div class="toolbar"><div class="seg">${[['month','هذا الشهر'],['prev','الشهر السابق'],['year','هذه السنة'],['all','الكل']].map(([k,n])=>`<button data-prp="${k}" class="${per===k?'on':''}">${n}</button>`).join('')}</div></div>
-  <div class="card"><h2>حسب المبنى</h2>${tbl(byB,'المبنى')}</div>
-  <div class="card" style="margin-top:14px"><h2>حسب نوع الطلب</h2>${tbl(byK,'النوع')}</div>
+  <div class="card"><h2>حسب حساب المصروف</h2>${tbl(byA,'الحساب')}</div>
+  <div class="card" style="margin-top:14px"><h2>حسب المبنى</h2>${tbl(byB,'المبنى')}</div>
   <div class="card" style="margin-top:14px"><h2>ملاحظات رقابية <small>${flags.length}</small></h2>${flags.length?`<div class="list">${flags.map(([p,t])=>`<div class="li click" data-pview="${p.id}"><div class="av">⚠️</div><div><div class="t">${p.no} <span class="muted small">${esc(p.building)}</span></div><div class="s">${esc(t)}</div></div>${purStatusBadge(p)}</div>`).join('')}</div>`:'<div class="empty">لا توجد ملاحظات — كل الطلبات ضمن السياسة</div>'}</div>
-  <div class="card" style="margin-top:14px"><h2>سجل استبدال الأصول</h2>${reps.length?`<div class="tw"><table><thead><tr><th>التاريخ</th><th>المبنى</th><th>الأصل التالف</th><th>الأصل الجديد</th><th>سبب التلف</th><th>طلب الشراء</th></tr></thead><tbody>${reps.map(p=>`<tr class="click" data-pview="${p.id}"><td class="small">${fdate(p.receipt.at.slice(0,10))}</td><td>${esc(p.building)}</td><td>${esc((S.assets.find(a=>a.id===p.replacedAsset.assetId)||{}).no||'—')}</td><td>${esc(p.newAssetNo||'—')}</td><td class="small">${esc(p.replacedAsset.damageNote||'—')}</td><td>${p.no}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا توجد عمليات استبدال مكتملة بعد</div>'}</div>`;
+  <div class="card" style="margin-top:14px"><h2>الطلبات المرفوضة وأسبابها <small>${rej.length}</small></h2>${rej.length?`<div class="list">${rej.map(p=>`<div class="li click" data-pview="${p.id}"><div class="av">⛔</div><div><div class="t">${p.no} <span class="muted small">${esc(p.building)} — رفضه ${PUR_STEP[p.rejectAt]||''}</span></div><div class="s">${esc(p.rejectNote||'')}</div></div></div>`).join('')}</div>`:'<div class="empty">لا توجد طلبات مرفوضة في هذه الفترة</div>'}</div>`;
 };
 BIND.purreports=()=>{$$('[data-prp]').forEach(b=>b.onclick=()=>{V.sub.prp=b.dataset.prp;render()});$$('[data-pview]').forEach(b=>b.onclick=()=>openPurchase(b.dataset.pview));
-  $('#purCsv').onclick=()=>download('purchases-'+TODAY+'.csv',toCSV([['رقم الطلب','التاريخ','المبنى','النوع','الأولوية','البنود','التقديري','الفعلي','المورد','الحالة','رئيس الحسابات','المدير العام','رقم الفاتورة','رقم السند'],...S.purchases.map(p=>[p.no,p.createdAt.slice(0,10),p.building,p.kind,p.priority,p.items.map(i=>i.desc+' × '+i.qty).join(' | '),purTotal(p),purActual(p),(p.vendor&&p.vendor.name)||'',PUR_STATUS_LABEL[p.status],p.reviewBy||'',p.gmBy||'',p.purchase?p.purchase.invoice:'',p.settlement?p.settlement.ref:''])]))};
+  $('#purCsv').onclick=()=>download('purchases-'+TODAY+'.csv',toCSV([['رقم الطلب','التاريخ','المبنى','البنود','التقديري','الفعلي','حساب المصروف','الحالة','الاستقبال','المشرف','الحسابات','المدير العام','المشتريات','رقم الفاتورة','سبب الرفض'],...S.purchases.map(p=>[p.no,p.createdAt.slice(0,10),p.building,p.items.map(i=>i.desc+' × '+i.qty).join(' | '),purTotal(p),purActual(p),p.account?p.account.code+' '+p.account.name:'',PUR_STATUS_LABEL[p.status]||p.status,p.by||'',p.supBy||'',p.accBy||'',p.gmBy||'',p.purchase?p.purchase.by:'',p.purchase?p.purchase.invoice:'',p.rejectNote||''])]))};
 
 /* ---------- الأداء والمكافآت ---------- */
 const avgScore=r=>{const v=Object.values(r.scores).map(Number);return v.reduce((a,b)=>a+b,0)/v.length};
@@ -2591,17 +2647,18 @@ function formHTML(kind,x){
   if(kind==='announcement'){const a=x;const aud=a?(a.audience==='all'?activeEmps():activeEmps().filter(e=>e.building===a.audience)):[];const n=a?aud.filter(e=>a.acks[e.id]).length:0;
     return `<div class="doc">${docHead('تعميم إداري','Administrative Circular',a&&a.no)}<table>${BR('التاريخ','Date',v(a&&fdate(a.date)))}${BR('الموجه إليهم','Audience',v(a&&(a.audience==='all'?'جميع الموظفين':esc(a.audience))))}${BR('صادر عن','Issued By',v(a&&esc(a.by)))}${a&&a.requireAck?BR('الإقرار بالاطلاع','Acknowledgement',n+' من '+aud.length):''}</table>
     <h4 style="margin:14px 0 6px">${v(a&&esc(a.title))}</h4><div style="white-space:pre-wrap;line-height:1.9;font-size:14px">${v(a&&esc(a.body))}</div>${sigBlock(['المدير العام / General Manager','الموارد البشرية / Human Resources'])}</div>`}
-  if(kind==='purchase'){const p=x,est=p?purTotal(p):0;
+  if(kind==='purchase'){const p=x,est=p?purTotal(p):0,A=p&&p.account;
+    const W=(n,at,note)=>n?esc(n)+' — '+ftime(at)+(note?' — '+esc(note):''):'';
     return `<div class="doc">${docHead('نموذج طلب الشراء','Purchase Request Form',p&&(p.no+' — PUR-01'))}
-    <table>${BR('الفرع / المبنى','Branch / Building',v(p&&esc(p.building)))}${BR('نوع الطلب','Type',v(p&&esc(p.kind)))}${BR('الأولوية','Priority',v(p&&esc(p.priority)))}${BR('مقدم الطلب','Requested By',v(p&&esc(p.by)))}${BR('التاريخ','Date',v(p&&fdate(p.createdAt.slice(0,10))))}</table>
-    <table style="margin-top:10px"><tr><th>الصنف / الوصف</th><th>الكمية</th><th>الوحدة</th><th>السعر التقديري</th><th>الإجمالي</th></tr>${(p?p.items:[]).map(it=>`<tr><td>${esc(it.desc)}</td><td>${it.qty}</td><td>${esc(it.unit)}</td><td>${money(it.price)}</td><td>${money(it.qty*it.price)}</td></tr>`).join('')}<tr><td colspan="4"><b>الإجمالي التقديري</b></td><td><b>${v(p&&money(est))}</b></td></tr></table>
-    <table style="margin-top:10px">${BR('سبب الطلب','Reason',v(p&&esc(p.reason)))}${BR('المورد','Vendor',v(p&&((p.vendor.approved?'معتمد — ':'غير معتمد — ')+esc(p.vendor.name||''))))}${BR('عروض الأسعار','Quotes',v(p&&(p.quotes.count+' عرض'+(p.quotes.note?' — '+esc(p.quotes.note):''))))}${p&&p.replacedAsset&&p.replacedAsset.isReplacement?BR('استبدال أصل تالف','Asset Replacement',esc((S.assets.find(a=>a.id===p.replacedAsset.assetId)||{}).no||'')+' — '+esc(p.replacedAsset.damageNote||'')):''}${BR('قابل للتحميل على مستأجر','Chargeable to Tenant',v(p&&(p.chargeable?'نعم':'لا')))}</table>
-    <h4 style="margin:14px 0 6px">مسار الاعتماد / Approval</h4>
-    <table>${BR('رئيس الحسابات','Chief Accountant',v(p&&p.reviewBy?esc(p.reviewBy)+' — '+ftime(p.reviewAt)+(p.reviewNote?' — '+esc(p.reviewNote):''):''))}${BR('المدير العام','General Manager',v(p&&p.gmBy?esc(p.gmBy)+' — '+ftime(p.gmAt)+(p.gmNote?' — '+esc(p.gmNote):''):''))}</table>
-    ${p&&p.purchase?`<h4 style="margin:14px 0 6px">تنفيذ الشراء / Purchase</h4><table>${BR('رقم الفاتورة','Invoice',esc(p.purchase.invoice))}${BR('المورد الفعلي','Vendor',esc(p.purchase.vendor||''))}${BR('المبلغ الفعلي','Actual Amount',money(p.purchase.actual))}</table>`:''}
-    ${p&&p.receipt?`<h4 style="margin:14px 0 6px">الاستلام / Receipt</h4><table>${BR('مشرف البنايات','Supervisor',esc(p.receipt.by))}${BR('الصيانة / مسؤول البناية','Maintenance / Building Officer',esc(p.receipt.co||''))}${BR('ملاحظات','Notes',esc(p.receipt.note||''))}</table>`:''}
-    ${p&&p.settlement?`<h4 style="margin:14px 0 6px">السداد / Settlement</h4><table>${BR('طريقة السداد','Method',esc(p.settlement.method))}${BR('رقم السند','Reference',esc(p.settlement.ref))}${BR('بواسطة','By',esc(p.settlement.by)+' — '+ftime(p.settlement.at))}</table>`:''}
-    ${sigBlock(['مقدم الطلب / Requester','رئيس الحسابات / Chief Accountant','المدير العام / General Manager'])}</div>`}
+    <table>${BR('المبنى','Building',v(p&&esc(p.building)))}${BR('مقدّم الطلب (الاستقبال)','Requested By (Reception)',v(p&&esc(p.by)))}${BR('التاريخ','Date',v(p&&fdate(p.createdAt.slice(0,10))))}${BR('الأولوية','Priority',v(p&&esc(p.priority)))}</table>
+    <table style="margin-top:10px"><tr><th>الصنف / Item</th><th>الكمية / Qty</th><th>السعر / Price</th><th>الإجمالي / Total</th></tr>${(p?p.items:[]).map(it=>`<tr><td>${esc(it.desc)}</td><td>${it.qty}</td><td>${money(it.price)}</td><td>${money(it.qty*it.price)}</td></tr>`).join('')}<tr><td colspan="3"><b>الإجمالي التقريبي / Estimated Total</b></td><td><b>${v(p&&money(est))}</b></td></tr></table>
+    <table style="margin-top:10px">${BR('سبب الطلب','Reason',v(p&&esc(p.reason)))}${BR('صورة مرفقة','Photo Attached',v(p&&(p.photo?'نعم':'لا')))}</table>
+    <h4 style="margin:14px 0 6px">الموازنة / Budget</h4>
+    <table>${BR('حساب المصروف','Expense Account',v(A?esc(A.code+' — '+A.name):''))}${BR('الموازنة الشهرية','Monthly Budget',v(A?money(A.budget):''))}${BR('المتبقي بعد الطلب','Remaining After',v(A?money(A.remainingAfter)+' ('+A.pct+'%)':''))}</table>
+    <h4 style="margin:14px 0 6px">الاعتمادات / Approvals</h4>
+    <table>${BR('المشرف','Supervisor',v(p&&W(p.supBy,p.supAt,p.supNote)))}${BR('الحسابات','Accounts',v(p&&W(p.accBy,p.accAt,p.accNote)))}${BR('المدير العام','General Manager',v(p&&W(p.gmBy,p.gmAt,p.gmNote)))}${p&&p.status==='rejected'?BR('سبب الرفض','Rejection Reason',esc((PUR_STEP[p.rejectAt]||'')+': '+(p.rejectNote||''))):''}</table>
+    ${p&&p.purchase?`<h4 style="margin:14px 0 6px">تنفيذ الشراء / Purchase</h4><table>${BR('قسم المشتريات','Purchasing',W(p.purchase.by,p.purchase.at))}${BR('رقم الفاتورة','Invoice',esc(p.purchase.invoice))}${BR('المورد','Vendor',esc(p.purchase.vendor||''))}${BR('المبلغ الفعلي','Actual Amount',money(p.purchase.actual))}</table>`:''}
+    ${sigBlock(['الاستقبال / Reception','المشرف / Supervisor','الحسابات / Accounts','المدير العام / GM'])}</div>`}
   if(kind==='clearance')return `<div class="doc">${docHead('نموذج إخلاء طرف','Clearance Form')}<table>${empRows}${BR('آخر يوم عمل','Last Working Day','')}</table><table style="margin-top:10px"><tr><th>الجهة / Department</th><th>البيان / Item</th><th>الحالة / Status</th><th>التوقيع / Sign</th></tr>${[['المشرف المباشر','Supervisor','تسليم العمل والمفاتيح'],['الصيانة / المخزن','Store','العهد المادية'],['المحاسبة','Accounting','السلف والنثريات'],['تقنية المعلومات','IT','سحب صلاحيات الأنظمة'],['الموارد البشرية','HR','المستحقات النهائية']].map(r=>`<tr><td>${r[0]}<br><small>${r[2]}</small></td><td dir="ltr">${r[1]}</td><td>☐ تم  ☐ لم يتم</td><td></td></tr>`).join('')}</table>${sigBlock(['الموظف / Employee','الموارد البشرية / HR','المدير العام / GM'])}</div>`;
   return '';
 }
