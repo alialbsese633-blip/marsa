@@ -620,12 +620,15 @@ function diffOps(){
   for(const k in SNAP)if(!(k in cur)&&!BADKEYS.some(b=>b===k))ops.push({k,del:1});
   return ops;
 }
+let DEMO=null;   // وضع التجربة (التجربة والدليل): بيانات مؤقتة لا تُحفظ
 function save(){
+  if(DEMO)return;
   if(!TOKEN)return;
   DIRTY=true;clearTimeout(pushT);pushT=setTimeout(flush,600);setSync('saving');
 }
 const PUSH_ERR={forbidden:'ليست لديك صلاحية لهذا التعديل',too_big:'حجم السجل كبير جداً ولا يمكن حفظه',bad_key:'رقم أو معرّف غير صالح',too_many_ops:'عدد التعديلات كبير',must_change:'يجب تغيير كلمة المرور أولاً'};
 async function flush(){
+  if(DEMO)return;
   if(BUSY||!TOKEN)return;
   clearTimeout(pushT);
   const ops=diffOps();
@@ -661,7 +664,7 @@ async function pullAll(){
 }
 function rebuild(p){const sess=S.session;S=buildFrom(p.docs,sess);SNAP=snapFrom(p.docs);REV=p.rev;render()}
 async function poll(){
-  if(!TOKEN||DIRTY||BUSY||document.hidden)return;
+  if(DEMO||!TOKEN||DIRTY||BUSY||document.hidden)return;
   const r=await call('rev').catch(()=>null);
   if(!r||!r.ok||r.rev===REV)return;
   const a=document.activeElement;
@@ -1232,7 +1235,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1247,11 +1250,11 @@ const NAV={
 /* قسم الإدارة المالية: نفس التطبيق ونفس الحساب، يُفتح من الواجهة بـ hr.html?app=fin */
 const APP=(()=>{try{return new URLSearchParams(location.search).get('app')==='fin'?'fin':'hr'}catch(e){return 'hr'}})();
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية']],
- sup:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية']],
- emp:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية']]
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ sup:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
+ emp:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
 };
 function navFor(R){return (APP==='fin'&&FIN_NAV[R])?FIN_NAV[R]:NAV[R]}
 function applyAppShell(){
@@ -1304,7 +1307,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters'};
+const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -1331,6 +1334,7 @@ function render(){
   $$('#main [data-req]').forEach(b=>b.onclick=e=>{e.stopPropagation();openRequest(b.dataset.req)});
   $$('#main [data-emp]').forEach(b=>b.onclick=e=>{e.stopPropagation();openEmployee(b.dataset.emp)});
   applyLangShell();
+  if(DEMO)demoAfterRender();
 }
 function bindTop(){
   bindGSearch();
@@ -2100,7 +2104,7 @@ function purActual(p){return p.purchase?r3(p.purchase.actual):0}
 function purVal(p){return p.purchase?purActual(p):purTotal(p)}
 const myEmp=()=>emp(S.session.empId)||{};
 /* مدير النظام (حساب الموارد البشرية): كل الصلاحيات — ويُسجَّل اسمه الفعلي في كل خطوة */
-const isSuper=()=>!!(S.session&&(S.session.base==='hr'||(USER&&USER.role==='hr')));
+const isSuper=()=>!DEMO&&!!(S.session&&(S.session.base==='hr'||(USER&&USER.role==='hr')));
 const isReception=()=>(role()==='emp'&&myEmp().dept==='الاستقبال')||isSuper();
 const finDuty=k=>(((S.settings.finDuty||{})[k])||[]).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
 const meUser=()=>String(S.session.user||'').toLowerCase();
@@ -2626,6 +2630,128 @@ async function bulkCreate(b){if(!b.__rows)bulkPreview(b);const rows=b.__rows;
   $('#bu_csv',b).onclick=()=>download('marsa-users-'+TODAY+'.csv',toCSV([['الاسم','المسمى','اسم المستخدم','كلمة المرور المؤقتة','النتيجة'],...out.map(r=>[r.name,r.title,r.u,r.res.startsWith('✅')?r.pw:'',r.res])]));
   toast(`تم إنشاء ${ok.length} حساب`);
 }
+
+/* ---------- التجربة والدليل: تجربة تفاعلية لدورة طلب الشراء (لا يُحفظ فيها شيء) ---------- */
+const DEMO_PERS={rec:{n:'موظف الاستقبال',ic:'🛎️',s:{role:'emp',empId:'DR',supId:null,user:'demo.rec'}},sup:{n:'مشرف البناية',ic:'🧭',s:{role:'sup',empId:'DS',supId:'DS',user:'demo.sup'}},acc:{n:'قسم الحسابات',ic:'🧮',s:{role:'acc',empId:null,supId:null,user:'demo.acc',name:'تجربة'}},gm:{n:'المدير العام',ic:'🏛️',s:{role:'gm',empId:null,supId:null,user:'demo.gm',name:'تجربة'}},pur:{n:'مسؤول المشتريات',ic:'🛒',s:{role:'emp',empId:'DP',supId:null,user:'demo.pur'}}};
+const DEMO_STEPS={
+ start:['rec',1,'إنشاء طلب الشراء','اضغط «طلب شراء جديد»، اكتب الصنف والسعر التقريبي والسبب وأرفق صورة، ثم «إرسال للمشرف».'],
+ sup:['sup',2,'موافقة المشرف','راجع الطلب والصورة، ثم «موافقة ورفع للحسابات» — أو «رفض» مع كتابة السبب لترى ماذا يحدث.'],
+ acc:['acc',3,'الحسابات: حساب المصروف والموازنة','اختر حساب المصروف ليظهر المتبقي ونسبة الموازنة للشهر، ثم «اعتماد ورفع للمدير العام».'],
+ gm:['gm',4,'اعتماد المدير العام','اطلع على الصنف والصورة والموازنة والموافقات السابقة، ثم «اعتماد نهائي».'],
+ approved:['pur',5,'تنفيذ الشراء','اكتب رقم الفاتورة والمبلغ الفعلي والمورد، ثم «تم الشراء». جرّب مبلغاً أعلى بأكثر من 5% لترى إعادة الاعتماد تلقائياً.'],
+ bought:['pur',6,'إنشاء طلب الصرف','أنشئ طلب الصرف ليدخل المصروف في النظام: المبلغ والمستفيد وطريقة الصرف، ثم «إرسال طلب الصرف».'],
+ payreq:['acc',7,'الصرف وقيد المصروف','راجع طلب الصرف، اختر طريقة الصرف ورقم المرجع، ثم «صرف وقيد المصروف».'],
+ rejected:['rec',0,'رُفض الطلب','رجع الطلب لموظف الاستقبال، والسبب ظاهر في الطلب وفي الإشعارات 🔔. يمكنك إعادة التجربة.']
+};
+const demoEmp=(id,name,dept,sup)=>({id,code:id,name,job:name,dept,building:'عوقد الشمالية',supervisorId:sup,status:'active',basic:0,housing:0,transport:0,other:0,annualBalance:0,joinDate:TODAY});
+function demoStart(){
+  const real=S,accs=(real.settings.expAccounts||[]).length?JSON.parse(JSON.stringify(real.settings.expAccounts)):[{code:'9154',name:'الصيانة والإصلاح العمومية',group:'Maintenance and repairs expenses',budget:450},{code:'9654',name:'مصاريف عدد وأدوات',group:'Miscellaneous Expenses',budget:175},{code:'9652',name:'مواد النظافة',group:'مصاريف التنظيف',budget:240}];
+  const st=emptyState({role:'emp',empId:'DR',supId:null});
+  st.settings={...real.settings,expAccounts:accs,expActuals:JSON.parse(JSON.stringify(real.settings.expActuals||{})),finDuty:{accounts:[],buyers:[]}};
+  st.employees=[demoEmp('DR','موظف الاستقبال (تجربة)','الاستقبال','DS'),demoEmp('DS','مشرف البناية (تجربة)','الإدارة',null),demoEmp('DP','مسؤول المشتريات (تجربة)','المشتريات',null)];
+  st.policies=real.policies;
+  DEMO={real,last:'start',pid:null,t:null,realSession:real.session,realView:V.view};S=st;document.body.classList.add('demo-on');
+  demoGo('start');
+}
+function demoStop(){if(!DEMO)return;clearTimeout(DEMO.t);S=DEMO.real;S.session=DEMO.realSession;DEMO=null;document.body.classList.remove('demo-on');const b=$('#demoBar');if(b)b.remove();$$('.mback').forEach(m=>m.remove());V.view='fdemo';render();toast('انتهت التجربة — لم يُحفظ أي شيء')}
+function demoAs(k){const P=DEMO_PERS[k];S.session={...P.s,base:'demo'}}
+function demoGo(k){if(!DEMO)return;$$('.mback').forEach(m=>m.remove());DEMO.step=k;
+  if(k==='paid')return demoFinish();
+  const [pk]=DEMO_STEPS[k];demoAs(pk);V.view=k==='start'?'fdash':'procurement';V.sub.pu='all';render();window.scrollTo({top:0});demoBar();
+  if(k==='start'){const b=$('#nPur');if(b)b.classList.add('demo-pulse')}
+  else if(DEMO.pid)setTimeout(()=>{if(DEMO&&DEMO.step===k)openPurchase(DEMO.pid)},300);
+}
+function demoAfterRender(){if(!DEMO||DEMO.step==='paid')return;
+  if(!DEMO.pid&&S.purchases.length)DEMO.pid=S.purchases[S.purchases.length-1].id;
+  const p=S.purchases.find(x=>x.id===DEMO.pid);if(!p)return;
+  if(p.status!==DEMO.last){DEMO.last=p.status;clearTimeout(DEMO.t);DEMO.t=setTimeout(()=>demoGo(p.status),1200)}
+}
+function demoBar(){let b=$('#demoBar');if(!b){b=document.createElement('div');b.id='demoBar';document.body.appendChild(b)}
+  const k=DEMO.step,[pk,n,title,ins]=DEMO_STEPS[k],P=DEMO_PERS[pk];const p=DEMO.pid&&S.purchases.find(x=>x.id===DEMO.pid);
+  b.innerHTML=`<div class="db-in"><div class="db-who"><span class="db-ic">${P.ic}</span><div><div class="db-l">🧪 وضع التجربة — لا يُحفظ شيء${n?` · الخطوة ${n} من 7`:''}</div><b>أنت الآن: ${P.n}</b></div></div>
+  <div class="db-txt"><b>${title}</b><div>${ins}</div>${p&&p.reapprove&&k==='acc'?`<div class="db-warn">⚠️ ${esc(p.reapprove)}</div>`:''}</div>
+  <div class="db-act">${n?`<button class="btn sm" id="dbAuto">▶️ نفّذ الخطوة تلقائياً</button>`:`<button class="btn sm" id="dbAgain">🔁 إعادة التجربة</button>`}<button class="btn sm sec" id="dbStop">إيقاف التجربة</button></div>
+  <div class="db-dots">${[1,2,3,4,5,6,7].map(i=>`<i class="${n&&i<n?'ok':i===n?'cur':''}"></i>`).join('')}</div></div>`;
+  $('#dbStop',b).onclick=demoStop;const ag=$('#dbAgain',b);if(ag)ag.onclick=()=>{demoStop();demoStart()};
+  const au=$('#dbAuto',b);if(au)au.onclick=()=>demoAuto(k);
+}
+/* تنفيذ الخطوة تلقائياً ببيانات المثال — مفيد للعرض السريع */
+function demoAuto(k){
+  const click=t=>{const x=[...document.querySelectorAll('.mback .mf .btn')].find(b=>b.textContent.includes(t));if(x)x.click();return !!x};
+  const m=()=>document.querySelector('.mback');const set=(id,v)=>{const e=m()&&m().querySelector('#'+id);if(e){e.value=v;e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}};
+  const ensure=fn=>{if(!m()&&DEMO.pid)openPurchase(DEMO.pid);setTimeout(fn,250)};
+  if(k==='start'){if(!m())purchaseForm();setTimeout(()=>{set('pb','عوقد الشمالية');set('p1d','خرطوم مياه — الشقة 12');set('p1q','1');set('p1p','6.500');set('preason','الخرطوم الحالي تالف ويسرّب الماء في الحمام');setTimeout(()=>click('إرسال للمشرف'),700)},250)}
+  if(k==='sup')ensure(()=>{set('psn','تم التأكد من التلف');setTimeout(()=>click('موافقة ورفع'),600)});
+  if(k==='acc')ensure(()=>{const s=m().querySelector('#pacc');if(s){const o=[...s.options].find(o=>o.value&&/9154|9148|صيانة/.test(o.textContent))||[...s.options].find(o=>o.value);if(o){s.value=o.value;s.onchange&&s.onchange()}}setTimeout(()=>click('اعتماد ورفع'),1400)});
+  if(k==='gm')ensure(()=>setTimeout(()=>click('اعتماد نهائي'),700));
+  if(k==='approved')ensure(()=>{set('pinv','INV-2041');set('pvf','محل الأمانة للأدوات الصحية');setTimeout(()=>click('تم الشراء'),900)});
+  if(k==='bought')ensure(()=>{set('prTo',m().querySelector('#prTo').value||'محل الأمانة للأدوات الصحية');setTimeout(()=>click('إرسال طلب الصرف'),900)});
+  if(k==='payreq')ensure(()=>{set('pyRef','TR-1187');setTimeout(()=>click('صرف وقيد'),900)});
+}
+function demoFinish(){const p=S.purchases.find(x=>x.id===DEMO.pid);DEMO.step='paid';const b=$('#demoBar');if(b)b.remove();demoAs('acc');
+  V.view='fdemo';render();
+  const W=(who,at,extra)=>`${esc(who||'—')} <span class="muted small">${at?ftime(at):''}</span>${extra?`<div class="small">${extra}</div>`:''}`;
+  $('#main').innerHTML=ph('🎉 اكتملت دورة طلب الشراء','هذا ما حدث خطوة بخطوة — كل شيء مسجّل باسم من قام به ووقته')+
+  `<div class="card"><ul class="tl">
+   <li class="ok"><b>1. الاستقبال — إنشاء الطلب ${esc(p.no)}</b><div class="m">${W(p.by,p.createdAt,esc(purSummary(p))+' — '+esc(p.reason))}</div></li>
+   <li class="ok"><b>2. المشرف — موافقة</b><div class="m">${W(p.supBy,p.supAt,esc(p.supNote||''))}</div></li>
+   <li class="ok"><b>3. الحسابات — حساب المصروف والموازنة</b><div class="m">${W(p.accBy,p.accAt,p.account?`${esc(p.account.code+' — '+p.account.name)} — بعد الطلب: ${p.account.pct}% من الموازنة، المتبقي ${omr(p.account.remainingAfter)}`:'')}</div></li>
+   <li class="ok"><b>4. المدير العام — اعتماد نهائي</b><div class="m">${W(p.gmBy,p.gmAt)}</div></li>
+   <li class="ok"><b>5. المشتريات — تنفيذ الشراء</b><div class="m">${W(p.purchase&&p.purchase.by,p.purchase&&p.purchase.at,p.purchase?`فاتورة ${esc(p.purchase.invoice)} — ${omr(p.purchase.actual)}${p.purchase.vendor?' — '+esc(p.purchase.vendor):''}`:'')}</div></li>
+   <li class="ok"><b>6. المشتريات — طلب الصرف ${esc(p.payreq?p.payreq.no:'')}</b><div class="m">${W(p.payreq&&p.payreq.by,p.payreq&&p.payreq.at,p.payreq?`${omr(p.payreq.amount)} — ${esc(p.payreq.method)} — ${esc(p.payreq.payee)}`:'')}</div></li>
+   <li class="ok"><b>7. الحسابات — الصرف وقيد المصروف ${esc(p.payment?p.payment.voucher:'')}</b><div class="m">${W(p.payment&&p.payment.by,p.payment&&p.payment.at,p.payment?`مدين: ${esc(p.account?p.account.code+' '+p.account.name:'')} / دائن: ${esc(p.payment.credit)} — ${omr(p.payment.amount)}`:'')}</div></li>
+  </ul></div>
+  <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap"><button class="btn sec" id="dfForm">🖨️ نموذج طلب الشراء</button><button class="btn sec" id="dfPv">🧾 سند الصرف</button><button class="btn sec" id="dfAgain">🔁 إعادة التجربة</button><button class="btn" id="dfEnd">✅ إنهاء التجربة</button></div>
+  <div class="note small" style="margin-top:12px">في التشغيل الفعلي: كل خطوة تصل لصاحبها بإشعار 🔔، والرفض في أي مرحلة يلزمه سبب مكتوب يصل لمقدّم الطلب.</div>`;
+  $('#dfForm').onclick=()=>printForm('purchase',p);$('#dfPv').onclick=()=>printHTML(payVoucherHTML(p),p.payment.voucher);
+  $('#dfAgain').onclick=()=>{demoStop();demoStart()};$('#dfEnd').onclick=demoStop;
+}
+document.head.insertAdjacentHTML('beforeend',`<style id="democss">
+body.demo-on{padding-bottom:170px}
+body.demo-on .mback{padding-bottom:150px!important}
+#demoBar{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(120deg,#4A3B14,#6E5A23);color:#fff;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+#demoBar .db-in{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;gap:10px 18px;align-items:center}
+#demoBar .db-who{display:flex;gap:10px;align-items:center}#demoBar .db-ic{font-size:26px;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center}
+#demoBar .db-l{font-size:11.5px;opacity:.85}#demoBar .db-txt{font-size:13.5px;line-height:1.7}#demoBar .db-txt b{font-size:14.5px}
+#demoBar .db-warn{margin-top:4px;background:rgba(255,255,255,.15);border-radius:8px;padding:3px 8px;font-size:12.5px}
+#demoBar .db-act{display:flex;gap:8px;flex-wrap:wrap}#demoBar .btn{background:#fff;color:#4A3B14;border:0}#demoBar .btn.sec{background:rgba(255,255,255,.16);color:#fff}
+#demoBar .db-dots{grid-column:1/-1;display:flex;gap:6px}#demoBar .db-dots i{flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.2)}#demoBar .db-dots i.ok{background:rgba(255,255,255,.6)}#demoBar .db-dots i.cur{background:#F2C14E}
+@media(max-width:760px){#demoBar .db-in{grid-template-columns:1fr;gap:6px}#demoBar .db-txt div{font-size:12.5px}body.demo-on{padding-bottom:230px}body.demo-on .mback{padding-bottom:225px!important}}
+.demo-pulse{box-shadow:0 0 0 0 rgba(242,193,78,.8);animation:dpulse 1.4s infinite}@keyframes dpulse{70%{box-shadow:0 0 0 14px rgba(242,193,78,0)}100%{box-shadow:0 0 0 0 rgba(242,193,78,0)}}
+.gflow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:12px 0}.gflow div{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;font-size:12.5px;line-height:1.5}.gflow b{display:block;font-size:20px}
+@media(max-width:760px){.gflow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.guide details{border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-top:10px;background:var(--surface)}.guide summary{cursor:pointer;font-weight:700;font-size:15px}.guide details[open] summary{margin-bottom:8px}.guide li{line-height:1.9}
+</style>`);
+VIEWS.fdemo=()=>ph('التجربة والدليل','جرّب دورة طلب الشراء كاملة بنفسك، وتعرّف على كل أقسام الإدارة المالية')+
+ `<div class="card"><h2>🧪 تجربة طلب الشراء من البداية للنهاية</h2><p class="small" style="margin:6px 0 0;line-height:1.9">تنتقل تلقائياً بعد كل خطوة لشاشة الشخص التالي — كأنك تجلس مكانه — حتى آخر خطوة. التجربة على بيانات تجريبية <b>ولا يُحفظ منها شيء</b> في النظام.</p>
+ <div class="gflow">${[['🛎️','الاستقبال','ينشئ الطلب + صورة'],['🧭','المشرف','يوافق أو يرفض'],['🧮','الحسابات','حساب المصروف والموازنة'],['🏛️','المدير العام','الاعتماد النهائي'],['🛒','المشتريات','تنفيذ الشراء'],['🧾','المشتريات','طلب الصرف'],['💳','الحسابات','الصرف والقيد']].map(([i,a,b],k)=>`<div><b>${i}</b>${k+1}. ${a}<div class="muted small">${b}</div></div>`).join('')}</div>
+ <div class="row"><button class="btn" id="demoGo">▶️ ابدأ التجربة</button></div></div>
+ <div class="guide" style="margin-top:14px">
+ <details open><summary>📌 قواعد يجب أن يعرفها الجميع</summary><ul>
+  <li><b>لا شراء دون طلب معتمد</b> من المشرف والحسابات والمدير العام.</li>
+  <li><b>كل رفض يلزمه سبب مكتوب</b> يصل لمقدّم الطلب تلقائياً.</li>
+  <li>إذا زاد السعر الفعلي عن المعتمد بأكثر من <b>5%</b> يعود الطلب للحسابات لإعادة الاعتماد.</li>
+  <li>الطلب المعتمد يُنفَّذ خلال <b>15 يوماً</b> وإلا يُعاد اعتماده.</li>
+  <li><b>سقف العهدة 100 ر.ع</b> للعملية؛ ما يزيد يحتاج عرض سعر وطلب شراء ويُصرف من الحسابات.</li>
+  <li>الصرف والسداد من <b>قسم الحسابات فقط</b> — بطلب صرف مرتبط بطلب الشراء.</li></ul></details>
+ <details><summary>🛒 طلبات الشراء — من يفعل ماذا</summary><div class="tw"><table><thead><tr><th>الجهة</th><th>أين في التطبيق</th><th>ماذا يفعل</th></tr></thead><tbody>
+  <tr><td>الاستقبال</td><td>الإدارة المالية ← «طلب شراء جديد»</td><td>المبنى، الصنف، السعر التقريبي، السبب، صورة</td></tr>
+  <tr><td>المشرف</td><td>الإشعار 🔔 أو «بانتظار إجرائك»</td><td>موافقة ورفع للحسابات / رفض بسبب</td></tr>
+  <tr><td>الحسابات</td><td>طلبات الشراء ← الطلب</td><td>اختيار حساب المصروف (يظهر المتبقي ونسبة الموازنة) ثم الاعتماد</td></tr>
+  <tr><td>المدير العام</td><td>لوحة الإدارة المالية</td><td>اعتماد نهائي / رفض بسبب</td></tr>
+  <tr><td>المشتريات</td><td>الطلبات المعتمدة</td><td>«تم الشراء» (فاتورة، مبلغ، مورد) ثم «إرسال طلب الصرف»</td></tr>
+  <tr><td>الحسابات</td><td>طلب الصرف</td><td>«صرف وقيد المصروف» — سند صرف PV وقيد على حساب المصروف</td></tr></tbody></table></div></details>
+ <details><summary>📒 الحسابات والموازنات — الاستيراد الشهري</summary><ol>
+  <li>من NetSuite صدّر تقرير <b dir="ltr">Budget vs. Actual</b> للشهر بصيغة Excel.</li>
+  <li>الإدارة المالية ← الحسابات والموازنات ← «⬆️ استيراد كشف الموازنة».</li>
+  <li>راجع المعاينة (الشهر، عدد الحسابات، الإجماليات) ثم «اعتماد الاستيراد».</li>
+  <li>الأرقام تظهر فوراً في اختيار الحسابات لكل طلب، وفي لوحة الإدارة المالية.</li></ol></details>
+ <details><summary>📘 السياسات المالية</summary><ul><li>اقرأ أي سياسة واطبعها على ورق الشركة الرسمي.</li><li>«➕ سياسة جديدة» لكتابة سياسة: <b>#</b> عنوان، <b>##</b> عنوان فرعي، <b>-</b> نقطة، <b>|</b> جدول.</li><li>كل سياسة مسودة حتى يضغط المدير العام «اعتماد السياسة»؛ أي تعديل يرفع الإصدار ويعيدها مسودة.</li></ul></details>
+ <details><summary>📣 التعاميم المالية</summary><ul><li>«تعميم مالي جديد» ← اختر نموذجاً جاهزاً (الإطلاق، لا شراء دون طلب، الفواتير، العهد) أو اكتب تعميماً.</li><li>يصل لكل موظف ليُقر بالاطلاع، وتتابع نسبة الإقرار من نفس الصفحة.</li></ul></details>
+ <details><summary>✉️ المراسلات المالية</summary><ul><li>خطابات البنوك والموردين على ورق الشركة: كشف حساب، دفتر شيكات، مطابقة رصيد، طلب عرض سعر، إشعار الموردين.</li><li>كل خطاب يأخذ رقماً مرجعياً تلقائياً (FIN-LTR) ويُوقَّع ويُختم من المفوّض قبل الإرسال.</li></ul></details>
+ <details><summary>🔐 الصلاحيات</summary><ul><li>الاستقبال: إنشاء الطلبات · المشرف: الموافقة الأولى · الحسابات: الموازنة والصرف · المدير العام: الاعتماد النهائي والسياسات · المشتريات: التنفيذ وطلب الصرف.</li><li>مدير النظام يرى ويعمل كل المراحل، ويبدّل العرض من القائمة أعلى الشاشة.</li></ul></details>
+ </div>`;
+BIND.fdemo=()=>{$('#demoGo')&&($('#demoGo').onclick=()=>{if(DEMO)return;demoStart()})};
 
 /* ---------- الأداء والمكافآت ---------- */
 const avgScore=r=>{const v=Object.values(r.scores).map(Number);return v.reduce((a,b)=>a+b,0)/v.length};
