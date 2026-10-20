@@ -1295,7 +1295,8 @@ function renderHeader(){
   $('#uName').textContent=USER.name;$('#uRole').textContent=USER.title||ROLES[USER.role].label;$('#uAv').textContent=initials(USER.name);
   const h=new Date().getHours();$('#topDate').innerHTML=`<b>${h<12?'صباح الخير':'مساء الخير'}، ${esc(USER.name.split(' ')[0])}</b>${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date().getDay()]} ${fdate(TODAY)}`;
   const vs=$('#viewSel');
-  if(USER.empId&&USER.role!=='emp'){vs.hidden=false;vs.innerHTML=`<option value="${USER.role}" ${role()===USER.role?'selected':''}>${ROLES[USER.role].label}</option><option value="emp" ${role()==='emp'?'selected':''}>بوابتي كموظف</option>`}
+  if(USER.role==='hr'){vs.hidden=false;vs.innerHTML=['hr','gm','acc','sup',...(USER.empId?['emp']:[])].map(k=>`<option value="${k}" ${role()===k?'selected':''}>${k==='emp'?'بوابتي كموظف':'عرض: '+ROLES[k].label}</option>`).join('')}
+  else if(USER.empId&&USER.role!=='emp'){vs.hidden=false;vs.innerHTML=`<option value="${USER.role}" ${role()===USER.role?'selected':''}>${ROLES[USER.role].label}</option><option value="emp" ${role()==='emp'?'selected':''}>بوابتي كموظف</option>`}
   else vs.hidden=true;
   const n=myNotifs().filter(x=>!x.read).length;$('#bellCnt').hidden=!n;$('#bellCnt').textContent=n;
 }
@@ -1333,7 +1334,7 @@ function render(){
 }
 function bindTop(){
   bindGSearch();
-  $('#viewSel').onchange=e=>{S.session.role=e.target.value;V.view='dash';commit()};
+  $('#viewSel').onchange=e=>{S.session.role=e.target.value;S.session.supId=e.target.value==='sup'?(USER.empId||S.session.supId):null;V.view=APP==='fin'?'fdash':'dash';commit()};
   $('#langBtn').onclick=()=>{LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('marsa_lang',LANG)}catch(e){}render()};
   $('#logout').onclick=()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من النظام؟','خروج','crit',()=>logout());
   $('#bell').onclick=()=>{
@@ -2098,20 +2099,22 @@ function purTotal(p){return r3((p.items||[]).reduce((s,it)=>s+(+it.qty||0)*(+it.
 function purActual(p){return p.purchase?r3(p.purchase.actual):0}
 function purVal(p){return p.purchase?purActual(p):purTotal(p)}
 const myEmp=()=>emp(S.session.empId)||{};
-const isReception=()=>role()==='emp'&&myEmp().dept==='الاستقبال';
+/* مدير النظام (حساب الموارد البشرية): كل الصلاحيات — ويُسجَّل اسمه الفعلي في كل خطوة */
+const isSuper=()=>!!(S.session&&(S.session.base==='hr'||(USER&&USER.role==='hr')));
+const isReception=()=>(role()==='emp'&&myEmp().dept==='الاستقبال')||isSuper();
 const finDuty=k=>(((S.settings.finDuty||{})[k])||[]).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
 const meUser=()=>String(S.session.user||'').toLowerCase();
 const meEmpRec=()=>emp(role()==='sup'?S.session.supId:S.session.empId)||{};
-const isPurchasing=()=>(role()==='emp'||role()==='sup')&&(meEmpRec().dept==='المشتريات'||finDuty('buyers').includes(meUser()))||(meUser()&&finDuty('buyers').includes(meUser()));
-const isAccounts=()=>role()==='acc'||(!!meUser()&&finDuty('accounts').includes(meUser()));
+const isPurchasing=()=>isSuper()||(role()==='emp'||role()==='sup')&&(meEmpRec().dept==='المشتريات'||finDuty('buyers').includes(meUser()))||(meUser()&&finDuty('buyers').includes(meUser()));
+const isAccounts=()=>role()==='acc'||isSuper()||(!!meUser()&&finDuty('accounts').includes(meUser()));
 const stOf=p=>({done:'bought',received:'bought',posted:'bought',review:'acc'}[p.status]||p.status);
 function purStaff(){return activeEmps().filter(e=>e.dept==='المشتريات')}
 /* ما ينتظر إجراءً من المستخدم الحالي */
 function purNeedsMe(p){const R=role();
-  if(p.status==='sup')return R==='sup'&&(!p.supId||p.supId===S.session.supId);
+  if(p.status==='sup')return (R==='sup'&&(!p.supId||p.supId===S.session.supId))||isSuper();
   const st=stOf(p);
   if(st==='acc'||st==='payreq')return isAccounts();
-  if(st==='gm')return R==='gm';
+  if(st==='gm')return R==='gm'||isSuper();
   if(st==='approved'||st==='bought')return isPurchasing();
   return false}
 function purchasesPendingForMe(){return S.purchases.filter(purNeedsMe)}
@@ -2253,7 +2256,7 @@ function openPurchase(id){
     foot.push({t:'⛔ رفض',cls:'crit',fn:b=>purReject(p,'acc',b,'pan')});
   }
   /* 3) المدير العام */
-  if(p.status==='gm'&&R==='gm'){
+  if(p.status==='gm'&&(R==='gm'||isSuper())){
     body+=`<div class="fld" style="margin-top:10px"><label>ملاحظة (إلزامية عند الرفض)</label><textarea id="pgn"></textarea></div>`;
     foot.push({t:'✅ اعتماد نهائي',cls:'good',fn:b=>{p.status='approved';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'pgn');
       const st=purStaff();if(st.length)st.forEach(x=>notify('emp:'+x.id,'🛒','طلب شراء معتمد — نفّذ الشراء',`${p.no} — ${p.building} — ${purSummary(p)}`,{view:'procurement'}));else notify('role:sup','🛒','طلب شراء معتمد — نفّذ الشراء',`${p.no} — ${p.building} — ${purSummary(p)}`,{view:'procurement'});
@@ -2454,8 +2457,8 @@ VIEWS.finpol=()=>{const R=role();
 BIND.finpol=()=>{$$('[data-fpol]').forEach(b=>b.onclick=()=>openFinPol(b.dataset.fpol));$('#nFpol')&&($('#nFpol').onclick=()=>finPolEditor(null))};
 function openFinPol(code){const P=allFinPolicies().find(x=>x.code===code);if(!P)return;const R=role(),st=finPolStatus(P);const foot=[];
   if(P.custom&&(['hr','acc','gm'].includes(R)||isAccounts()))foot.push({t:'✏️ تعديل',cls:'sec',fn:()=>{finPolEditor(S.announcements.find(x=>x.id===P.id));return false}});
-  if(R==='gm'&&!st.a)foot.push({t:'✅ اعتماد السياسة',cls:'good',fn:()=>{S.settings.finPolAppr={...(S.settings.finPolAppr||{}),[code]:{by:me().name,at:nowTs(),eff:TODAY>FIN_LAUNCH?TODAY:FIN_LAUNCH}};log(`اعتماد السياسة المالية ${code}`);commit('تم اعتماد '+P.t)}});
-  if(R==='gm'&&st.a)foot.push({t:'إلغاء الاعتماد',cls:'sec',fn:()=>{const x={...(S.settings.finPolAppr||{})};delete x[code];S.settings.finPolAppr=x;log(`إلغاء اعتماد السياسة المالية ${code}`);commit('أُعيدت السياسة إلى مسودة')}});
+  if((R==='gm'||isSuper())&&!st.a)foot.push({t:'✅ اعتماد السياسة',cls:'good',fn:()=>{S.settings.finPolAppr={...(S.settings.finPolAppr||{}),[code]:{by:me().name,at:nowTs(),eff:TODAY>FIN_LAUNCH?TODAY:FIN_LAUNCH}};log(`اعتماد السياسة المالية ${code}`);commit('تم اعتماد '+P.t)}});
+  if((R==='gm'||isSuper())&&st.a)foot.push({t:'إلغاء الاعتماد',cls:'sec',fn:()=>{const x={...(S.settings.finPolAppr||{})};delete x[code];S.settings.finPolAppr=x;log(`إلغاء اعتماد السياسة المالية ${code}`);commit('أُعيدت السياسة إلى مسودة')}});
   foot.push({t:'🖨️ طباعة / PDF',cls:'sec',fn:()=>{printHTML(finPolDoc(P,true),P.code+' — '+P.t);return false}});
   foot.push({t:'إغلاق',cls:'sec'});
   modal({title:'📘 '+esc(P.t),sub:P.code+' — '+st.t,wide:true,body:finPolDoc(P,false),foot});
