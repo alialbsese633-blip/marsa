@@ -2452,6 +2452,23 @@ document.head.insertAdjacentHTML('beforeend',`<style id="fincss">
 .fmeta{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px}.fmeta td{border:1px solid #C9D3DD;padding:5px 8px}.fmeta td:nth-child(odd){background:#F3F6F9;font-weight:700;color:#16365B;width:18%}
 .gs-hi h1{font:800 26px/1.4 var(--kufi);margin:4px 0}.gs-hi p{color:var(--muted);margin:0 0 14px}
 .rb-sel{max-width:220px;font-weight:700}
+.gs-big button{background:var(--surface);color:var(--ink);-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s,border-color .12s}.gs-big button:active{transform:scale(.97);border-color:var(--accent)}
+.gs-big b{color:var(--ink)}.gs-big small{color:var(--muted)}
+.rb-sel{background:var(--surface-2);color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font:inherit;font-size:13px}
+button,a,.click,.li,[data-rgo],[data-u]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.rcp-u:active,.btn:active{transform:scale(.97)}
+@media(max-width:640px){
+  input,select,textarea{font-size:16px!important}                 /* يمنع تكبير الشاشة تلقائياً في آيفون عند الكتابة */
+  .top-in{gap:6px;padding:8px 10px}.top-brand img{height:30px;width:auto}
+  .who{gap:5px;min-width:0}.who select#viewSel{max-width:80px;padding:6px 4px;font-size:12px!important}
+  .ibtn{width:36px;height:36px;font-size:15px}.langb{width:auto;padding:0 8px;font-size:12px}
+  .lo{padding:0;width:36px;height:36px;font-size:0;border-radius:10px;display:grid;place-items:center}.lo::before{content:"⏻";font-size:16px}
+  .gsearch{width:36px;padding:0;justify-content:center}.gsearch input{display:none}.gsearch.open,.gsearch:focus-within{position:absolute;inset-inline:10px;width:auto;z-index:30;padding:0 12px}.gsearch.open input,.gsearch:focus-within input{display:block}
+  .gs-hi h1{font-size:23px}.gs-big{gap:10px}.gs-big button{padding:16px 8px;border-radius:16px}
+  .rcp-kpis b{font-size:20px}.ph h1{font-size:21px}
+  html,body{overflow-x:hidden}
+}
+
 .rcp-scan{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border:1.5px dashed var(--accent);border-radius:14px;margin-bottom:12px;background:var(--accent-soft)}
 .rcp-scan .btn{font-size:15px}
 .rcp-hr{border:none;border-top:1px solid var(--border);margin:14px 0}
@@ -2469,7 +2486,7 @@ document.head.insertAdjacentHTML('beforeend',`<style id="fincss">
 .rcp-gh{grid-column:1/-1;font-weight:700;font-size:12.5px;color:var(--muted);margin-top:6px}
 .rcp-vac{display:flex;flex-wrap:wrap;gap:6px}.rcp-vac span{border:1.5px solid var(--c);border-radius:10px;padding:4px 9px;font-weight:700;font-size:13px}.rcp-vac i{font-style:normal;font-weight:500;font-size:11px;color:var(--c)}
 .rcp-open td{background:var(--surface-2);font-weight:700}.rcp-day table{min-width:620px}.rcp-day td[dir=ltr],#main td[dir=ltr]{white-space:nowrap}.rcp-sum5>div{min-width:100px}
-.gs-big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.gs-big button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 10px;border-radius:18px;border:1px solid var(--border);background:var(--card,#fff);cursor:pointer;font:inherit;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.04)}.gs-big button:hover{border-color:var(--accent)}.gs-big .i{font-size:32px}.gs-big b{font-size:15.5px}.gs-big small{color:var(--muted);font-size:12px}
+.gs-big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.gs-big button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 10px;border-radius:18px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font:inherit;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.04)}.gs-big button:hover{border-color:var(--accent)}.gs-big .i{font-size:32px}.gs-big b{font-size:15.5px}.gs-big small{color:var(--muted);font-size:12px}
 @media(max-width:640px){.gs-big{grid-template-columns:repeat(2,1fr)}.gs-big .i{font-size:28px}}
 .gs-dots{display:flex;flex-wrap:wrap;gap:4px}.gs-dots i{width:12px;height:12px;border-radius:50%;background:var(--border)}.gs-dots i.on{background:#2E9E6A}
 .gs-att{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:10px}
