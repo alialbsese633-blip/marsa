@@ -3972,12 +3972,19 @@ const attQR=l=>ATT_PREFIX+'|'+l.id+'|'+l.tok;
 const attGrace=()=>+((S.settings&&S.settings.attGrace)??10);
 const hm2m=s=>{const m=/^(\d\d?):(\d\d)/.exec(s||'');return m?+m[1]*60+ +m[2]:null};
 function attDiff(a,b){let d=a-b;if(d<-720)d+=1440;if(d>720)d-=1440;return d}
-function attLate(p){if(!p||p.kind!=='in')return 0;const due=hm2m(p.shiftIn||(emp(p.empId)||{}).shiftIn),t=hm2m(p.hm);if(due==null||t==null)return 0;const d=attDiff(t,due);return d>attGrace()?d:0}
-function attEarly(p){if(!p||p.kind!=='out')return 0;const due=hm2m(p.shiftOut||(emp(p.empId)||{}).shiftOut),t=hm2m(p.hm);if(due==null||t==null)return 0;const d=attDiff(due,t);return d>0?d:0}
+/* الدوام: فترتان موحّدتان لكل الموظفين (قابلة للتعديل)، ويمكن تخصيص دوام لموظف */
+const ATT_DEF=[['08:00','13:00'],['17:00','20:30']];
+function attShifts(e){e=e||{};if(e.shiftIn)return [[e.shiftIn,e.shiftOut||'']].concat(e.shiftIn2?[[e.shiftIn2,e.shiftOut2||'']]:[]);const g=S.settings&&S.settings.attShifts;return Array.isArray(g)&&g.length?g:ATT_DEF}
+const attShTxt=e=>attShifts(e).map(p=>p[0]+'–'+p[1]).join(' و ');
+function attNear(e,t,i){let best=null,bd=1e9;attShifts(e).forEach(p=>{const v=hm2m(p[i]);if(v==null)return;const d=Math.abs(attDiff(t,v));if(d<bd){bd=d;best=v}});return best}
+const attEmpOf=p=>emp(p.empId)||{};
+function attLate(p){if(!p||p.kind!=='in')return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,0);if(due==null)return 0;const d=attDiff(t,due);return d>attGrace()?d:0}
+function attEarly(p){if(!p||p.kind!=='out')return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,1);if(due==null)return 0;const d=attDiff(due,t);return d>0?d:0}
+const attDueIn=p=>{const v=attNear(attEmpOf(p),hm2m(p.hm),0);return v==null?'':pad(Math.floor(v/60))+':'+pad(v%60)};
 function attSessions(L){const out=[];let cur=null;
   L.slice().sort((a,b)=>String(a.at).localeCompare(String(b.at))).forEach(p=>{
     if(p.kind==='in'){if(cur)out.push(cur);cur={d:p.d,in:p,out:null}}
-    else if(cur&&!cur.out&&new Date(p.at)-new Date(cur.in.at)<16*36e5){cur.out=p;out.push(cur);cur=null}
+    else if(cur&&!cur.out&&new Date(p.at)-new Date(cur.in.at)<10*36e5){cur.out=p;out.push(cur);cur=null}
     else out.push({d:p.d,in:null,out:p})});
   if(cur)out.push(cur);return out}
 const attHrs=x=>x.in&&x.out?(new Date(x.out.at)-new Date(x.in.at))/36e5:0;
@@ -4033,13 +4040,13 @@ async function attDo(kind){
   }catch(err){w.close();toast('تعذّر تسجيل البصمة')}
 }
 function attDone(p,photo){const l=attLate(p),ea=attEarly(p);
-  modal({title:p.kind==='in'?'✅ تم تسجيل الحضور':'✅ تم تسجيل الانصراف',sub:`${esc(p.locName)} — ${fdate(p.d)}`,body:`<div class="att-ok"><div class="att-big">${p.hm}</div>${l?`<span class="bd c">متأخر ${l} دقيقة</span>`:p.kind==='in'&&p.shiftIn?'<span class="bd g">في الوقت ✓</span>':''}${ea?`<span class="bd w">قبل موعد الانصراف بـ ${ea} دقيقة</span>`:''}</div><img src="${photo}" class="att-ph" alt="">`,foot:[{t:'تم'}]});render()}
+  modal({title:p.kind==='in'?'✅ تم تسجيل الحضور':'✅ تم تسجيل الانصراف',sub:`${esc(p.locName)} — ${fdate(p.d)}`,body:`<div class="att-ok"><div class="att-big">${p.hm}</div>${l?`<span class="bd c">متأخر ${l} دقيقة</span>`:p.kind==='in'?'<span class="bd g">في الوقت ✓</span>':''}${ea?`<span class="bd w">قبل موعد الانصراف بـ ${ea} دقيقة</span>`:''}</div><img src="${photo}" class="att-ph" alt="">`,foot:[{t:'تم'}]});render()}
 /* --- واجهة الموظف --- */
 VIEWS.punch=()=>{const e=emp(S.session.empId);
   if(!e)return ph('📍 بصمة الدوام','')+`<div class="card"><div class="empty">حسابك غير مرتبط بملف موظف — راجع الموارد البشرية.</div></div>`;
   return ph('📍 بصمة الدوام',fdate(TODAY))+`<div class="card att-hero">
    <div class="att-clock" id="atClock">--:--</div>
-   <div class="small muted">${e.shiftIn?`دوامك: <b dir="ltr">${esc(e.shiftIn)}${e.shiftOut?' – '+esc(e.shiftOut):''}</b>`:'لم يُحدَّد موعد دوامك بعد — راجع الموارد البشرية'}</div>
+   <div class="small muted">دوامك: <b>${esc(attShTxt(e))}</b></div>
    <div id="atLast" class="att-last">…</div>
    <div class="seg att-kind" id="atKind"><button data-k="in">🟢 حضور</button><button data-k="out">🔴 انصراف</button></div>
    <button class="att-go" id="atGo">📷 امسح رمز البصمة</button>
@@ -4050,7 +4057,8 @@ BIND.punch=()=>{const e=emp(S.session.empId);if(!e)return;
   let kind='in';const setK=k=>{kind=k;$$('#atKind button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#atGo').textContent=k==='in'?'📷 امسح رمز البصمة — حضور':'📷 امسح رمز البصمة — انصراف'};setK('in');
   $$('#atKind button').forEach(b=>b.onclick=()=>setK(b.dataset.k));$('#atGo').onclick=()=>attDo(kind);
   attMonth(TODAY.slice(0,7)).then(rows=>{const L=rows.filter(p=>p.empId===e.id).sort((a,b)=>String(a.at).localeCompare(String(b.at)));const last=L[L.length-1];
-    if(last&&last.kind==='in'&&Date.now()-new Date(last.at)<16*36e5)setK('out');
+    {const n=new Date(),nm=n.getHours()*60+n.getMinutes();let k='in',bd=1e9;attShifts(e).forEach(p=>[[p[0],'in'],[p[1],'out']].forEach(([h,kk])=>{const v=hm2m(h);if(v==null)return;const d=Math.abs(attDiff(nm,v));if(d<bd){bd=d;k=kk}}));
+     if(last&&last.kind===k&&Date.now()-new Date(last.at)<3*36e5)k=k==='in'?'out':'in';setK(k)}
     const lb=$('#atLast');if(lb)lb.innerHTML=last?`آخر بصمة: <b>${last.kind==='in'?'حضور':'انصراف'}</b> ${fdate(last.d)} — <b dir="ltr">${last.hm}</b> — ${esc(last.locName)}`:'لا بصمات هذا الشهر بعد';
     const ss=attSessions(L).reverse(),box=$('#atMine');if(!box)return;
     const lateN=ss.filter(x=>attLate(x.in)).length;
@@ -4058,7 +4066,7 @@ BIND.punch=()=>{const e=emp(S.session.empId);if(!e)return;
   }).catch(err=>{const box=$('#atMine');if(box)box.innerHTML=attErrHTML(err)})};
 /* --- تقارير الإدارة --- */
 function attSummary(rows){const by={};rows.forEach(p=>{(by[p.empId]=by[p.empId]||[]).push(p)});
-  S.employees.filter(e=>e.status!=='terminated'&&e.shiftIn).forEach(e=>{if(!by[e.id])by[e.id]=[]});
+  S.employees.filter(e=>e.status!=='terminated').forEach(e=>{if(!by[e.id])by[e.id]=[]});
   return Object.entries(by).map(([id,L])=>{const ss=attSessions(L),e=emp(id)||{};const late=ss.filter(x=>attLate(x.in));
     return {id,e,name:e.name||(L[0]||{}).name||id,ss,days:new Set(ss.filter(x=>x.in).map(x=>x.d)).size,late:late.length,lm:late.reduce((a,x)=>a+attLate(x.in),0),early:ss.filter(x=>attEarly(x.out)).length,noOut:ss.filter(x=>x.in&&!x.out&&x.d<TODAY).length,hrs:ss.reduce((a,x)=>a+attHrs(x),0)}})
    .sort((a,b)=>b.lm-a.lm||String(a.name).localeCompare(String(b.name)))}
@@ -4072,33 +4080,39 @@ function attEmpModal(r,mon){
   const rows=r.ss.slice().sort((a,b)=>String(a.d).localeCompare(String(b.d)));
   modal({title:'📍 '+esc(r.name),sub:`${monthName(mon)} — حضور ${r.days} يوم — تأخير ${r.late} مرة (${r.lm} دقيقة)`,wide:true,
     body:`<div class="tw"><table class="att-tb"><thead><tr><th>اليوم</th><th>الحضور</th><th>صورة</th><th>الانصراف</th><th>صورة</th><th>المدة</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">متأخر ${attLate(x.in)}د</span>`:''}<div class="small muted">${esc(x.in.locName)}</div>`:'<span class="muted">—</span>'}</td><td>${attPh(x.in)}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">مبكر ${attEarly(x.out)}د</span>`:''}<div class="small muted">${esc(x.out.locName)}</div>`:'<span class="bd w">بدون انصراف</span>'}</td><td>${attPh(x.out)}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا بصمات</td></tr>'}</tbody></table></div>
-     <div class="small muted" style="margin-top:6px">موعد الدوام: <b dir="ltr">${esc(r.e.shiftIn||'—')} – ${esc(r.e.shiftOut||'—')}</b> — سماحية التأخير ${attGrace()} دقائق. الصور هي لقطة الكاميرا لحظة مسح الرمز: تأكد أن الرمز ظاهر في مكانه المعتاد.</div>`,
+     <div class="small muted" style="margin-top:6px">الدوام: <b>${esc(attShTxt(r.e))}</b> — سماحية التأخير ${attGrace()} دقائق. الصور هي لقطة الكاميرا لحظة مسح الرمز: تأكد أن الرمز ظاهر في مكانه المعتاد.</div>`,
     foot:[{t:'إغلاق',cls:'sec'}],onMount:m=>attBindPh(m)});
 }
 function attMonthHTML(rows,mon){const A=attSummary(rows),tl=A.reduce((a,r)=>a+r.late,0),tm=A.reduce((a,r)=>a+r.lm,0),no=A.reduce((a,r)=>a+r.noOut,0);
   return `<div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${A.filter(r=>r.days).length}</b><span>موظف بصم</span></div><div style="--c:#d13b3b"><b>${tl}</b><span>مرات تأخير</span></div><div style="--c:#c97c00"><b>${tm}</b><span>دقائق تأخير</span></div><div style="--c:#7a4bc2"><b>${no}</b><span>بدون انصراف</span></div></div>
   <div class="card"><div class="between"><h2>${monthName(mon)}</h2><div><button class="btn sm sec" id="atPr">🖨️ طباعة</button> <button class="btn sm sec" id="atWa">📋 واتساب</button> <button class="btn sm sec" id="atRf">↻ تحديث</button></div></div>
-  ${A.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr class="click" data-ae="${i}" style="cursor:pointer"><td><b>${esc(r.name)}</b>${r.e.shiftIn?`<div class="small muted" dir="ltr">${esc(r.e.shiftIn)}–${esc(r.e.shiftOut||'')}</div>`:''}</td><td class="small">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${r.days}</td><td>${r.late?`<b style="color:var(--critical)">${r.late}</b>`:'0'}</td><td>${r.lm||'0'}</td><td>${r.early||'0'}</td><td>${r.noOut?`<b style="color:#c97c00">${r.noOut}</b>`:'0'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table></div><div class="small muted" style="margin-top:6px">اضغط على أي موظف لعرض أيامه وصور البصمات.</div>`:'<div class="empty">لا بصمات في هذا الشهر</div>'}</div>`}
+  ${A.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr class="click" data-ae="${i}" style="cursor:pointer"><td><b>${esc(r.name)}</b>${r.e.shiftIn?`<div class="small muted">دوام خاص: ${esc(attShTxt(r.e))}</div>`:''}</td><td class="small">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${r.days}</td><td>${r.late?`<b style="color:var(--critical)">${r.late}</b>`:'0'}</td><td>${r.lm||'0'}</td><td>${r.early||'0'}</td><td>${r.noOut?`<b style="color:#c97c00">${r.noOut}</b>`:'0'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table></div><div class="small muted" style="margin-top:6px">اضغط على أي موظف لعرض أيامه وصور البصمات.</div>`:'<div class="empty">لا بصمات في هذا الشهر</div>'}</div>`}
 function attLateHTML(rows){const L=rows.filter(p=>attLate(p)).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-  return `<div class="card"><h2>⏰ المتأخرون <small>${L.length}</small></h2>${L.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>اليوم</th><th>وقت البصمة</th><th>الموعد</th><th>التأخير</th><th>الموقع</th><th>صورة</th></tr></thead><tbody>${L.map(p=>`<tr><td><b>${esc((emp(p.empId)||{}).name||p.name)}</b></td><td>${fdate(p.d)}</td><td dir="ltr"><b>${p.hm}</b></td><td dir="ltr">${esc(p.shiftIn||(emp(p.empId)||{}).shiftIn||'')}</td><td><span class="bd c">${attLate(p)} دقيقة</span></td><td class="small">${esc(p.locName)}</td><td>${attPh(p)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا تأخير هذا الشهر 🎉</div>'}</div>`}
+  return `<div class="card"><h2>⏰ المتأخرون <small>${L.length}</small></h2>${L.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>اليوم</th><th>وقت البصمة</th><th>الموعد</th><th>التأخير</th><th>الموقع</th><th>صورة</th></tr></thead><tbody>${L.map(p=>`<tr><td><b>${esc((emp(p.empId)||{}).name||p.name)}</b></td><td>${fdate(p.d)}</td><td dir="ltr"><b>${p.hm}</b></td><td dir="ltr">${attDueIn(p)}</td><td><span class="bd c">${attLate(p)} دقيقة</span></td><td class="small">${esc(p.locName)}</td><td>${attPh(p)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا تأخير هذا الشهر 🎉</div>'}</div>`}
 function attTodayHTML(rows){const T=rows.filter(p=>p.d===TODAY),by={};T.forEach(p=>(by[p.empId]=by[p.empId]||[]).push(p));
   const now=new Date(),nm=now.getHours()*60+now.getMinutes();
   const inNow=[],left=[];Object.entries(by).forEach(([id,L])=>{const ss=attSessions(L),last=ss[ss.length-1];(last&&last.in&&!last.out?inNow:left).push({id,last})});
-  const miss=S.employees.filter(e=>e.status!=='terminated'&&e.shiftIn&&!by[e.id]&&hm2m(e.shiftIn)!=null&&attDiff(nm,hm2m(e.shiftIn))>attGrace()&&attDiff(nm,hm2m(e.shiftIn))<720);
+  const curP=e=>attShifts(e).find(p=>{const a=hm2m(p[0]),b=hm2m(p[1]);return a!=null&&b!=null&&nm>a+attGrace()&&nm<b});
+  const miss=S.employees.filter(e=>{if(e.status==='terminated')return false;const p=curP(e);if(!p)return false;const a=hm2m(p[0]);return !(by[e.id]||[]).some(x=>x.kind==='in'&&hm2m(x.hm)>=a-90)}).map(e=>({...e,_p:curP(e)}));
   const li=(x,txt)=>`<div class="li"><div class="av">${initials((emp(x.id)||{}).name||'؟')}</div><div><b>${esc((emp(x.id)||{}).name||x.id)}</b><div class="small muted">${txt}</div></div>${attPh(x.last&&(x.last.out||x.last.in))}</div>`;
   return `<div class="grid g2"><div class="card"><h2>🟢 في الدوام الآن <small>${inNow.length}</small></h2><div class="list">${inNow.map(x=>li(x,`حضر ${x.last.in.hm}${attLate(x.last.in)?' — متأخر '+attLate(x.last.in)+'د':''} — ${esc(x.last.in.locName)}`)).join('')||'<div class="muted small">—</div>'}</div></div>
-   <div class="card"><h2>⚠️ لم يبصم بعد <small>${miss.length}</small></h2><div class="list">${miss.map(e=>`<div class="li"><div class="av">${initials(e.name)}</div><div><b>${esc(e.name)}</b><div class="small muted">موعده <span dir="ltr">${esc(e.shiftIn)}</span> — ${esc(e.building||e.dept||'')}</div></div></div>`).join('')||'<div class="muted small">الكل بصم ✓</div>'}</div></div></div>
+   <div class="card"><h2>⚠️ لم يبصم بعد <small>${miss.length}</small></h2><div class="list">${miss.map(e=>`<div class="li"><div class="av">${initials(e.name)}</div><div><b>${esc(e.name)}</b><div class="small muted">فترة <span dir="ltr">${esc(e._p[0])}–${esc(e._p[1])}</span> — ${esc(e.building||e.dept||'')}</div></div></div>`).join('')||'<div class="muted small">الكل بصم ✓</div>'}</div></div></div>
    <div class="card"><h2>🔴 انصرفوا <small>${left.length}</small></h2><div class="list">${left.map(x=>li(x,x.last&&x.last.out?`انصرف ${x.last.out.hm}${x.last.in?' — حضر '+x.last.in.hm:''}`:'')).join('')||'<div class="muted small">—</div>'}</div></div>`}
 function attLocsHTML(){return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🔳 رموز البصمة <small>${attLocs().length}</small></h2><div><button class="btn sm" id="alAll">🖨️ طباعة ${attLocs().length>1?'كل الرموز':'الرمز'}</button> <button class="btn sm sec" id="alNew">➕ موقع جديد</button>${attLocs().length>1?' <button class="btn sm sec" id="alOne">🔁 رمز واحد لكل الشركة</button>':''}</div></div>
   <div class="note small">${attLocs().length===1?'رمز واحد لكل الشركة: اطبع منه نسخة لكل موقع (الاستقبالات، المغسلة، المكاتب). ':''}اطبع الرمز وعلّقه في موقعه داخل إطار يصعب تقليده. عند المسح تُحفظ صورة للرمز في مكانه — فلو صوّر أحد الرمز وطبعه في بيته يظهر ذلك في الصور. وإن تسرّب رمز اضغط «رمز جديد» فيتوقف القديم فوراً.</div>
   <div class="att-locs">${attLocs().map((l,i)=>`<div class="att-loc ${l.off?'off':''}"><div class="att-q" data-q="${i}"></div><div><b>${esc(l.name)}</b><div class="small muted" dir="ltr">${esc(l.id)}${l.off?' — موقوف':''}</div>
    <div class="att-la"><button class="btn sm" data-lp="${i}">🖨️ طباعة</button><button class="btn sm sec" data-ln="${i}">✏️ الاسم</button><button class="btn sm sec" data-lt="${i}">🔄 رمز جديد</button><button class="btn sm sec" data-lo="${i}">${l.off?'▶️ تفعيل':'⏸️ إيقاف'}</button></div></div></div>`).join('')}</div></div>`}
-function attTimesHTML(){const E=S.employees.filter(e=>e.status!=='terminated').sort((a,b)=>String(a.building||a.dept||'').localeCompare(String(b.building||b.dept||''))||String(a.name).localeCompare(String(b.name)));
-  return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🕗 مواعيد دوام الموظفين</h2><div class="att-g"><label class="small">سماحية التأخير (دقيقة)</label> <input id="atG" type="number" min="0" max="120" value="${attGrace()}" style="width:80px"></div></div>
-  <div class="note small">اكتب لكل موظف موعد الحضور والانصراف — التأخير يُحسب بعد السماحية. للتعبئة السريعة: اكتب الموعد في السطر الأول ثم اضغط «نسخ للفارغين».</div>
-  <div class="frow" style="max-width:520px;margin-bottom:10px"><div class="fld"><label>حضور</label><input type="time" id="atFi" value="08:00"></div><div class="fld"><label>انصراف</label><input type="time" id="atFo" value="16:00"></div><div class="fld"><label>&nbsp;</label><button class="btn sec" id="atFill">نسخ للفارغين</button></div></div>
-  <div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>الحضور</th><th>الانصراف</th></tr></thead><tbody>${E.map(e=>`<tr><td><b>${esc(e.name)}</b><div class="small muted">${esc(e.job||'')}</div></td><td class="small">${esc(e.dept||'')}${e.building?' — '+esc(e.building):''}</td><td><input type="time" data-si="${esc(e.id)}" value="${esc(e.shiftIn||'')}"></td><td><input type="time" data-so="${esc(e.id)}" value="${esc(e.shiftOut||'')}"></td></tr>`).join('')}</tbody></table></div>
-  <div style="margin-top:12px"><button class="btn" id="atSave">💾 حفظ المواعيد</button></div></div>`}
+function attTimesHTML(){const g=attShifts({}),E=S.employees.filter(e=>e.status!=='terminated').sort((a,b)=>String(a.building||a.dept||'').localeCompare(String(b.building||b.dept||''))||String(a.name).localeCompare(String(b.name)));
+  const t=(id,v)=>`<input type="time" id="${id}" value="${esc(v||'')}">`;
+  return `<div class="card"><h2>🕗 الدوام الموحّد لكل الموظفين</h2>
+   <div class="att-shf"><div><b>الفترة الأولى</b><div class="frow"><div class="fld"><label>حضور</label>${t('g1i',(g[0]||[])[0])}</div><div class="fld"><label>انصراف</label>${t('g1o',(g[0]||[])[1])}</div></div></div>
+   <div><b>الفترة الثانية</b> <span class="small muted">(اتركها فارغة لدوام فترة واحدة)</span><div class="frow"><div class="fld"><label>حضور</label>${t('g2i',(g[1]||[])[0])}</div><div class="fld"><label>انصراف</label>${t('g2o',(g[1]||[])[1])}</div></div></div></div>
+   <div class="fld" style="max-width:240px"><label>سماحية التأخير (دقيقة)</label><input id="atG" type="number" min="0" max="120" value="${attGrace()}"></div>
+   <div class="note small">الموظف يبصم <b>حضور وانصراف لكل فترة</b> (4 بصمات في اليوم). التأخير يُحسب من بداية الفترة الأقرب لوقت البصمة.</div>
+   <button class="btn" id="atSaveG">💾 حفظ الدوام الموحّد</button></div>
+  <div class="card"><h2>دوام خاص لموظف <small>اختياري</small></h2><div class="note small">اتركه فارغاً ليتبع الموظف الدوام الموحّد. اكتبه فقط لمن دوامه مختلف.</div>
+   <div class="tw"><table><thead><tr><th>الموظف</th><th>ف1 حضور</th><th>ف1 انصراف</th><th>ف2 حضور</th><th>ف2 انصراف</th></tr></thead><tbody>${E.map(e=>`<tr><td><b>${esc(e.name)}</b><div class="small muted">${esc(e.dept||'')}${e.building?' — '+esc(e.building):''}</div></td>${['shiftIn','shiftOut','shiftIn2','shiftOut2'].map(k=>`<td><input type="time" data-sh="${k}" data-e="${esc(e.id)}" value="${esc(e[k]||'')}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+   <div style="margin-top:12px"><button class="btn sec" id="atSave">💾 حفظ الدوام الخاص</button></div></div>`}
 function attQRsvg(l,cell){try{const q=qrcode(0,'M');q.addData(attQR(l));q.make();return q.createSvgTag({cellSize:cell||4,margin:1,scalable:true})}catch(e){return ''}}
 /* صورة الرمز (PNG بمقاس A4) — تُحفظ أو تُشارك أو تُطبع من أي جهاز */
 async function attQRImage(l){
@@ -4141,7 +4155,7 @@ async function attPrintLocs(list){try{await loadScriptOnce('vendor/qrcode.min.js
     <div class="sn" dir="ltr">${esc(l.id)} · ${esc(l.tok.slice(0,4))}•••• · ${TODAY}</div></div></div>`).join(''),'رموز بصمة الدوام')}
 function attPrintMonth(rows,mon){const A=attSummary(rows);
   nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(TODAY)}</div><div class="c">تقرير الحضور والانصراف<span>Attendance Report — ${monthName(mon)}</span></div><div class="l"></div></div>
-   <table class="nsg"><thead><tr><th>#</th><th>الموظف</th><th>القسم / البناية</th><th>الموعد</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr><td>${i+1}</td><td class="t">${esc(r.name)}</td><td class="t">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td dir="ltr">${esc(r.e.shiftIn||'')}–${esc(r.e.shiftOut||'')}</td><td>${r.days}</td><td>${r.late}</td><td>${r.lm}</td><td>${r.early}</td><td>${r.noOut}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table>
+   <table class="nsg"><thead><tr><th>#</th><th>الموظف</th><th>القسم / البناية</th><th>الموعد</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr><td>${i+1}</td><td class="t">${esc(r.name)}</td><td class="t">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${esc(attShTxt(r.e))}</td><td>${r.days}</td><td>${r.late}</td><td>${r.lm}</td><td>${r.early}</td><td>${r.noOut}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table>
    <div class="small" style="margin-top:6px">سماحية التأخير ${attGrace()} دقائق — الوقت مسجّل من الخادم، ولكل بصمة صورة محفوظة في مرسى.</div>
    <div class="sg"><div><div class="dots">................................</div>الموارد البشرية<span>HR</span></div><div><div class="dots">................................</div>المدير العام<span>General Manager</span></div></div>`,'تقرير الحضور '+mon)}
 function attWaText(rows,mon){const A=attSummary(rows).filter(r=>r.late||r.noOut||r.early);
@@ -4154,9 +4168,10 @@ BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),bo
   $$('#atT button').forEach(b=>b.onclick=()=>{V.sub.atb=b.dataset.t;render()});
   if($('#atM'))$('#atM').onchange=e=>{V.sub.atm=e.target.value;render()};
   if(tab==='times'){
-    $('#atFill').onclick=()=>{const fi=$('#atFi').value,fo=$('#atFo').value;$$('[data-si]').forEach(x=>{if(!x.value)x.value=fi});$$('[data-so]').forEach(x=>{if(!x.value)x.value=fo})};
-    $('#atSave').onclick=()=>{let n=0;$$('[data-si]').forEach(x=>{const e=emp(x.dataset.si);if(!e)return;const so=$(`[data-so="${CSS.escape(x.dataset.si)}"]`).value;if((e.shiftIn||'')!==x.value||(e.shiftOut||'')!==so){e.shiftIn=x.value;e.shiftOut=so;n++}});
-      const g=Math.max(0,Math.min(120,+$('#atG').value||0));if(g!==attGrace()){S.settings.attGrace=g;n++}commit(n?'تم حفظ المواعيد ('+n+')':'لا تغييرات')};return}
+    $('#atSaveG').onclick=()=>{const v=id=>$('#'+id).value;if(!v('g1i')||!v('g1o')){toast('اكتب حضور وانصراف الفترة الأولى');return}
+      if(v('g2i')&&!v('g2o')){toast('اكتب انصراف الفترة الثانية');return}
+      S.settings.attShifts=[[v('g1i'),v('g1o')]].concat(v('g2i')?[[v('g2i'),v('g2o')]]:[]);S.settings.attGrace=Math.max(0,Math.min(120,+$('#atG').value||0));commit('تم حفظ الدوام الموحّد')};
+    $('#atSave').onclick=()=>{let n=0;$$('[data-sh]').forEach(x=>{const e=emp(x.dataset.e);if(!e)return;if((e[x.dataset.sh]||'')!==x.value){e[x.dataset.sh]=x.value;n++}});commit(n?'تم حفظ الدوام الخاص':'لا تغييرات')};return}
   if(tab==='locs'){
     if(attEnsureLocs())save();
     body.innerHTML=attLocsHTML();
@@ -4556,6 +4571,7 @@ body.sbx-on .mback{padding-bottom:62px!important}
 .att-loc{display:flex;gap:12px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:12px;background:var(--surface)}.att-loc.off{opacity:.5}
 .att-q{width:84px;height:84px;flex:0 0 84px;background:#fff;border-radius:10px;padding:4px}.att-q svg{width:100%;height:100%}
 .att-la{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.att-shf{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}@media(max-width:640px){.att-shf{grid-template-columns:1fr}}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
