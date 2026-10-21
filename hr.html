@@ -579,6 +579,7 @@ function flat(){
   Object.keys(S.policySigned||{}).forEach(k=>{const g={...S.policySigned[k]};delete g.img;put('sig:'+encK(k),g)});
   m['cfg:settings']=canon(S.settings);m['cfg:matrix']=canon(S.matrix);m['cfg:seq']=canon(S.seq);
   m['cfg:misc']=canon({polv:S.policyVersion,accrued:S.accrued||''});
+  if(S.attloc)m['cfg:attloc']=canon(S.attloc);
   return m;
 }
 function buildFrom(docs,session){
@@ -601,6 +602,7 @@ function buildFrom(docs,session){
   const cs=parse('cfg:settings');if(cs)st.settings={...DEFAULT_SETTINGS,...cs};
   const cm=parse('cfg:matrix');if(Array.isArray(cm)&&cm.length)st.matrix=cm;
   const sq=parse('cfg:seq');if(sq)st.seq={...st.seq,...sq};
+  const al=parse('cfg:attloc');if(al&&al.locs)st.attloc=al;
   const ms=parse('cfg:misc');if(ms){st.policyVersion=ms.polv||1;st.accrued=ms.accrued||''}
   if(!st.policies.length)st.policies=defaultPolicies();   // أول تشغيل: نصوص اللائحة الافتراضية
   return st;
@@ -698,6 +700,7 @@ async function startSession(user){
   S=buildFrom(r.docs,session);SNAP=snapFrom(r.docs);REV=r.rev;
   if(!S.employees.length&&user.role==='hr')S.employees.push(firstEmployee(user));
   V={view:(/^#[a-z]+$/.test(location.hash)?location.hash.slice(1):'dash'),sub:{},month:MONTH};
+  if(V.view==='punch'&&!['emp','sup'].includes(S.session.role)&&user.empId)S.session.role='emp';
   $('#login').hidden=true;$('#login').classList.remove('boot');document.querySelector('.app').hidden=false;
   render();window.scrollTo({top:0});save();startPoll();loadAuditRecent();
 }
@@ -1246,17 +1249,17 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
 
 const NAV={
- emp:[['dash','🏠','الرئيسية'],['newreq','➕','طلب جديد'],['approvals','🔁','بانتظاري'],['myreqs','📋','طلباتي'],['myleaves','🌴','إجازاتي'],['mypay','💳','رواتبي'],['myviol','⚠️','مخالفاتي'],['myassets','🔑','عهدي وسلفي'],['mycomplaints','📨','شكاواي'],['profile','🪪','ملفي الشخصي'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','نماذجي']],
- sup:[['dash','🏠','الرئيسية'],['approvals','✅','الموافقات'],['team','👥','فريقي'],['attendance','🕘','الحضور والمخالفات'],['perf','⭐','التقييم والمكافآت'],['assets','🔑','العهد والنثريات'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','النماذج']],
- hr:[['dash','🏠','لوحة التحكم'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['docs','🪪','صلاحية الوثائق'],['leaves','🌴','الإجازات'],['attendance','🕘','الحضور والمخالفات'],['complaints','📨','الشكاوى'],['reqreport','🧾','تقرير الطلبات'],['sep'],['payroll','💳','الرواتب'],['advances','💵','السلف'],['assets','🔑','العهد والنثريات'],['perf','⭐','الأداء والمكافآت'],['sep'],['announce','📣','التعاميم'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['policies','📘','اللائحة الداخلية'],['forms','🖨️','النماذج'],['archive','🗄️','الأرشيف الرقمي'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['settings','⚙️','الإعدادات'],['audit','🧾','سجل العمليات']],
+ emp:[['dash','🏠','الرئيسية'],['punch','📍','بصمة الدوام'],['newreq','➕','طلب جديد'],['approvals','🔁','بانتظاري'],['myreqs','📋','طلباتي'],['myleaves','🌴','إجازاتي'],['mypay','💳','رواتبي'],['myviol','⚠️','مخالفاتي'],['myassets','🔑','عهدي وسلفي'],['mycomplaints','📨','شكاواي'],['profile','🪪','ملفي الشخصي'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','نماذجي']],
+ sup:[['dash','🏠','الرئيسية'],['punch','📍','بصمة الدوام'],['approvals','✅','الموافقات'],['team','👥','فريقي'],['attendance','🕘','الحضور والمخالفات'],['perf','⭐','التقييم والمكافآت'],['assets','🔑','العهد والنثريات'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','النماذج']],
+ hr:[['dash','🏠','لوحة التحكم'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['docs','🪪','صلاحية الوثائق'],['leaves','🌴','الإجازات'],['attendance','🕘','الحضور والمخالفات'],['attrep','📍','البصمة والحضور'],['complaints','📨','الشكاوى'],['reqreport','🧾','تقرير الطلبات'],['sep'],['payroll','💳','الرواتب'],['advances','💵','السلف'],['assets','🔑','العهد والنثريات'],['perf','⭐','الأداء والمكافآت'],['sep'],['announce','📣','التعاميم'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['policies','📘','اللائحة الداخلية'],['forms','🖨️','النماذج'],['archive','🗄️','الأرشيف الرقمي'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['settings','⚙️','الإعدادات'],['audit','🧾','سجل العمليات']],
  acc:[['dash','🏠','الرئيسية'],['approvals','✅','بانتظاري'],['payroll','💳','الرواتب'],['advances','💵','السلف وأذونات الصرف'],['assets','🔑','العهد والنثريات'],['reports','📊','التقارير'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['myforms','🖨️','النماذج']],
- gm:[['dash','🏠','لوحة المدير العام'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['payroll','💳','الرواتب'],['complaints','📨','الشكاوى'],['perf','⭐','الأداء والمكافآت'],['attendance','🕘','المخالفات'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['myforms','🖨️','النماذج'],['audit','🧾','سجل العمليات']]
+ gm:[['dash','🏠','لوحة المدير العام'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['payroll','💳','الرواتب'],['complaints','📨','الشكاوى'],['perf','⭐','الأداء والمكافآت'],['attendance','🕘','المخالفات'],['attrep','📍','البصمة والحضور'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['myforms','🖨️','النماذج'],['audit','🧾','سجل العمليات']]
 };
 /* قسم الإدارة المالية: نفس التطبيق ونفس الحساب، يُفتح من الواجهة بـ hr.html?app=fin */
 const APP=(()=>{try{const a=new URLSearchParams(location.search).get('app');return a==='fin'||a==='gs'||a==='rcp'?a:'hr'}catch(e){return 'hr'}})();
@@ -1330,7 +1333,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -3958,6 +3961,194 @@ VIEWS.rpay=()=>{const R=role(),mine=rcpMyBld(),f=V.sub.yf||'open';
   ${sh.length?`<div class="list" style="margin-top:12px">${sh.map(p=>`<div class="li click pyr-row" data-y="${p.id}"><div class="av">🧾</div><div class="pyr-rm"><b dir="ltr">${esc(p.id)}</b> — ${esc(p.lines.map(l=>l.desc).join('، ').slice(0,90))}<div class="small muted">${esc(p.bld)} — ${p.lines.length} بند${pyrAttN(p)?' — 📎 '+pyrAttN(p):''} — ${esc(p.by)} — ${ftime(p.at)}</div></div><div class="pyr-rv"><b>${omr(pyrTotal(p))}</b><div>${pyrBadge(p)}</div></div></div>`).join('')}</div>`:'<div class="empty">لا طلبات هنا — اضغط «إنشاء طلب صرف» للبدء</div>'}</div>`};
 BIND.rpay=()=>{$('#yNew').onclick=()=>pyrForm();$$('#yF button').forEach(x=>x.onclick=()=>{V.sub.yf=x.dataset.f;render()});$$('[data-y]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.y)))};
 
+/* ================= بصمة الدوام (QR في موقع العمل + صورة لحظة المسح + وقت الخادم) ================= */
+const ATT_PREFIX='MARSA-ATT';
+function loadScriptOnce(src){window._ls=window._ls||{};if(!window._ls[src])window._ls[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete window._ls[src];rej(new Error('load'))};document.head.appendChild(s)});return window._ls[src]}
+const attTok=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789',r=crypto.getRandomValues(new Uint8Array(14));let t='';r.forEach(x=>t+=a[x%a.length]);return t};
+const attLocs=()=>(S.attloc&&S.attloc.locs)||[];
+function attEnsureLocs(){if(attLocs().length)return false;S.attloc={locs:[...RCP_BLD.map(b=>({id:'R'+b.c.replace(/[^A-Za-z0-9]/g,''),name:'استقبال '+b.n,tok:attTok()})),{id:'LND',name:'المغسلة',tok:attTok()},{id:'OFC',name:'المكاتب — الإدارة العامة',tok:attTok()}]};return true}
+const attQR=l=>ATT_PREFIX+'|'+l.id+'|'+l.tok;
+const attGrace=()=>+((S.settings&&S.settings.attGrace)??10);
+const hm2m=s=>{const m=/^(\d\d?):(\d\d)/.exec(s||'');return m?+m[1]*60+ +m[2]:null};
+function attDiff(a,b){let d=a-b;if(d<-720)d+=1440;if(d>720)d-=1440;return d}
+function attLate(p){if(!p||p.kind!=='in')return 0;const due=hm2m(p.shiftIn||(emp(p.empId)||{}).shiftIn),t=hm2m(p.hm);if(due==null||t==null)return 0;const d=attDiff(t,due);return d>attGrace()?d:0}
+function attEarly(p){if(!p||p.kind!=='out')return 0;const due=hm2m(p.shiftOut||(emp(p.empId)||{}).shiftOut),t=hm2m(p.hm);if(due==null||t==null)return 0;const d=attDiff(due,t);return d>0?d:0}
+function attSessions(L){const out=[];let cur=null;
+  L.slice().sort((a,b)=>String(a.at).localeCompare(String(b.at))).forEach(p=>{
+    if(p.kind==='in'){if(cur)out.push(cur);cur={d:p.d,in:p,out:null}}
+    else if(cur&&!cur.out&&new Date(p.at)-new Date(cur.in.at)<16*36e5){cur.out=p;out.push(cur);cur=null}
+    else out.push({d:p.d,in:null,out:p})});
+  if(cur)out.push(cur);return out}
+const attHrs=x=>x.in&&x.out?(new Date(x.out.at)-new Date(x.in.at))/36e5:0;
+const attFmtH=h=>{const m=Math.round(h*60);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
+const ATT_CACHE={};
+async function attMonth(mon,force){
+  if(DEMO)return (S._pdemo||[]).filter(r=>r.d.slice(0,7)===mon);
+  if(!force&&ATT_CACHE[mon]&&Date.now()-ATT_CACHE[mon].t<45000)return ATT_CACHE[mon].rows;
+  const r=await call('punches',{month:mon}).catch(()=>null);
+  if(!r||!r.ok)throw new Error(r&&r.error==='bad_action'?'old':'net');
+  ATT_CACHE[mon]={t:Date.now(),rows:r.rows};return r.rows}
+const attErrHTML=e=>`<div class="card"><div class="empty">${e&&e.message==='old'?'الخادم لم يُحدَّث بعد لبصمة الدوام — طبّق الإصدار 5.4':'تعذّر تحميل البصمات — تحقق من الاتصال'}</div></div>`;
+/* --- الماسح: كاميرا خلفية داخل التطبيق فقط، وتُحفظ صورة لحظة قراءة الرمز --- */
+function attScan(){return new Promise(async resolve=>{
+  const ov=document.createElement('div');ov.className='att-cam';
+  ov.innerHTML=`<video playsinline muted autoplay></video><div class="att-frame"><i></i><i></i><i></i><i></i></div><div class="att-cap">وجّه الكاميرا نحو رمز البصمة المعلّق في موقعك</div><button type="button" class="att-x">✕ إلغاء</button>`;
+  document.body.appendChild(ov);
+  const v=$('video',ov),cap=$('.att-cap',ov);let stream=null,done=false,det=null;
+  const stop=()=>{done=true;if(stream)stream.getTracks().forEach(t=>t.stop());ov.remove()};
+  $('.att-x',ov).onclick=()=>{stop();resolve(null)};
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){stop();toast('الكاميرا غير متاحة في هذا المتصفح — افتح مرسى من Safari أو Chrome');return resolve(null)}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})}
+  catch(e){stop();toast('لا يمكن فتح الكاميرا — اسمح لمرسى باستخدام الكاميرا من إعدادات المتصفح');return resolve(null)}
+  if(done){stream.getTracks().forEach(t=>t.stop());return}
+  v.srcObject=stream;try{await v.play()}catch(e){}
+  if('BarcodeDetector' in window){try{const f=await BarcodeDetector.getSupportedFormats();if(f.includes('qr_code'))det=new BarcodeDetector({formats:['qr_code']})}catch(e){}}
+  if(!det){try{await loadScriptOnce('vendor/jsQR.min.js')}catch(e){stop();toast('تعذّر تحميل قارئ الرمز — تحقق من الاتصال');return resolve(null)}}
+  const c=document.createElement('canvas'),x=c.getContext('2d',{willReadFrequently:true});
+  const tick=async()=>{if(done)return;
+    if(v.readyState>=2&&v.videoWidth){const W=v.videoWidth,H=v.videoHeight,k=Math.min(1,720/Math.max(W,H));c.width=Math.round(W*k);c.height=Math.round(H*k);x.drawImage(v,0,0,c.width,c.height);
+      let txt=null;
+      try{if(det){const r=await det.detect(c);if(r&&r[0])txt=r[0].rawValue}else{const r=window.jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:'attemptBoth'});if(r)txt=r.data}}catch(e){}
+      if(txt){
+        if(String(txt).indexOf(ATT_PREFIX+'|')!==0)cap.textContent='⚠️ هذا ليس رمز بصمة مرسى';
+        else{const p=document.createElement('canvas'),q=Math.min(1,520/Math.max(c.width,c.height));p.width=Math.round(c.width*q);p.height=Math.round(c.height*q);p.getContext('2d').drawImage(c,0,0,p.width,p.height);
+          const photo=p.toDataURL('image/jpeg',0.6);try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}stop();return resolve({qr:String(txt),photo})}}}
+    setTimeout(tick,160)};
+  tick();
+})}
+async function attDo(kind){
+  const e=emp(S.session.empId);if(!e){toast('حسابك غير مرتبط بملف موظف — راجع الموارد البشرية');return}
+  const s=await attScan();if(!s)return;
+  const w=modal({title:'⏳ جارٍ تسجيل البصمة…',body:`<img src="${s.photo}" class="att-ph" alt=""><div class="muted small" style="text-align:center;margin-top:8px">لا تغلق الصفحة</div>`});
+  try{
+    if(DEMO){const now=new Date(),lid=s.qr.split('|')[1],p={id:'d'+Date.now(),empId:e.id,name:e.name,kind,at:now.toISOString(),d:TODAY,hm:pad(now.getHours())+':'+pad(now.getMinutes()),loc:lid,locName:(attLocs().find(l=>l.id===lid)||{}).name||'موقع تجريبي',photo:'',thumb:s.photo,shiftIn:e.shiftIn||'',shiftOut:e.shiftOut||''};
+      (S._pdemo=S._pdemo||[]).push(p);w.close();return attDone(p,s.photo)}
+    const up=await call('upload',{mime:'image/jpeg',b64:s.photo.split(',')[1]}).catch(()=>null);
+    const r=await call('punch',{qr:s.qr,kind,photo:up&&up.ok?up.id:'',dev:navigator.userAgent.slice(0,120)}).catch(()=>null);
+    w.close();
+    if(r&&r.ok){delete ATT_CACHE[r.punch.d.slice(0,7)];return attDone(r.punch,s.photo)}
+    const M={bad_qr:'رمز البصمة غير صالح أو تم تغييره — امسح الرمز المعلّق في موقع عملك',dup:'سجّلت هذه البصمة قبل قليل ✓',no_emp:'حسابك غير مرتبط بملف موظف — راجع الموارد البشرية',bad_action:'الخادم لم يُحدَّث بعد لبصمة الدوام (الإصدار 5.4)'};
+    toast(M[r&&r.error]||'تعذّر الاتصال بالخادم — حاول مرة أخرى');
+  }catch(err){w.close();toast('تعذّر تسجيل البصمة')}
+}
+function attDone(p,photo){const l=attLate(p),ea=attEarly(p);
+  modal({title:p.kind==='in'?'✅ تم تسجيل الحضور':'✅ تم تسجيل الانصراف',sub:`${esc(p.locName)} — ${fdate(p.d)}`,body:`<div class="att-ok"><div class="att-big">${p.hm}</div>${l?`<span class="bd c">متأخر ${l} دقيقة</span>`:p.kind==='in'&&p.shiftIn?'<span class="bd g">في الوقت ✓</span>':''}${ea?`<span class="bd w">قبل موعد الانصراف بـ ${ea} دقيقة</span>`:''}</div><img src="${photo}" class="att-ph" alt="">`,foot:[{t:'تم'}]});render()}
+/* --- واجهة الموظف --- */
+VIEWS.punch=()=>{const e=emp(S.session.empId);
+  if(!e)return ph('📍 بصمة الدوام','')+`<div class="card"><div class="empty">حسابك غير مرتبط بملف موظف — راجع الموارد البشرية.</div></div>`;
+  return ph('📍 بصمة الدوام',fdate(TODAY))+`<div class="card att-hero">
+   <div class="att-clock" id="atClock">--:--</div>
+   <div class="small muted">${e.shiftIn?`دوامك: <b dir="ltr">${esc(e.shiftIn)}${e.shiftOut?' – '+esc(e.shiftOut):''}</b>`:'لم يُحدَّد موعد دوامك بعد — راجع الموارد البشرية'}</div>
+   <div id="atLast" class="att-last">…</div>
+   <div class="seg att-kind" id="atKind"><button data-k="in">🟢 حضور</button><button data-k="out">🔴 انصراف</button></div>
+   <button class="att-go" id="atGo">📷 امسح رمز البصمة</button>
+   <div class="small muted">وجّه الكاميرا لرمز QR المعلّق في موقع عملك — يُسجَّل الوقت من الخادم وتُحفظ صورة لحظة المسح.</div></div>
+   <div class="card"><h2>بصماتي هذا الشهر</h2><div id="atMine"><div class="muted small">جارٍ التحميل…</div></div></div>`};
+BIND.punch=()=>{const e=emp(S.session.empId);if(!e)return;
+  clearInterval(window._atClk);const ck=()=>{const el=$('#atClock');if(!el){clearInterval(window._atClk);return}const d=new Date();el.textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())};ck();window._atClk=setInterval(ck,1000);
+  let kind='in';const setK=k=>{kind=k;$$('#atKind button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#atGo').textContent=k==='in'?'📷 امسح رمز البصمة — حضور':'📷 امسح رمز البصمة — انصراف'};setK('in');
+  $$('#atKind button').forEach(b=>b.onclick=()=>setK(b.dataset.k));$('#atGo').onclick=()=>attDo(kind);
+  attMonth(TODAY.slice(0,7)).then(rows=>{const L=rows.filter(p=>p.empId===e.id).sort((a,b)=>String(a.at).localeCompare(String(b.at)));const last=L[L.length-1];
+    if(last&&last.kind==='in'&&Date.now()-new Date(last.at)<16*36e5)setK('out');
+    const lb=$('#atLast');if(lb)lb.innerHTML=last?`آخر بصمة: <b>${last.kind==='in'?'حضور':'انصراف'}</b> ${fdate(last.d)} — <b dir="ltr">${last.hm}</b> — ${esc(last.locName)}`:'لا بصمات هذا الشهر بعد';
+    const ss=attSessions(L).reverse(),box=$('#atMine');if(!box)return;
+    const lateN=ss.filter(x=>attLate(x.in)).length;
+    box.innerHTML=ss.length?`<div class="small muted" style="margin-bottom:8px">أيام الحضور: <b>${new Set(ss.filter(x=>x.in).map(x=>x.d)).size}</b> — مرات التأخير: <b style="color:${lateN?'var(--critical)':'inherit'}">${lateN}</b></div><div class="tw"><table><thead><tr><th>اليوم</th><th>الحضور</th><th>الانصراف</th><th>المدة</th></tr></thead><tbody>${ss.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">+${attLate(x.in)}د</span>`:''}`:'—'}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">-${attEarly(x.out)}د</span>`:''}`:'<span class="muted">—</span>'}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا بصمات هذا الشهر بعد.</div>';
+  }).catch(err=>{const box=$('#atMine');if(box)box.innerHTML=attErrHTML(err)})};
+/* --- تقارير الإدارة --- */
+function attSummary(rows){const by={};rows.forEach(p=>{(by[p.empId]=by[p.empId]||[]).push(p)});
+  S.employees.filter(e=>e.status!=='terminated'&&e.shiftIn).forEach(e=>{if(!by[e.id])by[e.id]=[]});
+  return Object.entries(by).map(([id,L])=>{const ss=attSessions(L),e=emp(id)||{};const late=ss.filter(x=>attLate(x.in));
+    return {id,e,name:e.name||(L[0]||{}).name||id,ss,days:new Set(ss.filter(x=>x.in).map(x=>x.d)).size,late:late.length,lm:late.reduce((a,x)=>a+attLate(x.in),0),early:ss.filter(x=>attEarly(x.out)).length,noOut:ss.filter(x=>x.in&&!x.out&&x.d<TODAY).length,hrs:ss.reduce((a,x)=>a+attHrs(x),0)}})
+   .sort((a,b)=>b.lm-a.lm||String(a.name).localeCompare(String(b.name)))}
+function attPhotoLoad(root){const q=$$('[data-aph]',root).filter(x=>!x.dataset.done);let i=0;
+  const next=()=>{const el=q[i++];if(!el)return;el.dataset.done=1;const id=el.dataset.aph;
+    call('file',{id}).then(r=>{if(r&&r.ok)el.innerHTML=`<img src="data:${r.mime};base64,${r.b64}" alt="">`;else el.textContent='—'}).catch(()=>{el.textContent='—'}).finally(next)};
+  next();next();next()}
+const attPh=p=>!p?'':p.thumb?`<span class="att-th" data-big="${esc(p.thumb)}"><img src="${p.thumb}" alt=""></span>`:p.photo?`<span class="att-th" data-aph="${esc(p.photo)}" data-fid="${esc(p.photo)}">📷</span>`:'<span class="muted small">بلا صورة</span>';
+function attBindPh(root){$$('.att-th',root).forEach(x=>x.onclick=()=>{if(x.dataset.big)return purPhotoView({thumb:x.dataset.big},'صورة البصمة');if(x.dataset.fid)purPhotoView({id:x.dataset.fid},'صورة البصمة')});attPhotoLoad(root)}
+function attEmpModal(r,mon){
+  const rows=r.ss.slice().sort((a,b)=>String(a.d).localeCompare(String(b.d)));
+  modal({title:'📍 '+esc(r.name),sub:`${monthName(mon)} — حضور ${r.days} يوم — تأخير ${r.late} مرة (${r.lm} دقيقة)`,wide:true,
+    body:`<div class="tw"><table class="att-tb"><thead><tr><th>اليوم</th><th>الحضور</th><th>صورة</th><th>الانصراف</th><th>صورة</th><th>المدة</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">متأخر ${attLate(x.in)}د</span>`:''}<div class="small muted">${esc(x.in.locName)}</div>`:'<span class="muted">—</span>'}</td><td>${attPh(x.in)}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">مبكر ${attEarly(x.out)}د</span>`:''}<div class="small muted">${esc(x.out.locName)}</div>`:'<span class="bd w">بدون انصراف</span>'}</td><td>${attPh(x.out)}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا بصمات</td></tr>'}</tbody></table></div>
+     <div class="small muted" style="margin-top:6px">موعد الدوام: <b dir="ltr">${esc(r.e.shiftIn||'—')} – ${esc(r.e.shiftOut||'—')}</b> — سماحية التأخير ${attGrace()} دقائق. الصور هي لقطة الكاميرا لحظة مسح الرمز: تأكد أن الرمز ظاهر في مكانه المعتاد.</div>`,
+    foot:[{t:'إغلاق',cls:'sec'}],onMount:m=>attBindPh(m)});
+}
+function attMonthHTML(rows,mon){const A=attSummary(rows),tl=A.reduce((a,r)=>a+r.late,0),tm=A.reduce((a,r)=>a+r.lm,0),no=A.reduce((a,r)=>a+r.noOut,0);
+  return `<div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${A.filter(r=>r.days).length}</b><span>موظف بصم</span></div><div style="--c:#d13b3b"><b>${tl}</b><span>مرات تأخير</span></div><div style="--c:#c97c00"><b>${tm}</b><span>دقائق تأخير</span></div><div style="--c:#7a4bc2"><b>${no}</b><span>بدون انصراف</span></div></div>
+  <div class="card"><div class="between"><h2>${monthName(mon)}</h2><div><button class="btn sm sec" id="atPr">🖨️ طباعة</button> <button class="btn sm sec" id="atWa">📋 واتساب</button> <button class="btn sm sec" id="atRf">↻ تحديث</button></div></div>
+  ${A.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr class="click" data-ae="${i}" style="cursor:pointer"><td><b>${esc(r.name)}</b>${r.e.shiftIn?`<div class="small muted" dir="ltr">${esc(r.e.shiftIn)}–${esc(r.e.shiftOut||'')}</div>`:''}</td><td class="small">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${r.days}</td><td>${r.late?`<b style="color:var(--critical)">${r.late}</b>`:'0'}</td><td>${r.lm||'0'}</td><td>${r.early||'0'}</td><td>${r.noOut?`<b style="color:#c97c00">${r.noOut}</b>`:'0'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table></div><div class="small muted" style="margin-top:6px">اضغط على أي موظف لعرض أيامه وصور البصمات.</div>`:'<div class="empty">لا بصمات في هذا الشهر</div>'}</div>`}
+function attLateHTML(rows){const L=rows.filter(p=>attLate(p)).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  return `<div class="card"><h2>⏰ المتأخرون <small>${L.length}</small></h2>${L.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>اليوم</th><th>وقت البصمة</th><th>الموعد</th><th>التأخير</th><th>الموقع</th><th>صورة</th></tr></thead><tbody>${L.map(p=>`<tr><td><b>${esc((emp(p.empId)||{}).name||p.name)}</b></td><td>${fdate(p.d)}</td><td dir="ltr"><b>${p.hm}</b></td><td dir="ltr">${esc(p.shiftIn||(emp(p.empId)||{}).shiftIn||'')}</td><td><span class="bd c">${attLate(p)} دقيقة</span></td><td class="small">${esc(p.locName)}</td><td>${attPh(p)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا تأخير هذا الشهر 🎉</div>'}</div>`}
+function attTodayHTML(rows){const T=rows.filter(p=>p.d===TODAY),by={};T.forEach(p=>(by[p.empId]=by[p.empId]||[]).push(p));
+  const now=new Date(),nm=now.getHours()*60+now.getMinutes();
+  const inNow=[],left=[];Object.entries(by).forEach(([id,L])=>{const ss=attSessions(L),last=ss[ss.length-1];(last&&last.in&&!last.out?inNow:left).push({id,last})});
+  const miss=S.employees.filter(e=>e.status!=='terminated'&&e.shiftIn&&!by[e.id]&&hm2m(e.shiftIn)!=null&&attDiff(nm,hm2m(e.shiftIn))>attGrace()&&attDiff(nm,hm2m(e.shiftIn))<720);
+  const li=(x,txt)=>`<div class="li"><div class="av">${initials((emp(x.id)||{}).name||'؟')}</div><div><b>${esc((emp(x.id)||{}).name||x.id)}</b><div class="small muted">${txt}</div></div>${attPh(x.last&&(x.last.out||x.last.in))}</div>`;
+  return `<div class="grid g2"><div class="card"><h2>🟢 في الدوام الآن <small>${inNow.length}</small></h2><div class="list">${inNow.map(x=>li(x,`حضر ${x.last.in.hm}${attLate(x.last.in)?' — متأخر '+attLate(x.last.in)+'د':''} — ${esc(x.last.in.locName)}`)).join('')||'<div class="muted small">—</div>'}</div></div>
+   <div class="card"><h2>⚠️ لم يبصم بعد <small>${miss.length}</small></h2><div class="list">${miss.map(e=>`<div class="li"><div class="av">${initials(e.name)}</div><div><b>${esc(e.name)}</b><div class="small muted">موعده <span dir="ltr">${esc(e.shiftIn)}</span> — ${esc(e.building||e.dept||'')}</div></div></div>`).join('')||'<div class="muted small">الكل بصم ✓</div>'}</div></div></div>
+   <div class="card"><h2>🔴 انصرفوا <small>${left.length}</small></h2><div class="list">${left.map(x=>li(x,x.last&&x.last.out?`انصرف ${x.last.out.hm}${x.last.in?' — حضر '+x.last.in.hm:''}`:'')).join('')||'<div class="muted small">—</div>'}</div></div>`}
+function attLocsHTML(){return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🔳 رموز البصمة <small>${attLocs().length}</small></h2><div><button class="btn sm" id="alAll">🖨️ طباعة كل الرموز</button> <button class="btn sm sec" id="alNew">➕ موقع جديد</button></div></div>
+  <div class="note small">اطبع الرمز وعلّقه في موقعه داخل إطار يصعب تقليده. عند المسح تُحفظ صورة للرمز في مكانه — فلو صوّر أحد الرمز وطبعه في بيته يظهر ذلك في الصور. وإن تسرّب رمز اضغط «رمز جديد» فيتوقف القديم فوراً.</div>
+  <div class="att-locs">${attLocs().map((l,i)=>`<div class="att-loc ${l.off?'off':''}"><div class="att-q" data-q="${i}"></div><div><b>${esc(l.name)}</b><div class="small muted" dir="ltr">${esc(l.id)}${l.off?' — موقوف':''}</div>
+   <div class="att-la"><button class="btn sm" data-lp="${i}">🖨️ طباعة</button><button class="btn sm sec" data-ln="${i}">✏️ الاسم</button><button class="btn sm sec" data-lt="${i}">🔄 رمز جديد</button><button class="btn sm sec" data-lo="${i}">${l.off?'▶️ تفعيل':'⏸️ إيقاف'}</button></div></div></div>`).join('')}</div></div>`}
+function attTimesHTML(){const E=S.employees.filter(e=>e.status!=='terminated').sort((a,b)=>String(a.building||a.dept||'').localeCompare(String(b.building||b.dept||''))||String(a.name).localeCompare(String(b.name)));
+  return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🕗 مواعيد دوام الموظفين</h2><div class="att-g"><label class="small">سماحية التأخير (دقيقة)</label> <input id="atG" type="number" min="0" max="120" value="${attGrace()}" style="width:80px"></div></div>
+  <div class="note small">اكتب لكل موظف موعد الحضور والانصراف — التأخير يُحسب بعد السماحية. للتعبئة السريعة: اكتب الموعد في السطر الأول ثم اضغط «نسخ للفارغين».</div>
+  <div class="frow" style="max-width:520px;margin-bottom:10px"><div class="fld"><label>حضور</label><input type="time" id="atFi" value="08:00"></div><div class="fld"><label>انصراف</label><input type="time" id="atFo" value="16:00"></div><div class="fld"><label>&nbsp;</label><button class="btn sec" id="atFill">نسخ للفارغين</button></div></div>
+  <div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>الحضور</th><th>الانصراف</th></tr></thead><tbody>${E.map(e=>`<tr><td><b>${esc(e.name)}</b><div class="small muted">${esc(e.job||'')}</div></td><td class="small">${esc(e.dept||'')}${e.building?' — '+esc(e.building):''}</td><td><input type="time" data-si="${esc(e.id)}" value="${esc(e.shiftIn||'')}"></td><td><input type="time" data-so="${esc(e.id)}" value="${esc(e.shiftOut||'')}"></td></tr>`).join('')}</tbody></table></div>
+  <div style="margin-top:12px"><button class="btn" id="atSave">💾 حفظ المواعيد</button></div></div>`}
+function attQRsvg(l,cell){try{const q=qrcode(0,'M');q.addData(attQR(l));q.make();return q.createSvgTag({cellSize:cell||4,margin:1,scalable:true})}catch(e){return ''}}
+async function attPrintLocs(list){try{await loadScriptOnce('vendor/qrcode.min.js')}catch(e){toast('تعذّر تحميل مولّد الرمز');return}
+  const base=location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,'');
+  printHTML(`<style>.aq{page-break-after:always;break-after:page;height:268mm;display:flex;align-items:center;justify-content:center}.aq:last-child{page-break-after:auto;break-after:auto}
+   .aqc{width:170mm;border:6px double #1F5F5B;border-radius:18px;padding:12mm 10mm;text-align:center;position:relative;background:repeating-radial-gradient(circle at 50% 50%,rgba(31,95,91,.05) 0 2px,transparent 2px 7px),#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+   .aqc:before{content:"";position:absolute;inset:5mm;border:1.5px dashed rgba(31,95,91,.45);border-radius:12px;pointer-events:none}
+   .aqc img.lg{height:22mm}.aqc h1{font-size:30px;margin:6mm 0 2mm;color:#16302f}.aqc h2{font-size:17px;margin:0 0 6mm;color:#2a7a78;font-weight:700}
+   .aqc .qq{width:110mm;height:110mm;margin:0 auto;padding:5mm;background:#fff;border-radius:10px;border:2px solid #1F5F5B}.aqc .qq svg{width:100%;height:100%}
+   .aqc .st{margin-top:6mm;font-size:15px;line-height:1.9}.aqc .sn{margin-top:4mm;font-size:11px;color:#607573;letter-spacing:1px}</style>`+
+   list.map(l=>`<div class="aq"><div class="aqc"><img class="lg" src="${base}icons/marsa-lockup.png" alt=""><h1>📍 بصمة الدوام</h1><h2>${esc(l.name)}</h2><div class="qq">${attQRsvg(l,8)}</div>
+    <div class="st"><b>افتح تطبيق مرسى ← بصمة الدوام ← امسح الرمز</b><br>الكاميرا العادية لا تكفي — البصمة تُسجَّل من داخل التطبيق فقط</div>
+    <div class="sn" dir="ltr">${esc(l.id)} · ${esc(l.tok.slice(0,4))}•••• · ${TODAY}</div></div></div>`).join(''),'رموز بصمة الدوام')}
+function attPrintMonth(rows,mon){const A=attSummary(rows);
+  nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(TODAY)}</div><div class="c">تقرير الحضور والانصراف<span>Attendance Report — ${monthName(mon)}</span></div><div class="l"></div></div>
+   <table class="nsg"><thead><tr><th>#</th><th>الموظف</th><th>القسم / البناية</th><th>الموعد</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr><td>${i+1}</td><td class="t">${esc(r.name)}</td><td class="t">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td dir="ltr">${esc(r.e.shiftIn||'')}–${esc(r.e.shiftOut||'')}</td><td>${r.days}</td><td>${r.late}</td><td>${r.lm}</td><td>${r.early}</td><td>${r.noOut}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table>
+   <div class="small" style="margin-top:6px">سماحية التأخير ${attGrace()} دقائق — الوقت مسجّل من الخادم، ولكل بصمة صورة محفوظة في مرسى.</div>
+   <div class="sg"><div><div class="dots">................................</div>الموارد البشرية<span>HR</span></div><div><div class="dots">................................</div>المدير العام<span>General Manager</span></div></div>`,'تقرير الحضور '+mon)}
+function attWaText(rows,mon){const A=attSummary(rows).filter(r=>r.late||r.noOut||r.early);
+  return `*نسائم صلالة — تقرير الحضور ${monthName(mon)}*\n\n`+(A.length?A.map((r,i)=>`${i+1}. ${r.name}: تأخير ${r.late} مرة (${r.lm} د)${r.early?` — خروج مبكر ${r.early}`:''}${r.noOut?` — بدون انصراف ${r.noOut}`:''}`).join('\n'):'لا تأخير ولا ملاحظات هذا الشهر ✓')+`\n\nسماحية التأخير: ${attGrace()} دقائق`}
+VIEWS.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7);
+  return ph('📍 البصمة والحضور','بصمة برمز QR في موقع العمل — الوقت من الخادم وصورة لكل بصمة',['month','late'].includes(tab)?`<input type="month" id="atM" value="${mon}" max="${TODAY.slice(0,7)}" style="max-width:180px">`:'')+
+  `<div class="seg att-tabs" id="atT">${[['month','📊 التقرير الشهري'],['late','⏰ المتأخرون'],['today','🟢 اليوم'],['locs','🔳 رموز QR'],['times','🕗 مواعيد الدوام']].map(([k,l])=>`<button data-t="${k}" class="${tab===k?'on':''}">${l}</button>`).join('')}</div>
+  <div id="atBody" style="margin-top:12px">${tab==='times'?attTimesHTML():tab==='locs'?'':'<div class="card"><div class="muted">جارٍ تحميل البصمات…</div></div>'}</div>`};
+BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),body=$('#atBody');
+  $$('#atT button').forEach(b=>b.onclick=()=>{V.sub.atb=b.dataset.t;render()});
+  if($('#atM'))$('#atM').onchange=e=>{V.sub.atm=e.target.value;render()};
+  if(tab==='times'){
+    $('#atFill').onclick=()=>{const fi=$('#atFi').value,fo=$('#atFo').value;$$('[data-si]').forEach(x=>{if(!x.value)x.value=fi});$$('[data-so]').forEach(x=>{if(!x.value)x.value=fo})};
+    $('#atSave').onclick=()=>{let n=0;$$('[data-si]').forEach(x=>{const e=emp(x.dataset.si);if(!e)return;const so=$(`[data-so="${CSS.escape(x.dataset.si)}"]`).value;if((e.shiftIn||'')!==x.value||(e.shiftOut||'')!==so){e.shiftIn=x.value;e.shiftOut=so;n++}});
+      const g=Math.max(0,Math.min(120,+$('#atG').value||0));if(g!==attGrace()){S.settings.attGrace=g;n++}commit(n?'تم حفظ المواعيد ('+n+')':'لا تغييرات')};return}
+  if(tab==='locs'){
+    if(attEnsureLocs())save();
+    body.innerHTML=attLocsHTML();
+    loadScriptOnce('vendor/qrcode.min.js').then(()=>$$('[data-q]').forEach(x=>{x.innerHTML=attQRsvg(attLocs()[+x.dataset.q],3)})).catch(()=>{});
+    const L=attLocs();
+    $('#alAll').onclick=()=>attPrintLocs(L.filter(l=>!l.off));
+    $('#alNew').onclick=()=>modal({title:'➕ موقع بصمة جديد',body:`<div class="fld"><label>اسم الموقع</label><input id="lN" placeholder="مثال: مستودع المغسلة"></div>`,foot:[{t:'إضافة',fn:b=>{const n=fv(b,'lN');if(!n){toast('اكتب الاسم');return false}L.push({id:'L'+Date.now().toString(36).toUpperCase().slice(-5),name:n,tok:attTok()});commit('تمت إضافة الموقع')}},{t:'إلغاء',cls:'sec'}]});
+    $$('[data-lp]').forEach(x=>x.onclick=()=>attPrintLocs([L[+x.dataset.lp]]));
+    $$('[data-ln]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.ln];modal({title:'✏️ اسم الموقع',body:`<div class="fld"><input id="lN" value="${esc(l.name)}"></div>`,foot:[{t:'حفظ',fn:b=>{const n=fv(b,'lN');if(!n)return false;l.name=n;commit('تم الحفظ')}},{t:'إلغاء',cls:'sec'}]})});
+    $$('[data-lt]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.lt];confirmBox('🔄 رمز جديد — '+esc(l.name),'الرمز المطبوع الحالي سيتوقف عن العمل فوراً، ويجب طباعة الرمز الجديد وتعليقه مكانه. متابعة؟','إنشاء رمز جديد','crit',()=>{l.tok=attTok();commit('تم إنشاء رمز جديد — اطبعه الآن');setTimeout(()=>attPrintLocs([l]),300)})});
+    $$('[data-lo]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.lo];l.off=!l.off;commit(l.off?'تم إيقاف الموقع':'تم تفعيل الموقع')});
+    return}
+  const m=tab==='today'?TODAY.slice(0,7):mon;
+  attMonth(m).then(rows=>{if(!$('#atBody'))return;
+    if(tab==='month'){body.innerHTML=attMonthHTML(rows,m);const A=attSummary(rows);
+      $$('[data-ae]').forEach(x=>x.onclick=()=>attEmpModal(A[+x.dataset.ae],m));
+      $('#atPr').onclick=()=>attPrintMonth(rows,m);$('#atWa').onclick=()=>rcpCopyWA(attWaText(rows,m));$('#atRf').onclick=()=>{delete ATT_CACHE[m];render()}}
+    else if(tab==='late'){body.innerHTML=attLateHTML(rows);attBindPh(body)}
+    else{body.innerHTML=attTodayHTML(rows);attBindPh(body)}
+  }).catch(err=>{if($('#atBody'))body.innerHTML=attErrHTML(err)})};
+
 /* ---------- بيانات تجريبية للعرض ---------- */
 async function rcpSeedDemo(bld){
   bld=bld||'الوادي';
@@ -4312,6 +4503,29 @@ document.head.insertAdjacentHTML('beforeend',`<style id="democss">
 .pyr-up.sm{padding:10px 12px;width:100%;justify-content:center}.ratt{display:flex;gap:8px;align-items:center}
 body.sbx-on .mback{padding-bottom:62px!important}
 @media(max-width:640px){.gchk{flex-wrap:wrap}.gchk .btn{width:100%}}
+.att-hero{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.att-clock{font-size:46px;font-weight:800;letter-spacing:2px;font-variant-numeric:tabular-nums;direction:ltr}
+.att-last{font-size:13px;color:var(--muted)}
+.att-kind{width:100%;max-width:360px}.att-kind button{flex:1;font-size:15px;padding:10px}
+.att-go{width:100%;max-width:360px;border:none;border-radius:18px;padding:20px 14px;font:inherit;font-size:18px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1F5F5B,#2a7a78);box-shadow:0 8px 24px rgba(31,95,91,.3);cursor:pointer}
+.att-go:active{transform:scale(.97)}
+.att-cam{position:fixed;inset:0;z-index:1000;background:#000;display:flex;align-items:center;justify-content:center}
+.att-cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.att-frame{position:relative;width:min(70vw,300px);aspect-ratio:1;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+.att-frame i{position:absolute;width:42px;height:42px;border:5px solid #3fe0c5}
+.att-frame i:nth-child(1){top:-3px;left:-3px;border-right:0;border-bottom:0;border-radius:18px 0 0 0}.att-frame i:nth-child(2){top:-3px;right:-3px;border-left:0;border-bottom:0;border-radius:0 18px 0 0}
+.att-frame i:nth-child(3){bottom:-3px;left:-3px;border-right:0;border-top:0;border-radius:0 0 0 18px}.att-frame i:nth-child(4){bottom:-3px;right:-3px;border-left:0;border-top:0;border-radius:0 0 18px 0}
+.att-cap{position:absolute;top:calc(env(safe-area-inset-top,0px) + 24px);left:16px;right:16px;text-align:center;color:#fff;font-weight:700;font-size:16px;text-shadow:0 2px 8px #000}
+.att-x{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);left:50%;transform:translateX(-50%);border:none;border-radius:99px;padding:12px 26px;font:inherit;font-weight:800;background:#fff;color:#16302f}
+.att-ph{display:block;width:100%;max-width:360px;margin:10px auto 0;border-radius:14px;border:1px solid var(--border)}
+.att-ok{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.att-big{font-size:44px;font-weight:800;direction:ltr}
+.att-th{display:inline-grid;place-items:center;width:58px;height:44px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden;cursor:pointer;font-size:16px}
+.att-th img{width:100%;height:100%;object-fit:cover}
+.att-tabs{flex-wrap:wrap}
+.att-locs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:12px}
+.att-loc{display:flex;gap:12px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:12px;background:var(--surface)}.att-loc.off{opacity:.5}
+.att-q{width:84px;height:84px;flex:0 0 84px;background:#fff;border-radius:10px;padding:4px}.att-q svg{width:100%;height:100%}
+.att-la{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
