@@ -1312,7 +1312,7 @@ function renderHeader(){
   const h=new Date().getHours();$('#topDate').innerHTML=`<b>${h<12?'صباح الخير':'مساء الخير'}، ${esc(USER.name.split(' ')[0])}</b>${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date().getDay()]} ${fdate(TODAY)}`;
   const vs=$('#viewSel');
   if(USER.role==='rcp')vs.hidden=true;
-  else if(USER.role==='hr'){vs.hidden=false;vs.innerHTML=['hr','gm','acc',...(APP==='rcp'?['rcp']:[]),'sup',...(USER.empId?['emp']:[])].map(k=>`<option value="${k}" ${role()===k?'selected':''}>${k==='emp'?'بوابتي كموظف':'عرض: '+ROLES[k].label}</option>`).join('')}
+  else if(USER.role==='hr'){vs.hidden=false;const sbx=!!(DEMO&&DEMO.sbx);vs.innerHTML=['hr','gm','acc',...(APP==='rcp'?['rcp']:[]),'sup',...(USER.empId?['emp']:[])].map(k=>`<option value="${k}" ${!sbx&&role()===k?'selected':''}>${k==='emp'?'بوابتي كموظف':'عرض: '+ROLES[k].label}</option>`).join('')+`<option value="__sbx" ${sbx?'selected':''}>🧪 عرض: تجربة - بيانات تجريبية</option>`}
   else if(USER.empId&&USER.role!=='emp'){vs.hidden=false;vs.innerHTML=`<option value="${USER.role}" ${role()===USER.role?'selected':''}>${ROLES[USER.role].label}</option><option value="emp" ${role()==='emp'?'selected':''}>بوابتي كموظف</option>`}
   else vs.hidden=true;
   const n=myNotifs().filter(x=>!x.read).length;$('#bellCnt').hidden=!n;$('#bellCnt').textContent=n;
@@ -1352,7 +1352,7 @@ function render(){
 }
 function bindTop(){
   bindGSearch();
-  $('#viewSel').onchange=e=>{S.session.role=e.target.value;S.session.supId=e.target.value==='sup'?(USER.empId||S.session.supId):null;V.view=APP==='fin'?'fdash':APP==='gs'?'gsdash':APP==='rcp'?'rhome':'dash';commit()};
+  $('#viewSel').onchange=e=>{if(e.target.value==='__sbx'){sandboxStart();return}if(DEMO&&DEMO.sbx)sandboxStop(true);S.session.role=e.target.value;S.session.supId=e.target.value==='sup'?(USER.empId||S.session.supId):null;V.view=APP==='fin'?'fdash':APP==='gs'?'gsdash':APP==='rcp'?'rhome':'dash';commit()};
   $('#langBtn').onclick=()=>{LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('marsa_lang',LANG)}catch(e){}render()};
   $('#logout').onclick=()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من النظام؟','خروج','crit',()=>logout());
   $('#bell').onclick=()=>{
@@ -4031,6 +4031,25 @@ function demoStart(){
   demoGo('start');
 }
 function demoStop(){if(!DEMO)return;clearTimeout(DEMO.t);S=DEMO.real;S.session=DEMO.realSession;DEMO=null;document.body.classList.remove('demo-on');const b=$('#demoBar');if(b)b.remove();$$('.mback').forEach(m=>m.remove());V.view='fdemo';render();toast('انتهت التجربة — لم يُحفظ أي شيء')}
+/* ---------- وضع التجربة العام: نسخة مؤقتة من النظام، لا يُحفظ فيها شيء ---------- */
+async function sandboxStart(){
+  if(DEMO)return;
+  const real=S;
+  S=JSON.parse(JSON.stringify(real));S.session={...real.session};
+  DEMO={real,sbx:true,realSession:real.session,realView:V.view,realSub:V.sub};
+  V.sub={...V.sub};
+  ['guests','rsv','rcv','rtn','xpn','units'].forEach(k=>S[k]=[]);
+  document.body.classList.add('sbx-on');
+  const b=document.createElement('div');b.id='sbxBar';b.innerHTML='🧪 وضع التجربة — بيانات تجريبية ولا يُحفظ أي شيء <button class="btn sm" id="sbxEnd">إنهاء التجربة</button>';document.body.appendChild(b);$('#sbxEnd').onclick=()=>sandboxStop();
+  if(APP==='rcp'){V.sub.rb='الوادي';V.view='rhome';try{await rcpSeedDemo('الوادي')}catch(e){}}
+  render();renderHeader();toast(APP==='rcp'?'بدأت التجربة — بيانات تجريبية لبناية الوادي':'بدأت التجربة — أي تعديل هنا لا يُحفظ');
+}
+function sandboxStop(silent){
+  if(!DEMO||!DEMO.sbx)return;
+  const d=DEMO;S=d.real;S.session=d.realSession;DEMO=null;document.body.classList.remove('sbx-on');const b=$('#sbxBar');if(b)b.remove();
+  $$('.mback').forEach(m=>m.remove());V.sub=d.realSub;V.view=d.realView;
+  if(!silent){render();renderHeader();toast('انتهت التجربة — لم يُحفظ أي شيء')}
+}
 function demoAs(k){const P=DEMO_PERS[k];S.session={...P.s,base:'demo'}}
 function demoGo(k){if(!DEMO)return;$$('.mback').forEach(m=>m.remove());DEMO.step=k;
   if(k==='paid')return demoFinish();
@@ -4084,6 +4103,7 @@ function demoFinish(){const p=S.purchases.find(x=>x.id===DEMO.pid);DEMO.step='pa
   $('#dfAgain').onclick=()=>{demoStop();demoStart()};$('#dfEnd').onclick=demoStop;
 }
 document.head.insertAdjacentHTML('beforeend',`<style id="democss">
+body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
 #demoBar{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(120deg,#4A3B14,#6E5A23);color:#fff;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
