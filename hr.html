@@ -3841,7 +3841,11 @@ function rcpAttBind(m,id){const inp=$('#'+id,m);if(!inp)return;m._att=m._att||{}
 const RP=()=>S.pyr||(S.pyr=[]);
 const PYR_MAX_ATT=10;
 const PYR_ST={pending:['بانتظار موافقة المدير العام','w'],approved:['معتمد — بانتظار الصرف','i'],paid:['تم الصرف والقيد','g'],rejected:['مرفوض','c'],cancelled:['ملغي','']};
-const PYR_QUICK=['مواد تنظيف','صيانة وإصلاح','كهرباء','مياه','غاز','أدوات ومعدات','مواصلات / بنزين','ضيافة','قرطاسية'];
+const PYR_GAP='......';
+const PYR_TPL={'مواد تنظيف':'مقابل شراء مواد تنظيف ...... فاتورة رقم ...... بتاريخ ......','صيانة وإصلاح':'مقابل صيانة وإصلاح ...... شقة رقم ...... فاتورة رقم ...... بتاريخ ......','كهرباء':'مقابل إعادة شحن الشقق كهرباء — شقة رقم ...... إيصال رقم ...... بتاريخ ......','مياه':'مقابل إعادة شحن الشقق مياه — شقة رقم ...... إيصال رقم ...... بتاريخ ......','غاز':'مقابل تعبئة غاز ...... أسطوانة — إيصال رقم ...... بتاريخ ......','أدوات ومعدات':'مقابل شراء ...... فاتورة رقم ...... بتاريخ ......','مواصلات / بنزين':'مقابل تعبئة بنزين / مواصلات ...... إيصال رقم ...... بتاريخ ......','ضيافة':'مقابل شراء ضيافة ...... فاتورة رقم ...... بتاريخ ......','قرطاسية':'مقابل شراء قرطاسية ...... فاتورة رقم ...... بتاريخ ......'};
+const PYR_QUICK=Object.keys(PYR_TPL);
+const pyrTpl=(k,b)=>PYR_TPL[k]+' لصالح بناية '+b;
+function pyrGap(inp,from){const v=inp.value,i=v.indexOf(PYR_GAP,from||0);if(i<0)return false;inp.focus();inp.setSelectionRange(i,i+PYR_GAP.length);return true}
 const pyrTotal=p=>r3((p.lines||[]).reduce((a,l)=>a+(+l.amount||0),0));
 const pyrAttN=p=>(p.lines||[]).reduce((a,l)=>a+(l.att||[]).length,0);
 const pyrBadge=p=>badge((PYR_ST[p.status]||['—',''])[0],(PYR_ST[p.status]||['',''])[1]);
@@ -3892,14 +3896,16 @@ function pyrForm(src){
        <div class="pyr-no">${i+1}</div>
        <div class="pyr-body">
         <div class="frow"><div class="fld"><label>البيان *</label><input data-k="d" value="${esc(l.desc)}" placeholder="مثال: مواد تنظيف للشقق — فاتورة 1234"></div><div class="fld pyr-amt"><label>المبلغ (ر.ع) *</label><input data-k="a" type="number" step="0.001" min="0" inputmode="decimal" value="${esc(l.amount)}" placeholder="0.000"></div></div>
-        <div class="pyr-chips">${PYR_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${q}</button>`).join('')}</div>
+        <div class="pyr-chips"><span class="small muted">بيان جاهز:</span>${PYR_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${q}</button>`).join('')}</div>
         <div class="pyr-att">${l.att.map((a,j)=>`<span class="pyr-f">${a.prev?`<img src="${a.prev}" alt="">`:'<i>PDF</i>'}<em>${esc(a.name)}</em><button type="button" data-rm="${j}" aria-label="حذف المرفق">×</button></span>`).join('')}
          <label class="pyr-up ${n>=PYR_MAX_ATT?'off':''}">📎 إرفاق فاتورة / صورة<input type="file" accept="image/*,application/pdf" multiple hidden ${n>=PYR_MAX_ATT?'disabled':''}></label></div>
        </div>
        ${lines.length>1?`<button type="button" class="pyr-del" data-del title="حذف البند" aria-label="حذف البند">🗑️</button>`:''}</div>`).join('');
      $$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;
        $$('input[data-k]',el).forEach(x=>x.oninput=()=>{sync();tot()});
-       $$('[data-q]',el).forEach(x=>x.onclick=()=>{const d=$('[data-k="d"]',el);const v=d.value.trim();d.value=!v||PYR_QUICK.includes(v)?x.dataset.q:v+' — '+x.dataset.q;sync();d.focus()});
+       $$('[data-q]',el).forEach(x=>x.onclick=()=>{const d=$('[data-k="d"]',el),v=d.value.trim(),isTpl=!v||PYR_QUICK.includes(v)||Object.keys(PYR_TPL).some(k=>v.startsWith(PYR_TPL[k].split(' ......')[0]));
+         d.value=isTpl?pyrTpl(x.dataset.q,fv(m,'yB')||b0):v+' — '+x.dataset.q;sync();if(!pyrGap(d))d.focus()});
+       {const d=$('[data-k="d"]',el);d.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();if(!pyrGap(d,d.selectionEnd)&&!pyrGap(d))$('[data-k="a"]',el).focus()}};d.onclick=()=>{const v=d.value,c=d.selectionStart;const i=v.lastIndexOf(PYR_GAP,c),j=v.indexOf(PYR_GAP,Math.max(0,c-PYR_GAP.length));const k=[i,j].find(x=>x>=0&&c>=x&&c<=x+PYR_GAP.length);if(k!==undefined)d.setSelectionRange(k,k+PYR_GAP.length)}}
        $$('[data-rm]',el).forEach(x=>x.onclick=()=>{sync();lines[i].att.splice(+x.dataset.rm,1);draw()});
        const del=$('[data-del]',el);if(del)del.onclick=()=>{sync();lines.splice(i,1);draw()};
        $('input[type=file]',el).onchange=async ev=>{sync();const fs=[...ev.target.files];ev.target.value='';
@@ -3907,11 +3913,13 @@ function pyrForm(src){
      tot()};
    $('#yAdd',m).onclick=()=>{sync();lines.push({desc:'',amount:'',att:[]});draw();const ls=$$('[data-yl]',m);$('[data-k="d"]',ls[ls.length-1]).focus()};
    draw();
+   if($('#yB',m).tagName==='SELECT')$('#yB',m).onchange=()=>{sync();lines.forEach(l=>{l.desc=String(l.desc).replace(/لصالح بناية .+$/,'لصالح بناية '+fv(m,'yB'))});draw()};
    const ft=document.createElement('div');ft.className='mf';const sv=document.createElement('button');sv.className='btn';sv.textContent='📤 إرسال للمدير العام';const cn=document.createElement('button');cn.className='btn sec';cn.textContent='إلغاء';cn.onclick=close;ft.append(sv,cn);$('.modal',m).appendChild(ft);
    sv.onclick=async()=>{sync();
      const L=lines.filter(l=>String(l.desc).trim()||+l.amount||l.att.length);
      if(!L.length){toast('أضف بنداً واحداً على الأقل');return}
      const bad=L.findIndex(l=>!String(l.desc).trim()||!(+l.amount>0));if(bad>=0){toast('البند '+(bad+1)+': اكتب البيان والمبلغ');return}
+     const gap=L.findIndex(l=>String(l.desc).includes(PYR_GAP));if(gap>=0){toast('البند '+(gap+1)+': أكمل الفراغات (......) في البيان');const ip=$$('[data-k="d"]',m)[lines.indexOf(L[gap])];if(ip)pyrGap(ip);return}
      sv.disabled=cn.disabled=true;const N=L.reduce((a,l)=>a+l.att.length,0);let done=0;const out=[];
      try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att})}}
      catch(e){sv.disabled=cn.disabled=false;sv.textContent='📤 إرسال للمدير العام';toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الفاتورة':'تعذّر رفع مرفق — تحقق من الاتصال وأعد المحاولة');return}
