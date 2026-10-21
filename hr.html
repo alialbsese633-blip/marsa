@@ -472,7 +472,7 @@ const DEFAULT_SETTINGS={
   gmLeaveDays:5, minNoticeDays:7,
   advanceMaxMultiple:1, advanceMaxInst:6, advanceMinService:3,
   objectionDays:3, penaltyLookback:180, maxMonthlyPenaltyDays:5,
-  otDay:25, otNight:50, otHoliday:100, maxPermHours:4,
+  otDay:25, otNight:50, otHoliday:100, maxPermHours:4, maxPermPerReq:2,
   spfPct:7, docWarnDays:60, complaintAckDays:2, complaintResolveDays:7, resignNoticeDays:30,
   purCashCap:100, purUrgentCap:300, purVarPct:5, purValidDays:15, purSettleDays:7,
   /* حسابات المصروفات والموازنة الشهرية — تُستورد من تقرير Budget vs. Actual داخل التطبيق */
@@ -1710,7 +1710,8 @@ function requestForm(type){
     <div class="fld"><label>نوع العمل الإضافي</label><select id="kind"><option value="day">نهاري (+${st.otDay}%)</option><option value="night">ليلي 9م–5ص (+${st.otNight}%)</option><option value="holiday">يوم راحة / عطلة رسمية (+${st.otHoliday}%)</option></select></div>
     <div class="fld"><label>سبب العمل الإضافي ومن كلّفك</label><textarea id="reason"></textarea></div>`;
   if(type==='permission'){const used=S.requests.filter(r=>r.type==='permission'&&r.empId===e.id&&r.status!=='rejected'&&r.status!=='cancelled'&&inMonth(r.data.date,MONTH)).reduce((a,r)=>a+hoursBetween(r.data.fromTime,r.data.toTime),0);
-    body=`<div class="note">المستخدم هذا الشهر: ${used} من ${st.maxPermHours} ساعات</div><div class="fld"><label>التاريخ</label><input type="date" id="date" value="${TODAY}"></div><div class="frow"><div class="fld"><label>من الساعة</label><input type="time" id="fromTime" value="10:00"></div><div class="fld"><label>إلى الساعة</label><input type="time" id="toTime" value="11:00"></div></div><div class="fld"><label>السبب</label><textarea id="reason"></textarea></div>`}
+    const nw=new Date(),f0=pad(nw.getHours())+':'+pad(nw.getMinutes()),t0=pad((nw.getHours()+1)%24)+':'+pad(nw.getMinutes());
+    body=`<div class="note">المستخدم هذا الشهر: ${used} من ${st.maxPermHours} ساعات — الحد للاستئذان الواحد <b>${st.maxPermPerReq||2} ساعة</b>. بعد موافقة المشرف تتعرّف عليه البصمة تلقائياً فلا يُحسب تأخيراً أو خروجاً مبكراً.</div><div class="fld"><label>التاريخ</label><input type="date" id="date" value="${TODAY}"></div><div class="frow"><div class="fld"><label>من الساعة</label><input type="time" id="fromTime" value="${f0}"></div><div class="fld"><label>إلى الساعة</label><input type="time" id="toTime" value="${t0}"></div></div><div class="fld"><label>السبب</label><textarea id="reason"></textarea></div>`}
   if(type==='letter')body=`<div class="fld"><label>نوع الخطاب</label><select id="letterType">${LETTERS.map(l=>`<option>${l}</option>`).join('')}</select></div><div class="frow"><div class="fld"><label>موجه إلى</label><input id="to" placeholder="مثال: بنك مسقط / لمن يهمه الأمر"></div><div class="fld"><label>اللغة</label><select id="lang"><option>العربية</option><option>English</option><option>عربي + English</option></select></div></div><div class="fld"><label>ملاحظات</label><textarea id="reason"></textarea></div>`;
   if(type==='update')body=`<div class="fld"><label>البيان المراد تحديثه</label><select id="field">${Object.entries(FIELD_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div class="fld"><label>القيمة الجديدة</label><input id="value"></div><div class="fld"><label>المستند الداعم</label><input type="file" id="att"></div>`;
   if(type==='resign')body=`<div class="note w">مهلة الإخطار المعتمدة ${st.resignNoticeDays} يوماً. تُصرف المستحقات بعد إخلاء الطرف وتسليم العهد.</div><div class="fld"><label>آخر يوم عمل مقترح</label><input type="date" id="lastDay" value="${addDays(TODAY,st.resignNoticeDays)}"></div><div class="fld"><label>سبب الاستقالة</label><textarea id="reason"></textarea></div>${sigPadHTML('reqSig')}`;
@@ -1746,7 +1747,7 @@ function requestForm(type){
         else if(!data.reason)err='اكتب سبب السلفة';else if(!fv(b,'agree'))err='يلزم الإقرار بالخصم';else if(sigIsEmpty(b,'reqSig'))err='وقّع إلكترونياً لإتمام طلب السلفة';
         if(!err)data.sig=sigDataURL(b,'reqSig');}
       if(type==='overtime'){data.date=fv(b,'date');data.hours=+fv(b,'hours');data.kind=fv(b,'kind');data.reason=fv(b,'reason');if(!(data.hours>0))err='أدخل الساعات';else if(!data.reason)err='اكتب السبب'}
-      if(type==='permission'){data.date=fv(b,'date');data.fromTime=fv(b,'fromTime');data.toTime=fv(b,'toTime');data.reason=fv(b,'reason');if(hoursBetween(data.fromTime,data.toTime)<=0)err='تأكد من الوقت'}
+      if(type==='permission'){data.date=fv(b,'date');data.fromTime=fv(b,'fromTime');data.toTime=fv(b,'toTime');data.reason=fv(b,'reason');const hh=hoursBetween(data.fromTime,data.toTime);if(hh<=0)err='تأكد من الوقت';else if(hh>(+st.maxPermPerReq||2))err='الحد الأقصى للاستئذان الواحد '+(+st.maxPermPerReq||2)+' ساعة — لمدة أطول قدّم طلب إجازة';else if(!data.reason)err='اكتب سبب الاستئذان'}
       if(type==='letter'){data.letterType=fv(b,'letterType');data.to=fv(b,'to');data.lang=fv(b,'lang');data.reason=fv(b,'reason')}
       if(type==='update'){data.field=fv(b,'field');data.value=fv(b,'value');if(!data.value)err='أدخل القيمة الجديدة'}
       if(type==='resign'){data.lastDay=fv(b,'lastDay');data.reason=fv(b,'reason');if(sigIsEmpty(b,'reqSig')){toast('وقّع إلكترونياً لتأكيد طلب الاستقالة');return false}data.sig=sigDataURL(b,'reqSig');if(diffDays(TODAY,data.lastDay)<st.resignNoticeDays&&!confirm('آخر يوم أقل من مهلة الإخطار المعتمدة. متابعة؟'))return false}
@@ -3976,10 +3977,15 @@ function attDiff(a,b){let d=a-b;if(d<-720)d+=1440;if(d>720)d-=1440;return d}
 const ATT_DEF=[['08:00','13:00'],['17:00','20:30']];
 function attShifts(e){e=e||{};if(e.shiftIn)return [[e.shiftIn,e.shiftOut||'']].concat(e.shiftIn2?[[e.shiftIn2,e.shiftOut2||'']]:[]);const g=S.settings&&S.settings.attShifts;return Array.isArray(g)&&g.length?g:ATT_DEF}
 const attShTxt=e=>attShifts(e).map(p=>p[0]+'–'+p[1]).join(' و ');
+const attShHTML=e=>attShifts(e).map(p=>`<span dir="ltr">${esc(p[0])}–${esc(p[1])}</span>`).join(' و ');
 function attNear(e,t,i){let best=null,bd=1e9;attShifts(e).forEach(p=>{const v=hm2m(p[i]);if(v==null)return;const d=Math.abs(attDiff(t,v));if(d<bd){bd=d;best=v}});return best}
 const attEmpOf=p=>emp(p.empId)||{};
-function attLate(p){if(!p||p.kind!=='in')return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,0);if(due==null)return 0;const d=attDiff(t,due);return d>attGrace()?d:0}
-function attEarly(p){if(!p||p.kind!=='out')return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,1);if(due==null)return 0;const d=attDiff(due,t);return d>0?d:0}
+/* الاستئذان المعتمد والإجازات: البصمة داخل وقت الاستئذان لا تُحسب تأخيراً ولا خروجاً مبكراً */
+function attPerms(empId,d){return S.requests.filter(r=>r.type==='permission'&&r.status==='approved'&&String(r.empId)===String(empId)&&r.data&&r.data.date===d).map(r=>({a:hm2m(r.data.fromTime),b:hm2m(r.data.toTime),r})).filter(x=>x.a!=null&&x.b!=null)}
+function attExc(p){if(!p)return null;const t=hm2m(p.hm);if(t==null)return null;const x=attPerms(p.empId,p.d).find(q=>t>=q.a-15&&t<=q.b+15);return x?x.r:null}
+const attOnLeave=(empId,d)=>(S.leaves||[]).some(l=>String(l.empId)===String(empId)&&l.from<=d&&d<=(l.to||l.from));
+function attLate(p){if(!p||p.kind!=='in'||attExc(p))return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,0);if(due==null)return 0;const d=attDiff(t,due);return d>attGrace()?d:0}
+function attEarly(p){if(!p||p.kind!=='out'||attExc(p))return 0;const t=hm2m(p.hm);if(t==null)return 0;const due=attNear(attEmpOf(p),t,1);if(due==null)return 0;const d=attDiff(due,t);return d>0?d:0}
 const attDueIn=p=>{const v=attNear(attEmpOf(p),hm2m(p.hm),0);return v==null?'':pad(Math.floor(v/60))+':'+pad(v%60)};
 function attSessions(L){const out=[];let cur=null;
   L.slice().sort((a,b)=>String(a.at).localeCompare(String(b.at))).forEach(p=>{
@@ -4040,35 +4046,42 @@ async function attDo(kind){
   }catch(err){w.close();toast('تعذّر تسجيل البصمة')}
 }
 function attDone(p,photo){const l=attLate(p),ea=attEarly(p);
-  modal({title:p.kind==='in'?'✅ تم تسجيل الحضور':'✅ تم تسجيل الانصراف',sub:`${esc(p.locName)} — ${fdate(p.d)}`,body:`<div class="att-ok"><div class="att-big">${p.hm}</div>${l?`<span class="bd c">متأخر ${l} دقيقة</span>`:p.kind==='in'?'<span class="bd g">في الوقت ✓</span>':''}${ea?`<span class="bd w">قبل موعد الانصراف بـ ${ea} دقيقة</span>`:''}</div><img src="${photo}" class="att-ph" alt="">`,foot:[{t:'تم'}]});render()}
+  modal({title:p.kind==='in'?'✅ تم تسجيل الحضور':'✅ تم تسجيل الانصراف',sub:`${esc(p.locName)} — ${fdate(p.d)}`,body:`<div class="att-ok"><div class="att-big">${p.hm}</div>${attExc(p)?'<span class="bd g">ضمن استئذان معتمد ✓</span>':l?`<span class="bd c">متأخر ${l} دقيقة</span>`:p.kind==='in'?'<span class="bd g">في الوقت ✓</span>':''}${ea?`<span class="bd w">قبل موعد الانصراف بـ ${ea} دقيقة</span>`:''}</div><img src="${photo}" class="att-ph" alt="">`,foot:[{t:'تم'}]});render()}
 /* --- واجهة الموظف --- */
 VIEWS.punch=()=>{const e=emp(S.session.empId);
   if(!e)return ph('📍 بصمة الدوام','')+`<div class="card"><div class="empty">حسابك غير مرتبط بملف موظف — راجع الموارد البشرية.</div></div>`;
   return ph('📍 بصمة الدوام',fdate(TODAY))+`<div class="card att-hero">
    <div class="att-clock" id="atClock">--:--</div>
-   <div class="small muted">دوامك: <b>${esc(attShTxt(e))}</b></div>
+   <div class="small muted">دوامك: <b>${attShHTML((e))}</b></div>
    <div id="atLast" class="att-last">…</div>
    <div class="seg att-kind" id="atKind"><button data-k="in">🟢 حضور</button><button data-k="out">🔴 انصراف</button></div>
    <button class="att-go" id="atGo">📷 امسح رمز البصمة</button>
-   <div class="small muted">وجّه الكاميرا لرمز QR المعلّق في موقع عملك — يُسجَّل الوقت من الخادم وتُحفظ صورة لحظة المسح.</div></div>
+   <div class="small muted">وجّه الكاميرا لرمز QR المعلّق في موقع عملك — يُسجَّل الوقت من الخادم وتُحفظ صورة لحظة المسح.</div>
+   <div class="att-more"><button class="btn sec" id="atPerm">⏱️ طلب استئذان (حتى ساعتين)</button><button class="btn sec" id="atLeave">🌴 طلب إجازة</button></div>
+   <div id="atPermNow"></div></div>
    <div class="card"><h2>بصماتي هذا الشهر</h2><div id="atMine"><div class="muted small">جارٍ التحميل…</div></div></div>`};
 BIND.punch=()=>{const e=emp(S.session.empId);if(!e)return;
   clearInterval(window._atClk);const ck=()=>{const el=$('#atClock');if(!el){clearInterval(window._atClk);return}const d=new Date();el.textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())};ck();window._atClk=setInterval(ck,1000);
   let kind='in';const setK=k=>{kind=k;$$('#atKind button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#atGo').textContent=k==='in'?'📷 امسح رمز البصمة — حضور':'📷 امسح رمز البصمة — انصراف'};setK('in');
   $$('#atKind button').forEach(b=>b.onclick=()=>setK(b.dataset.k));$('#atGo').onclick=()=>attDo(kind);
+  $('#atPerm').onclick=()=>requestForm('permission');$('#atLeave').onclick=()=>requestForm('leave');
+  {const P=S.requests.filter(r=>r.type==='permission'&&String(r.empId)===String(e.id)&&r.data&&r.data.date>=TODAY&&['pending','approved'].includes(r.status)).sort((a,b)=>String(a.data.date+a.data.fromTime).localeCompare(String(b.data.date+b.data.fromTime)));
+   const box=$('#atPermNow');if(box&&P.length)box.innerHTML=P.map(r=>`<div class="note ${r.status==='approved'?'g':'w'} small">⏱️ استئذان ${fdate(r.data.date)} من <b dir="ltr">${esc(r.data.fromTime)}</b> إلى <b dir="ltr">${esc(r.data.toTime)}</b> — ${r.status==='approved'?'معتمد ✓ (البصمة تتعرّف عليه)':'بانتظار موافقة المشرف'}</div>`).join('')}
   attMonth(TODAY.slice(0,7)).then(rows=>{const L=rows.filter(p=>p.empId===e.id).sort((a,b)=>String(a.at).localeCompare(String(b.at)));const last=L[L.length-1];
     {const n=new Date(),nm=n.getHours()*60+n.getMinutes();let k='in',bd=1e9;attShifts(e).forEach(p=>[[p[0],'in'],[p[1],'out']].forEach(([h,kk])=>{const v=hm2m(h);if(v==null)return;const d=Math.abs(attDiff(nm,v));if(d<bd){bd=d;k=kk}}));
      if(last&&last.kind===k&&Date.now()-new Date(last.at)<3*36e5)k=k==='in'?'out':'in';setK(k)}
     const lb=$('#atLast');if(lb)lb.innerHTML=last?`آخر بصمة: <b>${last.kind==='in'?'حضور':'انصراف'}</b> ${fdate(last.d)} — <b dir="ltr">${last.hm}</b> — ${esc(last.locName)}`:'لا بصمات هذا الشهر بعد';
     const ss=attSessions(L).reverse(),box=$('#atMine');if(!box)return;
     const lateN=ss.filter(x=>attLate(x.in)).length;
-    box.innerHTML=ss.length?`<div class="small muted" style="margin-bottom:8px">أيام الحضور: <b>${new Set(ss.filter(x=>x.in).map(x=>x.d)).size}</b> — مرات التأخير: <b style="color:${lateN?'var(--critical)':'inherit'}">${lateN}</b></div><div class="tw"><table><thead><tr><th>اليوم</th><th>الحضور</th><th>الانصراف</th><th>المدة</th></tr></thead><tbody>${ss.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">+${attLate(x.in)}د</span>`:''}`:'—'}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">-${attEarly(x.out)}د</span>`:''}`:'<span class="muted">—</span>'}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا بصمات هذا الشهر بعد.</div>';
+    box.innerHTML=ss.length?`<div class="small muted" style="margin-bottom:8px">أيام الحضور: <b>${new Set(ss.filter(x=>x.in).map(x=>x.d)).size}</b> — مرات التأخير: <b style="color:${lateN?'var(--critical)':'inherit'}">${lateN}</b></div><div class="tw"><table><thead><tr><th>اليوم</th><th>الحضور</th><th>الانصراف</th><th>المدة</th></tr></thead><tbody>${ss.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">+${attLate(x.in)}د</span>`:''}${attExc(x.in)?' <span class="bd g">بإذن ✓</span>':''}`:'—'}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">-${attEarly(x.out)}د</span>`:''}${attExc(x.out)?' <span class="bd g">بإذن ✓</span>':''}`:'<span class="muted">—</span>'}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted small">لا بصمات هذا الشهر بعد.</div>';
   }).catch(err=>{const box=$('#atMine');if(box)box.innerHTML=attErrHTML(err)})};
 /* --- تقارير الإدارة --- */
-function attSummary(rows){const by={};rows.forEach(p=>{(by[p.empId]=by[p.empId]||[]).push(p)});
-  S.employees.filter(e=>e.status!=='terminated').forEach(e=>{if(!by[e.id])by[e.id]=[]});
+function attPermM(id,d){const m=String(d).slice(0,7),P=S.requests.filter(r=>r.type==='permission'&&r.status==='approved'&&String(r.empId)===String(id)&&r.data&&String(r.data.date).slice(0,7)===m);return {n:P.length,h:P.reduce((a,r)=>a+hoursBetween(r.data.fromTime,r.data.toTime),0)}}
+function attLeaveM(id,d){const m=String(d).slice(0,7);let n=0;(S.leaves||[]).filter(l=>String(l.empId)===String(id)).forEach(l=>{for(let x=l.from;x&&x<=(l.to||l.from);x=addDays(x,1)){if(x.slice(0,7)===m&&x<=TODAY)n++;if(x>TODAY)break}});return n}
+function attSummary(rows,mon){const by={};rows.forEach(p=>{(by[p.empId]=by[p.empId]||[]).push(p)});
+  S.employees.filter(e=>e.status!=='terminated').forEach(e=>{if(!by[e.id])by[e.id]=[]});const MD=(mon||TODAY.slice(0,7))+'-01';
   return Object.entries(by).map(([id,L])=>{const ss=attSessions(L),e=emp(id)||{};const late=ss.filter(x=>attLate(x.in));
-    return {id,e,name:e.name||(L[0]||{}).name||id,ss,days:new Set(ss.filter(x=>x.in).map(x=>x.d)).size,late:late.length,lm:late.reduce((a,x)=>a+attLate(x.in),0),early:ss.filter(x=>attEarly(x.out)).length,noOut:ss.filter(x=>x.in&&!x.out&&x.d<TODAY).length,hrs:ss.reduce((a,x)=>a+attHrs(x),0)}})
+    return {id,e,name:e.name||(L[0]||{}).name||id,ss,days:new Set(ss.filter(x=>x.in).map(x=>x.d)).size,late:late.length,lm:late.reduce((a,x)=>a+attLate(x.in),0),early:ss.filter(x=>attEarly(x.out)).length,noOut:ss.filter(x=>x.in&&!x.out&&x.d<TODAY&&!attExc(x.in)).length,perm:attPermM(id,MD),leave:attLeaveM(id,MD),hrs:ss.reduce((a,x)=>a+attHrs(x),0)}})
    .sort((a,b)=>b.lm-a.lm||String(a.name).localeCompare(String(b.name)))}
 function attPhotoLoad(root){const q=$$('[data-aph]',root).filter(x=>!x.dataset.done);let i=0;
   const next=()=>{const el=q[i++];if(!el)return;el.dataset.done=1;const id=el.dataset.aph;
@@ -4079,21 +4092,21 @@ function attBindPh(root){$$('.att-th',root).forEach(x=>x.onclick=()=>{if(x.datas
 function attEmpModal(r,mon){
   const rows=r.ss.slice().sort((a,b)=>String(a.d).localeCompare(String(b.d)));
   modal({title:'📍 '+esc(r.name),sub:`${monthName(mon)} — حضور ${r.days} يوم — تأخير ${r.late} مرة (${r.lm} دقيقة)`,wide:true,
-    body:`<div class="tw"><table class="att-tb"><thead><tr><th>اليوم</th><th>الحضور</th><th>صورة</th><th>الانصراف</th><th>صورة</th><th>المدة</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">متأخر ${attLate(x.in)}د</span>`:''}<div class="small muted">${esc(x.in.locName)}</div>`:'<span class="muted">—</span>'}</td><td>${attPh(x.in)}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">مبكر ${attEarly(x.out)}د</span>`:''}<div class="small muted">${esc(x.out.locName)}</div>`:'<span class="bd w">بدون انصراف</span>'}</td><td>${attPh(x.out)}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا بصمات</td></tr>'}</tbody></table></div>
-     <div class="small muted" style="margin-top:6px">الدوام: <b>${esc(attShTxt(r.e))}</b> — سماحية التأخير ${attGrace()} دقائق. الصور هي لقطة الكاميرا لحظة مسح الرمز: تأكد أن الرمز ظاهر في مكانه المعتاد.</div>`,
+    body:`<div class="tw"><table class="att-tb"><thead><tr><th>اليوم</th><th>الحضور</th><th>صورة</th><th>الانصراف</th><th>صورة</th><th>المدة</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${x.in?`<b dir="ltr">${x.in.hm}</b>${attLate(x.in)?` <span class="bd c">متأخر ${attLate(x.in)}د</span>`:''}${attExc(x.in)?' <span class="bd g">بإذن ✓</span>':''}<div class="small muted">${esc(x.in.locName)}</div>`:'<span class="muted">—</span>'}</td><td>${attPh(x.in)}</td><td>${x.out?`<b dir="ltr">${x.out.hm}</b>${attEarly(x.out)?` <span class="bd w">مبكر ${attEarly(x.out)}د</span>`:''}${attExc(x.out)?' <span class="bd g">بإذن ✓</span>':''}<div class="small muted">${esc(x.out.locName)}</div>`:'<span class="bd w">بدون انصراف</span>'}</td><td>${attPh(x.out)}</td><td>${attHrs(x)?attFmtH(attHrs(x)):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا بصمات</td></tr>'}</tbody></table></div>
+     <div class="small muted" style="margin-top:6px">الدوام: <b>${attShHTML((r.e))}</b> — سماحية التأخير ${attGrace()} دقائق. الصور هي لقطة الكاميرا لحظة مسح الرمز: تأكد أن الرمز ظاهر في مكانه المعتاد.</div>`,
     foot:[{t:'إغلاق',cls:'sec'}],onMount:m=>attBindPh(m)});
 }
-function attMonthHTML(rows,mon){const A=attSummary(rows),tl=A.reduce((a,r)=>a+r.late,0),tm=A.reduce((a,r)=>a+r.lm,0),no=A.reduce((a,r)=>a+r.noOut,0);
+function attMonthHTML(rows,mon){const A=attSummary(rows,mon),tl=A.reduce((a,r)=>a+r.late,0),tm=A.reduce((a,r)=>a+r.lm,0),no=A.reduce((a,r)=>a+r.noOut,0);
   return `<div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${A.filter(r=>r.days).length}</b><span>موظف بصم</span></div><div style="--c:#d13b3b"><b>${tl}</b><span>مرات تأخير</span></div><div style="--c:#c97c00"><b>${tm}</b><span>دقائق تأخير</span></div><div style="--c:#7a4bc2"><b>${no}</b><span>بدون انصراف</span></div></div>
   <div class="card"><div class="between"><h2>${monthName(mon)}</h2><div><button class="btn sm sec" id="atPr">🖨️ طباعة</button> <button class="btn sm sec" id="atWa">📋 واتساب</button> <button class="btn sm sec" id="atRf">↻ تحديث</button></div></div>
-  ${A.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr class="click" data-ae="${i}" style="cursor:pointer"><td><b>${esc(r.name)}</b>${r.e.shiftIn?`<div class="small muted">دوام خاص: ${esc(attShTxt(r.e))}</div>`:''}</td><td class="small">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${r.days}</td><td>${r.late?`<b style="color:var(--critical)">${r.late}</b>`:'0'}</td><td>${r.lm||'0'}</td><td>${r.early||'0'}</td><td>${r.noOut?`<b style="color:#c97c00">${r.noOut}</b>`:'0'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table></div><div class="small muted" style="margin-top:6px">اضغط على أي موظف لعرض أيامه وصور البصمات.</div>`:'<div class="empty">لا بصمات في هذا الشهر</div>'}</div>`}
+  ${A.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>استئذان</th><th>إجازة</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr class="click" data-ae="${i}" style="cursor:pointer"><td><b>${esc(r.name)}</b>${r.e.shiftIn?`<div class="small muted">دوام خاص: ${attShHTML((r.e))}</div>`:''}</td><td class="small">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${r.days}</td><td>${r.late?`<b style="color:var(--critical)">${r.late}</b>`:'0'}</td><td>${r.lm||'0'}</td><td>${r.early||'0'}</td><td>${r.noOut?`<b style="color:#c97c00">${r.noOut}</b>`:'0'}</td><td>${r.perm.n?`${r.perm.n} (${r.perm.h}س)`:'—'}</td><td>${r.leave?r.leave+' يوم':'—'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table></div><div class="small muted" style="margin-top:6px">البصمات داخل وقت استئذان معتمد لا تُحسب تأخيراً ولا خروجاً مبكراً. اضغط على أي موظف لعرض أيامه وصور البصمات.</div>`:'<div class="empty">لا بصمات في هذا الشهر</div>'}</div>`}
 function attLateHTML(rows){const L=rows.filter(p=>attLate(p)).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
   return `<div class="card"><h2>⏰ المتأخرون <small>${L.length}</small></h2>${L.length?`<div class="tw"><table><thead><tr><th>الموظف</th><th>اليوم</th><th>وقت البصمة</th><th>الموعد</th><th>التأخير</th><th>الموقع</th><th>صورة</th></tr></thead><tbody>${L.map(p=>`<tr><td><b>${esc((emp(p.empId)||{}).name||p.name)}</b></td><td>${fdate(p.d)}</td><td dir="ltr"><b>${p.hm}</b></td><td dir="ltr">${attDueIn(p)}</td><td><span class="bd c">${attLate(p)} دقيقة</span></td><td class="small">${esc(p.locName)}</td><td>${attPh(p)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا تأخير هذا الشهر 🎉</div>'}</div>`}
 function attTodayHTML(rows){const T=rows.filter(p=>p.d===TODAY),by={};T.forEach(p=>(by[p.empId]=by[p.empId]||[]).push(p));
   const now=new Date(),nm=now.getHours()*60+now.getMinutes();
   const inNow=[],left=[];Object.entries(by).forEach(([id,L])=>{const ss=attSessions(L),last=ss[ss.length-1];(last&&last.in&&!last.out?inNow:left).push({id,last})});
   const curP=e=>attShifts(e).find(p=>{const a=hm2m(p[0]),b=hm2m(p[1]);return a!=null&&b!=null&&nm>a+attGrace()&&nm<b});
-  const miss=S.employees.filter(e=>{if(e.status==='terminated')return false;const p=curP(e);if(!p)return false;const a=hm2m(p[0]);return !(by[e.id]||[]).some(x=>x.kind==='in'&&hm2m(x.hm)>=a-90)}).map(e=>({...e,_p:curP(e)}));
+  const miss=S.employees.filter(e=>{if(e.status==='terminated'||attOnLeave(e.id,TODAY)||attPerms(e.id,TODAY).some(q=>nm>=q.a-15&&nm<=q.b+15))return false;const p=curP(e);if(!p)return false;const a=hm2m(p[0]);return !(by[e.id]||[]).some(x=>x.kind==='in'&&hm2m(x.hm)>=a-90)}).map(e=>({...e,_p:curP(e)}));
   const li=(x,txt)=>`<div class="li"><div class="av">${initials((emp(x.id)||{}).name||'؟')}</div><div><b>${esc((emp(x.id)||{}).name||x.id)}</b><div class="small muted">${txt}</div></div>${attPh(x.last&&(x.last.out||x.last.in))}</div>`;
   return `<div class="grid g2"><div class="card"><h2>🟢 في الدوام الآن <small>${inNow.length}</small></h2><div class="list">${inNow.map(x=>li(x,`حضر ${x.last.in.hm}${attLate(x.last.in)?' — متأخر '+attLate(x.last.in)+'د':''} — ${esc(x.last.in.locName)}`)).join('')||'<div class="muted small">—</div>'}</div></div>
    <div class="card"><h2>⚠️ لم يبصم بعد <small>${miss.length}</small></h2><div class="list">${miss.map(e=>`<div class="li"><div class="av">${initials(e.name)}</div><div><b>${esc(e.name)}</b><div class="small muted">فترة <span dir="ltr">${esc(e._p[0])}–${esc(e._p[1])}</span> — ${esc(e.building||e.dept||'')}</div></div></div>`).join('')||'<div class="muted small">الكل بصم ✓</div>'}</div></div></div>
@@ -4153,13 +4166,13 @@ async function attPrintLocs(list){try{await loadScriptOnce('vendor/qrcode.min.js
    list.map(l=>`<div class="aq"><div class="aqc"><img class="lg" src="${base}icons/marsa-lockup.png" alt=""><h1>📍 بصمة الدوام</h1><h2>${esc(l.name)}</h2><div class="qq">${attQRsvg(l,8)}</div>
     <div class="st"><b>افتح تطبيق مرسى ← بصمة الدوام ← امسح الرمز</b><br>الكاميرا العادية لا تكفي — البصمة تُسجَّل من داخل التطبيق فقط</div>
     <div class="sn" dir="ltr">${esc(l.id)} · ${esc(l.tok.slice(0,4))}•••• · ${TODAY}</div></div></div>`).join(''),'رموز بصمة الدوام')}
-function attPrintMonth(rows,mon){const A=attSummary(rows);
+function attPrintMonth(rows,mon){const A=attSummary(rows,mon);
   nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(TODAY)}</div><div class="c">تقرير الحضور والانصراف<span>Attendance Report — ${monthName(mon)}</span></div><div class="l"></div></div>
-   <table class="nsg"><thead><tr><th>#</th><th>الموظف</th><th>القسم / البناية</th><th>الموعد</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr><td>${i+1}</td><td class="t">${esc(r.name)}</td><td class="t">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${esc(attShTxt(r.e))}</td><td>${r.days}</td><td>${r.late}</td><td>${r.lm}</td><td>${r.early}</td><td>${r.noOut}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table>
+   <table class="nsg"><thead><tr><th>#</th><th>الموظف</th><th>القسم / البناية</th><th>الموعد</th><th>أيام الحضور</th><th>مرات التأخير</th><th>دقائق التأخير</th><th>خروج مبكر</th><th>بدون انصراف</th><th>استئذان</th><th>إجازة</th><th>ساعات العمل</th></tr></thead><tbody>${A.map((r,i)=>`<tr><td>${i+1}</td><td class="t">${esc(r.name)}</td><td class="t">${esc(r.e.dept||'')}${r.e.building?' — '+esc(r.e.building):''}</td><td>${attShHTML((r.e))}</td><td>${r.days}</td><td>${r.late}</td><td>${r.lm}</td><td>${r.early}</td><td>${r.noOut}</td><td>${r.perm.n?r.perm.n+' ('+r.perm.h+'س)':'—'}</td><td>${r.leave||'—'}</td><td>${attFmtH(r.hrs)}</td></tr>`).join('')}</tbody></table>
    <div class="small" style="margin-top:6px">سماحية التأخير ${attGrace()} دقائق — الوقت مسجّل من الخادم، ولكل بصمة صورة محفوظة في مرسى.</div>
    <div class="sg"><div><div class="dots">................................</div>الموارد البشرية<span>HR</span></div><div><div class="dots">................................</div>المدير العام<span>General Manager</span></div></div>`,'تقرير الحضور '+mon)}
-function attWaText(rows,mon){const A=attSummary(rows).filter(r=>r.late||r.noOut||r.early);
-  return `*نسائم صلالة — تقرير الحضور ${monthName(mon)}*\n\n`+(A.length?A.map((r,i)=>`${i+1}. ${r.name}: تأخير ${r.late} مرة (${r.lm} د)${r.early?` — خروج مبكر ${r.early}`:''}${r.noOut?` — بدون انصراف ${r.noOut}`:''}`).join('\n'):'لا تأخير ولا ملاحظات هذا الشهر ✓')+`\n\nسماحية التأخير: ${attGrace()} دقائق`}
+function attWaText(rows,mon){const A=attSummary(rows,mon).filter(r=>r.late||r.noOut||r.early);
+  return `*نسائم صلالة — تقرير الحضور ${monthName(mon)}*\n\n`+(A.length?A.map((r,i)=>`${i+1}. ${r.name}: تأخير ${r.late} مرة (${r.lm} د)${r.early?` — خروج مبكر ${r.early}`:''}${r.noOut?` — بدون انصراف ${r.noOut}`:''}${r.perm.n?` — استئذان ${r.perm.n}`:''}`).join('\n'):'لا تأخير ولا ملاحظات هذا الشهر ✓')+`\n\nسماحية التأخير: ${attGrace()} دقائق`}
 VIEWS.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7);
   return ph('📍 البصمة والحضور','بصمة برمز QR في موقع العمل — الوقت من الخادم وصورة لكل بصمة',['month','late'].includes(tab)?`<input type="month" id="atM" value="${mon}" max="${TODAY.slice(0,7)}" style="max-width:180px">`:'')+
   `<div class="seg att-tabs" id="atT">${[['month','📊 التقرير الشهري'],['late','⏰ المتأخرون'],['today','🟢 اليوم'],['locs','🔳 رموز QR'],['times','🕗 مواعيد الدوام']].map(([k,l])=>`<button data-t="${k}" class="${tab===k?'on':''}">${l}</button>`).join('')}</div>
@@ -4187,7 +4200,7 @@ BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),bo
     return}
   const m=tab==='today'?TODAY.slice(0,7):mon;
   attMonth(m).then(rows=>{if(!$('#atBody'))return;
-    if(tab==='month'){body.innerHTML=attMonthHTML(rows,m);const A=attSummary(rows);
+    if(tab==='month'){body.innerHTML=attMonthHTML(rows,m);const A=attSummary(rows,m);
       $$('[data-ae]').forEach(x=>x.onclick=()=>attEmpModal(A[+x.dataset.ae],m));
       $('#atPr').onclick=()=>attPrintMonth(rows,m);$('#atWa').onclick=()=>rcpCopyWA(attWaText(rows,m));$('#atRf').onclick=()=>{delete ATT_CACHE[m];render()}}
     else if(tab==='late'){body.innerHTML=attLateHTML(rows);attBindPh(body)}
@@ -4571,6 +4584,7 @@ body.sbx-on .mback{padding-bottom:62px!important}
 .att-loc{display:flex;gap:12px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:12px;background:var(--surface)}.att-loc.off{opacity:.5}
 .att-q{width:84px;height:84px;flex:0 0 84px;background:#fff;border-radius:10px;padding:4px}.att-q svg{width:100%;height:100%}
 .att-la{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.att-more{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:360px}.att-more .btn{flex:1}#atPermNow{width:100%;max-width:360px}
 .att-shf{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}@media(max-width:640px){.att-shf{grid-template-columns:1fr}}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
