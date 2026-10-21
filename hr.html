@@ -474,7 +474,7 @@ const DEFAULT_SETTINGS={
   objectionDays:3, penaltyLookback:180, maxMonthlyPenaltyDays:5,
   otDay:25, otNight:50, otHoliday:100, maxPermHours:4, maxPermPerReq:2,
   spfPct:7, docWarnDays:60, complaintAckDays:2, complaintResolveDays:7, resignNoticeDays:30,
-  purCashCap:100, purUrgentCap:300, purVarPct:5, purValidDays:15, purSettleDays:7,
+  purMin:15, purCashCap:100, purUrgentCap:300, purVarPct:5, purValidDays:15, purSettleDays:7,
   /* حسابات المصروفات والموازنة الشهرية — تُستورد من تقرير Budget vs. Actual داخل التطبيق */
   expAccounts:[]
 };
@@ -528,14 +528,14 @@ let V={view:'dash',sub:{},month:MONTH};
 const API=String((window.HR_CONFIG||{}).API_URL||'').trim();
 const TOKEN_KEY='marsa_token';
 let TOKEN=null,USER=null;
-const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv',guests:'gst',rsv:'rsv',rcv:'rcv',rtn:'rtn',xpn:'xpn',units:'unt',ops:'opx',pyr:'pyr'};
-const NO_ORD=['guests','rsv','rcv','rtn','xpn','units','ops','pyr'];   // سجلات الاستقبال كثيرة: تُرتّب بالرقم ولا يُحفظ لها ترتيب
+const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv',guests:'gst',rsv:'rsv',rcv:'rcv',rtn:'rtn',xpn:'xpn',units:'unt',ops:'opx',pyr:'pyr',debts:'dbt',dbrep:'dbr'};
+const NO_ORD=['guests','rsv','rcv','rtn','xpn','units','ops','pyr','debts','dbrep'];   // سجلات الاستقبال كثيرة: تُرتّب بالرقم ولا يُحفظ لها ترتيب
 const KEY_OK=/^[A-Za-z0-9_.-]{1,60}$/;
 const encK=k=>String(k).replace(/:/g,'.'),decK=k=>String(k).startsWith('u.')?'u:'+String(k).slice(2):String(k);
 
 function emptyState(session){
   return {v:2,settings:{...DEFAULT_SETTINGS},matrix:JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
-    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],
+    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],debts:[],dbrep:[],
     payroll:{},policies:[],policyVersion:1,policyAcks:{},policyPrints:{},policySigned:{},accrued:'',
     audit:[],seq:{REQ:0,VIO:0,CMP:0,ANN:0,ADV:0,AST:0,CSH:0,RWD:0,PUR:0},
     session:session||{role:'hr',empId:null,supId:null}};
@@ -1249,7 +1249,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rdebt:'chart',fdebt:'chart',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1267,11 +1267,11 @@ const GS_NAV_FULL=[['gsdash','🏠','الرئيسية'],['gsprog','🗓️','خ�
 const GS_NAV={hr:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),gm:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),sup:GS_NAV_FULL.concat([['gseval','⭐','تقييمي']]),acc:[['gsno','🔒','الإشراف الداخلي']],emp:[['gsno','🔒','الإشراف الداخلي']]};
 const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV,rcp:RCP_NAV});
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- sup:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
- emp:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ sup:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
+ emp:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
 };
 function navFor(R){const N=APP_NAVS()[APP];return (N&&N[R])?N[R]:NAV[R]}
 function applyAppShell(){
@@ -1310,7 +1310,9 @@ function renderNav(){
     if(n[0]==='sep')return '<div class="sep"></div>';
     let pill='';if(n[0]==='approvals'&&cnt)pill=`<span class="pill">${cnt}</span>`;if(n[0]==='complaints'&&openC&&R==='hr')pill=`<span class="pill">${openC}</span>`;
     if(n[0]==='rret'&&typeof rcpRetQueue==='function'){const rq=rcpRetQueue().length;if(rq)pill=`<span class="pill">${rq}</span>`}
-    if(n[0]==='rpay'&&typeof pyrQueue==='function'){const yq=pyrQueue().length;if(yq)pill=`<span class="pill">${yq}</span>`}
+    if(n[0]==='rpay'&&typeof pyrQueue==='function'){const yq=pyrQueue().length+(typeof purchasesPendingForMe==='function'?purchasesPendingForMe().length:0);if(yq)pill=`<span class="pill">${yq}</span>`}
+    if(n[0]==='rdebt'&&typeof debtRounds==='function'){const rid=debtRounds()[0];if(rid&&['open','overdue'].includes(debtState(rid,rcpBld()).k))pill='<span class="pill">!</span>'}
+    if(n[0]==='fdebt'&&typeof debtRounds==='function'){const rid=debtRounds()[0];const n2=rid?RD().filter(x=>x.rid===rid&&['ok','late'].includes(debtState(rid,x.bld).k)).length:0;if(n2)pill=`<span class="pill">${n2}</span>`}
     if(n[0]==='procurement'){const pc=purchasesPendingForMe().length;if(pc)pill=`<span class="pill">${pc}</span>`}
     return `<button data-v="${n[0]}" class="${V.view===n[0]?'on':''}"><span class="ic">${svgIc(NAV_IC[n[0]])}</span>${n[2]}${pill}</button>`}).join('');
   $$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -1333,7 +1335,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -2132,7 +2134,7 @@ function purVal(p){return p.purchase?purActual(p):purTotal(p)}
 const myEmp=()=>emp(S.session.empId)||{};
 /* مدير النظام (حساب الموارد البشرية): كل الصلاحيات — ويُسجَّل اسمه الفعلي في كل خطوة */
 const isSuper=()=>!DEMO&&!!(S.session&&(S.session.base==='hr'||(USER&&USER.role==='hr')));
-const isReception=()=>(role()==='emp'&&myEmp().dept==='الاستقبال')||isSuper();
+const isReception=()=>role()==='rcp'||(role()==='emp'&&myEmp().dept==='الاستقبال')||isSuper();
 const finDuty=k=>(((S.settings.finDuty||{})[k])||[]).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
 const meUser=()=>String(S.session.user||'').toLowerCase();
 const meEmpRec=()=>emp(role()==='sup'?S.session.supId:S.session.empId)||{};
@@ -3825,9 +3827,12 @@ function rcpDayHTML(b,d,forPrint){const D=rcpDay(b,d),st=d===TODAY?rcpStats(b):n
    ${st?`<h4 class="rcp-h4">الشقق الفارغة اليوم (${vac.length} من ${st.all}) — الإشغال ${st.pct}%</h4><div class="rcp-vac">${vac.map(([u,s])=>`<span style="--c:${RCP_ST[s.st][1]}">${esc(u)} <i>${RCP_ST[s.st][0]}</i></span>`).join('')||'<span class="muted">لا توجد شقق فارغة 🎉</span>'}</div>`:''}
    <div class="grid g2" style="margin-top:12px"><div><h4 class="rcp-h4">وصول (${arr.length})</h4>${arr.map(r=>`<div class="small">• ${esc(r.unit)} — ${esc(r.gname)} ${forPrint?'':rcpRsvBadge(r)}</div>`).join('')||'<div class="small muted">—</div>'}</div><div><h4 class="rcp-h4">مغادرة (${dep.length})</h4>${dep.map(r=>`<div class="small">• ${esc(r.unit)} — ${esc(r.gname)} ${forPrint?'':rcpRsvBadge(r)}</div>`).join('')||'<div class="small muted">—</div>'}</div></div></div>`}
 function rcpXpnForm(){const b=rcpBld();
-  modal({title:'💸 مصروف / إيداع من الصندوق',sub:esc(b),body:`<div class="fld"><label>النوع</label><select id="xC">${Object.entries(RCP_XCAT).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="xA" type="number" step="0.001" inputmode="decimal"></div><div class="fld"><label>التاريخ</label><input id="xD" type="date" value="${TODAY}" max="${TODAY}"></div></div><div class="fld"><label>البيان *</label><input id="xT" placeholder="مثال: شراء مواد تنظيف — فاتورة 123"></div>`,
+  modal({title:'💸 مصروف / إيداع من الصندوق',sub:esc(b),body:`<div class="fld"><label>النوع</label><select id="xC">${Object.entries(RCP_XCAT).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="xA" type="number" step="0.001" inputmode="decimal"></div><div class="fld"><label>التاريخ</label><input id="xD" type="date" value="${TODAY}" max="${TODAY}"></div></div><div class="pyr-pur" id="xPurW" hidden><b>🛒 المبلغ أكثر من ${purMin()} ر.ع — يلزم طلب شراء معتمد</b>${purPickHTML(b,'','id="xPur"')}<button type="button" class="btn sm sec" id="xNewPur">➕ طلب شراء جديد</button></div><div class="fld"><label>البيان *</label><input id="xT" placeholder="مثال: شراء مواد تنظيف — فاتورة 123"></div>`,
    onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='حفظ';ft.append(ok);$('.modal',m).appendChild(ft);
-     ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
+     const chk=()=>{$('#xPurW',m).hidden=!(fv(m,'xC')==='exp'&&+fv(m,'xA')>purMin())};$('#xA',m).addEventListener('input',chk);$('#xC',m).addEventListener('change',chk);$('#xNewPur',m).onclick=()=>purchaseForm();
+     ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}
+       const needPur=fv(m,'xC')==='exp'&&a>purMin();if(needPur&&!fv(m,'xPur')){toast('مصروف أكثر من '+purMin()+' ر.ع — اختر طلب الشراء المعتمد أو أنشئ طلب شراء');return}
+       ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,pur:needPur?fv(m,'xPur'):'',date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
 }
 
 /* ---------- مرفق واحد (إيصال القبض) ---------- */
@@ -3879,7 +3884,7 @@ function pyrAttView(a){if(!a)return;
 function pyrForm(src){
   if(!rcpCan()){toast('هذا القسم للاستقبال والإدارة');return}
   const b0=src?src.bld:rcpBld();
-  const lines=src?src.lines.map(l=>({desc:l.desc,amount:l.amount,att:[]})):[{desc:'',amount:'',att:[]}];
+  const lines=src?src.lines.map(l=>({desc:l.desc,amount:l.amount,att:[],pur:''})):[{desc:'',amount:'',att:[],pur:''}];
   modal({title:'🧾 إنشاء طلب صرف',sub:'عدة بنود في طلب واحد — حتى '+PYR_MAX_ATT+' مرفقات',wide:true,body:`
    <div class="pyr-head"><div>${rcpMyBld()?`<span class="bd a">🏢 ${esc(b0)}</span><input type="hidden" id="yB" value="${esc(b0)}">`:`<span class="small muted">المبنى</span> <select id="yB" class="rb-sel">${RCP_BLD.map(x=>`<option ${x.n===b0?'selected':''}>${esc(x.n)}</option>`).join('')}</select>`}</div><div class="small muted">${fdate(TODAY)} — ${esc(me().name)}</div></div>
    <div id="yL"></div>
@@ -3888,7 +3893,7 @@ function pyrForm(src){
    <div class="fld"><label>ملاحظة للمدير العام (اختياري)</label><textarea id="yN" rows="2" placeholder="مثال: عاجل — الفنّي بانتظار المواد"></textarea></div>`,
   onMount:(m,close)=>{
    const attN=()=>lines.reduce((a,l)=>a+l.att.length,0);
-   const sync=()=>$$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;lines[i].desc=$('[data-k="d"]',el).value;lines[i].amount=$('[data-k="a"]',el).value});
+   const sync=()=>$$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;lines[i].desc=$('[data-k="d"]',el).value;lines[i].amount=$('[data-k="a"]',el).value;const pp=$('[data-k="p"]',el);if(pp)lines[i].pur=pp.value});
    const tot=()=>{const t=r3(lines.reduce((a,l)=>a+(+l.amount||0),0)),n=attN();
      $('#yT',m).innerHTML=`<div><span>البنود</span><b>${lines.length}</b></div><div><span>المرفقات</span><b class="${n>=PYR_MAX_ATT?'full':''}">${n} / ${PYR_MAX_ATT}</b></div><div class="t"><span>إجمالي الطلب</span><b>${omr(t)}</b>${t>0?`<small>${rcpWordsAr(t)}</small>`:''}</div>`};
    const draw=()=>{const n=attN();
@@ -3899,10 +3904,12 @@ function pyrForm(src){
         <div class="pyr-chips"><span class="small muted">بيان جاهز:</span>${PYR_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${q}</button>`).join('')}</div>
         <div class="pyr-att">${l.att.map((a,j)=>`<span class="pyr-f">${a.prev?`<img src="${a.prev}" alt="">`:'<i>PDF</i>'}<em>${esc(a.name)}</em><button type="button" data-rm="${j}" aria-label="حذف المرفق">×</button></span>`).join('')}
          <label class="pyr-up ${n>=PYR_MAX_ATT?'off':''}">📎 إرفاق فاتورة / صورة<input type="file" accept="image/*,application/pdf" multiple hidden ${n>=PYR_MAX_ATT?'disabled':''}></label></div>
+        <div class="pyr-pur" ${+l.amount>purMin()?'':'hidden'}><b>🛒 المبلغ أكثر من ${purMin()} ر.ع — يلزم طلب شراء معتمد</b>${purPickHTML(fv(m,'yB')||b0,l.pur,'data-k="p"')}<button type="button" class="btn sm sec" data-newpur>➕ طلب شراء جديد</button></div>
        </div>
        ${lines.length>1?`<button type="button" class="pyr-del" data-del title="حذف البند" aria-label="حذف البند">🗑️</button>`:''}</div>`).join('');
      $$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;
-       $$('input[data-k]',el).forEach(x=>x.oninput=()=>{sync();tot()});
+       $$('input[data-k]',el).forEach(x=>x.oninput=()=>{sync();tot();$('.pyr-pur',el).hidden=!(+lines[i].amount>purMin())});
+       $('[data-newpur]',el).onclick=()=>purchaseForm();
        $$('[data-q]',el).forEach(x=>x.onclick=()=>{const d=$('[data-k="d"]',el),v=d.value.trim(),isTpl=!v||PYR_QUICK.includes(v)||Object.keys(PYR_TPL).some(k=>v.startsWith(PYR_TPL[k].split(' ......')[0]));
          d.value=isTpl?pyrTpl(x.dataset.q,fv(m,'yB')||b0):v+' — '+x.dataset.q;sync();if(!pyrGap(d))d.focus()});
        {const d=$('[data-k="d"]',el);d.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();if(!pyrGap(d,d.selectionEnd)&&!pyrGap(d))$('[data-k="a"]',el).focus()}};d.onclick=()=>{const v=d.value,c=d.selectionStart;const i=v.lastIndexOf(PYR_GAP,c),j=v.indexOf(PYR_GAP,Math.max(0,c-PYR_GAP.length));const k=[i,j].find(x=>x>=0&&c>=x&&c<=x+PYR_GAP.length);if(k!==undefined)d.setSelectionRange(k,k+PYR_GAP.length)}}
@@ -3919,9 +3926,10 @@ function pyrForm(src){
      const L=lines.filter(l=>String(l.desc).trim()||+l.amount||l.att.length);
      if(!L.length){toast('أضف بنداً واحداً على الأقل');return}
      const bad=L.findIndex(l=>!String(l.desc).trim()||!(+l.amount>0));if(bad>=0){toast('البند '+(bad+1)+': اكتب البيان والمبلغ');return}
+     const np=L.findIndex(l=>+l.amount>purMin()&&!l.pur);if(np>=0){toast('البند '+(np+1)+': المبلغ أكثر من '+purMin()+' ر.ع — اختر طلب الشراء المعتمد أو أنشئ طلب شراء');return}
      const gap=L.findIndex(l=>String(l.desc).includes(PYR_GAP));if(gap>=0){toast('البند '+(gap+1)+': أكمل الفراغات (......) في البيان');const ip=$$('[data-k="d"]',m)[lines.indexOf(L[gap])];if(ip)pyrGap(ip);return}
      sv.disabled=cn.disabled=true;const N=L.reduce((a,l)=>a+l.att.length,0);let done=0;const out=[];
-     try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att})}}
+     try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att,pur:+l.amount>purMin()?l.pur:''})}}
      catch(e){sv.disabled=cn.disabled=false;sv.textContent='📤 إرسال للمدير العام';toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الفاتورة':'تعذّر رفع مرفق — تحقق من الاتصال وأعد المحاولة');return}
      sv.textContent='جارٍ الحفظ…';
      const id=await rcpNo('PR'),bld=fv(m,'yB')||b0;
@@ -3936,7 +3944,7 @@ function pyrWaText(p){const t=pyrTotal(p);
 function pyrPrint(p){const t=pyrTotal(p),ok=p.gmBy&&['approved','paid'].includes(p.status);
   nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(String(p.at).slice(0,10))}</div><div class="c">طلب صرف<span>Payment Request</span></div><div class="l">${esc(p.id)}</div></div>
    <div class="ib"><span><b>المبنى:</b> الادارة العامة نسائم صلالة : ${esc(p.bld)}</span><span><b>الحالة:</b> ${(PYR_ST[p.status]||[''])[0]}</span></div>
-   <table class="nsg"><thead><tr><th style="width:34px">#</th><th>البيان</th><th style="width:70px">المرفقات</th><th style="width:110px">المبلغ</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td class="t">${esc(l.desc)}</td><td>${(l.att||[]).length||'—'}</td><td>${money(l.amount)}</td></tr>`).join('')}
+   <table class="nsg"><thead><tr><th style="width:34px">#</th><th>البيان</th><th style="width:70px">المرفقات</th><th style="width:110px">المبلغ</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td class="t">${esc(l.desc)}${l.pur?' — طلب شراء '+esc(purNo(l.pur)):''}</td><td>${(l.att||[]).length||'—'}</td><td>${money(l.amount)}</td></tr>`).join('')}
     <tr><th colspan="3">الإجمالي</th><th>${money(t)}</th></tr></tbody></table>
    <div style="margin:8px 0;font-weight:700">${rcpWordsAr(t)}</div>${p.note?`<div style="margin-bottom:6px">ملاحظة: ${esc(p.note)}</div>`:''}
    ${p.status==='paid'?`<div class="ib"><span><b>صُرف من:</b> ${esc(rcpAcctL(p.acct))}</span>${p.nsNo?`<span><b>رقم القيد:</b> <span dir="ltr">${esc(p.nsNo)}</span></span>`:''}</div>`:''}
@@ -3944,7 +3952,7 @@ function pyrPrint(p){const t=pyrTotal(p),ok=p.gmBy&&['approved','paid'].includes
 function pyrOpen(p){if(!p)return;const R=role(),mine=String(p.byId||'')===String(S.session.empId||'')&&!!p.byId;
   const tl=(p.history||[]).map(h=>`<div class="small">• ${esc(h.act)} — <span class="muted">${esc(h.by)} — ${ftime(h.at)}</span></div>`).join('');
   const body=`<div class="rcp-kv"><div><span>المبنى</span><b>${esc(p.bld)}</b></div><div><span>الحالة</span><b>${pyrBadge(p)}</b></div><div><span>مقدّم الطلب</span><b>${esc(p.by)} — ${ftime(p.at)}</b></div>${p.note?`<div><span>ملاحظة</span><b>${esc(p.note)}</b></div>`:''}${p.gmBy?`<div><span>المدير العام</span><b>${esc(p.gmBy)}${p.gmNote?' — '+esc(p.gmNote):''}</b></div>`:''}${p.status==='paid'?`<div><span>الصرف</span><b>${esc(rcpAcctL(p.acct))}${p.nsNo?' — '+esc(p.nsNo):''}</b></div>`:''}</div>
-   <div class="tw" style="margin-top:10px"><table><thead><tr><th>#</th><th>البيان</th><th>المبلغ</th><th>المرفقات</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.desc)}</td><td><b>${money(l.amount)}</b></td><td>${(l.att||[]).map((a,j)=>`<button class="btn sm sec" data-av="${i}.${j}" title="${esc(a.name)}">${a.mime==='application/pdf'?'📄':'🖼️'} ${j+1}</button>`).join(' ')||'—'}</td></tr>`).join('')}
+   <div class="tw" style="margin-top:10px"><table><thead><tr><th>#</th><th>البيان</th><th>المبلغ</th><th>المرفقات</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.desc)}${l.pur?` <span class="bd i">🛒 ${esc(purNo(l.pur))}</span>`:''}</td><td><b>${money(l.amount)}</b></td><td>${(l.att||[]).map((a,j)=>`<button class="btn sm sec" data-av="${i}.${j}" title="${esc(a.name)}">${a.mime==='application/pdf'?'📄':'🖼️'} ${j+1}</button>`).join(' ')||'—'}</td></tr>`).join('')}
    <tr><th colspan="2">الإجمالي</th><th>${money(pyrTotal(p))}</th><th></th></tr></tbody></table></div><div class="small muted" style="margin-top:6px">${rcpWordsAr(pyrTotal(p))}</div>
    ${tl?`<details style="margin-top:8px"><summary class="small"><b>سجل الطلب</b></summary>${tl}</details>`:''}
    ${R==='gm'&&p.status==='pending'?`<div class="fld" style="margin-top:10px"><label>ملاحظة المدير العام</label><textarea id="gN" rows="2"></textarea></div>`:''}
@@ -3958,7 +3966,7 @@ function pyrOpen(p){if(!p)return;const R=role(),mine=String(p.byId||'')===String
   foot.push({t:'🖨️ طباعة',cls:'sec',fn:()=>{pyrPrint(p);return false}},{t:'📋 واتساب',cls:'sec',fn:()=>{rcpCopyWA(pyrWaText(p));return false}},{t:'↺ طلب مشابه',cls:'sec',fn:()=>{setTimeout(()=>pyrForm(p),60)}},{t:'إغلاق',cls:'sec'});
   modal({title:'🧾 طلب صرف '+esc(p.id),sub:`${esc(p.bld)} — ${omr(pyrTotal(p))}`,wide:true,body,foot,onMount:m=>$$('[data-av]',m).forEach(x=>x.onclick=()=>{const [i,j]=x.dataset.av.split('.').map(Number);pyrAttView(p.lines[i].att[j])})});
 }
-VIEWS.rpay=()=>{const R=role(),mine=rcpMyBld(),f=V.sub.yf||'open';
+function pyrListHTML(){const R=role(),mine=rcpMyBld(),f=V.sub.yf||'open';
   const L=RP().filter(p=>!mine||p.bld===mine);
   const pick=k=>L.filter(p=>k==='open'?['pending','approved'].includes(p.status):k==='all'?true:p.status===k);
   const sh=pick(f).slice().sort((a,c)=>String(c.at).localeCompare(String(a.at))).slice(0,200),q=pyrQueue();
@@ -3968,7 +3976,14 @@ VIEWS.rpay=()=>{const R=role(),mine=rcpMyBld(),f=V.sub.yf||'open';
   ${q.length?`<div class="note small">✅ ${q.length} طلب بانتظار ${R==='gm'?'اعتمادك':'صرفك'} — اضغط على الطلب لمراجعته</div>`:''}
   <div class="card"><div class="seg" id="yF">${[['open','المفتوحة'],['pending','بانتظار المدير'],['approved','معتمدة'],['paid','مصروفة'],['rejected','مرفوضة'],['all','الكل']].map(([k,l])=>`<button data-f="${k}" class="${f===k?'on':''}">${l} <small>${pick(k).length}</small></button>`).join('')}</div>
   ${sh.length?`<div class="list" style="margin-top:12px">${sh.map(p=>`<div class="li click pyr-row" data-y="${p.id}"><div class="av">🧾</div><div class="pyr-rm"><b dir="ltr">${esc(p.id)}</b> — ${esc(p.lines.map(l=>l.desc).join('، ').slice(0,90))}<div class="small muted">${esc(p.bld)} — ${p.lines.length} بند${pyrAttN(p)?' — 📎 '+pyrAttN(p):''} — ${esc(p.by)} — ${ftime(p.at)}</div></div><div class="pyr-rv"><b>${omr(pyrTotal(p))}</b><div>${pyrBadge(p)}</div></div></div>`).join('')}</div>`:'<div class="empty">لا طلبات هنا — اضغط «إنشاء طلب صرف» للبدء</div>'}</div>`};
-BIND.rpay=()=>{$('#yNew').onclick=()=>pyrForm();$$('#yF button').forEach(x=>x.onclick=()=>{V.sub.yf=x.dataset.f;render()});$$('[data-y]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.y)))};
+function pyrListBind(){$('#yNew').onclick=()=>pyrForm();$$('#yF button').forEach(x=>x.onclick=()=>{V.sub.yf=x.dataset.f;render()});$$('[data-y]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.y)))}
+/* طلب صرف / شراء: تبويبان في مكان واحد داخل الاستقبال */
+const rpayTab=()=>role()==='sup'?'pur':(V.sub.pt||'pay');
+VIEWS.rpay=()=>{const t=rpayTab(),pq=typeof purchasesPendingForMe==='function'?purchasesPendingForMe().length:0,yq=pyrQueue().length;
+  const tabs=role()==='sup'?'':`<div class="seg rpay-tabs" id="ptT"><button data-pt="pay" class="${t==='pay'?'on':''}">🧾 طلبات الصرف${yq?` <span class="pill">${yq}</span>`:''}</button><button data-pt="pur" class="${t==='pur'?'on':''}">🛒 طلبات الشراء${pq?` <span class="pill">${pq}</span>`:''}</button></div>
+   <div class="note small" style="margin-top:8px">📌 أي مصروف أو بند صرف <b>أكثر من ${purMin()} ر.ع</b> يلزمه <b>طلب شراء معتمد</b> قبل الشراء. ما دون ذلك يُصرف بطلب صرف أو من الصندوق مباشرة.</div>`;
+  return tabs+(t==='pur'?VIEWS.procurement():pyrListHTML())};
+BIND.rpay=()=>{$$('#ptT button').forEach(b=>b.onclick=()=>{V.sub.pt=b.dataset.pt;render()});if(rpayTab()==='pur')BIND.procurement();else pyrListBind()};
 
 /* ================= بصمة الدوام (QR في موقع العمل + صورة لحظة المسح + وقت الخادم) ================= */
 const ATT_PREFIX='MARSA-ATT';
@@ -4215,6 +4230,136 @@ BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),bo
     else{body.innerHTML=attTodayHTML(rows);attBindPh(body)}
   }).catch(err=>{if($('#atBody'))body.innerHTML=attErrHTML(err)})};
 
+/* ================= المديونية: كشف نت سويت ← رد الاستقبال كل يوم اثنين ← مراجعة الحسابات ================= */
+const RD=()=>S.debts||(S.debts=[]),RDR=()=>S.dbrep||(S.dbrep=[]);
+const DEBT_MIN=0.5,DEBT_KEEP=12;
+const DEBT_MAP=[['نستو','السعادة نستو'],['السعادة','السعادة'],['الوادي','الوادي'],['التجاري','الحي التجاري'],['عوقد','عوقد الشمالية'],['الحصيلة','الحصيلة'],['الوسطى','صلالة الوسطى / المعتزة'],['المعتزة','صلالة الوسطى / المعتزة']];
+const debtBld=h=>{const x=DEBT_MAP.find(([k])=>String(h||'').includes(k));return x?x[1]:null};
+const debtMon=d=>{const w=new Date(d+'T12:00:00').getDay();return addDays(d,(1-w+7)%7)};
+const debtCode=b=>String((rcpBldObj(b)||{}).c||'X').replace(/[^A-Za-z0-9]/g,'');
+const debtRounds=()=>[...new Set(RD().map(x=>x.rid))].sort().reverse();
+const debtRec=(rid,b)=>RD().find(x=>x.rid===rid&&x.bld===b);
+const debtRep=(rid,b)=>RDR().find(x=>x.rid===rid&&x.bld===b);
+function debtRepEnsure(rid,b){let r=debtRep(rid,b);if(!r){r={id:rid+'_'+debtCode(b),rid,bld:b,replies:{},tags:{},status:'draft'};RDR().push(r)}r.replies=r.replies||{};r.tags=r.tags||{};return r}
+function debtState(rid,b){const d=debtRec(rid,b),r=debtRep(rid,b);if(!d)return {k:'none'};
+  if(r&&r.status==='sent')return {k:(r.sentD||String(r.sentAt).slice(0,10))>d.due?'late':'ok',d,r};
+  if(TODAY<d.due)return {k:'wait',d,r};return {k:TODAY>d.due?'overdue':'open',d,r}}
+const DEBT_ST={ok:['✓ أُرسل في الموعد','g'],late:['⚠️ أُرسل متأخراً','w'],wait:['🔒 يُفتح يوم الاثنين','i'],open:['🔔 الرد مفتوح اليوم','w'],overdue:['⛔ متأخر — لم يُرسل','c'],none:['لا كشف','']};
+function debtPrev(rid,b,c){const rs=debtRounds(),prid=rs[rs.indexOf(rid)+1];if(!prid)return null;const d=debtRec(prid,b),row=d&&d.rows.find(x=>x.c===c),rp=debtRep(prid,b);
+  return {rid:prid,d,row,t:row?row.t:0,reply:rp&&rp.replies&&rp.replies[c]?rp.replies[c].t:'',tag:rp&&rp.tags?rp.tags[c]||'':''}}
+const DEBT_AG=[['حالي','#2f5fd0'],['30 يوم','#1e8e5a'],['60 يوم','#c97c00'],['90 يوم','#d1603b'],['+90','#d13b3b']];
+const debtAgHTML=x=>(x.a||[]).map((v,i)=>v?`<span class="dbt-a" style="--c:${DEBT_AG[i][1]}">${DEBT_AG[i][0]}: <b>${money(v)}</b></span>`:'').join('');
+function debtChg(x,p){if(!p)return '';if(!p.row)return '<span class="bd i">جديد</span>';const d=r3(x.t-p.t);
+  return d<0?`<span class="bd g">▼ ${money(-d)}</span>`:d>0?`<span class="bd c">▲ ${money(d)}</span>`:'<span class="bd w">= لم يتغير</span>'}
+const DEBT_QUICK=['تم التواصل — وعد بالسداد بتاريخ ......','سدّد — سند قبض رقم ...... بتاريخ ......','نزيل حالي — يُحصّل عند التمديد بتاريخ ......','غادر الشقة — تم الاتصال به على ...... وجاري المتابعة','لا يرد على الاتصال — آخر محاولة بتاريخ ......','الرصيد يحتاج مراجعة مع الحسابات: ......'];
+const debtQLabel=q=>q.split(' — ')[0].split(':')[0];
+/* --- الاستقبال --- */
+VIEWS.rdebt=()=>{const b=rcpBld(),rid=V.sub.drid||debtRounds()[0];
+  const H=sub=>ph('📉 المديونية',sub,rcpBldPicker());
+  if(!rid)return H(esc(b))+`<div class="card"><div class="empty">لم يُرفع كشف مديونية بعد — يرفعه المحاسب من «الإدارة المالية ← ردود المديونية».</div></div>`;
+  const d=debtRec(rid,b);if(!d)return H(esc(b))+`<div class="card"><div class="empty">لا عملاء عليهم مديونية لبناية ${esc(b)} في آخر كشف 🎉</div></div>`;
+  const st=debtState(rid,b),r=debtRep(rid,b)||{replies:{},tags:{}},edit=['open','overdue'].includes(st.k)&&rcpCan();
+  const rows=d.rows.slice().sort((x,y)=>y.t-x.t),tot=r3(rows.reduce((a,x)=>a+x.t,0)),old=r3(rows.reduce((a,x)=>a+(+x.a[2]||0)+(+x.a[3]||0)+(+x.a[4]||0),0)),done=rows.filter(x=>((r.replies||{})[x.c]||{}).t).length;
+  const msg={wait:`🔒 الرد على المديونية يُفتح يوم <b>الاثنين ${fdate(d.due)}</b>. راجع العملاء واتصل بهم من الآن.`,open:'🔔 اليوم الاثنين — اكتب ردك أمام كل عميل ثم اضغط «إرسال». ردودك تُحفظ تلقائياً كمسودة.',
+    overdue:`⛔ موعد الرد كان الاثنين ${fdate(d.due)} — أرسل الآن، وسيُسجَّل الرد متأخراً.`,ok:`✓ أُرسلت الردود ${r.sentAt?ftime(r.sentAt):''} — ${esc(r.sentBy||'')}`,late:`⚠️ أُرسلت الردود متأخراً ${r.sentAt?ftime(r.sentAt):''} — ${esc(r.sentBy||'')}`}[st.k];
+  return H(`${esc(b)} — كشف ${fdate(d.asOf)}`)+
+  `<div class="rcp-kpis"><div style="--c:#d13b3b"><b>${money(tot)}</b><span>إجمالي المديونية</span></div><div style="--c:#2f5fd0"><b>${rows.length}</b><span>عميل</span></div><div style="--c:#7a4bc2"><b>${money(old)}</b><span>أكثر من 60 يوماً</span></div><div style="--c:#1e8e5a"><b id="dDone">${done}/${rows.length}</b><span>تم الرد</span></div></div>
+  <div class="note ${({wait:'',open:'w',overdue:'c',ok:'g',late:'w'})[st.k]}">${msg}</div>
+  <div class="dbt-list">${rows.map(x=>{const p=debtPrev(rid,b,x.c),rep=((r.replies||{})[x.c]||{}).t||'';
+    return `<div class="dbt-c" data-c="${esc(x.c)}"><div class="dbt-h"><div><b>${esc(x.n)}</b><div class="small muted" dir="ltr">${esc(x.c)}</div></div><div class="dbt-t"><b>${omr(x.t)}</b>${debtChg(x,p)}</div></div>
+     <div class="dbt-ag">${debtAgHTML(x)}</div>
+     ${p&&p.reply?`<div class="dbt-prev small">↩️ الرد السابق (${fdate(p.d.asOf)}): ${esc(p.reply)}</div>`:''}
+     ${edit?`<textarea class="dbt-in" data-r="${esc(x.c)}" rows="2" placeholder="اكتب ردك على مديونية هذا العميل">${esc(rep)}</textarea><div class="pyr-chips"><span class="small muted">رد جاهز:</span>${DEBT_QUICK.map((q,i)=>`<button type="button" data-dq="${i}">${esc(debtQLabel(q))}</button>`).join('')}</div>`
+       :rep?`<div class="dbt-rep">💬 ${esc(rep)}</div>`:st.k==='wait'?'':'<div class="small muted">— لم يُكتب رد</div>'}</div>`}).join('')}</div>
+  ${edit?`<div class="dbt-send"><button class="btn" id="dSend">📤 إرسال الردود للحسابات (<span id="dCnt">${done}/${rows.length}</span>)</button></div>`:''}`};
+BIND.rdebt=()=>{rcpBindPicker();const b=rcpBld(),rid=V.sub.drid||debtRounds()[0];if(!rid||!debtRec(rid,b))return;const d=debtRec(rid,b);
+  const cnt=()=>{const r=debtRep(rid,b)||{replies:{}},n=d.rows.filter(x=>((r.replies||{})[x.c]||{}).t).length;const s=n+'/'+d.rows.length;if($('#dCnt'))$('#dCnt').textContent=s;if($('#dDone'))$('#dDone').textContent=s};
+  const put=(c,v)=>{const r=debtRepEnsure(rid,b);if(r.status==='sent')return;const cur=(r.replies[c]||{}).t||'';if(cur===v)return;if(v)r.replies[c]={t:v,at:nowTs(),by:me().name};else delete r.replies[c];save();cnt()};
+  $$('.dbt-in').forEach(t=>{t.oninput=()=>{clearTimeout(t._t);t._t=setTimeout(()=>put(t.dataset.r,t.value.trim()),600)};t.onblur=()=>put(t.dataset.r,t.value.trim());
+    t.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.shiftKey&&t.value.includes(PYR_GAP)){ev.preventDefault();if(!pyrGap(t,t.selectionEnd))pyrGap(t)}}});
+  $$('[data-dq]').forEach(x=>x.onclick=()=>{const card=x.closest('.dbt-c'),t=$('.dbt-in',card);t.value=DEBT_QUICK[+x.dataset.dq];put(card.dataset.c,t.value.trim());if(!pyrGap(t))t.focus()});
+  if($('#dSend'))$('#dSend').onclick=()=>{$$('.dbt-in').forEach(t=>put(t.dataset.r,t.value.trim()));const r=debtRepEnsure(rid,b);
+    const miss=d.rows.filter(x=>!(r.replies[x.c]||{}).t),gap=d.rows.find(x=>String((r.replies[x.c]||{}).t||'').includes(PYR_GAP)),foc=c=>{const el=$(`.dbt-c[data-c="${CSS.escape(c)}"] .dbt-in`);if(el){el.scrollIntoView({block:'center'});if(!pyrGap(el))el.focus()}};
+    if(miss.length){toast('اكتب رداً لكل عميل — باقي '+miss.length);return foc(miss[0].c)}
+    if(gap){toast('أكمل الفراغات (......) في رد: '+gap.n);return foc(gap.c)}
+    confirmBox('📤 إرسال ردود المديونية',`سيُرسل ${d.rows.length} رد لقسم الحسابات، ولا يمكن تعديلها بعد الإرسال.`,'إرسال','',()=>{r.status='sent';r.sentAt=nowTs();r.sentD=TODAY;r.sentBy=me().name;
+      if(role()!=='rcp')notify('role:acc','📉','ردود المديونية',`${b} — ${d.rows.length} عميل`,{view:'fdebt'});commit('تم إرسال الردود للحسابات ✓')})};
+};
+/* --- الحسابات: رفع الكشف ومراجعة الردود --- */
+function debtParse(rows){let cur='';const by={},skip={};
+  for(const r of rows){if(!r)continue;const a=r[0]!=null?String(r[0]).replace(/[ ‌‏‎]/g,' ').trim():'';if(!a)continue;
+    if(/^total\b/i.test(a))continue;
+    const nums=r.slice(1,7),hasNum=nums.some(v=>typeof v==='number'||(v!==null&&v!==''&&!isNaN(+v)));
+    if(!hasNum){cur=a;continue}
+    if(/^-\s*No Customer/i.test(a))continue;
+    const b=debtBld(cur),t=r3(+r[6]||0);
+    if(!b){if(t>DEBT_MIN)skip[cur]=(skip[cur]||0)+1;continue}
+    if(t<=DEBT_MIN)continue;
+    const cm=a.match(/^(CUS\d+)\s+(.*)$/),c=cm?cm[1]:'N'+Math.abs([...a].reduce((h,ch)=>(h*31+ch.charCodeAt(0))|0,7)).toString(36);
+    (by[b]=by[b]||[]);const ex=by[b].find(x=>x.c===c),vals=nums.slice(0,5).map(v=>r3(+v||0));
+    if(ex){ex.t=r3(ex.t+t);ex.a=ex.a.map((v,i)=>r3(v+vals[i]))}else by[b].push({c,n:(cm?cm[2]:a).trim(),t,a:vals})}
+  return {by,skip,blds:Object.keys(by)}}
+async function debtImport(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;
+    try{if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}catch(e){toast('تعذّر تحميل قارئ Excel');return}
+    let rows;try{const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null,raw:true})}catch(e){toast('تعذّر قراءة الملف');return}
+    const P=debtParse(rows);if(!P.blds.length){toast('لم أجد بيانات مديونية — تأكد أن الملف تقرير A/R Aging By Building من نت سويت');return}
+    const order=RCP_BLD.map(x=>x.n).filter(n=>P.by[n]),due=debtMon(TODAY);
+    modal({title:'⬆️ كشف المديونية الجديد',sub:esc(f.name),wide:true,body:`<div class="tw"><table><thead><tr><th>البناية</th><th>العملاء المدينون</th><th>إجمالي المديونية</th></tr></thead><tbody>${order.map(n=>`<tr><td>${esc(n)}</td><td>${P.by[n].length}</td><td><b>${money(r3(P.by[n].reduce((a,x)=>a+x.t,0)))}</b></td></tr>`).join('')}
+      <tr><th>الإجمالي</th><th>${order.reduce((a,n)=>a+P.by[n].length,0)}</th><th>${money(r3(order.reduce((a,n)=>a+P.by[n].reduce((s,x)=>s+x.t,0),0)))}</th></tr></tbody></table></div>
+      ${Object.keys(P.skip).length?`<div class="note w small">لم تُربط ببناية (لن تظهر للاستقبال): ${Object.entries(P.skip).map(([k,v])=>esc(k)+' ('+v+')').join('، ')}</div>`:''}
+      <div class="small muted" style="margin:6px 0">تظهر للاستقبال الأرصدة المدينة فقط (أكثر من ${DEBT_MIN} ر.ع). الأرصدة الدائنة والصفرية لا تظهر.</div>
+      <div class="fld" style="max-width:260px"><label>يوم الرد (الاثنين)</label><input type="date" id="dDue" value="${due}"></div>`,
+      foot:[{t:'✓ اعتماد وإرسال للاستقبال',fn:b=>{const dd=fv(b,'dDue')||due,rid='D'+TODAY.replace(/-/g,'');
+        S.debts=RD().filter(x=>x.rid!==rid);order.forEach(n=>{RD().push({id:rid+'_'+debtCode(n),rid,bld:n,asOf:TODAY,due:dd,at:nowTs(),by:me().name,src:f.name,rows:P.by[n]});notify('bld:'+n,'📉','كشف المديونية الجديد',`${P.by[n].length} عميل — الرد يوم الاثنين ${fdate(dd)}`,{view:'rdebt'})});
+        const keep=debtRounds().slice(0,DEBT_KEEP);S.debts=RD().filter(x=>keep.includes(x.rid));S.dbrep=RDR().filter(x=>keep.includes(x.rid));
+        V.sub.frid=rid;commit('تم رفع الكشف وإرساله للاستقبال')}},{t:'إلغاء',cls:'sec'}]});
+  };inp.click()}
+const DEBT_TAG={'':'—',ok:'✓ مقبول',false:'✗ غير صادق',nocommit:'⚠ غير ملتزم'};
+const debtPromise=s=>/وعد|سيدفع|سيسدد|سيسدّد|يُحصّل|يحصل|بتاريخ/.test(s||'');
+function debtAll(rid){const out=[];RD().filter(x=>x.rid===rid).forEach(d=>{const st=debtState(rid,d.bld),r=debtRep(rid,d.bld)||{replies:{},tags:{}};
+  d.rows.forEach(x=>{const p=debtPrev(rid,d.bld,x.c),rep=((r.replies||{})[x.c]||{}).t||'',sent=r.status==='sent',tag=(r.tags||{})[x.c]||'';
+    const hint=p&&p.row&&debtPromise(p.reply)&&x.t>=p.t;
+    out.push({...x,bld:d.bld,d,st,p,rep,sent,tag,hint})})});return out}
+function debtCat(x){if(!x.sent||!x.rep)return 'none';return x.tag==='false'?'false':x.tag==='nocommit'?'nocommit':x.st.k==='late'?'late':'ok'}
+VIEWS.fdebt=()=>{const rs=debtRounds(),rid=V.sub.frid&&rs.includes(V.sub.frid)?V.sub.frid:rs[0],f=V.sub.ff||'all',fb=V.sub.fb||'';
+  const acts=`<button class="btn" id="dUp">⬆️ رفع كشف المديونية</button>`+(rid?` <select id="dR" class="rb-sel">${rs.map(x=>{const d=RD().find(y=>y.rid===x);return `<option value="${x}" ${x===rid?'selected':''}>كشف ${fdate(d.asOf)}</option>`}).join('')}</select> <button class="btn sec" id="dX">📊 Excel</button> <button class="btn sec" id="dP">🖨️ طباعة</button>`:'');
+  const H=ph('📉 ردود المديونية','كشف نت سويت ← رد الاستقبال كل يوم اثنين ← مراجعة الحسابات',acts);
+  if(!rid)return H+`<div class="card"><div class="empty">ارفع تقرير <b dir="ltr">A/R Aging By Building</b> من نت سويت (Excel) — فيظهر لكل استقبال عملاء بنايته، ويُفتح لهم الرد كل يوم اثنين.</div></div>`;
+  const D=RD().filter(x=>x.rid===rid),A=debtAll(rid);
+  const order=RCP_BLD.map(x=>x.n).filter(n=>D.some(d=>d.bld===n));
+  const cnt=k=>k==='all'?A.length:k==='hint'?A.filter(x=>x.hint&&x.tag!=='nocommit').length:A.filter(x=>debtCat(x)===k).length;
+  const L=A.filter(x=>(!fb||x.bld===fb)&&(f==='all'||(f==='hint'?x.hint&&x.tag!=='nocommit':debtCat(x)===f))).sort((a,b)=>b.t-a.t);
+  const tot=r3(A.reduce((a,x)=>a+x.t,0));
+  return H+`<div class="rcp-kpis"><div style="--c:#d13b3b"><b>${money(tot)}</b><span>إجمالي المديونية</span></div><div style="--c:#2f5fd0"><b>${A.length}</b><span>عميل مدين</span></div><div style="--c:#1e8e5a"><b>${order.filter(n=>['ok','late'].includes(debtState(rid,n).k)).length}/${order.length}</b><span>بنايات أرسلت</span></div><div style="--c:#c97c00"><b>${cnt('none')}</b><span>بدون رد</span></div></div>
+  <div class="card"><h2>حالة الردود — يوم الرد ${fdate(D[0].due)}</h2><div class="tw"><table><thead><tr><th>البناية</th><th>العملاء</th><th>المديونية</th><th>الحالة</th><th>الإرسال</th></tr></thead><tbody>${order.map(n=>{const d=debtRec(rid,n),s=debtState(rid,n);return `<tr class="click" data-fb="${esc(n)}" style="cursor:pointer"><td><b>${esc(n)}</b></td><td>${d.rows.length}</td><td>${money(r3(d.rows.reduce((a,x)=>a+x.t,0)))}</td><td>${badge(DEBT_ST[s.k][0],DEBT_ST[s.k][1])}</td><td class="small">${s.r&&s.r.sentAt?ftime(s.r.sentAt)+' — '+esc(s.r.sentBy||''):'—'}</td></tr>`}).join('')}</tbody></table></div></div>
+  <div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><div class="seg" id="dF">${[['all','الكل'],['none','لم يُرد'],['late','متأخرة'],['false','غير صادقة'],['nocommit','غير ملتزمة'],['hint','💡 وعد ولم يسدد']].map(([k,l])=>`<button data-f="${k}" class="${f===k?'on':''}">${l} <small>${cnt(k)}</small></button>`).join('')}</div>
+   <select id="dB" class="rb-sel"><option value="">كل البنايات</option>${order.map(n=>`<option ${n===fb?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
+   ${L.length?`<div class="tw" style="margin-top:10px"><table><thead><tr><th>العميل</th><th>البناية</th><th>الرصيد السابق</th><th>الرد السابق</th><th>الرصيد الحالي</th><th>الرد الحالي</th><th>التصنيف</th></tr></thead><tbody>${L.map(x=>`<tr><td><b>${esc(x.n)}</b><div class="small muted" dir="ltr">${esc(x.c)}</div></td><td class="small">${esc(x.bld)}</td><td>${x.p&&x.p.row?money(x.p.t):'—'}</td><td class="small">${esc(x.p&&x.p.reply||'—')}</td><td><b>${money(x.t)}</b> ${debtChg(x,x.p)}</td><td class="small">${x.rep?esc(x.rep)+(x.sent?'':' <span class="bd">مسودة</span>'):'<span class="muted">— لم يُرد</span>'}${x.st.k==='late'&&x.rep?' <span class="bd w">متأخر</span>':''}${x.hint?' <span class="bd w" title="وعد بالسداد في الكشف السابق ولم ينقص الرصيد">💡 وعد ولم يسدد</span>':''}</td>
+     <td><select class="rb-sel" data-tag="${esc(x.bld)}|${esc(x.c)}">${Object.entries(DEBT_TAG).map(([k,v])=>`<option value="${k}" ${x.tag===k?'selected':''}>${v}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا نتائج</div>'}</div>`};
+function debtXlsx(rid){const rs=debtRounds(),i=rs.indexOf(rid),R=rs.slice(i,i+3).reverse();
+  const head=['البناية','رقم العميل','العميل'];R.forEach(x=>{const d=RD().find(y=>y.rid===x);head.push('رصيد '+fdate(d.asOf),'رد '+fdate(d.asOf))});head.push('التغير','التصنيف');
+  const body=debtAll(rid).sort((a,b)=>a.bld.localeCompare(b.bld)||b.t-a.t).map(x=>{const row=[x.bld,x.c,x.n];
+    R.forEach(r=>{const d=debtRec(r,x.bld),rw=d&&d.rows.find(y=>y.c===x.c),rp=debtRep(r,x.bld);row.push(rw?rw.t:'',rp&&rp.replies&&rp.replies[x.c]?rp.replies[x.c].t:'')});
+    row.push(x.p&&x.p.row?r3(x.t-x.p.t):'',({none:'لم يُرد',late:'متأخرة',false:'غير صادقة',nocommit:'غير ملتزمة',ok:'مقبول'})[debtCat(x)]);return row});
+  return [head,...body]}
+BIND.fdebt=()=>{const rs=debtRounds(),rid=V.sub.frid&&rs.includes(V.sub.frid)?V.sub.frid:rs[0];
+  $('#dUp').onclick=debtImport;if(!rid)return;
+  $('#dR').onchange=e=>{V.sub.frid=e.target.value;render()};$('#dB').onchange=e=>{V.sub.fb=e.target.value;render()};
+  $$('#dF button').forEach(x=>x.onclick=()=>{V.sub.ff=x.dataset.f;render()});$$('[data-fb]').forEach(x=>x.onclick=()=>{V.sub.fb=x.dataset.fb;V.sub.ff='all';render()});
+  $$('[data-tag]').forEach(x=>x.onchange=()=>{const [b,c]=x.dataset.tag.split('|'),r=debtRepEnsure(rid,b);if(x.value)r.tags[c]=x.value;else delete r.tags[c];commit('تم حفظ التصنيف')});
+  $('#dX').onclick=async()=>{try{if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}catch(e){toast('تعذّر تحميل Excel');return}
+    const ws=XLSX.utils.aoa_to_sheet(debtXlsx(rid));ws['!cols']=debtXlsx(rid)[0].map((h,i)=>({wch:i<3?(i===2?34:16):(/^رد/.test(h)?40:12)}));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'المديونية');
+    XLSX.writeFile(wb,'ردود-المديونية-'+(RD().find(y=>y.rid===rid)||{}).asOf+'.xlsx')};
+  $('#dP').onclick=()=>{const T=debtXlsx(rid);nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(TODAY)}</div><div class="c">ردود المديونية<span>A/R Follow-up</span></div><div class="l"></div></div><table class="nsg"><thead><tr>${T[0].map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${T.slice(1).map(r=>`<tr>${r.map((v,i)=>`<td class="${i<3||/^رد/.test(T[0][i])?'t':''}">${esc(typeof v==='number'?money(v):v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`,'ردود المديونية')};
+};
+
+/* ================= قاعدة: المصروف فوق الحد يلزمه طلب شراء معتمد ================= */
+const purMin=()=>+((S.settings&&S.settings.purMin)??15);
+const purApprovedFor=b=>S.purchases.filter(p=>['approved','bought','payreq'].includes(stOf(p))&&(!b||p.building===b));
+const purPickHTML=(b,sel,attr)=>{const L=purApprovedFor(b);return `<select ${attr}><option value="">— اختر طلب الشراء المعتمد —</option>${L.map(p=>`<option value="${esc(p.id)}" ${p.id===sel?'selected':''}>${esc(p.no)} — ${esc(p.items.map(i=>i.desc).join('، ').slice(0,40))} — ${omr(purTotal(p))}</option>`).join('')}</select>${L.length?'':'<div class="small muted">لا يوجد طلب شراء معتمد لهذه البناية</div>'}`};
+const purNo=id=>(S.purchases.find(p=>p.id===id)||{}).no||'';
 /* ---------- بيانات تجريبية للعرض ---------- */
 async function rcpSeedDemo(bld){
   bld=bld||'الوادي';
@@ -4234,6 +4379,10 @@ async function rcpSeedDemo(bld){
   r3obj.no=r3obj.id;RS().push(r3obj);await rcpAddReceipt({rsv:r3obj,amount:r3obj.total,method:'transfer'});
   rcpSetUnit(bld,'401','maint','تسريب بسيط في الحمام — تجريبي');
   const pid=await rcpNo('PR');RP().push({id:pid,no:pid,bld,lines:[{desc:'مواد تنظيف للشقق — فاتورة 4471',amount:12.5,att:[]},{desc:'تصليح سخان شقة 203',amount:18,att:[]},{desc:'لمبات LED للممرات',amount:6.75,att:[]}],total:37.25,note:'تجريبي — للعرض',status:'pending',at:nowTs(),by:me().name,byId:String(S.session.empId||''),acct:'',nsNo:'',history:[{at:nowTs(),by:me().name,act:'أنشأ الطلب'}]});
+  {const rid='D'+TODAY.replace(/-/g,''),prid='D'+addDays(TODAY,-7).replace(/-/g,'');
+   RD().push({id:prid+'_'+debtCode(bld),rid:prid,bld,asOf:addDays(TODAY,-7),due:addDays(TODAY,-7),at:nowTs(),by:'تجريبي',rows:[{c:'CUS2020696',n:'ثابت بن عمر الحاسي — شقة 101',t:1951,a:[0,0,0,10,1941]},{c:'CUS2260392',n:'فاطمة محمد حزام',t:40,a:[0,40,0,0,0]}]});
+   RDR().push({id:prid+'_'+debtCode(bld),rid:prid,bld,replies:{CUS2020696:{t:'تم التواصل — وعد بالسداد بتاريخ 20/10'},CUS2260392:{t:'نزيل حالي — يُحصّل عند التمديد'}},tags:{},status:'sent',sentAt:nowTs(),sentD:addDays(TODAY,-7),sentBy:'تجريبي'});
+   RD().push({id:rid+'_'+debtCode(bld),rid,bld,asOf:TODAY,due:TODAY,at:nowTs(),by:'تجريبي',rows:[{c:'CUS2020696',n:'ثابت بن عمر الحاسي — شقة 101',t:1951,a:[0,0,0,10,1941]},{c:'CUS2260392',n:'فاطمة محمد حزام',t:25,a:[0,25,0,0,0]},{c:'CUS2023416',n:'ياسر صالح مسعد — شقة 403',t:5,a:[5,0,0,0,0]}]})}
   const xid=await rcpNo('EX');RX().push({id:xid,no:xid,bld,cat:'exp',amount:3.5,desc:'شراء مواد تنظيف — تجريبي',date:TODAY,at:nowTs(),by:me().name,nsNo:''});
   commit('تم إنشاء بيانات تجريبية في بناية '+bld);
 }
@@ -4264,18 +4413,19 @@ function rcpUnitsWaText(b){
 }
 
 /* ---------- الواجهات ---------- */
-const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rpay','🧾','طلبات الصرف'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية']];
-const RCP_NAV={rcp:RCP_NAV_R,hr:RCP_NAV_R,gm:RCP_NAV_R,acc:RCP_NAV_R,sup:[['rno','🔒','الاستقبال']],emp:[['rno','🔒','الاستقبال']]};
+const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rpay','🧾','طلب صرف / شراء'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية'],['rdebt','📉','المديونية']];
+const RCP_NAV={rcp:RCP_NAV_R,hr:RCP_NAV_R,gm:RCP_NAV_R,acc:RCP_NAV_R,sup:[['rpay','🛒','طلبات الشراء']],emp:[['rno','🔒','الاستقبال']]};
 VIEWS.rno=()=>ph('الاستقبال','')+`<div class="card"><div class="empty">هذا القسم لموظفي الاستقبال والإدارة والحسابات.</div></div>`;
 function rcpRetQueue(){const R=role();return RT().filter(t=>(R==='gm'&&t.status==='pending')||(R==='acc'&&t.status==='approved'))}
 VIEWS.rhome=()=>{const b=rcpBld(),s=rcpStats(b),first=String(me().name||'').split(' ')[0];
   const arr=RS().filter(r=>r.bld===b&&r.status==='booked'&&r.from<=TODAY),dep=RS().filter(r=>r.bld===b&&r.status==='in'&&r.to<=TODAY),due=RS().filter(r=>r.bld===b&&r.status==='in'&&rcpBal(r)>0);
   const q=rcpRetQueue(),myPend=RT().filter(t=>t.bld===b&&t.status==='pending');
-  const big=[['new','🛏️','حجز جديد','بتصوير البطاقة'],['in','🔑','تسجيل دخول',arr.length?arr.length+' وصول اليوم':'لا وصول'],['out','🚪','تسجيل خروج',dep.length?dep.length+' مغادرة اليوم':'لا مغادرة'],['pay','💵','قبض',due.length?due.length+' عليهم مبالغ':'سند قبض'],['ret','↩️','مرتجع','يحتاج موافقة'],['stmt','📄','كشف حساب','لأي نزيل'],['units','🏢','لوحة الشقق',s.ready+' فارغة جاهزة'],['day','📊','اليومية','قبض ومصروفات اليوم'],['pyr','🧾','طلب صرف','بنود ومرفقات'],['plist','📂','طلباتي للصرف',(()=>{const n=RP().filter(p=>p.bld===b&&['pending','approved'].includes(p.status)).length;return n?n+' مفتوح':'المتابعة'})()]];
-  const pq=pyrQueue();
+  const big=[['new','🛏️','حجز جديد','بتصوير البطاقة'],['in','🔑','تسجيل دخول',arr.length?arr.length+' وصول اليوم':'لا وصول'],['out','🚪','تسجيل خروج',dep.length?dep.length+' مغادرة اليوم':'لا مغادرة'],['pay','💵','قبض',due.length?due.length+' عليهم مبالغ':'سند قبض'],['ret','↩️','مرتجع','يحتاج موافقة'],['stmt','📄','كشف حساب','لأي نزيل'],['units','🏢','لوحة الشقق',s.ready+' فارغة جاهزة'],['day','📊','اليومية','قبض ومصروفات اليوم'],['pyr','🧾','طلب صرف / شراء','بنود ومرفقات'],['debt','📉','المديونية',(()=>{const rid=debtRounds()[0],k=rid?debtState(rid,b).k:'none';return {wait:'الرد يوم الاثنين',open:'🔔 اكتب الردود اليوم',overdue:'⛔ متأخر — أرسل الآن',ok:'تم الإرسال ✓',late:'أُرسل متأخراً',none:'لا يوجد كشف'}[k]})()],['plist','📂','طلباتي للصرف',(()=>{const n=RP().filter(p=>p.bld===b&&['pending','approved'].includes(p.status)).length;return n?n+' مفتوح':'المتابعة'})()]];
+  const pq=pyrQueue(),dk=(()=>{const rid=debtRounds()[0];return rid?debtState(rid,b).k:'none'})();
   return `<div class="gs-hi between"><div><h1>${role()==='rcp'?'مرحباً '+esc(first)+' 👋':'الاستقبال'}</h1><p>${fdate(TODAY)} — ${rcpBldPicker()}</p></div></div>
   <div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${s.busy}</b><span>مشغولة</span></div><div style="--c:#1e8e5a"><b>${s.ready}</b><span>فارغة جاهزة</span></div><div style="--c:#0f8ea3"><b>${s.cleaning}</b><span>تنظيف</span></div><div style="--c:#d13b3b"><b>${s.maint}</b><span>صيانة</span></div><div style="--c:#16365B"><b>${s.pct}%</b><span>الإشغال</span></div></div>
   ${q.length?`<div class="card"><h2>✅ بانتظار ${role()==='gm'?'موافقتك':'قيدك'} <span class="pill">${q.length}</span></h2><div class="list">${q.map(t=>`<div class="li click" data-rt="${t.id}" style="cursor:pointer"><div class="av">↩️</div><div><b>${esc(t.id)}</b> — ${esc(t.gname)} <span class="muted small">${esc(t.bld)} — ${esc(t.reason)}</span></div><b>${omr(t.amount)}</b></div>`).join('')}</div></div>`:''}
+  ${['open','overdue'].includes(dk)&&rcpCan()?`<div class="note ${dk==='open'?'w':'c'} between" style="gap:10px;flex-wrap:wrap"><span>${dk==='open'?'🔔 اليوم الاثنين — موعد الرد على المديونية':'⛔ لم تُرسل ردود المديونية بعد — موعدها كان الاثنين'}</span><button class="btn sm" data-rgo="debt">📉 افتح المديونية</button></div>`:''}
   ${pq.length?`<div class="card"><h2>🧾 طلبات صرف بانتظار ${role()==='gm'?'اعتمادك':'صرفك'} <span class="pill">${pq.length}</span></h2><div class="list">${pq.map(p=>`<div class="li click" data-yq="${p.id}" style="cursor:pointer"><div class="av">🧾</div><div><b>${esc(p.id)}</b> — ${esc(p.bld)} <span class="muted small">${p.lines.length} بند — ${esc(p.by)}</span></div><b>${omr(pyrTotal(p))}</b></div>`).join('')}</div></div>`:''}
   <div class="gs-big rcp-big">${big.map(([k,ic,t,sm])=>`<button data-rgo="${k}"><span class="i">${ic}</span><b>${t}</b><small>${sm}</small></button>`).join('')}</div>
   <div class="grid g2"><div class="card"><h2>🔑 وصول اليوم <small>${arr.length}</small></h2>${arr.length?`<div class="list">${arr.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — حتى ${fdate(r.to)}</div></div><button class="btn sm" data-rin="${r.id}">دخول</button></div>`).join('')}</div>`:'<div class="muted small">لا يوجد وصول منتظر.</div>'}</div>
@@ -4293,7 +4443,7 @@ BIND.rhome=()=>{rcpBindPicker();
     if(k==='out')return pickRsv(RS().filter(r=>r.bld===b&&r.status==='in').sort((a,c)=>a.to.localeCompare(c.to)),'🚪 من سيخرج؟',rcpCheckOut);
     if(k==='pay')return pickRsv(RS().filter(r=>r.bld===b&&rActive(r)).sort((a,c)=>rcpBal(c)-rcpBal(a)),'💵 القبض من؟',r=>rcpPayForm(r));
     if(k==='ret')return pickRsv(RS().filter(r=>r.bld===b&&r.status!=='cancelled'&&rcpPaid(r)>0).sort((a,c)=>c.at.localeCompare(a.at)).slice(0,30),'↩️ مرتجع لأي حجز؟',rcpReturnForm);
-    go({stmt:'rstmt',units:'runits',day:'rday'}[k])});
+    go({stmt:'rstmt',units:'runits',day:'rday',debt:'rdebt'}[k])});
   $$('[data-rin]').forEach(x=>x.onclick=()=>rcpCheckIn(rRsv(x.dataset.rin)));$$('[data-rout]').forEach(x=>x.onclick=()=>rcpCheckOut(rRsv(x.dataset.rout)));
   $$('[data-rt]').forEach(x=>x.onclick=()=>rcpReturnAct(RT().find(t=>t.id===x.dataset.rt)));
   $$('[data-yq]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.yq)));
@@ -4468,7 +4618,7 @@ async function sandboxStart(){
   S=JSON.parse(JSON.stringify(real));S.session={...real.session};
   DEMO={real,sbx:true,realSession:real.session,realView:V.view,realSub:V.sub};
   V.sub={...V.sub};
-  ['guests','rsv','rcv','rtn','xpn','units','pyr'].forEach(k=>S[k]=[]);
+  ['guests','rsv','rcv','rtn','xpn','units','pyr','debts','dbrep'].forEach(k=>S[k]=[]);
   document.body.classList.add('sbx-on');
   const b=document.createElement('div');b.id='sbxBar';b.innerHTML='🧪 وضع التجربة — بيانات تجريبية ولا يُحفظ أي شيء <button class="btn sm" id="sbxEnd">إنهاء التجربة</button>';document.body.appendChild(b);$('#sbxEnd').onclick=()=>sandboxStop();
   if(APP==='rcp'){V.sub.rb='الوادي';V.view='rhome';try{await rcpSeedDemo('الوادي')}catch(e){}}
@@ -4594,6 +4744,16 @@ body.sbx-on .mback{padding-bottom:62px!important}
 .att-la{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .att-more{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:360px}.att-more .btn{flex:1}#atPermNow{width:100%;max-width:360px}
 .att-shf{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}@media(max-width:640px){.att-shf{grid-template-columns:1fr}}
+.pyr-pur{margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px dashed #c97c00;background:rgba(201,124,0,.08);display:flex;flex-direction:column;gap:8px}.pyr-pur[hidden]{display:none}.pyr-pur select{font:inherit;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink)}.pyr-pur .btn{align-self:flex-start}
+.rpay-tabs button{font-size:15px;padding:10px 16px}
+.dbt-list{display:flex;flex-direction:column;gap:10px}
+.dbt-c{border:1px solid var(--border);border-radius:16px;padding:12px 14px;background:var(--surface)}
+.dbt-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.dbt-t{text-align:end;display:flex;flex-direction:column;gap:4px;align-items:flex-end}.dbt-t b{font-size:17px;color:#d13b3b}
+.dbt-ag{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.dbt-a{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--c);color:var(--c)}
+.dbt-prev{background:var(--surface-2);border-radius:10px;padding:6px 10px;margin-bottom:8px}
+.dbt-in{width:100%;font:inherit;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);resize:vertical}
+.dbt-rep{background:rgba(30,142,90,.08);border-radius:10px;padding:8px 10px}
+.dbt-send{position:sticky;bottom:12px;display:flex;justify-content:center;margin-top:14px}.dbt-send .btn{box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:16px;padding:14px 22px}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
