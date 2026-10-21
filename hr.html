@@ -3537,6 +3537,8 @@ async function rcpScan(file){
   const r=await call('ocr',{b64,mime:'image/jpeg'}).catch(()=>null);
   if(r&&r.ok&&r.fields)return {ok:true,f:r.fields};
   const m={no_key:'قراءة البطاقة لم تُفعّل بعد في الخادم — اكتب البيانات يدوياً',bad_action:'الخادم لم يُحدَّث بعد لقراءة البطاقة — اكتب البيانات يدوياً',locked:'محاولات كثيرة، انتظر قليلاً',ocr_failed:'لم تتضح البيانات — صوّر البطاقة بإضاءة أفضل أو اكتبها يدوياً'};
+  if(r&&r.error==='ocr_api')return {ok:false,msg:'خدمة القراءة من Google رفضت الطلب — أرسل هذه الرسالة للدعم: '+String(r.detail||'').slice(0,160)};
+  if(r&&r.error==='ocr_failed'&&r.detail&&r.detail!=='empty'&&r.detail!=='bad_json')return {ok:false,msg:'لم تُقرأ البطاقة ('+r.detail+') — اكتب البيانات يدوياً'};
   return {ok:false,msg:(r&&m[r.error])||'تعذّر الاتصال بالخادم — اكتب البيانات يدوياً'};
 }
 
