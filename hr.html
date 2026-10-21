@@ -3452,8 +3452,8 @@ const RCP_SRC=['مباشر (حضوري)','عميل سابق','اتصال / وا�
 const RCP_PAY={cash:'نقداً',card:'بطاقة / فيزا',transfer:'تحويل بنكي'};
 const RCP_PAY_EN={cash:'Cash',card:'Card / Visa',transfer:'Bank transfer'};
 /* حسابات القبض في نت سويت (الصناديق والبنوك) */
-const RCP_ACCTS=[['NS-10001','صندوق الريال العماني - الرواس'],['NS-10002','صندوق الريال العماني - المعتزة'],['NS-10003','صندوق الريال العماني - عوقد'],['NS-10005','صندوق الريال العماني - السعادة 25'],['NS-10007','صندوق الريال العماني - الوادي'],['NS-10009','صندوق حجوزات موقع اكسبيديا EXPEIDEA'],['NS-10010','صندوق حجوزات موقع اجواد Agoda'],['NS-10012','صندوق الريال العماني - الحصيلة'],['NS-10013','صندوق حجوزات تطبيق مسرة'],['NS-10600','بنك ظفار - ريال عماني - Bank Dhofar'],['NS-10701','بنك مسقط - ريال عماني - Bank Muscat']];
-const RCP_BOX={'صلالة الوسطى / المعتزة':'NS-10002','عوقد الشمالية':'NS-10003','السعادة':'NS-10005','الوادي':'NS-10007','الحصيلة':'NS-10012'};
+const RCP_ACCTS=[['NS-10001','صندوق الريال العماني - الرواس'],['NS-10002','صندوق الريال العماني - المعتزة'],['NS-10003','صندوق الريال العماني - عوقد'],['NS-10005','صندوق الريال العماني - السعادة 25'],['NS-10014','صندوق الريال العماني - السعادة نستو'],['NS-10007','صندوق الريال العماني - الوادي'],['NS-10009','صندوق حجوزات موقع اكسبيديا EXPEIDEA'],['NS-10010','صندوق حجوزات موقع اجواد Agoda'],['NS-10012','صندوق الريال العماني - الحصيلة'],['NS-10013','صندوق حجوزات تطبيق مسرة'],['NS-10600','بنك ظفار - ريال عماني - Bank Dhofar'],['NS-10701','بنك مسقط - ريال عماني - Bank Muscat']];
+const RCP_BOX={'الحي التجاري':'NS-10001','السعادة نستو':'NS-10014','صلالة الوسطى / المعتزة':'NS-10002','عوقد الشمالية':'NS-10003','السعادة':'NS-10005','الوادي':'NS-10007','الحصيلة':'NS-10012'};
 const rcpAcctDef=(bld,method)=>method==='cash'?(RCP_BOX[bld]||''):'NS-10600';
 const rcpAcctL=k=>{const a=RCP_ACCTS.find(x=>x[0]===k);return a?a[0]+' - '+a[1]:(k||'')};
 const rcpAcctOpts=sel=>`<option value="">— اختر الحساب —</option>`+[['الصناديق',a=>/صندوق الريال/.test(a[1])],['مواقع وتطبيقات الحجز',a=>/حجوزات/.test(a[1])],['البنوك',a=>/بنك/.test(a[1])]].map(([g,f])=>`<optgroup label="${g}">${RCP_ACCTS.filter(f).map(a=>`<option value="${a[0]}" ${a[0]===sel?'selected':''}>${a[0]} - ${esc(a[1])}</option>`).join('')}</optgroup>`).join('');
@@ -3524,7 +3524,7 @@ function rcpWordsEn(v){v=r3(v);const r=Math.floor(v),b=Math.round((v-r)*1000);le
 function rcpShrink(file,max){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('img'))};im.src=u})}
 async function rcpScan(file){
-  if(DEMO||!TOKEN)return {ok:false,msg:'قراءة البطاقة تعمل بعد تسجيل الدخول'};
+  if((DEMO&&!DEMO.sbx)||!TOKEN)return {ok:false,msg:'قراءة البطاقة تعمل بعد تسجيل الدخول'};
   let b64;try{b64=await rcpShrink(file,1600)}catch(e){return {ok:false,msg:'تعذّرت قراءة الصورة'}}
   const r=await call('ocr',{b64,mime:'image/jpeg'}).catch(()=>null);
   if(r&&r.ok&&r.fields)return {ok:true,f:r.fields};
@@ -3558,7 +3558,8 @@ function rcpBookForm(pre){
   <hr class="rcp-hr">
   <label class="rcp-chk"><input type="checkbox" id="rIn" checked> تسجيل دخول النزيل الآن</label>
   <div class="frow"><div class="fld"><label>المبلغ المستلم الآن (ر.ع)</label><input id="rPay" type="number" step="0.001" inputmode="decimal" placeholder="0"></div><div class="fld"><label>طريقة الدفع</label><select id="rPayM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
-  <div class="fld"><label>الحساب</label><select id="rAcct">${rcpAcctOpts(rcpAcctDef(b0,'cash'))}</select></div>`;
+  <div class="fld"><label>الصندوق / الحساب</label><select id="rAcct">${rcpAcctOpts(rcpAcctDef(b0,'cash'))}</select></div>
+  <div class="frow"><div class="fld"><label>بيان القبض (اختياري)</label><input id="rPMemo" placeholder="يُكتب تلقائياً إن تُرك فارغاً"></div><div class="fld"><label>مرفق القبض (اختياري)</label>${rcpAttField('rPAtt')}</div></div>`;
   modal({title:'🛏️ حجز جديد',sub:'كل الحقول المهمة في صفحة واحدة — السعر والمدة والإجمالي تُحسب تلقائياً',wide:true,body,onMount:(m,close)=>{
     let type='daily';
     const bld=()=>$('#rBld',m).value;
@@ -3575,17 +3576,30 @@ function rcpBookForm(pre){
     $('#rPrice',m).onchange=()=>{const p=RCP_PRICES.find(x=>x.k===$('#rPrice',m).value);if(p)$('#rRate',m).value=p.rate;sum()};
     $('#rRate',m).oninput=sum;$('#rPay',m).oninput=()=>{$('#rPay',m).dataset.touched=1};
     $('#rSrc',m).onchange=()=>{$('#rBrokerRow',m).hidden=$('#rSrc',m).value!=='سمسار'};
-    const accDef=()=>{$('#rAcct',m).innerHTML=rcpAcctOpts(rcpAcctDef(bld(),$('#rPayM',m).value))};$('#rPayM',m).onchange=accDef;if($('#rBld',m).tagName==='SELECT')$('#rBld',m).addEventListener('change',accDef);
-    const hit=()=>{const q=$('#rId',m).value.trim()||$('#rPhone',m).value.trim();const h=rcpGuestFind(q).filter(g=>g.id!==gid);
-      $('#rGuestHit',m).innerHTML=h.length?`<div class="note small">نزيل سابق؟ ${h.map(g=>`<button type="button" class="btn sm sec" data-pick="${g.id}">${esc(g.name)} — ${esc(g.idNo||g.phone)}</button>`).join(' ')}</div>`:'';
-      $$('[data-pick]',m).forEach(x=>x.onclick=()=>{const g=rGuest(x.dataset.pick);gid=g.id;[['rId','idNo'],['rName','name'],['rPhone','phone'],['rNat','nat'],['rDob','dob'],['rNameEn','nameEn']].forEach(([i,k])=>$('#'+i,m).value=g[k]||'');$('#rSrc',m).value='عميل سابق';$('#rGuestHit',m).innerHTML=`<div class="note g small">✓ عميل سابق: ${esc(g.name)} (${esc(g.id)})</div>`})};
-    $('#rId',m).oninput=()=>{gid=null;hit()};$('#rPhone',m).oninput=()=>{if(!gid)hit()};
+    const accDef=()=>{$('#rAcct',m).innerHTML=rcpAcctOpts(rcpAcctDef(bld(),$('#rPayM',m).value))};$('#rPayM',m).onchange=accDef;if($('#rBld',m).tagName==='SELECT')$('#rBld',m).addEventListener('change',accDef);rcpAttBind(m,'rPAtt');
+    const pick=g=>{if(!g)return;gid=g.id;[['rId','idNo'],['rName','name'],['rPhone','phone'],['rNat','nat'],['rDob','dob'],['rNameEn','nameEn']].forEach(([i,k])=>{if(g[k])$('#'+i,m).value=g[k]});$('#rSrc',m).value='عميل سابق';card()};
+    const gInfo=g=>{const rs=RS().filter(r=>r.gid===g.id&&r.status!=='cancelled').sort((a,c)=>c.from.localeCompare(a.from)),bal=r3(rs.reduce((a,r)=>a+Math.max(0,rcpBal(r)),0));
+      return `${rs.length?rs.length+' إقامة سابقة — آخرها '+fdate(rs[0].from)+' ('+esc(rs[0].bld)+')':'لا إقامات سابقة'}${bal>0?` — <b style="color:var(--critical)">عليه ${omr(bal)}</b>`:''}`};
+    const card=()=>{const box=$('#rGuestHit',m),idNo=$('#rId',m).value.trim(),q=idNo||$('#rPhone',m).value.trim();
+      if(gid){const g=rGuest(gid);if(!g){gid=null;return card()}
+        box.innerHTML=`<div class="gchk ok"><div class="gi">✓</div><div class="gt"><b>عميل مسجّل لدينا: ${esc(g.name)}</b><div class="small">${esc(g.id)} — <span dir="ltr">${esc(g.idNo||'')}</span> — ${gInfo(g)}</div></div><button type="button" class="btn sm sec" data-unpick>ليس هو</button></div>`;
+        $('[data-unpick]',box).onclick=()=>{gid=null;$('#rSrc',m).value=RCP_SRC[0];box.innerHTML=''};return}
+      const ex=idNo?RG().find(g=>String(g.idNo||'').trim()===idNo):null;if(ex)return pick(ex);
+      const h=rcpGuestFind(q);
+      if(h.length){box.innerHTML=`<div class="gchk maybe"><div class="gi">?</div><div class="gt"><b>هل هو عميل سابق؟</b><div class="gl">${h.map(g=>`<button type="button" class="btn sm sec" data-pick="${g.id}">${esc(g.name)} — ${esc(g.idNo||g.phone)}</button>`).join(' ')}</div></div></div>`;
+        $$('[data-pick]',box).forEach(x=>x.onclick=()=>pick(rGuest(x.dataset.pick)));return}
+      if(idNo.length>=4){box.innerHTML=`<div class="gchk new"><div class="gi">🆕</div><div class="gt"><b>عميل جديد — غير مسجّل لدينا</b><div class="small">أكمل الاسم والهاتف ثم اضغط «إضافة عميل جديد» — أو يُضاف تلقائياً عند حفظ الحجز.</div></div><button type="button" class="btn sm" data-addg>➕ إضافة عميل جديد</button></div>`;
+        $('[data-addg]',box).onclick=async ev=>{const name=$('#rName',m).value.trim(),phone=$('#rPhone',m).value.trim();if(!name||!phone){toast('اكتب اسم النزيل ورقم الهاتف أولاً');return}ev.target.disabled=true;
+          const g={id:await rcpNo('G'),idNo,name,nameEn:$('#rNameEn',m).value.trim(),phone,nat:$('#rNat',m).value.trim(),dob:$('#rDob',m).value,at:nowTs(),by:me().name};RG().push(g);save();gid=g.id;card();toast('تمت إضافة العميل '+g.id)};return}
+      box.innerHTML=''};
+    let cT;const cardSoon=()=>{clearTimeout(cT);cT=setTimeout(card,350)};
+    $('#rId',m).oninput=()=>{gid=null;cardSoon()};$('#rPhone',m).oninput=()=>{if(!gid)cardSoon()};
     $('#rIdPh',m).onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const msg=$('#rScanMsg',m);msg.textContent='⏳ جارٍ قراءة البطاقة…';
       const r=await rcpScan(f);ev.target.value='';if(!r.ok){msg.textContent='⚠️ '+r.msg;return}
       const F=r.f,set=(i,v)=>{if(v&&String(v).trim())$('#'+i,m).value=String(v).trim()};
       set('rId',F.idNo);set('rName',F.nameAr||F.nameEn);set('rNameEn',F.nameEn);set('rNat',F.nationality);if(/^\d{4}-\d\d-\d\d$/.test(F.dob||''))set('rDob',F.dob);
-      msg.textContent='✓ تمت القراءة — راجع البيانات قبل الحفظ';gid=null;hit();const ex=RG().find(g=>F.idNo&&g.idNo===String(F.idNo).trim());if(ex){$$('[data-pick]',m).find(x=>x.dataset.pick===ex.id)?.click()}};
-    fillPrices();fillUnits();if(pre&&pre.unit)$('#rUnit',m).value=pre.unit;sum();if(g0)$('#rGuestHit',m).innerHTML=`<div class="note g small">✓ عميل سابق: ${esc(g0.name)}</div>`;
+      gid=null;card();msg.textContent=gid?'✓ تمت القراءة — العميل مسجّل لدينا مسبقاً':'✓ تمت القراءة — عميل جديد، راجع البيانات قبل الحفظ'};
+    fillPrices();fillUnits();if(pre&&pre.unit)$('#rUnit',m).value=pre.unit;sum();if(g0)card();
     const ft=document.createElement('div');ft.className='mf';const sv=document.createElement('button');sv.className='btn';sv.textContent='✔ حفظ الحجز';const cn=document.createElement('button');cn.className='btn sec';cn.textContent='إلغاء';cn.onclick=close;ft.append(sv,cn);$('.modal',m).appendChild(ft);
     sv.onclick=async()=>{
       const idNo=$('#rId',m).value.trim(),name=$('#rName',m).value.trim(),phone=$('#rPhone',m).value.trim(),unit=$('#rUnit',m).value,from=$('#rFrom',m).value,to=$('#rTo',m).value,{n,t,rate}=sum();
@@ -3595,6 +3609,7 @@ function rcpBookForm(pre){
       const doIn=$('#rIn',m).checked,pay=r3(+$('#rPay',m).value||0);
       if(doIn&&from>TODAY){toast('لا يمكن تسجيل الدخول قبل تاريخ الحجز');return}
       sv.disabled=true;sv.textContent='جارٍ الحفظ…';
+      let patt=null;if(pay>0&&m._att&&m._att.rPAtt){sv.textContent='⏳ رفع مرفق القبض…';try{patt=await pyrUpload(m._att.rPAtt)}catch(e){sv.disabled=false;sv.textContent='✔ حفظ الحجز';toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الإيصال':'تعذّر رفع المرفق — تحقق من الاتصال');return}sv.textContent='جارٍ الحفظ…'}
       let g=gid?rGuest(gid):RG().find(x=>x.idNo===idNo);
       if(!g){g={id:await rcpNo('G'),idNo,name,nameEn:$('#rNameEn',m).value.trim(),phone,nat:$('#rNat',m).value.trim(),dob:$('#rDob',m).value,at:nowTs(),by:me().name};RG().push(g)}
       else Object.assign(g,{idNo,name,phone,nat:$('#rNat',m).value.trim()||g.nat,dob:$('#rDob',m).value||g.dob,nameEn:$('#rNameEn',m).value.trim()||g.nameEn});
@@ -3602,15 +3617,15 @@ function rcpBookForm(pre){
       const r={id:await rcpNo('MR'),bld:bld(),unit,gid:g.id,gname:g.name,type,from,to,count:n,rate,priceK:p.k||'',incl:!!p.incl,total:t,comp:+$('#rComp',m).value||0,src:$('#rSrc',m).value,broker:$('#rBroker',m).value.trim(),comm:r3(+$('#rComm',m).value||0),note:$('#rNote',m).value.trim(),
         status:doIn?'in':'booked',inAt:doIn?nowTs():null,outAt:null,elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
       r.no=r.id;RS().push(r);
-      let rc=null;if(pay>0)rc=await rcpAddReceipt({rsv:r,amount:pay,method:$('#rPayM',m).value,acct:$('#rAcct',m).value});
+      let rc=null;if(pay>0)rc=await rcpAddReceipt({rsv:r,amount:pay,method:$('#rPayM',m).value,acct:$('#rAcct',m).value,memo:$('#rPMemo',m).value.trim(),att:patt});
       if(doIn&&r.type==='monthly'){/* قراءة العداد تُطلب من شاشة الدخول عند الحاجة */}
       close();V.view='rbook';commit('تم حفظ الحجز '+r.id);rcpAfterBook(r,rc);
     };
   }});
 }
-async function rcpAddReceipt({rsv,gid,amount,method,memo,bld,acct}){
+async function rcpAddReceipt({rsv,gid,amount,method,memo,bld,acct,att}){
   const g=rsv?rGuest(rsv.gid):rGuest(gid);
-  const c={id:await rcpNo('RC'),bld:rsv?rsv.bld:(bld||rcpBld()),gid:g?g.id:'',gname:g?g.name:'',rsvId:rsv?rsv.id:'',unit:rsv?rsv.unit:'',amount:r3(amount),method,acct:acct||rcpAcctDef(rsv?rsv.bld:(bld||rcpBld()),method),
+  const c={id:await rcpNo('RC'),bld:rsv?rsv.bld:(bld||rcpBld()),gid:g?g.id:'',gname:g?g.name:'',rsvId:rsv?rsv.id:'',unit:rsv?rsv.unit:'',amount:r3(amount),method,att:att||null,acct:acct||rcpAcctDef(rsv?rsv.bld:(bld||rcpBld()),method),
     memo:memo||('#'+method+(rsv?' #'+rsv.unit+' #'+rsv.count+(rsv.type==='daily'?'night':'month'):'')+(g&&g.phone?' #'+g.phone:'')),date:TODAY,at:nowTs(),by:me().name,nsNo:''};
   c.no=c.id;RC().push(c);return c;
 }
@@ -3630,12 +3645,12 @@ function rcpOpen(id){const r=rRsv(id);if(!r)return;const g=rGuest(r.gid)||{},bal
    <div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div>${rcpRet(r)?`<div><span>مرتجع</span><b>${omr(rcpRet(r))}</b></div>`:''}<div class="t ${bal>0?'due':''}"><span>${bal<0?'للنزيل':'المتبقي'}</span><b>${omr(Math.abs(bal))}</b></div></div>
    <div class="rcp-acts">${acts.map(([k,t,c])=>`<button class="btn ${c}" data-ra="${k}">${t}</button>`).join('')}</div><div class="rcp-kv">${[['النزيل',esc(r.gname)+(g.idNo?` <span class="muted small" dir="ltr">${esc(g.idNo)}</span>`:'')],['الهاتف',`<span dir="ltr">${esc(g.phone||'—')}</span>`],['نوع الحجز',RCP_TYPES_L[r.type]+(r.incl?' (شامل)':'')],['الفترة',`${fdate(r.from)} ← ${fdate(r.to)} (${rcpDur(r.type,r.count)})`],
      ['الدخول',r.inAt?ftime(r.inAt):'—'],['الخروج',r.outAt?ftime(r.outAt):'—'],['السعر',omr(r.rate)],['المصدر',esc(r.src||'—')+(r.broker?' — '+esc(r.broker)+' ('+omr(r.comm)+')':'')],['المرافقون',r.comp||0],...(r.type==='monthly'?[['عداد الكهرباء',`دخول: ${esc(r.elecIn||'—')} — خروج: ${esc(r.elecOut||'—')}`]]:[]),...(r.note?[['ملاحظة',esc(r.note)]]:[]),['رقم نت سويت',r.nsNo?`<span dir="ltr">${esc(r.nsNo)}</span>`:'<span class="muted">لم يُربط بعد</span>']].map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
-   ${pays.length?`<h4 class="rcp-h4">سندات القبض</h4><div class="list">${pays.map(c=>`<div class="li"><div class="av">💵</div><div><b>${esc(c.id)}</b> <span class="muted small">${fdate(c.date)} — ${RCP_PAY[c.method]||''}</span></div><div><b>${omr(c.amount)}</b> <button class="btn sm sec" data-prc="${c.id}">🖨️</button></div></div>`).join('')}</div>`:''}
+   ${pays.length?`<h4 class="rcp-h4">سندات القبض</h4><div class="list">${pays.map(c=>`<div class="li"><div class="av">💵</div><div><b>${esc(c.id)}</b> <span class="muted small">${fdate(c.date)} — ${RCP_PAY[c.method]||''}</span></div><div><b>${omr(c.amount)}</b> <button class="btn sm sec" data-prc="${c.id}">🖨️</button>${c.att?` <button class="btn sm sec" data-rca="${c.id}" title="مرفق القبض">📎</button>`:''}</div></div>`).join('')}</div>`:''}
    ${rets.length?`<h4 class="rcp-h4">المرتجعات</h4><div class="list">${rets.map(t=>`<div class="li"><div class="av">↩️</div><div><b>${esc(t.id)}</b> ${badge(RCP_RTN[t.status][0],RCP_RTN[t.status][1])}</div><div><b>${omr(t.amount)}</b></div></div>`).join('')}</div>`:''}
    
    <div class="rcp-acts"><button class="btn sm sec" data-rp="contract">🖨️ العقد</button><button class="btn sm sec" data-rp="booking">🖨️ تأكيد الحجز</button><button class="btn sm sec" data-rp="stmt">📄 كشف حساب النزيل</button>${rcpMgr()?`<button class="btn sm ghost" data-rp="ns">🔗 رقم نت سويت</button>`:''}</div>`,
    onMount:(m,close)=>{
-     $$('[data-prc]',m).forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
+     $$('[data-rca]',m).forEach(x=>x.onclick=()=>pyrAttView((RC().find(c=>c.id===x.dataset.rca)||{}).att));$$('[data-prc]',m).forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
      $$('[data-rp]',m).forEach(x=>x.onclick=()=>{const k=x.dataset.rp;if(k==='contract')rcpPrintContract(r);else if(k==='booking')rcpPrintBooking(r);else if(k==='stmt'){close();V.sub.rg=r.gid;go('rstmt')}else if(k==='ns'){close();rcpNsNo('rsv',r)}});
      $$('[data-ra]',m).forEach(x=>x.onclick=()=>{close();({in:rcpCheckIn,out:rcpCheckOut,pay:rcpPayForm,ext:rcpExtend,ret:rcpReturnForm,cancel:rcpCancel})[x.dataset.ra](r)});
    }});
@@ -3659,11 +3674,11 @@ function rcpCheckOut(r){const bal=rcpBal(r);
 function rcpPayForm(r,gid){const bal=r?rcpBal(r):0,g=r?null:rGuest(gid);
   modal({title:'💵 سند قبض',sub:r?`${esc(r.gname)} — حجز ${esc(r.id)} — شقة ${esc(r.unit)}`:esc(g?g.name:''),body:`${r?`<div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div><div class="t"><span>المتبقي</span><b>${omr(bal)}</b></div></div>`:''}
    <div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="pA" type="number" step="0.001" inputmode="decimal" value="${bal>0?bal:''}"></div><div class="fld"><label>طريقة الدفع</label><select id="pM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
-   <div class="fld"><label>الحساب *</label><select id="pAc">${rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),'cash'))}</select></div>
-   <div class="fld"><label>البيان (اختياري)</label><input id="pMemo" placeholder="يُكتب تلقائياً مثل: #cash #101 #2night"></div>`,
+   <div class="fld"><label>الصندوق / الحساب *</label><select id="pAc">${rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),'cash'))}</select></div>
+   <div class="frow"><div class="fld"><label>البيان (اختياري)</label><input id="pMemo" placeholder="يُكتب تلقائياً مثل: #cash #101 #2night"></div><div class="fld"><label>مرفق القبض (اختياري)</label>${rcpAttField('pAtt')}</div></div>`,
    onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='✔ حفظ وطباعة السند';const ok2=document.createElement('button');ok2.className='btn sec';ok2.textContent='حفظ فقط';ft.append(ok,ok2);$('.modal',m).appendChild(ft);
-     const go2=async pr=>{const a=r3(+fv(m,'pA')||0);if(!(a>0)){toast('اكتب المبلغ');return}if(!fv(m,'pAc')){toast('اختر الحساب');return}ok.disabled=ok2.disabled=true;const c=await rcpAddReceipt({rsv:r,gid,amount:a,method:fv(m,'pM'),memo:fv(m,'pMemo'),acct:fv(m,'pAc')});close();commit('تم حفظ سند القبض '+c.id);if(pr)rcpPrintReceipt(c)};
-     $('#pM',m).onchange=()=>{$('#pAc',m).innerHTML=rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),fv(m,'pM')))};
+     const go2=async pr=>{const a=r3(+fv(m,'pA')||0);if(!(a>0)){toast('اكتب المبلغ');return}if(!fv(m,'pAc')){toast('اختر الحساب');return}ok.disabled=ok2.disabled=true;let att=null;if(m._att&&m._att.pAtt){try{att=await pyrUpload(m._att.pAtt)}catch(e){ok.disabled=ok2.disabled=false;toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الإيصال':'تعذّر رفع المرفق — تحقق من الاتصال');return}}const c=await rcpAddReceipt({rsv:r,gid,amount:a,method:fv(m,'pM'),memo:fv(m,'pMemo'),acct:fv(m,'pAc'),att});close();commit('تم حفظ سند القبض '+c.id);if(pr)rcpPrintReceipt(c)};
+     rcpAttBind(m,'pAtt');$('#pM',m).onchange=()=>{$('#pAc',m).innerHTML=rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),fv(m,'pM')))};
      ok.onclick=()=>go2(true);ok2.onclick=()=>go2(false)}});
 }
 function rcpExtend(r){
@@ -3801,6 +3816,13 @@ function rcpXpnForm(){const b=rcpBld();
      ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
 }
 
+/* ---------- مرفق واحد (إيصال القبض) ---------- */
+const rcpAttField=id=>`<div class="ratt" id="${id}W"><label class="pyr-up sm">📎 إيصال / صورة التحويل<input type="file" id="${id}" accept="image/*,application/pdf" hidden></label></div>`;
+function rcpAttBind(m,id){const inp=$('#'+id,m);if(!inp)return;m._att=m._att||{};
+  const draw=()=>{const a=m._att[id],w=$('#'+id+'W',m);w.querySelector('.pyr-f')?.remove();if(!a){w.querySelector('label').hidden=false;return}
+    w.querySelector('label').hidden=true;w.insertAdjacentHTML('beforeend',`<span class="pyr-f">${a.prev?`<img src="${a.prev}" alt="">`:'<i>PDF</i>'}<em>${esc(a.name)}</em><button type="button" aria-label="حذف المرفق">×</button></span>`);
+    w.querySelector('.pyr-f button').onclick=()=>{m._att[id]=null;draw()}};
+  inp.onchange=async ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;const a=await pyrPrep(f);if(a){m._att[id]=a;draw()}}}
 /* ---------- طلبات الصرف (الاستقبال ← المدير العام ← الحسابات) ---------- */
 const RP=()=>S.pyr||(S.pyr=[]);
 const PYR_MAX_ATT=10;
@@ -4034,9 +4056,9 @@ BIND.rbook=()=>{rcpBindPicker();$('#rNew').onclick=()=>rcpBookForm({bld:rcpBld()
   $$('[data-r]').forEach(x=>x.onclick=()=>rcpOpen(x.dataset.r))};
 VIEWS.rcash=()=>{const b=rcpBld(),d=V.sub.rd||TODAY,rc=RC().filter(c=>c.bld===b&&c.date===d),xp=RX().filter(x=>x.bld===b&&x.date===d);
   return ph('💵 القبض والمصروفات',esc(b),rcpBldPicker()+` <button class="btn" id="cNew">💵 سند قبض</button> <button class="btn sec" id="xNew">💸 مصروف / إيداع</button>`)+`<div class="card"><div class="between"><h2>سندات القبض <small>${rc.length}</small></h2><input type="date" id="cD" value="${d}" max="${TODAY}" style="max-width:170px"></div>
-  ${rc.length?`<div class="tw"><table><thead><tr><th>السند</th><th>النزيل</th><th>الشقة</th><th>الطريقة</th><th>المبلغ</th><th></th></tr></thead><tbody>${rc.map(c=>`<tr><td dir="ltr"><b>${esc(c.id)}</b></td><td>${esc(c.gname)}</td><td>${esc(c.unit||'—')}</td><td>${RCP_PAY[c.method]||''}</td><td><b>${money(c.amount)}</b></td><td><button class="btn sm sec" data-prc="${c.id}">🖨️</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا سندات قبض في هذا اليوم</div>'}</div>
+  ${rc.length?`<div class="tw"><table><thead><tr><th>السند</th><th>النزيل</th><th>الشقة</th><th>الطريقة</th><th>المبلغ</th><th></th></tr></thead><tbody>${rc.map(c=>`<tr><td dir="ltr"><b>${esc(c.id)}</b></td><td>${esc(c.gname)}</td><td>${esc(c.unit||'—')}</td><td>${RCP_PAY[c.method]||''}</td><td><b>${money(c.amount)}</b></td><td><button class="btn sm sec" data-prc="${c.id}">🖨️</button>${c.att?` <button class="btn sm sec" data-rca="${c.id}" title="مرفق القبض">📎</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا سندات قبض في هذا اليوم</div>'}</div>
   <div class="card"><h2>المصروفات والإيداعات <small>${xp.length}</small></h2>${xp.length?`<div class="tw"><table><thead><tr><th>الرقم</th><th>النوع</th><th>البيان</th><th>المبلغ</th></tr></thead><tbody>${xp.map(x=>`<tr><td dir="ltr">${esc(x.id)}</td><td>${RCP_XCAT[x.cat]||''}</td><td>${esc(x.desc)}</td><td><b>${money(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا مصروفات</div>'}</div>`};
-BIND.rcash=()=>{rcpBindPicker();$('#cD').onchange=e=>{V.sub.rd=e.target.value;render()};$('#xNew').onclick=rcpXpnForm;$$('[data-prc]').forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
+BIND.rcash=()=>{rcpBindPicker();$('#cD').onchange=e=>{V.sub.rd=e.target.value;render()};$('#xNew').onclick=rcpXpnForm;$$('[data-rca]').forEach(x=>x.onclick=()=>pyrAttView((RC().find(c=>c.id===x.dataset.rca)||{}).att));$$('[data-prc]').forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
   $('#cNew').onclick=()=>{const b=rcpBld(),L=RS().filter(r=>r.bld===b&&rActive(r));if(!L.length){toast('لا توجد حجوزات حالية — ابدأ بحجز جديد');return}
     modal({title:'💵 القبض من؟',body:`<div class="list">${L.sort((a,c)=>rcpBal(c)-rcpBal(a)).map(r=>`<div class="li click" data-p="${r.id}" style="cursor:pointer"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — المتبقي ${omr(rcpBal(r))}</div></div><span>‹</span></div>`).join('')}</div>`,onMount:(m,close)=>$$('[data-p]',m).forEach(x=>x.onclick=()=>{close();rcpPayForm(rRsv(x.dataset.p))})})}};
 VIEWS.rret=()=>{const R=role(),mine=rcpMyBld(),L=RT().filter(t=>!mine||t.bld===mine).slice().sort((a,c)=>c.at.localeCompare(a.at));
@@ -4270,6 +4292,16 @@ document.head.insertAdjacentHTML('beforeend',`<style id="democss">
 .pyr-tot .t{background:linear-gradient(135deg,#1F5F5B,#2a7a78);color:#fff}.pyr-tot .t span,.pyr-tot .t small{color:rgba(255,255,255,.85)}.pyr-tot .t b{font-size:22px}.pyr-tot small{font-size:11px;margin-top:2px}
 .pyr-row{cursor:pointer}.pyr-rm{flex:1;min-width:0}.pyr-rv{text-align:end}
 @media(max-width:640px){.pyr-body .frow{grid-template-columns:1fr}.pyr-tot{grid-template-columns:1fr 1fr}.pyr-tot .t{grid-column:1/-1}.pyr-line{grid-template-columns:28px 1fr auto;padding:10px}.pyr-no{margin-top:0}}
+
+.gchk{display:flex;gap:10px;align-items:center;border-radius:14px;padding:10px 12px;margin:8px 0;border:1px solid var(--border);animation:pyrIn .25s ease}
+.gchk .gi{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff}
+.gchk .gt{flex:1;min-width:0}.gchk .gl{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.gchk.ok{background:rgba(30,142,90,.1);border-color:#1e8e5a}.gchk.ok .gi{background:#1e8e5a}
+.gchk.new{background:rgba(47,95,208,.08);border-color:#2f5fd0}.gchk.new .gi{background:#2f5fd0;font-size:15px}
+.gchk.maybe{background:rgba(201,124,0,.1);border-color:#c97c00}.gchk.maybe .gi{background:#c97c00}
+.pyr-up.sm{padding:10px 12px;width:100%;justify-content:center}.ratt{display:flex;gap:8px;align-items:center}
+body.sbx-on .mback{padding-bottom:62px!important}
+@media(max-width:640px){.gchk{flex-wrap:wrap}.gchk .btn{width:100%}}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
