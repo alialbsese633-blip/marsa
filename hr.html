@@ -4100,6 +4100,34 @@ function attTimesHTML(){const E=S.employees.filter(e=>e.status!=='terminated').s
   <div class="tw"><table><thead><tr><th>الموظف</th><th>القسم / البناية</th><th>الحضور</th><th>الانصراف</th></tr></thead><tbody>${E.map(e=>`<tr><td><b>${esc(e.name)}</b><div class="small muted">${esc(e.job||'')}</div></td><td class="small">${esc(e.dept||'')}${e.building?' — '+esc(e.building):''}</td><td><input type="time" data-si="${esc(e.id)}" value="${esc(e.shiftIn||'')}"></td><td><input type="time" data-so="${esc(e.id)}" value="${esc(e.shiftOut||'')}"></td></tr>`).join('')}</tbody></table></div>
   <div style="margin-top:12px"><button class="btn" id="atSave">💾 حفظ المواعيد</button></div></div>`}
 function attQRsvg(l,cell){try{const q=qrcode(0,'M');q.addData(attQR(l));q.make();return q.createSvgTag({cellSize:cell||4,margin:1,scalable:true})}catch(e){return ''}}
+/* صورة الرمز (PNG بمقاس A4) — تُحفظ أو تُشارك أو تُطبع من أي جهاز */
+async function attQRImage(l){
+  await loadScriptOnce('vendor/qrcode.min.js');
+  const q=qrcode(0,'M');q.addData(attQR(l));q.make();const n=q.getModuleCount();
+  const W=1240,H=1754,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const F=getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif';
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  x.fillStyle='rgba(31,95,91,.06)';for(let yy=40;yy<H;yy+=26)for(let xx=40;xx<W;xx+=26){x.beginPath();x.arc(xx,yy,3,0,7);x.fill()}
+  x.strokeStyle='#1F5F5B';x.lineWidth=14;x.strokeRect(50,50,W-100,H-100);x.lineWidth=4;x.strokeRect(84,84,W-168,H-168);
+  x.setLineDash([14,10]);x.strokeStyle='rgba(31,95,91,.5)';x.lineWidth=3;x.strokeRect(108,108,W-216,H-216);x.setLineDash([]);
+  try{const im=new Image();im.src='icons/marsa-lockup.png';await im.decode();const lw=440,lh=lw*im.height/im.width;x.drawImage(im,(W-lw)/2,150,lw,lh)}catch(e){}
+  x.textAlign='center';x.direction='rtl';x.fillStyle='#16302f';x.font='800 92px '+F;x.fillText('📍 بصمة الدوام',W/2,440);
+  x.fillStyle='#2a7a78';x.font='700 54px '+F;x.fillText(l.name,W/2,530);
+  const qs=760,qx=(W-qs)/2,qy=600,pad=40;x.fillStyle='#fff';x.fillRect(qx-pad,qy-pad,qs+2*pad,qs+2*pad);x.strokeStyle='#1F5F5B';x.lineWidth=6;x.strokeRect(qx-pad,qy-pad,qs+2*pad,qs+2*pad);
+  const cs=qs/n;x.fillStyle='#000';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(Math.floor(qx+k*cs),Math.floor(qy+r*cs),Math.ceil(cs),Math.ceil(cs));
+  x.fillStyle='#16302f';x.font='700 44px '+F;x.fillText('افتح تطبيق مرسى ← بصمة الدوام ← امسح الرمز',W/2,1500);
+  x.fillStyle='#607573';x.font='500 34px '+F;x.fillText('الكاميرا العادية لا تكفي — البصمة تُسجَّل من داخل التطبيق فقط',W/2,1565);
+  x.direction='ltr';x.font='500 26px '+F;x.fillText(l.id+' · '+l.tok.slice(0,4)+'•••• · '+TODAY,W/2,1630);
+  return c;
+}
+async function attQRShow(l){let c;try{c=await attQRImage(l)}catch(e){toast('تعذّر إنشاء صورة الرمز — تحقق من الاتصال');return}
+  const url=c.toDataURL('image/png'),name='بصمة-الدوام-'+l.id+'.png';
+  modal({title:'🔳 '+esc(l.name),sub:'صورة جاهزة للطباعة بمقاس A4',wide:true,body:`<img src="${url}" alt="" style="width:100%;max-width:420px;display:block;margin:0 auto;border:1px solid var(--border);border-radius:10px"><div class="small muted" style="text-align:center;margin-top:8px">على الآيفون: اضغط مطولاً على الصورة ← «حفظ في الصور» أو «طباعة».</div>`,
+    foot:[{t:'📤 مشاركة / حفظ',fn:()=>{c.toBlob(async b=>{const f=new File([b],name,{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[f]}))return await navigator.share({files:[f],title:l.name})}catch(e){if(e&&e.name==='AbortError')return}
+        const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove()},'image/png');return false}},
+      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();return false}},
+      {t:'🖨️ طباعة',cls:'sec',fn:()=>{printHTML(`<img src="${url}" style="width:100%;max-width:190mm;display:block;margin:0 auto">`,'رمز بصمة الدوام');return false}},{t:'إغلاق',cls:'sec'}]});
+}
 async function attPrintLocs(list){try{await loadScriptOnce('vendor/qrcode.min.js')}catch(e){toast('تعذّر تحميل مولّد الرمز');return}
   const base=location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,'');
   printHTML(`<style>.aq{page-break-after:always;break-after:page;height:268mm;display:flex;align-items:center;justify-content:center}.aq:last-child{page-break-after:auto;break-after:auto}
@@ -4134,12 +4162,12 @@ BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),bo
     body.innerHTML=attLocsHTML();
     loadScriptOnce('vendor/qrcode.min.js').then(()=>$$('[data-q]').forEach(x=>{x.innerHTML=attQRsvg(attLocs()[+x.dataset.q],3)})).catch(()=>{});
     const L=attLocs();
-    $('#alAll').onclick=()=>attPrintLocs(L.filter(l=>!l.off));
+    $('#alAll').onclick=()=>{const A=L.filter(l=>!l.off);if(A.length===1)attQRShow(A[0]);else attPrintLocs(A)};
     if($('#alOne'))$('#alOne').onclick=()=>confirmBox('🔁 رمز واحد لكل الشركة','ستُلغى رموز المواقع الحالية ويُنشأ رمز واحد يُطبع ويُعلَّق في كل المواقع. متابعة؟','نعم، رمز واحد','',()=>{S.attloc={locs:[ATT_ONE()]};commit('تم — اطبع الرمز الموحّد الآن')});
     $('#alNew').onclick=()=>modal({title:'➕ موقع بصمة جديد',body:`<div class="fld"><label>اسم الموقع</label><input id="lN" placeholder="مثال: مستودع المغسلة"></div>`,foot:[{t:'إضافة',fn:b=>{const n=fv(b,'lN');if(!n){toast('اكتب الاسم');return false}L.push({id:'L'+Date.now().toString(36).toUpperCase().slice(-5),name:n,tok:attTok()});commit('تمت إضافة الموقع')}},{t:'إلغاء',cls:'sec'}]});
-    $$('[data-lp]').forEach(x=>x.onclick=()=>attPrintLocs([L[+x.dataset.lp]]));
+    $$('[data-lp]').forEach(x=>x.onclick=()=>attQRShow(L[+x.dataset.lp]));
     $$('[data-ln]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.ln];modal({title:'✏️ اسم الموقع',body:`<div class="fld"><input id="lN" value="${esc(l.name)}"></div>`,foot:[{t:'حفظ',fn:b=>{const n=fv(b,'lN');if(!n)return false;l.name=n;commit('تم الحفظ')}},{t:'إلغاء',cls:'sec'}]})});
-    $$('[data-lt]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.lt];confirmBox('🔄 رمز جديد — '+esc(l.name),'الرمز المطبوع الحالي سيتوقف عن العمل فوراً، ويجب طباعة الرمز الجديد وتعليقه مكانه. متابعة؟','إنشاء رمز جديد','crit',()=>{l.tok=attTok();commit('تم إنشاء رمز جديد — اطبعه الآن');setTimeout(()=>attPrintLocs([l]),300)})});
+    $$('[data-lt]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.lt];confirmBox('🔄 رمز جديد — '+esc(l.name),'الرمز المطبوع الحالي سيتوقف عن العمل فوراً، ويجب طباعة الرمز الجديد وتعليقه مكانه. متابعة؟','إنشاء رمز جديد','crit',()=>{l.tok=attTok();commit('تم إنشاء رمز جديد — اطبعه الآن');setTimeout(()=>attQRShow(l),300)})});
     $$('[data-lo]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.lo];l.off=!l.off;commit(l.off?'تم إيقاف الموقع':'تم تفعيل الموقع')});
     return}
   const m=tab==='today'?TODAY.slice(0,7):mon;
