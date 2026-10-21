@@ -419,7 +419,8 @@ const ROLES={
   sup:{label:'مشرف / مسؤول بناية',ic:'🧭'},
   hr:{label:'الموارد البشرية',ic:'🗂️'},
   acc:{label:'المحاسبة',ic:'🧮'},
-  gm:{label:'المدير العام',ic:'🏛️'}
+  gm:{label:'المدير العام',ic:'🏛️'},
+  rcp:{label:'موظف استقبال',ic:'🛎️'}
 };
 const STEP_LABEL={sub:'الموظف البديل',sup:'المشرف المباشر',hr:'الموارد البشرية',acc:'المحاسبة',gm:'المدير العام'};
 const BUILDINGS=['الإدارة العامة','الحي التجاري','صلالة الوسطى / المعتزة','عوقد الشمالية','الوادي','الحصيلة','السعادة','السعادة نستو'];
@@ -519,13 +520,14 @@ let V={view:'dash',sub:{},month:MONTH};
 const API=String((window.HR_CONFIG||{}).API_URL||'').trim();
 const TOKEN_KEY='marsa_token';
 let TOKEN=null,USER=null;
-const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv'};
+const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv',guests:'gst',rsv:'rsv',rcv:'rcv',rtn:'rtn',xpn:'xpn',units:'unt'};
+const NO_ORD=['guests','rsv','rcv','rtn','xpn','units'];   // سجلات الاستقبال كثيرة: تُرتّب بالرقم ولا يُحفظ لها ترتيب
 const KEY_OK=/^[A-Za-z0-9_.-]{1,60}$/;
 const encK=k=>String(k).replace(/:/g,'.'),decK=k=>String(k).startsWith('u.')?'u:'+String(k).slice(2):String(k);
 
 function emptyState(session){
   return {v:2,settings:{...DEFAULT_SETTINGS},matrix:JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
-    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],
+    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],
     payroll:{},policies:[],policyVersion:1,policyAcks:{},policyPrints:{},policySigned:{},accrued:'',
     audit:[],seq:{REQ:0,VIO:0,CMP:0,ANN:0,ADV:0,AST:0,CSH:0,RWD:0,PUR:0},
     session:session||{role:'hr',empId:null,supId:null}};
@@ -561,7 +563,7 @@ function flat(){
   Object.entries(COLL).forEach(([c,p])=>{
     const arr=S[c]||[];
     arr.forEach(r=>{if(r&&r.id!==undefined&&r.id!=='')put(p+':'+r.id,r)});
-    m['cfg:ord-'+c]=canon(arr.filter(r=>r&&r.id!==undefined&&r.id!=='').map(r=>r.id));
+    if(NO_ORD.indexOf(c)<0)m['cfg:ord-'+c]=canon(arr.filter(r=>r&&r.id!==undefined&&r.id!=='').map(r=>r.id));
   });
   Object.keys(S.payroll||{}).forEach(k=>put('pay:'+k,S.payroll[k]));
   Object.keys(S.policyAcks||{}).forEach(k=>put('ack:'+encK(k),S.policyAcks[k]));
@@ -684,7 +686,7 @@ function firstEmployee(u){
 async function startSession(user){
   const r=await pullAll();
   USER=user;
-  const session={role:user.role,empId:user.empId||null,supId:user.role==='sup'?(user.empId||null):null,name:user.name,base:user.role,user:user.u};
+  const session={role:user.role==='rcp'&&APP!=='rcp'?'emp':user.role,empId:user.empId||null,supId:user.role==='sup'?(user.empId||null):null,name:user.name,base:user.role,user:user.u};
   S=buildFrom(r.docs,session);SNAP=snapFrom(r.docs);REV=r.rev;
   if(!S.employees.length&&user.role==='hr')S.employees.push(firstEmployee(user));
   V={view:(/^#[a-z]+$/.test(location.hash)?location.hash.slice(1):'dash'),sub:{},month:MONTH};
@@ -706,6 +708,7 @@ const role=()=>S.session.role;
 function me(){
   const r=role();
   if(r==='emp')return {role:r,name:empName(S.session.empId),empId:S.session.empId};
+  if(r==='rcp')return {role:r,name:emp(S.session.empId)?empName(S.session.empId):(S.session.name||'الاستقبال'),empId:S.session.empId};
   if(r==='sup')return {role:r,name:empName(S.session.supId),empId:S.session.supId};
   const t={hr:'الموارد البشرية',acc:'المحاسبة',gm:'المدير العام'}[r];
   return {role:r,name:S.session.name?S.session.name+' ('+t+')':t,empId:null};
@@ -722,7 +725,7 @@ function log(){}   // سجل العمليات يحفظه الخادم تلقائ
 function notify(to,ic,title,body,link){S.notifications.unshift({id:uid(),to,ic,title,body,link:link||null,at:nowTs(),read:false});if(S.notifications.length>300)S.notifications.length=300}
 function myNotifs(){
   const r=role();
-  return S.notifications.filter(n=>n.to==='role:'+r||(r==='emp'&&n.to==='emp:'+S.session.empId)||(r==='sup'&&n.to==='sup:'+S.session.supId));
+  return S.notifications.filter(n=>n.to==='role:'+r||((r==='emp'||r==='rcp')&&n.to==='emp:'+S.session.empId)||(r==='sup'&&n.to==='sup:'+S.session.supId)||(r==='rcp'&&n.to==='bld:'+myEmp().building));
 }
 function notifyStep(req){
   const st=req.steps[req.cur];if(!st)return;
@@ -1235,7 +1238,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1248,10 +1251,10 @@ const NAV={
  gm:[['dash','🏠','لوحة المدير العام'],['approvals','✅','الموافقات'],['employees','👥','الموظفون'],['payroll','💳','الرواتب'],['complaints','📨','الشكاوى'],['perf','⭐','الأداء والمكافآت'],['attendance','🕘','المخالفات'],['reports','📊','التقارير'],['plan','🚀','خطة التطبيق'],['policies','📘','اللائحة الداخلية'],['spol','📜','سياسات العمل'],['authman','🛡️','دليل الصلاحيات'],['myforms','🖨️','النماذج'],['audit','🧾','سجل العمليات']]
 };
 /* قسم الإدارة المالية: نفس التطبيق ونفس الحساب، يُفتح من الواجهة بـ hr.html?app=fin */
-const APP=(()=>{try{const a=new URLSearchParams(location.search).get('app');return a==='fin'||a==='gs'?a:'hr'}catch(e){return 'hr'}})();
+const APP=(()=>{try{const a=new URLSearchParams(location.search).get('app');return a==='fin'||a==='gs'||a==='rcp'?a:'hr'}catch(e){return 'hr'}})();
 const GS_NAV_FULL=[['gsdash','🏠','الرئيسية'],['gsprog','🗓️','خطة الشهر'],['gsws','🎓','الورش والدورات'],['gsteam','👥','فريقي'],['sep'],['gsinsp','🔍','الجولات'],['gsmnt','🛠️','الصيانة'],['gsforms','🖨️','النماذج'],['gsplan','💡','الأفكار والمهام'],['sep'],['gsrep','📊','تقريري الأسبوعي'],['gsjd','🪪','وظيفتي']];
 const GS_NAV={hr:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),gm:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),sup:GS_NAV_FULL.concat([['gseval','⭐','تقييمي']]),acc:[['gsno','🔒','الإشراف الداخلي']],emp:[['gsno','🔒','الإشراف الداخلي']]};
-const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV});
+const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV,rcp:RCP_NAV});
 const FIN_NAV={
  hr:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
  acc:[['fdash','🏠','لوحة الإدارة المالية'],['procurement','🛒','طلبات الشراء'],['budgets','📒','الحسابات والموازنات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
@@ -1261,6 +1264,9 @@ const FIN_NAV={
 };
 function navFor(R){const N=APP_NAVS()[APP];return (N&&N[R])?N[R]:NAV[R]}
 function applyAppShell(){
+  if(APP==='rcp'){const en=LANG==='en',t=en?'Reception':'الاستقبال';document.title=t+(en?' | Marsa':' | مرسى');$$('.side-brand .sec, .top-brand .sec').forEach(x=>x.textContent=t);
+    const h=$('#login .lg-panel h1');if(h)h.textContent='الاستقبال';const pp=$('#login .lg-panel h1+p');if(pp)pp.textContent='حجز جديد بتصوير البطاقة، تسجيل الدخول والخروج، سندات القبض والمرتجعات، كشف الحساب، لوحة الشقق وتقرير اليومية — من الجوال.';
+    const f=$('#login .lg-feats');if(f)f.innerHTML='<span><i></i>حجز في دقيقة</span><span><i></i>طباعة العقد والسند</span><span><i></i>يومية تلقائية</span>';return}
   if(APP==='gs'){const en=LANG==='en',t=en?'Internal Supervision':'الإشراف الداخلي';document.title=t+(en?' | Marsa':' | مرسى');$$('.side-brand .sec, .top-brand .sec').forEach(x=>x.textContent=t);
     const h=$('#login .lg-panel h1');if(h)h.textContent='الإشراف الداخلي';const pp=$('#login .lg-panel h1+p');if(pp)pp.textContent='مساحة عمل المشرف العام للبنايات: الجولات التفتيشية، الصيانة الوقائية، المشتريات، برنامج تطوير شهري بالورش والخطط، والتقرير الأسبوعي للمدير العام.';
     const f=$('#login .lg-feats');if(f)f.innerHTML='<span><i></i>جولات موثقة بالدرجة</span><span><i></i>صيانة وقائية مجدولة</span><span><i></i>برنامج تطوير 4 أسابيع</span>';return}
@@ -1292,19 +1298,21 @@ function renderNav(){
   $('#nav').innerHTML=`<div class="role-cap">${ROLES[R].label}</div>`+navFor(R).map(n=>{
     if(n[0]==='sep')return '<div class="sep"></div>';
     let pill='';if(n[0]==='approvals'&&cnt)pill=`<span class="pill">${cnt}</span>`;if(n[0]==='complaints'&&openC&&R==='hr')pill=`<span class="pill">${openC}</span>`;
+    if(n[0]==='rret'&&typeof rcpRetQueue==='function'){const rq=rcpRetQueue().length;if(rq)pill=`<span class="pill">${rq}</span>`}
     if(n[0]==='procurement'){const pc=purchasesPendingForMe().length;if(pc)pill=`<span class="pill">${pc}</span>`}
     return `<button data-v="${n[0]}" class="${V.view===n[0]?'on':''}"><span class="ic">${svgIc(NAV_IC[n[0]])}</span>${n[2]}${pill}</button>`}).join('');
   $$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 }
 function go(v,sub){const R=role();
-  if(!navFor(R).some(n=>n[0]===v)){const A=APP_NAVS();for(const k of ['hr','fin','gs']){if(k!==APP&&A[k][R]&&A[k][R].some(n=>n[0]===v)){location.href='hr.html'+(k==='hr'?'':'?app='+k)+'#'+v;return}}}
+  if(!navFor(R).some(n=>n[0]===v)){const A=APP_NAVS();for(const k of ['hr','fin','gs','rcp']){if(k!==APP&&A[k][R]&&A[k][R].some(n=>n[0]===v)){location.href='hr.html'+(k==='hr'?'':'?app='+k)+'#'+v;return}}}
   V.view=v;if(sub)V.sub={...V.sub,...sub};render();window.scrollTo({top:0});$('#nav button.on')?.scrollIntoView({inline:'center',block:'nearest'})}
 function renderHeader(){
   if(!USER)return;
   $('#uName').textContent=USER.name;$('#uRole').textContent=USER.title||ROLES[USER.role].label;$('#uAv').textContent=initials(USER.name);
   const h=new Date().getHours();$('#topDate').innerHTML=`<b>${h<12?'صباح الخير':'مساء الخير'}، ${esc(USER.name.split(' ')[0])}</b>${['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date().getDay()]} ${fdate(TODAY)}`;
   const vs=$('#viewSel');
-  if(USER.role==='hr'){vs.hidden=false;vs.innerHTML=['hr','gm','acc','sup',...(USER.empId?['emp']:[])].map(k=>`<option value="${k}" ${role()===k?'selected':''}>${k==='emp'?'بوابتي كموظف':'عرض: '+ROLES[k].label}</option>`).join('')}
+  if(USER.role==='rcp')vs.hidden=true;
+  else if(USER.role==='hr'){vs.hidden=false;vs.innerHTML=['hr','gm','acc',...(APP==='rcp'?['rcp']:[]),'sup',...(USER.empId?['emp']:[])].map(k=>`<option value="${k}" ${role()===k?'selected':''}>${k==='emp'?'بوابتي كموظف':'عرض: '+ROLES[k].label}</option>`).join('')}
   else if(USER.empId&&USER.role!=='emp'){vs.hidden=false;vs.innerHTML=`<option value="${USER.role}" ${role()===USER.role?'selected':''}>${ROLES[USER.role].label}</option><option value="emp" ${role()==='emp'?'selected':''}>بوابتي كموظف</option>`}
   else vs.hidden=true;
   const n=myNotifs().filter(x=>!x.read).length;$('#bellCnt').hidden=!n;$('#bellCnt').textContent=n;
@@ -1313,8 +1321,8 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
-const ROLE_EN={emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
+const NAV_EN={rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
   applyAppShell();
@@ -1344,7 +1352,7 @@ function render(){
 }
 function bindTop(){
   bindGSearch();
-  $('#viewSel').onchange=e=>{S.session.role=e.target.value;S.session.supId=e.target.value==='sup'?(USER.empId||S.session.supId):null;V.view=APP==='fin'?'fdash':APP==='gs'?'gsdash':'dash';commit()};
+  $('#viewSel').onchange=e=>{S.session.role=e.target.value;S.session.supId=e.target.value==='sup'?(USER.empId||S.session.supId):null;V.view=APP==='fin'?'fdash':APP==='gs'?'gsdash':APP==='rcp'?'rhome':'dash';commit()};
   $('#langBtn').onclick=()=>{LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('marsa_lang',LANG)}catch(e){}render()};
   $('#logout').onclick=()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من النظام؟','خروج','crit',()=>logout());
   $('#bell').onclick=()=>{
@@ -2443,6 +2451,24 @@ document.head.insertAdjacentHTML('beforeend',`<style id="fincss">
 .fpol table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:13px}.fpol th,.fpol td{border:1px solid #C9D3DD;padding:6px 8px;vertical-align:top}.fpol th{background:#EEF3F8;color:#16365B}
 .fmeta{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px}.fmeta td{border:1px solid #C9D3DD;padding:5px 8px}.fmeta td:nth-child(odd){background:#F3F6F9;font-weight:700;color:#16365B;width:18%}
 .gs-hi h1{font:800 26px/1.4 var(--kufi);margin:4px 0}.gs-hi p{color:var(--muted);margin:0 0 14px}
+.rb-sel{max-width:220px;font-weight:700}
+.rcp-scan{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border:1.5px dashed var(--accent);border-radius:14px;margin-bottom:12px;background:var(--accent-soft)}
+.rcp-scan .btn{font-size:15px}
+.rcp-hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+.rcp-sum{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.rcp-sum>div{flex:1;min-width:90px;background:var(--surface-2);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}.rcp-sum span{font-size:11.5px;color:var(--muted)}.rcp-sum b{font:700 16px/1.3 var(--kufi)}.rcp-sum .t{background:var(--accent-soft)}.rcp-sum .t b{color:var(--accent)}.rcp-sum .due{background:var(--critical-soft)}.rcp-sum .due b{color:var(--critical)}
+.rcp-more{margin:8px 0}.rcp-more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:13px;padding:6px 0}
+.rcp-chk{display:flex;align-items:center;gap:8px;font-weight:600;margin:8px 0;cursor:pointer}.rcp-chk input{width:20px;height:20px}
+.rcp-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin-bottom:8px}.rcp-kv>div{display:flex;flex-direction:column;border-bottom:1px solid var(--border);padding-bottom:6px}.rcp-kv span{font-size:11.5px;color:var(--muted)}.rcp-kv b{font-weight:600}
+
+.rcp-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.rcp-h4{margin:14px 0 6px;font:700 13px/1.4 var(--kufi)}
+.rcp-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}.rcp-kpis>div{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--c);border-radius:14px;padding:10px;text-align:center}.rcp-kpis b{display:block;font:800 22px/1.2 var(--kufi);color:var(--c)}.rcp-kpis span{font-size:12px;color:var(--muted)}
+@media(max-width:640px){.rcp-kpis{grid-template-columns:repeat(3,1fr)}.rcp-kpis>div:nth-child(n+4){display:none}}
+.rcp-big{grid-template-columns:repeat(4,1fr)}@media(max-width:640px){.rcp-big{grid-template-columns:repeat(2,1fr)}}
+.rcp-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:12.5px}.rcp-legend span{display:inline-flex;align-items:center;gap:6px}.rcp-legend i{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.rcp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}.rcp-u{border:none;border-radius:12px;background:var(--c);color:#fff;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;min-height:62px}.rcp-u b{font:800 15px/1.2 var(--kufi)}.rcp-u small{font-size:10.5px;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.rcp-gh{grid-column:1/-1;font-weight:700;font-size:12.5px;color:var(--muted);margin-top:6px}
+.rcp-vac{display:flex;flex-wrap:wrap;gap:6px}.rcp-vac span{border:1.5px solid var(--c);border-radius:10px;padding:4px 9px;font-weight:700;font-size:13px}.rcp-vac i{font-style:normal;font-weight:500;font-size:11px;color:var(--c)}
+.rcp-open td{background:var(--surface-2);font-weight:700}.rcp-day table{min-width:620px}.rcp-day td[dir=ltr],#main td[dir=ltr]{white-space:nowrap}.rcp-sum5>div{min-width:100px}
 .gs-big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.gs-big button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 10px;border-radius:18px;border:1px solid var(--border);background:var(--card,#fff);cursor:pointer;font:inherit;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.04)}.gs-big button:hover{border-color:var(--accent)}.gs-big .i{font-size:32px}.gs-big b{font-size:15.5px}.gs-big small{color:var(--muted);font-size:12px}
 @media(max-width:640px){.gs-big{grid-template-columns:repeat(2,1fr)}.gs-big .i{font-size:28px}}
 .gs-dots{display:flex;flex-wrap:wrap;gap:4px}.gs-dots i{width:12px;height:12px;border-radius:50%;background:var(--border)}.gs-dots i.on{background:#2E9E6A}
@@ -3397,6 +3423,391 @@ VIEWS.gsdash=()=>{const K=gsKpis(),P=gsProgress(),g=gsWho(),first=(g?g.name:'').
    <li><b>مرة في الأسبوع:</b> اختر ورشة من "درّب فريقك"، اطبع دليل المدرب وورقة الحضور، ودرّب فريقك 30–60 دقيقة.</li><li><b>كل خميس:</b> افتح "تقريري الأسبوعي"، اكتب سطرين، واضغط إرسال.</li></ol></details>`};
 BIND.gsdash=()=>{gsBindItems();$$('[data-gsgo]').forEach(b=>b.onclick=()=>go(b.dataset.gsgo))};
 
+const RCP_BLD=[{"n":"الحي التجاري","c":"BS","u":[["101-A","الشقق"],["101-B","الشقق"],["102","الشقق"],["103","الشقق"],["104-A","الشقق"],["104-B","الشقق"],["201-A","الشقق"],["201-B","الشقق"],["202","الشقق"],["203","الشقق"],["204-A","الشقق"],["204-B","الشقق"],["301-A","الشقق"],["301-B","الشقق"],["302","الشقق"],["303","الشقق"],["304-A","الشقق"],["304-B","الشقق"],["401-A","الشقق"],["401-B","الشقق"],["402","الشقق"],["403","الشقق"],["404-A","الشقق"],["404-B","الشقق"],["501-A","الشقق"],["501-B","الشقق"],["502","الشقق"],["503","الشقق"],["504-A","الشقق"],["504-B","الشقق"],["601-A","الشقق"],["601-B","الشقق"],["602","الشقق"],["603","الشقق"],["604-A","الشقق"],["604-B","الشقق"],["701-A","الشقق"],["701-B","الشقق"],["702","الشقق"],["703","الشقق"],["704-A","الشقق"],["704-B","الشقق"],["801-A","الشقق"],["801-B","الشقق"],["802","الشقق"],["803","الشقق"],["804-A","الشقق"],["804-B","الشقق"],["M01","وحدات M"],["M02","وحدات M"],["M03","وحدات M"],["M04","وحدات M"]]},{"n":"صلالة الوسطى / المعتزة","c":"SA","u":[["101","الشقق"],["102","الشقق"],["103","الشقق"],["104","الشقق"],["105","الشقق"],["106","الشقق"],["201","الشقق"],["202","الشقق"],["203","الشقق"],["204","الشقق"],["205","الشقق"],["206","الشقق"],["301","الشقق"],["302","الشقق"],["303","الشقق"],["304","الشقق"],["305","الشقق"],["306","الشقق"],["401","الشقق"],["402","الشقق"],["403","الشقق"],["404","الشقق"],["405","الشقق"],["406","الشقق"],["SA-2","وحدات أخرى"]]},{"n":"عوقد الشمالية","c":"OK","u":[["101","عوقد 5"],["102","عوقد 5"],["103","عوقد 5"],["104","عوقد 5"],["105","عوقد 5"],["201","عوقد 5"],["202","عوقد 5"],["203","عوقد 5"],["204","عوقد 5"],["205","عوقد 5"],["301","عوقد 5"],["302","عوقد 5"],["303","عوقد 5"],["304","عوقد 5"],["305","عوقد 5"],["401","عوقد 5"],["402","عوقد 5"],["403","عوقد 5"],["404","عوقد 5"],["405","عوقد 5"],["501","عوقد 5"],["502","عوقد 5"],["503","عوقد 5"],["504","عوقد 5"],["505","عوقد 5"],["M01","عوقد 5 - وحدات M"],["M02","عوقد 5 - وحدات M"],["M03","عوقد 5 - وحدات M"],["M04","عوقد 5 - وحدات M"],["M05","عوقد 5 - وحدات M"],["101","عوقد مربع ب"],["102","عوقد مربع ب"],["103","عوقد مربع ب"]]},{"n":"الوادي","c":"WD","u":[["101","الشقق"],["102","الشقق"],["103","الشقق"],["104","الشقق"],["201","الشقق"],["202","الشقق"],["203","الشقق"],["204","الشقق"],["301","الشقق"],["302","الشقق"],["303","الشقق"],["304","الشقق"],["401","الشقق"],["402","الشقق"],["403","الشقق"],["404","الشقق"],["01","الأرضي 01-04"],["02","الأرضي 01-04"],["03","الأرضي 01-04"],["04","الأرضي 01-04"]]},{"n":"الحصيلة","c":"HS","u":[["121","الشقق"],["122","الشقق"],["123","الشقق"],["124","الشقق"],["125","الشقق"],["126","الشقق"],["127","الشقق"],["128","الشقق"],["221","الشقق"],["222","الشقق"],["223","الشقق"],["224","الشقق"],["225","الشقق"],["226","الشقق"],["227","الشقق"],["228","الشقق"],["321","الشقق"],["322","الشقق"],["323","الشقق"],["324","الشقق"],["325","الشقق"],["326","الشقق"],["327","الشقق"],["328","الشقق"],["421","الشقق"],["422","الشقق"],["423","الشقق"],["424","الشقق"],["425","الشقق"],["426","الشقق"],["427","الشقق"],["428","الشقق"],["521","الشقق"],["522","الشقق"],["523","الشقق"],["524","الشقق"],["525","الشقق"],["526","الشقق"],["527","الشقق"],["528","الشقق"],["01","وحدات HS-01…08"],["02","وحدات HS-01…08"],["03","وحدات HS-01…08"],["04","وحدات HS-01…08"],["05","وحدات HS-01…08"],["06","وحدات HS-01…08"],["07","وحدات HS-01…08"],["08","وحدات HS-01…08"],["ST-1","وحدات ST"],["ST-2","وحدات ST"],["ST-3","وحدات ST"],["ST-4","وحدات ST"]]},{"n":"السعادة","c":"SAD","u":[["101",""],["102",""],["103",""],["104",""],["105",""],["106",""],["201",""],["202",""],["203",""],["204",""],["205",""],["206",""],["301",""],["302",""],["303",""],["304",""],["305",""],["306",""],["401",""],["402",""],["403",""],["404",""],["405",""],["406",""],["501",""],["502",""],["503",""],["504",""],["505",""],["506",""],["601",""],["602",""],["603",""],["604",""],["605",""],["606",""],["G01",""],["G02",""]]},{"n":"السعادة نستو","c":"SN","u":[["101",""],["102",""],["103",""],["104",""],["105",""],["106",""],["201",""],["202",""],["203",""],["204",""],["301",""],["302",""],["303",""],["304",""]]}];
+const RCP_TERMS=[["البند الأول — الوحدة والغرض من الإقامة","أجّر الطرف الأول إلى الطرف الثاني الوحدة السكنية المفروشة الموضحة في صفحة البيانات، لغرض الاستعمال الخاص للأشخاص المصرّح بعددهم في هذا العقد فقط. ولا يجوز استعمالها لأي غرض آخر، ولا استضافة أو إيواء أي شخص غير مدرج في العقد، ولا استخدامها لأي نشاط تجاري أو مخالف للنظام العام والآداب.","Article — The Unit & Purpose of Stay","The First Party leases to the Second Party the furnished residential unit described in the particulars page, for the private use of the declared number of occupants only. The unit may not be used for any other purpose, nor may any person not named in this contract be hosted or accommodated, nor may it be used for any commercial activity or any activity contrary to public order and morals."],["البند الثاني — المدة والدخول والخروج","تبدأ الإقامة وتنتهي في التاريخين والوقتين المبينين في صفحة البيانات. وفي الإيجار الشهري يتجدد العقد تلقائياً لمدة مماثلة ما لم يُخطر أحد الطرفين الآخر كتابةً قبل انتهاء المدة بخمسة أيام على الأقل. أما في الإيجار اليومي فتنتهي الإقامة بانتهاء المدة المتفق عليها دون حاجة إلى إخطار. ويترتب على التأخر في الخروج عن الوقت المحدد احتساب أجرة يوم كامل إضافي ما لم يتفق الطرفان على خلاف ذلك.","Article — Term, Check-in & Check-out","The stay begins and ends on the dates and times stated in the particulars page. For monthly rentals, the contract renews automatically for a similar period unless either party notifies the other in writing at least five days before expiry. For daily rentals, the stay ends upon expiry of the agreed period without notice. Late check-out beyond the stated time is charged as one additional full day, unless otherwise agreed by the parties."],["البند الثالث — الأجرة والسداد","تُدفع الأجرة نقداً ومقدماً: كامل المبلغ عند الدخول في الإيجار اليومي، وفي بداية كل شهر في الإيجار الشهري، مقابل إيصال رسمي صادر من الطرف الأول. ولا يُعتد بأي سداد لا يقابله إيصال. ويحق للطرف الأول عند التأخر في السداد المطالبة بكامل المبالغ المستحقة واتخاذ إجراءات إنهاء العقد وفقاً للبند الحادي عشر.","Article — Rent & Payment","Rent is payable in cash and in advance: in full upon check-in for daily rentals, and at the beginning of each month for monthly rentals, against an official receipt issued by the First Party. No payment is recognised unless supported by a receipt. On late payment, the First Party may claim all amounts due and proceed to terminate under Article 11."],["البند الرابع — التأمين المسترد","يودع الطرف الثاني مبلغ التأمين المتفق عليه ضماناً للوفاء بالتزاماته. ويُرد المبلغ عند الخروج بعد معاينة الوحدة وخصم قيمة أي تلف أو نقص في المحتويات أو فواتير أو رسوم مستحقة. ولا يجوز اعتبار التأمين وفاءً بأي جزء من الأجرة، ما لم يتفق الطرفان على خلاف ذلك.","Article — Security Deposit","The Second Party places the agreed deposit as security for the performance of its obligations. It is refunded on check-out after inspection of the unit and deduction of the value of any damage, missing items, bills or fees due. The deposit may not be treated as settlement of any part of the rent, unless otherwise agreed by the parties."],["البند الخامس — الفواتير والخدمات","في الإيجار اليومي تكون قيمة استهلاك الكهرباء والمياه على الطرف الأول. أما في الإيجار الشهري فيلتزم الطرف الثاني بسداد قيمة استهلاك الكهرباء والمياه وخدمات الصرف الصحي وعوائد البلدية وأي رسوم أخرى يلتزم بها قانوناً، اعتباراً من تاريخ الاستلام وحتى تاريخ إعادة التسليم، ما لم يتفق الطرفان على خلاف ذلك وبما كُتب واتُّفق عليه في خانة الملاحظات.","Article — Utilities & Services","For daily rentals, electricity and water consumption is borne by the First Party. For monthly rentals, the Second Party shall pay electricity, water, sewage services, municipality dues and any other legally payable fees, from the date of handover until the date the unit is handed back, unless otherwise agreed by the parties and as recorded in the Notes box."],["البند السادس — محتويات الوحدة","استلم الطرف الثاني الوحدة بكامل محتوياتها وبحالة جيدة، وهو مسؤول عن المحافظة عليها. وفي حال فقدان أو تلف أي منها يلتزم بدفع قيمتها، ويُخصم ذلك من مبلغ التأمين أو يُطالب به مباشرة إذا زاد عنه. ولا يجوز نقل أي من محتويات الوحدة أو إخراجها منها.","Article — Unit Contents","The Second Party has received the unit with all its contents and in good condition, and is responsible for preserving them. Any item lost or damaged shall be paid for, deducted from the deposit or claimed directly where it exceeds the deposit. No contents may be moved out of or removed from the unit."],["البند السابع — قواعد الإقامة","<ol> <li>المحافظة على نظافة الوحدة وعدم إحداث أي تغيير أو إضافة عليها.</li> <li>مراعاة الهدوء واحترام حقوق بقية النزلاء وعدم إقامة الحفلات أو التجمعات داخل الوحدة أو مرافق المبنى.</li> <li>التأكد عند مغادرة الوحدة من إغلاق مفاتيح الكهرباء والمياه والغاز والنوافذ تفادياً لأي أضرار.</li> <li>الالتزام بأنظمة السلامة والدفاع المدني، وعدم استخدام أجهزة طهي أو تدفئة خارج الأماكن المخصصة لها.</li> <li>الالتزام بتعليمات التدخين والحيوانات الأليفة المعمول بها في المبنى.</li> <li>تسليم المفاتيح وبطاقة الدخول عند الخروج، وتحمّل تكلفة استبدال أي منها في حال الفقدان.</li> </ol>","Article — House Rules","<ol> <li>To keep the unit clean and to make no alteration or addition to it.</li> <li>To observe quiet, respect the rights of other guests, and hold no parties or gatherings in the unit or the building facilities.</li> <li>On leaving the unit, to ensure electricity, water and gas switches and the windows are closed, so as to avoid damage.</li> <li>To comply with safety and civil-defence rules, and not to use cooking or heating appliances outside the designated areas.</li> <li>To comply with the building's smoking and pet policies.</li> <li>To return the keys and access card on check-out, and to bear the replacement cost of any item lost.</li> </ol>"],["البند الثامن — التزامات الطرف الأول","يلتزم الطرف الأول بتمكين الطرف الثاني من الانتفاع الهادئ بالوحدة طوال مدة الإقامة، وبإجراء أعمال الصيانة الرئيسية اللازمة لبقائها صالحة للسكن فيما لا ينشأ عن استعمال الطرف الثاني أو إهماله. ولا يتحمل الطرف الأول مسؤولية فقدان أو تلف أو سرقة الأمتعة والمقتنيات الشخصية للطرف الثاني داخل الوحدة أو مواقف المركبات.","Article — Obligations of the First Party","The First Party shall enable the Second Party to enjoy quiet possession of the unit throughout the stay, and shall carry out the major maintenance required to keep it fit for habitation, save for what arises from the Second Party's use or negligence. The First Party is not liable for the loss, damage or theft of the Second Party's personal belongings inside the unit or in the parking area."],["البند التاسع — التنازل والدخول للمعاينة","لا يجوز للطرف الثاني التنازل عن هذا العقد أو تأجير الوحدة من الباطن كلياً أو جزئياً. ويحق للطرف الأول أو من ينوبه دخول الوحدة لأغراض الصيانة أو المعاينة أو السلامة بعد إخطار الطرف الثاني بوقت مناسب، وبدون إخطار في الحالات الطارئة.","Article — Assignment & Right of Access","The Second Party may not assign this contract or sublet the unit, in whole or in part. The First Party or its representative may enter the unit for maintenance, inspection or safety purposes after giving reasonable notice, and without notice in emergencies."],["البند العاشر — سياسة الإلغاء والاسترداد","يحق للطرف الثاني استرجاع كامل المبلغ المدفوع عند الإلغاء قبل 72 ساعة على الأقل من موعد الدخول المحدد. أما الإلغاء خلال أقل من 72 ساعة أو عدم الحضور فيُخصم 30% من قيمة الحجز ويُرد الباقي. وفي حال المغادرة قبل انتهاء المدة المتفق عليها لا يحق للطرف الثاني استرجاع قيمة الأيام أو الفترة المتبقية غير المستخدمة.","Article — Cancellation & Refund Policy","A full refund is due where cancellation is made at least 72 hours before the scheduled check-in. For cancellation within less than 72 hours, or a no-show, 30% of the booking value is deducted and the balance refunded. Where the Second Party departs before the end of the agreed period, no refund is due for the unused remaining days or period."],["البند الحادي عشر — الإخلال وإنهاء العقد","يحق للطرف الأول إنهاء هذا العقد وإخلاء الوحدة فوراً عند مخالفة الطرف الثاني لأي من بنوده، أو إعطاء معلومات غير صحيحة، أو التأخر عن سداد الأجرة، أو إيواء أشخاص غير مصرّح بهم، أو الإخلال بالنظام العام، دون الإخلال بحق الطرف الأول في المطالبة بكامل المبالغ المستحقة والتعويض عن الأضرار. ولا يحق للطرف الثاني في هذه الحالات استرداد ما دفعه.","Article — Breach & Termination","The First Party may terminate this contract and require immediate vacation of the unit where the Second Party breaches any of its terms, provides incorrect information, delays payment of rent, accommodates unauthorised persons, or disturbs public order — without prejudice to the First Party's right to claim all amounts due and compensation for damage. In such cases no refund is due to the Second Party."],["البند الثاني عشر — أحكام عامة","<ol> <li>يخضع هذا العقد لقوانين سلطنة عمان، وعلى الأخص المرسوم السلطاني رقم 6/89 وتعديلاته فيما لم يرد بشأنه نص في هذا العقد.</li> <li>يلتزم الطرف الثاني بتقديم وثيقة إثبات الهوية وتسجيل بيانات الشاغلين وفقاً للأنظمة المعمول بها.</li> <li>أي نزاع ينشأ عن هذا العقد يُحال إلى الجهة المختصة بمحافظة ظفار.</li> <li>حُرِّر هذا العقد باللغتين العربية والإنجليزية، وفي حال التعارض يُعتد بالنص العربي، ومن نسختين بيد كل طرف نسخة.</li> <li>يُقرّ الطرفان باطلاعهما على جميع بنود هذا العقد وفهمها والموافقة عليها، ويُعتبر التوقيع الخطي أو الإقرار الإلكتروني عبر قنوات المراسلة المعتمدة أو إتمام عملية الدفع موافقةً نهائية وملزمة.</li> </ol>","Article — General Provisions","<ol> <li>This contract is governed by the laws of the Sultanate of Oman, in particular Royal Decree No. (6/89) and its amendments for any matter not provided for herein.</li> <li>The Second Party shall present valid identification and register the occupants' details in accordance with applicable regulations.</li> <li>Any dispute arising from this contract shall be referred to the competent authority in Dhofar Governorate.</li> <li>This contract is drawn up in Arabic and English; the Arabic text prevails in case of conflict, and it is executed in two copies, one held by each party.</li> <li>The parties acknowledge that they have read, understood and accepted all provisions. A handwritten signature, an electronic acknowledgement through approved messaging channels, or completion of payment constitutes final and binding acceptance.</li> </ol>"]];
+/* ======================= الاستقبال (hr.html?app=rcp) =======================
+   حجوزات، نزلاء، دخول وخروج، قبض، مصروفات، مرتجعات، كشف حساب، اليومية، لوحة الشقق.
+   الأرقام من الخادم (MR / RC / RT / EX / G). لا ربط بنت سويت بعد: حقل nsNo محفوظ لكل حركة لقسم الـ IT. */
+const RCP_TYPES_L={daily:'يومي',monthly:'شهري'};
+const RCP_PRICES=[{k:'d10',type:'daily',rate:10,l:'يومي — 10 ر.ع لليلة'},{k:'m200',type:'monthly',rate:200,l:'شهري — 200 ر.ع'},{k:'m250',type:'monthly',rate:250,l:'شهري — 250 ر.ع'},{k:'m300',type:'monthly',rate:300,l:'شهري — 300 ر.ع'},{k:'m330',type:'monthly',rate:330,l:'شهري شامل الكهرباء والماء — 330 ر.ع',incl:true}];
+const RCP_SRC=['مباشر (حضوري)','عميل سابق','اتصال / واتساب','Booking.com','Airbnb','سمسار','شركة','أخرى'];
+const RCP_PAY={cash:'نقداً',card:'بطاقة / فيزا',transfer:'تحويل بنكي'};
+const RCP_PAY_EN={cash:'Cash',card:'Card / Visa',transfer:'Bank transfer'};
+const RCP_XCAT={exp:'مصروف',dep:'إيداع في البنك'};
+const RCP_ST={ready:['فارغة — جاهزة','#1e8e5a'],cleaning:['تحت التنظيف','#0f8ea3'],maint:['تحت الصيانة','#d13b3b'],arr:['وصول اليوم','#c97c00'],occ:['مشغولة','#2f5fd0'],dep:['مغادرة اليوم','#7a4bc2']};
+const RCP_RTN={pending:['بانتظار موافقة المدير العام','w'],approved:['معتمد — بانتظار القيد في الحسابات','i'],posted:['تم القيد محاسبياً','g'],rejected:['مرفوض','c'],cancelled:['ملغي','']};
+const RCP_IN_TIME='1:00 مساءً',RCP_OUT_TIME='12:00 ظهراً',RCP_TEL='90960071',RCP_CS='99551237';
+
+/* ---------- الصلاحيات والبناية ---------- */
+const rcpMgr=()=>['hr','gm','acc'].includes(role());
+const rcpCan=()=>role()==='rcp'||rcpMgr();
+function rcpMyBld(){if(role()!=='rcp')return null;const b=myEmp().building;return b&&b!=='الإدارة العامة'&&RCP_BLD.some(x=>x.n===b)?b:null}
+function rcpBld(){const m=rcpMyBld();if(m)return m;const s=V.sub.rb;return s&&RCP_BLD.some(x=>x.n===s)?s:RCP_BLD[0].n}
+const rcpBldObj=n=>RCP_BLD.find(x=>x.n===n)||RCP_BLD[0];
+const rcpUnits=n=>rcpBldObj(n).u.map(x=>x[0]);
+function rcpBldPicker(){if(rcpMyBld())return `<span class="bd a">🏢 ${esc(rcpBld())}</span>`;
+  return `<select id="rbSel" class="rb-sel" aria-label="البناية">${RCP_BLD.map(b=>`<option ${b.n===rcpBld()?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`}
+function rcpBindPicker(){const s=$('#rbSel');if(s)s.onchange=()=>{V.sub.rb=s.value;render()}}
+
+/* ---------- البيانات ---------- */
+const RS=()=>S.rsv||(S.rsv=[]),RG=()=>S.guests||(S.guests=[]),RC=()=>S.rcv||(S.rcv=[]),RX=()=>S.xpn||(S.xpn=[]),RT=()=>S.rtn||(S.rtn=[]),RU=()=>S.units||(S.units=[]);
+const rGuest=id=>RG().find(g=>g.id===id);
+const rRsv=id=>RS().find(r=>r.id===id);
+const rActive=r=>r.status==='booked'||r.status==='in';
+const rOf=(arr,b)=>arr.filter(x=>x.bld===b);
+async function rcpNo(series){
+  if(!DEMO&&TOKEN){try{const r=await call('nextNo',{series});if(r&&r.ok&&r.no)return r.no}catch(e){}}
+  return series+'-T'+Date.now().toString(36).toUpperCase().slice(-6);   // رقم مؤقت إن تعذّر الاتصال
+}
+function rcpMonthsAdd(s,n){const d=new Date(s+'T00:00:00'),day=d.getDate();d.setMonth(d.getMonth()+n);if(d.getDate()<day)d.setDate(0);return iso(d)}
+function rcpCount(type,from,to){if(!from||!to||to<=from)return 0;if(type==='daily')return diffDays(from,to);
+  const a=new Date(from+'T00:00:00'),b=new Date(to+'T00:00:00');let m=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());if(b.getDate()<a.getDate())m--;return Math.max(1,m||Math.round(diffDays(from,to)/30))}
+const rcpDur=(type,n)=>type==='daily'?(n+(n===1?' ليلة':n===2?' ليلتان':n<=10?' ليالٍ':' ليلة')):(n+(n===1?' شهر':n===2?' شهران':n<=10?' أشهر':' شهراً'));
+const rcpDurEn=(type,n)=>type==='daily'?n+(n===1?' night':' nights'):n+(n===1?' month':' months');
+const rcpTotal=r=>r3((r.total||0)+(r.ext||[]).reduce((a,e)=>a+(+e.amount||0),0));
+const rcpPaid=r=>r3(RC().filter(c=>c.rsvId===r.id&&!c.void).reduce((a,c)=>a+(+c.amount||0),0));
+const rcpRet=r=>r3(RT().filter(t=>t.rsvId===r.id&&(t.status==='approved'||t.status==='posted')).reduce((a,t)=>a+(+t.amount||0),0));
+const rcpBal=r=>r.status==='cancelled'?r3(-rcpPaid(r)+0):r3(rcpTotal(r)-rcpPaid(r)-rcpRet(r));
+function rcpOverlap(b,unit,from,to,skip){return RS().filter(r=>r.id!==skip&&r.bld===b&&r.unit===unit&&rActive(r)&&r.from<to&&from<r.to)}
+function rcpUnitState(b,unit){
+  const rs=RS().filter(r=>r.bld===b&&r.unit===unit&&rActive(r));
+  const inH=rs.find(r=>r.status==='in');
+  if(inH)return {st:inH.to<=TODAY?'dep':'occ',r:inH};
+  const m=RU().find(u=>u.bld===b&&u.unit===unit);
+  const arr=rs.find(r=>r.status==='booked'&&r.from<=TODAY);
+  if(m&&(m.st==='maint'||m.st==='cleaning'))return {st:m.st,r:arr||null,note:m.note};
+  if(arr)return {st:'arr',r:arr};
+  const nx=rs.filter(r=>r.status==='booked').sort((a,c)=>a.from.localeCompare(c.from))[0];
+  return {st:'ready',next:nx||null};
+}
+function rcpSetUnit(b,unit,st,note){let u=RU().find(x=>x.bld===b&&x.unit===unit);const id=rcpBldObj(b).c+'.'+String(unit).replace(/[^A-Za-z0-9_-]/g,'_');
+  if(!u){u={id,bld:b,unit};RU().push(u)}u.st=st;u.note=note||'';u.at=nowTs();u.by=me().name}
+function rcpStats(b){const s={ready:0,cleaning:0,maint:0,arr:0,occ:0,dep:0};rcpUnits(b).forEach(u=>s[rcpUnitState(b,u).st]++);s.all=rcpUnits(b).length;s.busy=s.occ+s.dep;s.pct=s.all?Math.round(s.busy*100/s.all):0;return s}
+
+/* ---------- التفقيط ---------- */
+const RA1=['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة'],RA10=['عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'],RAT=['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'],RAH=['','مائة','مائتان','ثلاثمائة','أربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+function rAr3(n){const p=[],h=Math.floor(n/100),r=n%100;if(h)p.push(RAH[h]);if(r>=10&&r<20)p.push(RA10[r-10]);else{const t=Math.floor(r/10),o=r%10;if(o)p.push(RA1[o]);if(t)p.push(RAT[t])}return p.join(' و')}
+function rArSc(n,one,two,few,many){if(n===1)return one;if(n===2)return two;if(n>=3&&n<=10)return rAr3(n)+' '+few;return rAr3(n)+' '+many}
+function rArInt(n){if(!n)return 'صفر';const p=[],m=Math.floor(n/1e6),t=Math.floor(n%1e6/1e3),r=n%1e3;if(m)p.push(rArSc(m,'مليون','مليونان','ملايين','مليوناً'));if(t)p.push(rArSc(t,'ألف','ألفان','آلاف','ألفاً'));if(r)p.push(rAr3(r));return p.join(' و')}
+function rcpWordsAr(v){v=r3(v);const r=Math.floor(v),b=Math.round((v-r)*1000);let s='فقط '+rArInt(r)+' ريال عماني';if(b)s+=' و'+rArInt(b)+' بيسة';return s+' لا غير'}
+const RE1=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'],RET=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+function rEn3(n){const p=[],h=Math.floor(n/100),r=n%100;if(h)p.push(RE1[h]+' Hundred');if(r>0&&r<20)p.push(RE1[r]);else if(r>=20)p.push(RET[Math.floor(r/10)]+(r%10?' '+RE1[r%10]:''));return p.join(' ')}
+function rEnInt(n){if(!n)return 'Zero';const p=[],m=Math.floor(n/1e6),t=Math.floor(n%1e6/1e3),r=n%1e3;if(m)p.push(rEn3(m)+' Million');if(t)p.push(rEn3(t)+' Thousand');if(r)p.push(rEn3(r));return p.join(' ')}
+function rcpWordsEn(v){v=r3(v);const r=Math.floor(v),b=Math.round((v-r)*1000);let s=rEnInt(r)+' Omani Rials';if(b)s+=' and '+rEnInt(b)+' Baisa';return s+' Only'}
+
+/* ---------- قراءة البطاقة ---------- */
+function rcpShrink(file,max){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('img'))};im.src=u})}
+async function rcpScan(file){
+  if(DEMO||!TOKEN)return {ok:false,msg:'قراءة البطاقة تعمل بعد تسجيل الدخول'};
+  let b64;try{b64=await rcpShrink(file,1600)}catch(e){return {ok:false,msg:'تعذّرت قراءة الصورة'}}
+  const r=await call('ocr',{b64,mime:'image/jpeg'}).catch(()=>null);
+  if(r&&r.ok&&r.fields)return {ok:true,f:r.fields};
+  const m={no_key:'قراءة البطاقة لم تُفعّل بعد في الخادم — اكتب البيانات يدوياً',bad_action:'الخادم لم يُحدَّث بعد لقراءة البطاقة — اكتب البيانات يدوياً',locked:'محاولات كثيرة، انتظر قليلاً',ocr_failed:'لم تتضح البيانات — صوّر البطاقة بإضاءة أفضل أو اكتبها يدوياً'};
+  return {ok:false,msg:(r&&m[r.error])||'تعذّر الاتصال بالخادم — اكتب البيانات يدوياً'};
+}
+
+/* ---------- نموذج الحجز ---------- */
+function rcpGuestFind(q){q=String(q||'').trim().toLowerCase();if(q.length<3)return [];return RG().filter(g=>[g.idNo,g.phone,g.name,g.nameEn].some(x=>String(x||'').toLowerCase().includes(q))).slice(0,6)}
+function rcpUnitOptions(b,from,to,cur){return rcpUnits(b).map(u=>{const ov=from&&to?rcpOverlap(b,u,from,to,cur&&cur.id):[];const st=rcpUnitState(b,u);const busy=ov.length>0;
+  const tag=busy?'⛔ محجوزة في هذه الفترة':st.st==='maint'?'🔧 تحت الصيانة':st.st==='cleaning'?'🧹 تحت التنظيف':'✓ متاحة';
+  return `<option value="${esc(u)}" ${busy?'disabled':''} ${cur&&cur.unit===u?'selected':''}>${esc(u)} — ${tag}</option>`}).join('')}
+function rcpBookForm(pre){
+  if(!rcpCan()){toast('هذا القسم للاستقبال والإدارة');return}
+  const b0=pre&&pre.bld||rcpBld(),g0=pre&&pre.gid?rGuest(pre.gid):null;let gid=g0?g0.id:null;
+  const body=`<div class="rcp-scan"><label class="btn" for="rIdPh">📷 صوّر البطاقة أو الجواز</label><input type="file" id="rIdPh" accept="image/*" capture="environment" hidden><span class="small muted" id="rScanMsg">تُقرأ البيانات تلقائياً — راجعها قبل الحفظ. الصورة لا تُحفظ.</span></div>
+  <div id="rGuestHit"></div>
+  <div class="frow"><div class="fld"><label>رقم البطاقة / الجواز *</label><input id="rId" dir="ltr" inputmode="text" value="${esc(g0?g0.idNo:'')}" autocomplete="off"></div><div class="fld"><label>اسم النزيل *</label><input id="rName" value="${esc(g0?g0.name:'')}"></div></div>
+  <div class="frow"><div class="fld"><label>رقم الهاتف *</label><input id="rPhone" dir="ltr" inputmode="tel" value="${esc(g0?g0.phone:'')}"></div><div class="fld"><label>الجنسية</label><input id="rNat" list="rNatL" value="${esc(g0?g0.nat:'')}"><datalist id="rNatL">${['عماني','إماراتي','سعودي','كويتي','قطري','بحريني','يمني','مصري','أردني','سوري','هندي','باكستاني','بنغلاديشي','فلبيني','بريطاني','أمريكي'].map(n=>`<option>${n}</option>`).join('')}</datalist></div></div>
+  <div class="frow"><div class="fld"><label>تاريخ الميلاد</label><input type="date" id="rDob" value="${esc(g0?g0.dob||'':'')}"></div><div class="fld"><label>الاسم بالإنجليزي</label><input id="rNameEn" dir="ltr" value="${esc(g0?g0.nameEn||'':'')}"></div></div>
+  <hr class="rcp-hr">
+  <div class="fld"><label>نوع الحجز</label><div class="seg" id="rType"><button type="button" data-t="daily" class="on">🌙 يومي</button><button type="button" data-t="monthly">📅 شهري</button></div></div>
+  <div class="frow"><div class="fld"><label>من (الدخول ${RCP_IN_TIME})</label><input type="date" id="rFrom" value="${TODAY}"></div><div class="fld"><label>إلى (الخروج ${RCP_OUT_TIME})</label><input type="date" id="rTo" value="${addDays(TODAY,1)}"></div></div>
+  <div class="frow">${rcpMyBld()?`<input type="hidden" id="rBld" value="${esc(b0)}">`:`<div class="fld"><label>البناية</label><select id="rBld">${RCP_BLD.map(x=>`<option ${x.n===b0?'selected':''}>${esc(x.n)}</option>`).join('')}</select></div>`}<div class="fld"><label>الشقة *</label><select id="rUnit"></select></div></div>
+  <div class="frow"><div class="fld"><label>السعر</label><select id="rPrice"></select></div><div class="fld"><label>السعر (ر.ع) — يمكن تعديله</label><input id="rRate" type="number" step="0.001" inputmode="decimal"></div></div>
+  <div class="rcp-sum" id="rSum"></div>
+  <details class="rcp-more"><summary>تفاصيل إضافية (المرافقون، المصدر، السمسار، ملاحظة)</summary>
+   <div class="frow"><div class="fld"><label>عدد المرافقين</label><input id="rComp" type="number" min="0" value="0"></div><div class="fld"><label>مصدر الحجز</label><select id="rSrc">${RCP_SRC.map(s=>`<option>${s}</option>`).join('')}</select></div></div>
+   <div class="frow" id="rBrokerRow" hidden><div class="fld"><label>اسم السمسار</label><input id="rBroker"></div><div class="fld"><label>العمولة (ر.ع)</label><input id="rComm" type="number" step="0.001"></div></div>
+   <div class="fld"><label>ملاحظة على العقد</label><textarea id="rNote" rows="2"></textarea></div></details>
+  <hr class="rcp-hr">
+  <label class="rcp-chk"><input type="checkbox" id="rIn" checked> تسجيل دخول النزيل الآن</label>
+  <div class="frow"><div class="fld"><label>المبلغ المستلم الآن (ر.ع)</label><input id="rPay" type="number" step="0.001" inputmode="decimal" placeholder="0"></div><div class="fld"><label>طريقة الدفع</label><select id="rPayM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>`;
+  modal({title:'🛏️ حجز جديد',sub:'كل الحقول المهمة في صفحة واحدة — السعر والمدة والإجمالي تُحسب تلقائياً',wide:true,body,onMount:(m,close)=>{
+    let type='daily';
+    const bld=()=>$('#rBld',m).value;
+    const fillUnits=()=>{const keep=$('#rUnit',m).value;$('#rUnit',m).innerHTML='<option value="">— اختر الشقة —</option>'+rcpUnitOptions(bld(),$('#rFrom',m).value,$('#rTo',m).value,pre&&pre.unit?{unit:pre.unit}:null);if(keep&&[...$('#rUnit',m).options].some(o=>o.value===keep&&!o.disabled))$('#rUnit',m).value=keep};
+    const fillPrices=()=>{const ps=RCP_PRICES.filter(p=>p.type===type);$('#rPrice',m).innerHTML=ps.map(p=>`<option value="${p.k}">${p.l}</option>`).join('');$('#rRate',m).value=ps[0].rate};
+    const sum=()=>{const n=rcpCount(type,$('#rFrom',m).value,$('#rTo',m).value),rate=+$('#rRate',m).value||0,t=r3(rate*n);
+      $('#rSum',m).innerHTML=n?`<div><span>المدة</span><b>${rcpDur(type,n)}</b></div><div><span>السعر</span><b>${money(rate)}</b></div><div class="t"><span>الإجمالي</span><b>${omr(t)}</b></div>`:'<div class="muted">اختر تاريخ الخروج بعد تاريخ الدخول</div>';
+      if(!$('#rPay',m).dataset.touched)$('#rPay',m).value=t||'';return {n,t,rate}};
+    const setTo=()=>{const f=$('#rFrom',m).value;if(!f)return;$('#rTo',m).value=type==='daily'?addDays(f,1):rcpMonthsAdd(f,1)};
+    $$('#rType button',m).forEach(x=>x.onclick=()=>{type=x.dataset.t;$$('#rType button',m).forEach(y=>y.classList.toggle('on',y===x));fillPrices();setTo();fillUnits();sum()});
+    $('#rFrom',m).onchange=()=>{setTo();$('#rIn',m).checked=$('#rFrom',m).value<=TODAY;fillUnits();sum()};
+    $('#rTo',m).onchange=()=>{fillUnits();sum()};
+    if($('#rBld',m).tagName==='SELECT')$('#rBld',m).onchange=fillUnits;
+    $('#rPrice',m).onchange=()=>{const p=RCP_PRICES.find(x=>x.k===$('#rPrice',m).value);if(p)$('#rRate',m).value=p.rate;sum()};
+    $('#rRate',m).oninput=sum;$('#rPay',m).oninput=()=>{$('#rPay',m).dataset.touched=1};
+    $('#rSrc',m).onchange=()=>{$('#rBrokerRow',m).hidden=$('#rSrc',m).value!=='سمسار'};
+    const hit=()=>{const q=$('#rId',m).value.trim()||$('#rPhone',m).value.trim();const h=rcpGuestFind(q).filter(g=>g.id!==gid);
+      $('#rGuestHit',m).innerHTML=h.length?`<div class="note small">نزيل سابق؟ ${h.map(g=>`<button type="button" class="btn sm sec" data-pick="${g.id}">${esc(g.name)} — ${esc(g.idNo||g.phone)}</button>`).join(' ')}</div>`:'';
+      $$('[data-pick]',m).forEach(x=>x.onclick=()=>{const g=rGuest(x.dataset.pick);gid=g.id;[['rId','idNo'],['rName','name'],['rPhone','phone'],['rNat','nat'],['rDob','dob'],['rNameEn','nameEn']].forEach(([i,k])=>$('#'+i,m).value=g[k]||'');$('#rSrc',m).value='عميل سابق';$('#rGuestHit',m).innerHTML=`<div class="note g small">✓ عميل سابق: ${esc(g.name)} (${esc(g.id)})</div>`})};
+    $('#rId',m).oninput=()=>{gid=null;hit()};$('#rPhone',m).oninput=()=>{if(!gid)hit()};
+    $('#rIdPh',m).onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const msg=$('#rScanMsg',m);msg.textContent='⏳ جارٍ قراءة البطاقة…';
+      const r=await rcpScan(f);ev.target.value='';if(!r.ok){msg.textContent='⚠️ '+r.msg;return}
+      const F=r.f,set=(i,v)=>{if(v&&String(v).trim())$('#'+i,m).value=String(v).trim()};
+      set('rId',F.idNo);set('rName',F.nameAr||F.nameEn);set('rNameEn',F.nameEn);set('rNat',F.nationality);if(/^\d{4}-\d\d-\d\d$/.test(F.dob||''))set('rDob',F.dob);
+      msg.textContent='✓ تمت القراءة — راجع البيانات قبل الحفظ';gid=null;hit();const ex=RG().find(g=>F.idNo&&g.idNo===String(F.idNo).trim());if(ex){$$('[data-pick]',m).find(x=>x.dataset.pick===ex.id)?.click()}};
+    fillPrices();fillUnits();if(pre&&pre.unit)$('#rUnit',m).value=pre.unit;sum();if(g0)$('#rGuestHit',m).innerHTML=`<div class="note g small">✓ عميل سابق: ${esc(g0.name)}</div>`;
+    const ft=document.createElement('div');ft.className='mf';const sv=document.createElement('button');sv.className='btn';sv.textContent='✔ حفظ الحجز';const cn=document.createElement('button');cn.className='btn sec';cn.textContent='إلغاء';cn.onclick=close;ft.append(sv,cn);$('.modal',m).appendChild(ft);
+    sv.onclick=async()=>{
+      const idNo=$('#rId',m).value.trim(),name=$('#rName',m).value.trim(),phone=$('#rPhone',m).value.trim(),unit=$('#rUnit',m).value,from=$('#rFrom',m).value,to=$('#rTo',m).value,{n,t,rate}=sum();
+      if(!idNo||!name||!phone){toast('اكتب رقم البطاقة والاسم والهاتف');return}
+      if(!unit){toast('اختر الشقة');return}if(!n){toast('تاريخ الخروج يجب أن يكون بعد الدخول');return}if(!(rate>0)){toast('اكتب السعر');return}
+      if(rcpOverlap(bld(),unit,from,to).length){toast('الشقة محجوزة في هذه الفترة');return}
+      const doIn=$('#rIn',m).checked,pay=r3(+$('#rPay',m).value||0);
+      if(doIn&&from>TODAY){toast('لا يمكن تسجيل الدخول قبل تاريخ الحجز');return}
+      sv.disabled=true;sv.textContent='جارٍ الحفظ…';
+      let g=gid?rGuest(gid):RG().find(x=>x.idNo===idNo);
+      if(!g){g={id:await rcpNo('G'),idNo,name,nameEn:$('#rNameEn',m).value.trim(),phone,nat:$('#rNat',m).value.trim(),dob:$('#rDob',m).value,at:nowTs(),by:me().name};RG().push(g)}
+      else Object.assign(g,{idNo,name,phone,nat:$('#rNat',m).value.trim()||g.nat,dob:$('#rDob',m).value||g.dob,nameEn:$('#rNameEn',m).value.trim()||g.nameEn});
+      const p=RCP_PRICES.find(x=>x.k===$('#rPrice',m).value)||{};
+      const r={id:await rcpNo('MR'),bld:bld(),unit,gid:g.id,gname:g.name,type,from,to,count:n,rate,priceK:p.k||'',incl:!!p.incl,total:t,comp:+$('#rComp',m).value||0,src:$('#rSrc',m).value,broker:$('#rBroker',m).value.trim(),comm:r3(+$('#rComm',m).value||0),note:$('#rNote',m).value.trim(),
+        status:doIn?'in':'booked',inAt:doIn?nowTs():null,outAt:null,elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
+      r.no=r.id;RS().push(r);
+      let rc=null;if(pay>0)rc=await rcpAddReceipt({rsv:r,amount:pay,method:$('#rPayM',m).value});
+      if(doIn&&r.type==='monthly'){/* قراءة العداد تُطلب من شاشة الدخول عند الحاجة */}
+      close();V.view='rbook';commit('تم حفظ الحجز '+r.id);rcpAfterBook(r,rc);
+    };
+  }});
+}
+async function rcpAddReceipt({rsv,gid,amount,method,memo,bld}){
+  const g=rsv?rGuest(rsv.gid):rGuest(gid);
+  const c={id:await rcpNo('RC'),bld:rsv?rsv.bld:(bld||rcpBld()),gid:g?g.id:'',gname:g?g.name:'',rsvId:rsv?rsv.id:'',unit:rsv?rsv.unit:'',amount:r3(amount),method,
+    memo:memo||('#'+method+(rsv?' #'+rsv.unit+' #'+rsv.count+(rsv.type==='daily'?'night':'month'):'')+(g&&g.phone?' #'+g.phone:'')),date:TODAY,at:nowTs(),by:me().name,nsNo:''};
+  c.no=c.id;RC().push(c);return c;
+}
+function rcpAfterBook(r,rc){
+  modal({title:'✓ تم الحجز '+esc(r.id),sub:`${esc(r.gname)} — شقة ${esc(r.unit)} — ${esc(r.bld)}`,body:`<div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div><div class="t"><span>المتبقي</span><b>${omr(rcpBal(r))}</b></div></div><p class="small muted" style="margin:10px 0 0">اطبع ما تحتاجه الآن، أو لاحقاً من قائمة الحجوزات.</p>`,
+    foot:[{t:'🖨️ العقد',fn:()=>{rcpPrintContract(r);return false}},{t:'🖨️ تأكيد الحجز',cls:'sec',fn:()=>{rcpPrintBooking(r);return false}},...(rc?[{t:'🖨️ سند القبض',cls:'sec',fn:()=>{rcpPrintReceipt(rc);return false}}]:[]),{t:'تم',cls:'sec'}]});
+}
+
+/* ---------- الحجز: عرض وإجراءات ---------- */
+function rcpOpen(id){const r=rRsv(id);if(!r)return;const g=rGuest(r.gid)||{},bal=rcpBal(r),st=rcpRsvBadge(r);
+  const acts=[];
+  if(r.status==='booked')acts.push(['in','🔑 تسجيل دخول','']);if(r.status==='in')acts.push(['out','🚪 تسجيل خروج','']);
+  if(rActive(r))acts.push(['pay','💵 قبض','sec']);if(r.status==='in'||r.status==='booked')acts.push(['ext','➕ تمديد','sec']);
+  if(r.status!=='cancelled')acts.push(['ret','↩️ مرتجع','sec']);if(r.status==='booked')acts.push(['cancel','✕ إلغاء الحجز','sec']);
+  const pays=RC().filter(c=>c.rsvId===r.id),rets=RT().filter(t=>t.rsvId===r.id);
+  modal({title:'حجز '+esc(r.id)+' '+st,sub:`${esc(r.bld)} — شقة ${esc(r.unit)}`,wide:true,body:`
+   <div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div>${rcpRet(r)?`<div><span>مرتجع</span><b>${omr(rcpRet(r))}</b></div>`:''}<div class="t ${bal>0?'due':''}"><span>${bal<0?'للنزيل':'المتبقي'}</span><b>${omr(Math.abs(bal))}</b></div></div>
+   <div class="rcp-acts">${acts.map(([k,t,c])=>`<button class="btn ${c}" data-ra="${k}">${t}</button>`).join('')}</div><div class="rcp-kv">${[['النزيل',esc(r.gname)+(g.idNo?` <span class="muted small" dir="ltr">${esc(g.idNo)}</span>`:'')],['الهاتف',`<span dir="ltr">${esc(g.phone||'—')}</span>`],['نوع الحجز',RCP_TYPES_L[r.type]+(r.incl?' (شامل)':'')],['الفترة',`${fdate(r.from)} ← ${fdate(r.to)} (${rcpDur(r.type,r.count)})`],
+     ['الدخول',r.inAt?ftime(r.inAt):'—'],['الخروج',r.outAt?ftime(r.outAt):'—'],['السعر',omr(r.rate)],['المصدر',esc(r.src||'—')+(r.broker?' — '+esc(r.broker)+' ('+omr(r.comm)+')':'')],['المرافقون',r.comp||0],...(r.type==='monthly'?[['عداد الكهرباء',`دخول: ${esc(r.elecIn||'—')} — خروج: ${esc(r.elecOut||'—')}`]]:[]),...(r.note?[['ملاحظة',esc(r.note)]]:[]),['رقم نت سويت',r.nsNo?`<span dir="ltr">${esc(r.nsNo)}</span>`:'<span class="muted">لم يُربط بعد</span>']].map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
+   ${pays.length?`<h4 class="rcp-h4">سندات القبض</h4><div class="list">${pays.map(c=>`<div class="li"><div class="av">💵</div><div><b>${esc(c.id)}</b> <span class="muted small">${fdate(c.date)} — ${RCP_PAY[c.method]||''}</span></div><div><b>${omr(c.amount)}</b> <button class="btn sm sec" data-prc="${c.id}">🖨️</button></div></div>`).join('')}</div>`:''}
+   ${rets.length?`<h4 class="rcp-h4">المرتجعات</h4><div class="list">${rets.map(t=>`<div class="li"><div class="av">↩️</div><div><b>${esc(t.id)}</b> ${badge(RCP_RTN[t.status][0],RCP_RTN[t.status][1])}</div><div><b>${omr(t.amount)}</b></div></div>`).join('')}</div>`:''}
+   
+   <div class="rcp-acts"><button class="btn sm sec" data-rp="contract">🖨️ العقد</button><button class="btn sm sec" data-rp="booking">🖨️ تأكيد الحجز</button><button class="btn sm sec" data-rp="stmt">📄 كشف حساب النزيل</button>${rcpMgr()?`<button class="btn sm ghost" data-rp="ns">🔗 رقم نت سويت</button>`:''}</div>`,
+   onMount:(m,close)=>{
+     $$('[data-prc]',m).forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
+     $$('[data-rp]',m).forEach(x=>x.onclick=()=>{const k=x.dataset.rp;if(k==='contract')rcpPrintContract(r);else if(k==='booking')rcpPrintBooking(r);else if(k==='stmt'){close();V.sub.rg=r.gid;go('rstmt')}else if(k==='ns'){close();rcpNsNo('rsv',r)}});
+     $$('[data-ra]',m).forEach(x=>x.onclick=()=>{close();({in:rcpCheckIn,out:rcpCheckOut,pay:rcpPayForm,ext:rcpExtend,ret:rcpReturnForm,cancel:rcpCancel})[x.dataset.ra](r)});
+   }});
+}
+const rcpRsvBadge=r=>({booked:badge('محجوز','i'),in:badge(r.to<=TODAY?'مغادرة اليوم':'داخل الشقة',r.to<=TODAY?'w':'a'),out:badge('غادر','g'),cancelled:badge('ملغي','c')})[r.status]||'';
+function rcpNsNo(kind,o){modal({title:'🔗 رقم نت سويت',sub:'بعد إدخال الحركة في نت سويت، اكتب رقمها هنا للمطابقة',body:`<div class="fld"><label>الرقم في نت سويت</label><input id="ns" dir="ltr" value="${esc(o.nsNo||'')}" placeholder="RNSNS10922"></div>`,foot:[{t:'حفظ',fn:b=>{o.nsNo=fv(b,'ns');commit('تم الحفظ')}},{t:'إلغاء',cls:'sec'}]})}
+function rcpCheckIn(r){const g=rGuest(r.gid)||{};
+  modal({title:'🔑 تسجيل دخول — '+esc(r.gname),sub:`حجز ${esc(r.id)} — شقة ${esc(r.unit)}`,body:`${r.from>TODAY?`<div class="note w small">تاريخ الحجز ${fdate(r.from)} — لم يحن بعد.</div>`:''}
+   <div class="rcp-kv"><div><span>الفترة</span><b>${fdate(r.from)} ← ${fdate(r.to)}</b></div><div><span>المتبقي</span><b>${omr(rcpBal(r))}</b></div><div><span>البطاقة</span><b dir="ltr">${esc(g.idNo||'—')}</b></div></div>
+   ${r.type==='monthly'?`<div class="fld"><label>قراءة عداد الكهرباء عند الدخول</label><input id="eIn" inputmode="decimal" dir="ltr" value="${esc(r.elecIn||'')}"></div>`:''}`,
+   foot:[{t:'تأكيد الدخول',fn:b=>{if(r.from>TODAY){toast('لا يمكن الدخول قبل تاريخ الحجز');return false}r.status='in';r.inAt=nowTs();if(r.type==='monthly')r.elecIn=fv(b,'eIn');const u=RU().find(x=>x.bld===r.bld&&x.unit===r.unit);if(u&&u.st==='cleaning')u.st='ready';commit('تم تسجيل الدخول — شقة '+r.unit);
+     if(rcpBal(r)>0)setTimeout(()=>confirmBox('المتبقي على النزيل',`على النزيل ${omr(rcpBal(r))}. تريد تسجيل قبض الآن؟`,'💵 قبض','',()=>rcpPayForm(r)),250)}},{t:'إلغاء',cls:'sec'}]});
+}
+function rcpCheckOut(r){const bal=rcpBal(r);
+  modal({title:'🚪 تسجيل خروج — '+esc(r.gname),sub:`حجز ${esc(r.id)} — شقة ${esc(r.unit)}`,body:`${bal>0?`<div class="note c">⚠️ على النزيل مبلغ <b>${omr(bal)}</b> — سجّل القبض قبل الخروج.</div>`:'<div class="note g small">✓ لا مبالغ متبقية على النزيل.</div>'}
+   ${r.to>TODAY?`<div class="note w small">الخروج قبل موعده (${fdate(r.to)}). إن كان هناك مبلغ يُرد للنزيل فسجّل مرتجعاً بعد الخروج.</div>`:''}
+   ${r.type==='monthly'?`<div class="fld"><label>قراءة عداد الكهرباء عند الخروج</label><input id="eOut" inputmode="decimal" dir="ltr" value="${esc(r.elecOut||'')}"></div>`:''}
+   <label class="rcp-chk"><input type="checkbox" id="oClean" checked> الشقة تحتاج تنظيف (تظهر «تحت التنظيف»)</label>`,
+   foot:[...(bal>0?[{t:'💵 قبض أولاً',fn:()=>{setTimeout(()=>rcpPayForm(r),50)}}]:[]),{t:'تأكيد الخروج',cls:bal>0?'sec':'',fn:b=>{r.status='out';r.outAt=nowTs();if(r.type==='monthly')r.elecOut=fv(b,'eOut');if(fv(b,'oClean'))rcpSetUnit(r.bld,r.unit,'cleaning','بعد خروج '+r.gname);commit('تم تسجيل الخروج — شقة '+r.unit)}},{t:'إلغاء',cls:'sec'}]});
+}
+function rcpPayForm(r,gid){const bal=r?rcpBal(r):0,g=r?null:rGuest(gid);
+  modal({title:'💵 سند قبض',sub:r?`${esc(r.gname)} — حجز ${esc(r.id)} — شقة ${esc(r.unit)}`:esc(g?g.name:''),body:`${r?`<div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div><div class="t"><span>المتبقي</span><b>${omr(bal)}</b></div></div>`:''}
+   <div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="pA" type="number" step="0.001" inputmode="decimal" value="${bal>0?bal:''}"></div><div class="fld"><label>طريقة الدفع</label><select id="pM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
+   <div class="fld"><label>البيان (اختياري)</label><input id="pMemo" placeholder="يُكتب تلقائياً مثل: #cash #101 #2night"></div>`,
+   onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='✔ حفظ وطباعة السند';const ok2=document.createElement('button');ok2.className='btn sec';ok2.textContent='حفظ فقط';ft.append(ok,ok2);$('.modal',m).appendChild(ft);
+     const go2=async pr=>{const a=r3(+fv(m,'pA')||0);if(!(a>0)){toast('اكتب المبلغ');return}ok.disabled=ok2.disabled=true;const c=await rcpAddReceipt({rsv:r,gid,amount:a,method:fv(m,'pM'),memo:fv(m,'pMemo')});close();commit('تم حفظ سند القبض '+c.id);if(pr)rcpPrintReceipt(c)};
+     ok.onclick=()=>go2(true);ok2.onclick=()=>go2(false)}});
+}
+function rcpExtend(r){
+  modal({title:'➕ تمديد الحجز '+esc(r.id),sub:`${esc(r.gname)} — حتى ${fdate(r.to)} حالياً`,body:`<div class="frow"><div class="fld"><label>${r.type==='daily'?'عدد الليالي الإضافية':'عدد الأشهر الإضافية'}</label><input id="xN" type="number" min="1" value="1"></div><div class="fld"><label>السعر (ر.ع)</label><input id="xR" type="number" step="0.001" value="${r.rate}"></div></div><div class="note small" id="xS"></div>`,
+   onMount:m=>{const u=()=>{const n=+fv(m,'xN')||0,to=r.type==='daily'?addDays(r.to,n):rcpMonthsAdd(r.to,n);$('#xS',m).innerHTML=`الخروج الجديد: <b>${fdate(to)}</b> — مبلغ إضافي: <b>${omr(r3(n*(+fv(m,'xR')||0)))}</b>`};$('#xN',m).oninput=u;$('#xR',m).oninput=u;u()},
+   foot:[{t:'تأكيد التمديد',fn:b=>{const n=+fv(b,'xN')||0,rate=+fv(b,'xR')||0;if(n<1){toast('اكتب المدة');return false}const to=r.type==='daily'?addDays(r.to,n):rcpMonthsAdd(r.to,n);
+     if(rcpOverlap(r.bld,r.unit,r.to,to,r.id).length){toast('الشقة محجوزة لنزيل آخر في فترة التمديد');return false}
+     r.ext=(r.ext||[]).concat([{at:nowTs(),date:TODAY,from:r.to,to,count:n,rate,amount:r3(n*rate),by:me().name}]);r.to=to;r.count=(r.count||0)+n;commit('تم التمديد حتى '+fdate(to))}},{t:'إلغاء',cls:'sec'}]});
+}
+function rcpCancel(r){if(rcpPaid(r)>0){toast('على الحجز مبالغ مدفوعة — سجّل مرتجعاً بدل الإلغاء');return}
+  confirmBox('إلغاء الحجز '+r.id,`إلغاء حجز ${esc(r.gname)} — شقة ${esc(r.unit)}؟`,'إلغاء الحجز','crit',n=>{r.status='cancelled';r.cancelAt=nowTs();r.cancelBy=me().name;r.cancelNote=n;commit('تم إلغاء الحجز')},'opt','سبب الإلغاء')}
+function rcpReturnForm(r){
+  modal({title:'↩️ طلب مرتجع',sub:`حجز ${esc(r.id)} — ${esc(r.gname)} — يذهب لموافقة المدير العام ثم القيد في الحسابات`,body:`<div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div></div>
+   <div class="fld"><label>مبلغ المرتجع (ر.ع) *</label><input id="tA" type="number" step="0.001" inputmode="decimal" value="${rcpPaid(r)||''}"></div>
+   <div class="fld"><label>السبب *</label><select id="tWhy"><option>خروج مبكر</option><option>إلغاء الحجز</option><option>خطأ في السعر أو المدة</option><option>شكوى / تعويض</option><option>أخرى</option></select></div>
+   <div class="fld"><label>تفاصيل</label><textarea id="tNote" rows="2"></textarea></div>`,
+   onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='إرسال للمدير العام';ft.append(ok);$('.modal',m).appendChild(ft);
+     ok.onclick=async()=>{const a=r3(+fv(m,'tA')||0);if(!(a>0)){toast('اكتب المبلغ');return}if(a>rcpTotal(r)){toast('المبلغ أكبر من إجمالي الحجز');return}ok.disabled=true;
+       const t={id:await rcpNo('RT'),bld:r.bld,rsvId:r.id,unit:r.unit,gid:r.gid,gname:r.gname,amount:a,reason:fv(m,'tWhy'),note:fv(m,'tNote'),status:'pending',at:nowTs(),by:me().name,date:TODAY,gmBy:null,gmAt:null,gmNote:'',accBy:null,accAt:null,nsNo:''};
+       t.no=t.id;RT().push(t);notify('role:gm','↩️','مرتجع بانتظار موافقتك',`${t.id} — ${r.gname} — ${omr(a)} — ${r.bld}`,{view:'rret'});close();commit('أُرسل المرتجع '+t.id+' للمدير العام')}}});
+}
+function rcpReturnAct(t){const R=role();
+  if(R==='gm'&&t.status==='pending')return modal({title:'↩️ مرتجع '+esc(t.id),sub:`${esc(t.gname)} — ${esc(t.bld)} — شقة ${esc(t.unit)}`,body:`<div class="rcp-kv"><div><span>المبلغ</span><b>${omr(t.amount)}</b></div><div><span>السبب</span><b>${esc(t.reason)}</b></div><div><span>الحجز</span><b>${esc(t.rsvId)}</b></div><div><span>طلبه</span><b>${esc(t.by)} — ${ftime(t.at)}</b></div>${t.note?`<div><span>تفاصيل</span><b>${esc(t.note)}</b></div>`:''}</div><div class="fld"><label>ملاحظة</label><textarea id="gN" rows="2"></textarea></div>`,
+    foot:[{t:'✓ موافقة',cls:'good',fn:b=>{t.status='approved';t.gmBy=me().name;t.gmAt=nowTs();t.gmNote=fv(b,'gN');notify('role:acc','↩️','مرتجع معتمد — للقيد',`${t.id} — ${t.gname} — ${omr(t.amount)}`,{view:'rret'});commit('تمت الموافقة — أُرسل للحسابات')}},
+      {t:'✕ رفض',cls:'crit',fn:b=>{const n=fv(b,'gN');if(!n){toast('اكتب سبب الرفض في الملاحظة');return false}t.status='rejected';t.gmBy=me().name;t.gmAt=nowTs();t.gmNote=n;commit('تم الرفض')}},{t:'إغلاق',cls:'sec'}]});
+  if(R==='acc'&&t.status==='approved')return modal({title:'↩️ قيد المرتجع '+esc(t.id),sub:'أنشئ المرتجع في نت سويت واعمل التأثير المحاسبي، ثم أكّد هنا',body:`<div class="rcp-kv"><div><span>النزيل</span><b>${esc(t.gname)}</b></div><div><span>المبلغ</span><b>${omr(t.amount)}</b></div><div><span>موافقة المدير العام</span><b>${esc(t.gmBy)} — ${ftime(t.gmAt)}</b></div></div><div class="fld"><label>رقم المرتجع في نت سويت (اختياري)</label><input id="aNs" dir="ltr" placeholder="RRESNS00277"></div>`,
+    foot:[{t:'✓ تم القيد',cls:'good',fn:b=>{t.status='posted';t.accBy=me().name;t.accAt=nowTs();t.nsNo=fv(b,'aNs');notify('bld:'+t.bld,'↩️','تم قيد المرتجع',`${t.id} — ${t.gname} — ${omr(t.amount)}`,{view:'rret'});commit('تم قيد المرتجع')}},{t:'إغلاق',cls:'sec'}]});
+  rcpOpen(t.rsvId);
+}
+
+/* ---------- الطباعة ---------- */
+const RCP_PCSS=`<style>.rp{font-size:12.5px;color:#111}.rp table{width:100%;border-collapse:collapse;margin:8px 0}.rp th,.rp td{border:1px solid #9aa7b4;padding:6px 8px;text-align:start;vertical-align:top}.rp th{background:#eef2f6;font-weight:700;width:30%}.rp .en{display:block;font-size:10px;color:#666;font-weight:500}.rp .tot td,.rp .tot th{background:#fff7e0;font-weight:800}.rp .big{font:800 22px/1.3 var(--kufi);text-align:center;margin:12px 0}.rp .words{border:1px dashed #9aa7b4;padding:8px 10px;border-radius:8px;margin:8px 0;line-height:1.8}.rp .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rp .sigs{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px;text-align:center}.rp .sigs div{border-top:1px solid #333;padding-top:6px}.rp h4{margin:14px 0 4px;font:700 13px/1.4 var(--kufi);color:#16365B}.rp .terms{columns:2;column-gap:18px;font-size:9.6px;line-height:1.55}.rp .terms div{break-inside:avoid;margin-bottom:6px}.rp .terms b{display:block;font-size:10.2px}.rp .terms ol{margin:2px 0;padding-inline-start:16px}.rp .pb{page-break-before:always}.rp.k{font-size:11.2px}.rp.k th,.rp.k td{padding:4px 6px}.rp.k .off-h img{height:64px!important}.rp.k h4{margin:8px 0 2px;font-size:12px}.rp.k .sigs{margin-top:26px}.rp .th2{text-align:center;border-bottom:2px solid #16365B;padding-bottom:6px;margin-bottom:6px}.rp .th2 b{display:block;font:800 14px/1.4 var(--kufi);color:#16365B}.rp .th2 span{font-size:9.5px;color:#666}.rp .terms2{font-size:7.6px;line-height:1.28}.rp .terms2 .art{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-bottom:1px solid #e3e7ec;padding:2px 0;break-inside:avoid}.rp .terms2 b{display:block;font-size:8.5px;color:#16365B}.rp .terms2 ol{margin:1px 0;padding-inline-start:14px}.rp .ltr{direction:ltr;text-align:left}</style>`;
+const rTh=(ar,en)=>`<th>${ar}<span class="en">${en}</span></th>`;
+function rcpPrintBooking(r){const g=rGuest(r.gid)||{};
+  printHTML(RCP_PCSS+`<div class="rp">${offHead('تأكيد حجز','Booking Confirmation',r.id+' — '+fdate(r.at.slice(0,10)))}
+   <table>${[['اسم النزيل','Guest name',esc(r.gname)+(g.nameEn?` / <span dir="ltr">${esc(g.nameEn)}</span>`:'')],['رقم البطاقة / الجواز','ID / Passport',`<span dir="ltr">${esc(g.idNo||'')}</span>`],['الجنسية','Nationality',esc(g.nat||'')],['الهاتف','Phone',`<span dir="ltr">${esc(g.phone||'')}</span>`],
+    ['البناية','Building',esc(r.bld)],['الشقة','Unit',esc(r.unit)],['نوع الحجز','Booking type',`${RCP_TYPES_L[r.type]} / ${r.type==='daily'?'Daily':'Monthly'}${r.incl?' — شامل الكهرباء والماء':''}`],
+    ['الدخول','Check-in',`${fdate(r.from)} — ${RCP_IN_TIME} <span dir="ltr">(1:00 PM)</span>`],['الخروج','Check-out',`${fdate(r.to)} — ${RCP_OUT_TIME} <span dir="ltr">(12:00 PM)</span>`],['المدة','Duration',`${rcpDur(r.type,r.count)} / <span dir="ltr">${rcpDurEn(r.type,r.count)}</span>`],['عدد المرافقين','Companions',r.comp||0],
+    ['السعر','Rate',omr(r.rate)]].map(([a,e,v])=>`<tr>${rTh(a,e)}<td>${v}</td></tr>`).join('')}
+    <tr class="tot">${rTh('الإجمالي','Total')}<td>${omr(rcpTotal(r))}</td></tr><tr>${rTh('المدفوع','Paid')}<td>${omr(rcpPaid(r))}</td></tr><tr class="tot">${rTh('المتبقي','Balance')}<td>${omr(Math.max(0,rcpBal(r)))}</td></tr></table>
+   ${r.note?`<div class="words"><b>ملاحظة / Note:</b> ${esc(r.note)}</div>`:''}
+   <div class="small">رقم الاستقبال / Reception: <span dir="ltr">${RCP_TEL}</span> — خدمة العملاء / Customer service: <span dir="ltr">${RCP_CS}</span></div>
+   <div class="sigs"><div>النزيل / Guest</div><div>موظف الاستقبال / Reception — ${esc(r.by||'')}</div></div>${offFoot()}</div>`,'تأكيد حجز '+r.id)}
+function rcpPrintReceipt(c){if(!c)return;
+  printHTML(RCP_PCSS+`<div class="rp">${offHead('سند قبض','Receipt Voucher',c.id+' — '+fdate(c.date))}
+   <div class="big">${omr(c.amount)}</div>
+   <table>${[['استلمنا من','Received from',esc(c.gname||'')],['مبلغ وقدره','The sum of',`${rcpWordsAr(c.amount)}<br><span dir="ltr">${rcpWordsEn(c.amount)}</span>`],['طريقة الدفع','Payment method',`${RCP_PAY[c.method]||''} / ${RCP_PAY_EN[c.method]||''}`],
+    ['وذلك عن','Being',c.rsvId?`إيجار شقة ${esc(c.unit)} — ${esc(c.bld)} — حجز ${esc(c.rsvId)}`:esc(c.bld)],['البيان','Memo',`<span dir="ltr">${esc(c.memo||'')}</span>`],['التاريخ','Date',fdate(c.date)]].map(([a,e,v])=>`<tr>${rTh(a,e)}<td>${v}</td></tr>`).join('')}</table>
+   <div class="sigs"><div>المستلم / Received by — ${esc(c.by||'')}</div><div>الدافع / Payer</div></div>${offFoot()}</div>`,'سند قبض '+c.id)}
+function rcpPrintContract(r){const g=rGuest(r.gid)||{};
+  const TR=rows=>`<table>${rows.map(([a,e,v])=>`<tr>${rTh(a,e)}<td>${v}</td></tr>`).join('')}</table>`;
+  const T=RCP_TERMS.map((a,i)=>`<div class="art"><div><b>${i+1}. ${esc(a[0])}</b>${a[1]}</div><div dir="ltr"><b>${i+1}. ${esc(a[2])}</b>${a[3]}</div></div>`).join('');
+  printHTML(RCP_PCSS+`<div class="rp k">${offHead('عقد إيجار سكني — إيجار '+RCP_TYPES_L[r.type],'Residential Lease Agreement — '+(r.type==='daily'?'Daily':'Monthly')+' Rental','رقم العقد '+r.id+' — '+fdate(TODAY))}
+   <div class="two"><div><h4>1. المستأجر (الطرف الثاني) / Lessee</h4>${TR([['الاسم','Name',esc(r.gname)+(g.nameEn?`<br><span dir="ltr">${esc(g.nameEn)}</span>`:'')],['الجنسية','Nationality',esc(g.nat||'')],['الهاتف','Phone',`<span dir="ltr">${esc(g.phone||'')}</span>`],['البطاقة / الجواز','ID / Passport',`<span dir="ltr">${esc(g.idNo||'')}</span>`],['المرافقون','Companions',r.comp||0]])}</div>
+   <div><h4>2. الوحدة السكنية / Unit</h4>${TR([['المبنى','Building',esc(r.bld)+' — صلالة'],['رقم الوحدة','Unit no.',esc(r.unit)],['حساب الكهرباء','Electricity acc.',''],['حساب المياه','Water acc.','']])}</div></div>
+   <div class="two"><div><h4>3. المدة / Stay period</h4>${TR([['الدخول','Check-in',`${fdate(r.from)} — ${RCP_IN_TIME}`],['الخروج','Check-out',`${fdate(r.to)} — ${RCP_OUT_TIME}`],['المدة','Duration',`${rcpDur(r.type,r.count)} / <span dir="ltr">${rcpDurEn(r.type,r.count)}</span>`]])}</div>
+   <div><h4>4. الأجرة / Rent</h4><table><tr>${rTh('السعر','Rate')}<td>${omr(r.rate)}${r.incl?' — شامل الكهرباء والماء':''}</td></tr><tr class="tot">${rTh('الإجمالي','Total')}<td>${omr(rcpTotal(r))}</td></tr><tr>${rTh('المدفوع','Paid')}<td>${omr(rcpPaid(r))}</td></tr><tr>${rTh('المتبقي','Balance')}<td>${omr(Math.max(0,rcpBal(r)))}</td></tr></table></div></div>
+   <div class="words small">${rcpWordsAr(rcpTotal(r))} — <span dir="ltr">${rcpWordsEn(rcpTotal(r))}</span></div>
+   <h4>5. ملاحظات وشروط إضافية / Notes</h4><div class="words" style="min-height:54px">${esc(r.note||'')}</div>
+   <div class="small">رقم الاستقبال / Reception: <span dir="ltr">${RCP_TEL}</span> — خدمة العملاء / Customer service: <span dir="ltr">${RCP_CS}</span> — موظف الاستقبال: ${esc(r.by||'')}</div>
+   <div class="sigs"><div>الطرف الثاني (المستأجر) / Lessee</div><div>الطرف الأول (المؤجر) / Lessor — نسائم صلالة</div></div>
+   <div class="pb"></div><div class="th2"><b>شروط وأحكام الإقامة — TERMS &amp; CONDITIONS OF STAY</b><span>عقد رقم ${esc(r.id)} — تخضع لأحكام القانون العماني / Governed by the laws of the Sultanate of Oman</span></div>
+   <div class="terms2">${T}</div>
+   <div class="words small">يُقرّ الطرفان باطلاعهما على البنود أعلاه وعلى بيانات الصفحة الأولى، وأن الصفحتين وحدة واحدة لا تتجزأ.<br><span dir="ltr">The parties confirm they have read the articles above and the particulars page, and that both pages form one instrument.</span></div>
+   <div class="sigs" style="margin-top:14px"><div>الطرف الثاني (المستأجر) / Lessee</div><div>الطرف الأول (المؤجر) / Lessor</div></div></div>`,'عقد '+r.id)}
+function rcpStmtRows(gid){const rows=[];
+  RS().filter(r=>r.gid===gid&&r.status!=='cancelled').forEach(r=>{rows.push({d:r.from,t:'حجز '+r.id,ds:`شقة ${r.unit} — ${r.bld} — ${rcpDur(r.type,(r.count||0)-(r.ext||[]).reduce((a,e)=>a+e.count,0))}`,dr:r3(r.total),cr:0});(r.ext||[]).forEach(e=>rows.push({d:e.date||e.at.slice(0,10),t:'تمديد '+r.id,ds:`حتى ${fdate(e.to)} — ${rcpDur(r.type,e.count)}`,dr:e.amount,cr:0}))});
+  RC().filter(c=>c.gid===gid&&!c.void).forEach(c=>rows.push({d:c.date,t:'سند قبض '+c.id,ds:(RCP_PAY[c.method]||'')+(c.unit?' — شقة '+c.unit:''),dr:0,cr:r3(c.amount)}));
+  RT().filter(t=>t.gid===gid&&(t.status==='approved'||t.status==='posted')).forEach(t=>rows.push({d:(t.gmAt||t.at).slice(0,10),t:'مرتجع '+t.id,ds:t.reason,dr:0,cr:r3(t.amount)}));
+  rows.sort((a,b)=>a.d.localeCompare(b.d));let bal=0;rows.forEach(x=>{bal=r3(bal+x.dr-x.cr);x.bal=bal});return rows}
+function rcpStmtTable(rows){return `<div class="tw"><table><thead><tr><th>التاريخ</th><th>الحركة</th><th>البيان</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${esc(x.t)}</td><td>${esc(x.ds||'')}</td><td>${x.dr?money(x.dr):''}</td><td>${x.cr?money(x.cr):''}</td><td><b>${money(x.bal)}</b></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا حركات</td></tr>'}</tbody></table></div>`}
+function rcpPrintStmt(gid){const g=rGuest(gid);if(!g)return;const rows=rcpStmtRows(gid),bal=rows.length?rows[rows.length-1].bal:0;
+  printHTML(RCP_PCSS+`<div class="rp">${offHead('كشف حساب','Statement of Account',fdate(TODAY))}<table><tr>${rTh('اسم العميل','Customer')}<td>${esc(g.name)}${g.nameEn?' / <span dir="ltr">'+esc(g.nameEn)+'</span>':''}</td></tr><tr>${rTh('رقم العميل','Customer ID')}<td dir="ltr">${esc(g.id)} — ${esc(g.idNo||'')}</td></tr><tr class="tot">${rTh(bal<0?'رصيد دائن للعميل':'المبلغ المستحق','Amount due')}<td>${omr(Math.abs(bal))}</td></tr></table>
+   <table><thead><tr><th>التاريخ<span class="en">Date</span></th><th>الحركة<span class="en">Transaction</span></th><th>البيان<span class="en">Description</span></th><th>مدين<span class="en">Charge</span></th><th>دائن<span class="en">Payment</span></th><th>الرصيد<span class="en">Balance</span></th></tr></thead><tbody>${rows.map(x=>`<tr><td>${fdate(x.d)}</td><td>${esc(x.t)}</td><td>${esc(x.ds||'')}</td><td>${x.dr?money(x.dr):''}</td><td>${x.cr?money(x.cr):''}</td><td>${money(x.bal)}</td></tr>`).join('')}</tbody></table>${offFoot()}</div>`,'كشف حساب '+g.name)}
+
+/* ---------- اليومية ---------- */
+function rcpDay(b,d){const cash=x=>x.method==='cash';
+  const before=RC().filter(c=>c.bld===b&&!c.void&&cash(c)&&c.date<d).reduce((a,c)=>a+c.amount,0)-RX().filter(x=>x.bld===b&&!x.void&&x.date<d).reduce((a,x)=>a+x.amount,0);
+  const rc=RC().filter(c=>c.bld===b&&!c.void&&c.date===d),xp=RX().filter(x=>x.bld===b&&!x.void&&x.date===d);
+  const sum=(a,f)=>r3(a.filter(f||(()=>1)).reduce((s,x)=>s+(+x.amount||0),0));
+  const o={open:r3(before),rc,xp,cashIn:sum(rc,cash),card:sum(rc,x=>x.method==='card'),tr:sum(rc,x=>x.method==='transfer'),exp:sum(xp,x=>x.cat!=='dep'),dep:sum(xp,x=>x.cat==='dep')};
+  o.close=r3(o.open+o.cashIn-o.exp-o.dep);o.all=r3(o.cashIn+o.card+o.tr);return o}
+function rcpDayHTML(b,d,forPrint){const D=rcpDay(b,d),st=d===TODAY?rcpStats(b):null;
+  const vac=d===TODAY?rcpUnits(b).map(u=>[u,rcpUnitState(b,u)]).filter(([,s])=>['ready','cleaning','maint','arr'].includes(s.st)):[];
+  const arr=RS().filter(r=>r.bld===b&&r.from===d&&r.status!=='cancelled'),dep=RS().filter(r=>r.bld===b&&r.to===d&&r.status!=='cancelled');
+  return `<div class="rcp-day">
+   <div class="tw"><table><thead><tr><th>نوع الحركة</th><th>رقم السند</th><th>البيان</th><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody>
+    <tr class="rcp-open"><td>رصيد افتتاحي</td><td>—</td><td>نقدية الصندوق</td><td>—</td><td>${money(D.open)}</td><td></td></tr>
+    ${D.rc.map(c=>`<tr><td>سند قبض</td><td dir="ltr">${esc(c.id)}</td><td>${esc(c.gname)}${c.unit?' — شقة '+esc(c.unit):''}<div class="small muted" dir="ltr">${esc(c.memo||'')}</div></td><td>${RCP_PAY[c.method]||''}</td><td>${money(c.amount)}</td><td></td></tr>`).join('')}
+    ${D.xp.map(x=>`<tr><td>${RCP_XCAT[x.cat]||'مصروف'}</td><td dir="ltr">${esc(x.id)}</td><td>${esc(x.desc)}</td><td>الصندوق</td><td></td><td>${money(x.amount)}</td></tr>`).join('')}
+    ${!D.rc.length&&!D.xp.length?'<tr><td colspan="6" class="empty">لا حركات في هذا اليوم</td></tr>':''}
+   </tbody></table></div>
+   <div class="rcp-sum rcp-sum5"><div><span>رصيد افتتاحي</span><b>${money(D.open)}</b></div><div><span>قبض نقدي</span><b>${money(D.cashIn)}</b></div><div><span>مصروفات</span><b>${money(D.exp)}</b></div><div><span>إيداع بنكي</span><b>${money(D.dep)}</b></div><div class="t"><span>رصيد الصندوق</span><b>${money(D.close)}</b></div></div>
+   <div class="small muted" style="margin:6px 0 12px">قبض بالبطاقة: <b>${money(D.card)}</b> — تحويل: <b>${money(D.tr)}</b> — إجمالي قبوضات اليوم: <b>${money(D.all)}</b></div>
+   ${st?`<h4 class="rcp-h4">الشقق الفارغة اليوم (${vac.length} من ${st.all}) — الإشغال ${st.pct}%</h4><div class="rcp-vac">${vac.map(([u,s])=>`<span style="--c:${RCP_ST[s.st][1]}">${esc(u)} <i>${RCP_ST[s.st][0]}</i></span>`).join('')||'<span class="muted">لا توجد شقق فارغة 🎉</span>'}</div>`:''}
+   <div class="grid g2" style="margin-top:12px"><div><h4 class="rcp-h4">وصول (${arr.length})</h4>${arr.map(r=>`<div class="small">• ${esc(r.unit)} — ${esc(r.gname)} ${forPrint?'':rcpRsvBadge(r)}</div>`).join('')||'<div class="small muted">—</div>'}</div><div><h4 class="rcp-h4">مغادرة (${dep.length})</h4>${dep.map(r=>`<div class="small">• ${esc(r.unit)} — ${esc(r.gname)} ${forPrint?'':rcpRsvBadge(r)}</div>`).join('')||'<div class="small muted">—</div>'}</div></div></div>`}
+function rcpXpnForm(){const b=rcpBld();
+  modal({title:'💸 مصروف / إيداع من الصندوق',sub:esc(b),body:`<div class="fld"><label>النوع</label><select id="xC">${Object.entries(RCP_XCAT).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="xA" type="number" step="0.001" inputmode="decimal"></div><div class="fld"><label>التاريخ</label><input id="xD" type="date" value="${TODAY}" max="${TODAY}"></div></div><div class="fld"><label>البيان *</label><input id="xT" placeholder="مثال: شراء مواد تنظيف — فاتورة 123"></div>`,
+   onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='حفظ';ft.append(ok);$('.modal',m).appendChild(ft);
+     ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
+}
+
+/* ---------- الواجهات ---------- */
+const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية']];
+const RCP_NAV={rcp:RCP_NAV_R,hr:RCP_NAV_R,gm:RCP_NAV_R,acc:RCP_NAV_R,sup:[['rno','🔒','الاستقبال']],emp:[['rno','🔒','الاستقبال']]};
+VIEWS.rno=()=>ph('الاستقبال','')+`<div class="card"><div class="empty">هذا القسم لموظفي الاستقبال والإدارة والحسابات.</div></div>`;
+function rcpRetQueue(){const R=role();return RT().filter(t=>(R==='gm'&&t.status==='pending')||(R==='acc'&&t.status==='approved'))}
+VIEWS.rhome=()=>{const b=rcpBld(),s=rcpStats(b),first=String(me().name||'').split(' ')[0];
+  const arr=RS().filter(r=>r.bld===b&&r.status==='booked'&&r.from<=TODAY),dep=RS().filter(r=>r.bld===b&&r.status==='in'&&r.to<=TODAY),due=RS().filter(r=>r.bld===b&&r.status==='in'&&rcpBal(r)>0);
+  const q=rcpRetQueue(),myPend=RT().filter(t=>t.bld===b&&t.status==='pending');
+  const big=[['new','🛏️','حجز جديد','بتصوير البطاقة'],['in','🔑','تسجيل دخول',arr.length?arr.length+' وصول اليوم':'لا وصول'],['out','🚪','تسجيل خروج',dep.length?dep.length+' مغادرة اليوم':'لا مغادرة'],['pay','💵','قبض',due.length?due.length+' عليهم مبالغ':'سند قبض'],['ret','↩️','مرتجع','يحتاج موافقة'],['stmt','📄','كشف حساب','لأي نزيل'],['units','🏢','لوحة الشقق',s.ready+' فارغة جاهزة'],['day','📊','اليومية','قبض ومصروفات اليوم']];
+  return `<div class="gs-hi between"><div><h1>${role()==='rcp'?'مرحباً '+esc(first)+' 👋':'الاستقبال'}</h1><p>${fdate(TODAY)} — ${rcpBldPicker()}</p></div></div>
+  <div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${s.busy}</b><span>مشغولة</span></div><div style="--c:#1e8e5a"><b>${s.ready}</b><span>فارغة جاهزة</span></div><div style="--c:#0f8ea3"><b>${s.cleaning}</b><span>تنظيف</span></div><div style="--c:#d13b3b"><b>${s.maint}</b><span>صيانة</span></div><div style="--c:#16365B"><b>${s.pct}%</b><span>الإشغال</span></div></div>
+  ${q.length?`<div class="card"><h2>✅ بانتظار ${role()==='gm'?'موافقتك':'قيدك'} <span class="pill">${q.length}</span></h2><div class="list">${q.map(t=>`<div class="li click" data-rt="${t.id}" style="cursor:pointer"><div class="av">↩️</div><div><b>${esc(t.id)}</b> — ${esc(t.gname)} <span class="muted small">${esc(t.bld)} — ${esc(t.reason)}</span></div><b>${omr(t.amount)}</b></div>`).join('')}</div></div>`:''}
+  <div class="gs-big rcp-big">${big.map(([k,ic,t,sm])=>`<button data-rgo="${k}"><span class="i">${ic}</span><b>${t}</b><small>${sm}</small></button>`).join('')}</div>
+  <div class="grid g2"><div class="card"><h2>🔑 وصول اليوم <small>${arr.length}</small></h2>${arr.length?`<div class="list">${arr.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — حتى ${fdate(r.to)}</div></div><button class="btn sm" data-rin="${r.id}">دخول</button></div>`).join('')}</div>`:'<div class="muted small">لا يوجد وصول منتظر.</div>'}</div>
+   <div class="card"><h2>🚪 مغادرة اليوم <small>${dep.length}</small></h2>${dep.length?`<div class="list">${dep.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${rcpBal(r)>0?'<span style="color:var(--critical)">عليه '+omr(rcpBal(r))+'</span>':'لا مبالغ'}</div></div><button class="btn sm" data-rout="${r.id}">خروج</button></div>`).join('')}</div>`:'<div class="muted small">لا مغادرة اليوم.</div>'}</div></div>
+  ${myPend.length&&role()==='rcp'?`<div class="note small">↩️ ${myPend.length} مرتجع بانتظار موافقة المدير العام.</div>`:''}
+  <details class="card"><summary><b>❔ كيف أستخدم الاستقبال؟</b></summary><ol style="line-height:2;margin:10px 0 0"><li><b>حجز جديد:</b> صوّر البطاقة، اختر الشقة والتاريخ، واحفظ. اطبع العقد وسند القبض من نفس الشاشة.</li><li><b>وصول ومغادرة:</b> القوائم أعلاه تعرض نزلاء اليوم — اضغط دخول أو خروج.</li><li><b>القبض:</b> كل مبلغ تستلمه له سند برقم، ويظهر في اليومية تلقائياً.</li><li><b>آخر اليوم:</b> افتح اليومية وتأكد أن رصيد الصندوق يطابق النقد الذي معك، واطبعها.</li></ol></details>`};
+BIND.rhome=()=>{rcpBindPicker();
+  const pickRsv=(list,title,fn)=>{if(!list.length){toast('لا يوجد');return}if(list.length===1)return fn(list[0]);modal({title,body:`<div class="list">${list.map(r=>`<div class="li click" data-p="${r.id}" style="cursor:pointer"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)}</div></div><span>‹</span></div>`).join('')}</div>`,onMount:(m,close)=>$$('[data-p]',m).forEach(x=>x.onclick=()=>{close();fn(rRsv(x.dataset.p))})})};
+  const b=rcpBld();
+  $$('[data-rgo]').forEach(x=>x.onclick=()=>{const k=x.dataset.rgo;
+    if(k==='new')return rcpBookForm({bld:b});
+    if(k==='in')return pickRsv(RS().filter(r=>r.bld===b&&r.status==='booked'&&r.from<=TODAY),'🔑 من سيدخل؟',rcpCheckIn);
+    if(k==='out')return pickRsv(RS().filter(r=>r.bld===b&&r.status==='in').sort((a,c)=>a.to.localeCompare(c.to)),'🚪 من سيخرج؟',rcpCheckOut);
+    if(k==='pay')return pickRsv(RS().filter(r=>r.bld===b&&rActive(r)).sort((a,c)=>rcpBal(c)-rcpBal(a)),'💵 القبض من؟',r=>rcpPayForm(r));
+    if(k==='ret')return pickRsv(RS().filter(r=>r.bld===b&&r.status!=='cancelled'&&rcpPaid(r)>0).sort((a,c)=>c.at.localeCompare(a.at)).slice(0,30),'↩️ مرتجع لأي حجز؟',rcpReturnForm);
+    go({stmt:'rstmt',units:'runits',day:'rday'}[k])});
+  $$('[data-rin]').forEach(x=>x.onclick=()=>rcpCheckIn(rRsv(x.dataset.rin)));$$('[data-rout]').forEach(x=>x.onclick=()=>rcpCheckOut(rRsv(x.dataset.rout)));
+  $$('[data-rt]').forEach(x=>x.onclick=()=>rcpReturnAct(RT().find(t=>t.id===x.dataset.rt)));
+};
+VIEWS.runits=()=>{const b=rcpBld(),s=rcpStats(b),bo=rcpBldObj(b);let grp='';
+  return ph('🏢 لوحة الشقق',esc(b)+' — '+s.all+' وحدة',rcpBldPicker())+`<div class="rcp-legend">${Object.entries(RCP_ST).map(([k,[l,c]])=>`<span style="--c:${c}"><i></i>${l} <b>${s[k]}</b></span>`).join('')}</div>
+  <div class="card"><div class="rcp-grid">${bo.u.map(([u,g])=>{const x=rcpUnitState(b,u),h=g&&g!==grp&&bo.u.some(y=>y[1]!==g)?(grp=g,`<div class="rcp-gh">${esc(g)}</div>`):'';
+    return h+`<button class="rcp-u" data-u="${esc(u)}" style="--c:${RCP_ST[x.st][1]}"><b>${esc(u)}</b><small>${x.r?esc(String(x.r.gname).split(' ')[0]):x.next?'محجوزة '+fdate(x.next.from).split(' ').slice(0,2).join(' '):RCP_ST[x.st][0]}</small></button>`}).join('')}</div></div>`};
+BIND.runits=()=>{rcpBindPicker();const b=rcpBld();$$('[data-u]').forEach(x=>x.onclick=()=>{const u=x.dataset.u,s=rcpUnitState(b,u);
+  if(s.r)return rcpOpen(s.r.id);
+  modal({title:'شقة '+esc(u),sub:esc(b)+' — '+RCP_ST[s.st][0]+(s.note?' — '+esc(s.note):''),body:`${s.next?`<div class="note small">محجوزة من ${fdate(s.next.from)} — ${esc(s.next.gname)} (${esc(s.next.id)})</div>`:''}<div class="rcp-acts"><button class="btn" data-k="book">🛏️ حجز هذه الشقة</button></div><div class="fld"><label>تغيير الحالة</label><div class="seg">${['ready','cleaning','maint'].map(k=>`<button type="button" data-st="${k}" class="${s.st===k?'on':''}">${RCP_ST[k][0]}</button>`).join('')}</div></div><div class="fld"><label>ملاحظة</label><input id="uN" placeholder="مثال: تسريب في الحمام"></div>`,
+    onMount:(m,close)=>{$('[data-k="book"]',m).onclick=()=>{close();rcpBookForm({bld:b,unit:u})};$$('[data-st]',m).forEach(y=>y.onclick=()=>{rcpSetUnit(b,u,y.dataset.st,fv(m,'uN'));close();commit('تم تحديث حالة الشقة '+u)})}})})};
+VIEWS.rbook=()=>{const b=rcpBld(),f=V.sub.rf||'active',q=(V.sub.rq||'').toLowerCase();
+  let L=RS().filter(r=>r.bld===b);if(f==='active')L=L.filter(rActive);else if(f!=='all')L=L.filter(r=>r.status===f);
+  if(q)L=L.filter(r=>[r.id,r.gname,r.unit,(rGuest(r.gid)||{}).idNo,(rGuest(r.gid)||{}).phone].some(x=>String(x||'').toLowerCase().includes(q)));
+  L=L.slice().sort((a,c)=>c.from.localeCompare(a.from)||c.at.localeCompare(a.at)).slice(0,200);
+  return ph('🛏️ الحجوزات',esc(b),rcpBldPicker()+` <button class="btn" id="rNew">➕ حجز جديد</button>`)+`<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><div class="seg" id="rF">${[['active','الحالية'],['booked','محجوزة'],['in','داخل الشقة'],['out','غادروا'],['cancelled','ملغاة'],['all','الكل']].map(([k,l])=>`<button data-f="${k}" class="${f===k?'on':''}">${l}</button>`).join('')}</div><input id="rQ" placeholder="🔎 اسم، رقم حجز، شقة، بطاقة، هاتف" value="${esc(V.sub.rq||'')}" style="max-width:280px"></div>
+  ${L.length?`<div class="tw" style="margin-top:12px"><table><thead><tr><th>الحجز</th><th>النزيل</th><th>الشقة</th><th>الفترة</th><th>النوع</th><th>الحالة</th><th>المتبقي</th></tr></thead><tbody>${L.map(r=>{const bal=rcpBal(r);return `<tr class="click" data-r="${r.id}" style="cursor:pointer"><td dir="ltr"><b>${esc(r.id)}</b></td><td>${esc(r.gname)}</td><td>${esc(r.unit)}</td><td class="small">${fdate(r.from)} ← ${fdate(r.to)}</td><td>${RCP_TYPES_L[r.type]}</td><td>${rcpRsvBadge(r)}</td><td>${bal>0?`<b style="color:var(--critical)">${money(bal)}</b>`:'—'}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا حجوزات</div>'}</div>`};
+BIND.rbook=()=>{rcpBindPicker();$('#rNew').onclick=()=>rcpBookForm({bld:rcpBld()});$$('#rF button').forEach(x=>x.onclick=()=>{V.sub.rf=x.dataset.f;render()});
+  const qi=$('#rQ');let t;qi.oninput=()=>{clearTimeout(t);t=setTimeout(()=>{V.sub.rq=qi.value;render();const n=$('#rQ');n.focus();n.setSelectionRange(n.value.length,n.value.length)},350)};
+  $$('[data-r]').forEach(x=>x.onclick=()=>rcpOpen(x.dataset.r))};
+VIEWS.rcash=()=>{const b=rcpBld(),d=V.sub.rd||TODAY,rc=RC().filter(c=>c.bld===b&&c.date===d),xp=RX().filter(x=>x.bld===b&&x.date===d);
+  return ph('💵 القبض والمصروفات',esc(b),rcpBldPicker()+` <button class="btn" id="cNew">💵 سند قبض</button> <button class="btn sec" id="xNew">💸 مصروف / إيداع</button>`)+`<div class="card"><div class="between"><h2>سندات القبض <small>${rc.length}</small></h2><input type="date" id="cD" value="${d}" max="${TODAY}" style="max-width:170px"></div>
+  ${rc.length?`<div class="tw"><table><thead><tr><th>السند</th><th>النزيل</th><th>الشقة</th><th>الطريقة</th><th>المبلغ</th><th></th></tr></thead><tbody>${rc.map(c=>`<tr><td dir="ltr"><b>${esc(c.id)}</b></td><td>${esc(c.gname)}</td><td>${esc(c.unit||'—')}</td><td>${RCP_PAY[c.method]||''}</td><td><b>${money(c.amount)}</b></td><td><button class="btn sm sec" data-prc="${c.id}">🖨️</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا سندات قبض في هذا اليوم</div>'}</div>
+  <div class="card"><h2>المصروفات والإيداعات <small>${xp.length}</small></h2>${xp.length?`<div class="tw"><table><thead><tr><th>الرقم</th><th>النوع</th><th>البيان</th><th>المبلغ</th></tr></thead><tbody>${xp.map(x=>`<tr><td dir="ltr">${esc(x.id)}</td><td>${RCP_XCAT[x.cat]||''}</td><td>${esc(x.desc)}</td><td><b>${money(x.amount)}</b></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا مصروفات</div>'}</div>`};
+BIND.rcash=()=>{rcpBindPicker();$('#cD').onchange=e=>{V.sub.rd=e.target.value;render()};$('#xNew').onclick=rcpXpnForm;$$('[data-prc]').forEach(x=>x.onclick=()=>rcpPrintReceipt(RC().find(c=>c.id===x.dataset.prc)));
+  $('#cNew').onclick=()=>{const b=rcpBld(),L=RS().filter(r=>r.bld===b&&rActive(r));if(!L.length){toast('لا توجد حجوزات حالية — ابدأ بحجز جديد');return}
+    modal({title:'💵 القبض من؟',body:`<div class="list">${L.sort((a,c)=>rcpBal(c)-rcpBal(a)).map(r=>`<div class="li click" data-p="${r.id}" style="cursor:pointer"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — المتبقي ${omr(rcpBal(r))}</div></div><span>‹</span></div>`).join('')}</div>`,onMount:(m,close)=>$$('[data-p]',m).forEach(x=>x.onclick=()=>{close();rcpPayForm(rRsv(x.dataset.p))})})}};
+VIEWS.rret=()=>{const R=role(),mine=rcpMyBld(),L=RT().filter(t=>!mine||t.bld===mine).slice().sort((a,c)=>c.at.localeCompare(a.at));
+  return ph('↩️ المرتجعات','الاستقبال يطلب ← المدير العام يوافق ← الحسابات تقيّد في نت سويت')+`<div class="card">${L.length?`<div class="tw"><table><thead><tr><th>الرقم</th><th>النزيل</th><th>البناية / الشقة</th><th>المبلغ</th><th>السبب</th><th>الحالة</th><th></th></tr></thead><tbody>${L.map(t=>{const act=(R==='gm'&&t.status==='pending')||(R==='acc'&&t.status==='approved');return `<tr><td dir="ltr"><b>${esc(t.id)}</b></td><td>${esc(t.gname)}</td><td>${esc(t.bld)} — ${esc(t.unit)}</td><td><b>${money(t.amount)}</b></td><td>${esc(t.reason)}</td><td>${badge(RCP_RTN[t.status][0],RCP_RTN[t.status][1])}${t.gmNote?`<div class="small muted">${esc(t.gmNote)}</div>`:''}</td><td><button class="btn sm ${act?'':'sec'}" data-rt="${t.id}">${act?(R==='gm'?'مراجعة':'قيد'):'عرض'}</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا مرتجعات</div>'}</div>`};
+BIND.rret=()=>$$('[data-rt]').forEach(x=>x.onclick=()=>rcpReturnAct(RT().find(t=>t.id===x.dataset.rt)));
+VIEWS.rstmt=()=>{const g=V.sub.rg?rGuest(V.sub.rg):null,q=V.sub.rsq||'',hits=q.length>=2?RG().filter(x=>[x.name,x.idNo,x.phone,x.id,x.nameEn].some(y=>String(y||'').toLowerCase().includes(q.toLowerCase()))).slice(0,20):[];
+  const rows=g?rcpStmtRows(g.id):[],bal=rows.length?rows[rows.length-1].bal:0;
+  return ph('📄 كشف حساب','ابحث عن النزيل بالاسم أو البطاقة أو الهاتف')+`<div class="card"><input id="sQ" placeholder="🔎 اسم النزيل، رقم البطاقة، الهاتف" value="${esc(q)}">${hits.length?`<div class="list" style="margin-top:8px">${hits.map(x=>`<div class="li click" data-g="${x.id}" style="cursor:pointer"><div class="av">👤</div><div><b>${esc(x.name)}</b><div class="small muted" dir="ltr">${esc(x.idNo||'')} — ${esc(x.phone||'')}</div></div><span>‹</span></div>`).join('')}</div>`:q.length>=2?'<div class="muted small" style="margin-top:8px">لا نتائج</div>':''}</div>
+  ${g?`<div class="card"><div class="between"><h2>${esc(g.name)} <small dir="ltr">${esc(g.id)} — ${esc(g.idNo||'')}</small></h2><div><button class="btn sm" id="sPr">🖨️ طباعة</button> <button class="btn sm sec" id="sPay">💵 قبض</button></div></div>
+   <div class="rcp-sum"><div class="t ${bal>0?'due':''}"><span>${bal<0?'رصيد دائن للنزيل':'المستحق على النزيل'}</span><b>${omr(Math.abs(bal))}</b></div></div>${rcpStmtTable(rows)}</div>`:''}`};
+BIND.rstmt=()=>{const qi=$('#sQ');let t;qi.oninput=()=>{clearTimeout(t);t=setTimeout(()=>{V.sub.rsq=qi.value;render();const n=$('#sQ');n.focus();n.setSelectionRange(n.value.length,n.value.length)},300)};
+  $$('[data-g]').forEach(x=>x.onclick=()=>{V.sub.rg=x.dataset.g;V.sub.rsq='';render()});
+  if($('#sPr'))$('#sPr').onclick=()=>rcpPrintStmt(V.sub.rg);
+  if($('#sPay'))$('#sPay').onclick=()=>{const L=RS().filter(r=>r.gid===V.sub.rg&&rActive(r));if(L.length)rcpPayForm(L[0]);else rcpPayForm(null,V.sub.rg)}};
+VIEWS.rday=()=>{const b=rcpBld(),d=V.sub.rdd||TODAY;
+  return ph('📊 تقرير اليومية',esc(b)+' — '+fdate(d),rcpBldPicker()+` <input type="date" id="dD" value="${d}" max="${TODAY}" style="max-width:170px"> <button class="btn" id="dPr">🖨️ طباعة</button>`)+`<div class="card">${rcpDayHTML(b,d)}</div>`};
+BIND.rday=()=>{rcpBindPicker();$('#dD').onchange=e=>{V.sub.rdd=e.target.value;render()};
+  $('#dPr').onclick=()=>{const b=rcpBld(),d=V.sub.rdd||TODAY;printHTML(RCP_PCSS+`<div class="rp">${offHead('تقرير اليومية — الحركات المالية','Daily Report',b+' — '+fdate(d))}${rcpDayHTML(b,d,true)}<div class="sigs"><div>موظف الاستقبال — ${esc(me().name)}</div><div>الحسابات</div></div>${offFoot()}</div>`,'اليومية '+b+' '+d)}};
+
 /* ---- سجل الوثائق المالية والأرقام التسلسلية ---- */
 function finRegHTML(forPrint){const P=allFinPolicies(),C=S.announcements.filter(isFinCirc).slice().sort((a,b)=>String(a.no).localeCompare(String(b.no))),Lg=(S.settings.finLetLog||[]).slice().sort((a,b)=>String(a.no).localeCompare(String(b.no)));
   const T=(h,rows,empty)=>rows.length?`<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`:`<div class="muted small" style="padding:8px 0">${empty}</div>`;
@@ -4099,7 +4510,7 @@ const SET_FIELDS=[['السياسات العامة',[['hoursPerDay','ساعات �
  ['الجزاءات والشكاوى',[['objectionDays','مهلة التظلّم (يوم)'],['penaltyLookback','فترة احتساب التكرار (يوم)'],['maxMonthlyPenaltyDays','حد الجزاءات الشهري (أيام أجر)'],['complaintAckDays','مهلة استلام الشكوى (يوم)'],['complaintResolveDays','مهلة البت في الشكوى (يوم)']]],
  ['الرواتب والوثائق',[['otDay','إضافي نهاري (%)'],['otNight','إضافي ليلي (%)'],['otHoliday','إضافي عطلة/راحة (%)'],['maxPermHours','حد الاستئذان الشهري (ساعة)'],['spfPct','اشتراك الحماية الاجتماعية — حصة العماني (%)'],['docWarnDays','التنبيه قبل انتهاء الوثائق (يوم)']]]];
 /* ---------- إدارة المستخدمين (الخادم) ---------- */
-const LOGIN_ROLE_KEYS=['hr','gm','acc','sup','emp'];
+const LOGIN_ROLE_KEYS=['hr','gm','acc','rcp','sup','emp'];
 const USER_ERR={exists:'اسم المستخدم مستخدم مسبقاً',bad_username:'اسم المستخدم: حروف إنجليزية صغيرة وأرقام (3 إلى 30) بدون مسافات',bad_name:'أدخل الاسم',bad_role:'صلاحية غير صالحة',
   self_service_disabled:'حسابات الموظفين والمشرفين غير مفعّلة بعد',forbidden:'ليست لديك صلاحية',not_found:'المستخدم غير موجود',cannot_disable_self:'لا يمكنك تعطيل حسابك',weak_password:'كلمة المرور ضعيفة'};
 const userErr=r=>(r&&r.error==='weak_password'&&r.message?'كلمة المرور '+r.message:USER_ERR[r&&r.error])||'تعذّر إكمال العملية';
