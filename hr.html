@@ -3966,7 +3966,8 @@ const ATT_PREFIX='MARSA-ATT';
 function loadScriptOnce(src){window._ls=window._ls||{};if(!window._ls[src])window._ls[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete window._ls[src];rej(new Error('load'))};document.head.appendChild(s)});return window._ls[src]}
 const attTok=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789',r=crypto.getRandomValues(new Uint8Array(14));let t='';r.forEach(x=>t+=a[x%a.length]);return t};
 const attLocs=()=>(S.attloc&&S.attloc.locs)||[];
-function attEnsureLocs(){if(attLocs().length)return false;S.attloc={locs:[...RCP_BLD.map(b=>({id:'R'+b.c.replace(/[^A-Za-z0-9]/g,''),name:'استقبال '+b.n,tok:attTok()})),{id:'LND',name:'المغسلة',tok:attTok()},{id:'OFC',name:'المكاتب — الإدارة العامة',tok:attTok()}]};return true}
+const ATT_ONE=()=>({id:'NSM',name:'نسائم صلالة — كل المواقع',tok:attTok()});
+function attEnsureLocs(){if(attLocs().length)return false;S.attloc={locs:[ATT_ONE()]};return true}
 const attQR=l=>ATT_PREFIX+'|'+l.id+'|'+l.tok;
 const attGrace=()=>+((S.settings&&S.settings.attGrace)??10);
 const hm2m=s=>{const m=/^(\d\d?):(\d\d)/.exec(s||'');return m?+m[1]*60+ +m[2]:null};
@@ -4088,8 +4089,8 @@ function attTodayHTML(rows){const T=rows.filter(p=>p.d===TODAY),by={};T.forEach(
   return `<div class="grid g2"><div class="card"><h2>🟢 في الدوام الآن <small>${inNow.length}</small></h2><div class="list">${inNow.map(x=>li(x,`حضر ${x.last.in.hm}${attLate(x.last.in)?' — متأخر '+attLate(x.last.in)+'د':''} — ${esc(x.last.in.locName)}`)).join('')||'<div class="muted small">—</div>'}</div></div>
    <div class="card"><h2>⚠️ لم يبصم بعد <small>${miss.length}</small></h2><div class="list">${miss.map(e=>`<div class="li"><div class="av">${initials(e.name)}</div><div><b>${esc(e.name)}</b><div class="small muted">موعده <span dir="ltr">${esc(e.shiftIn)}</span> — ${esc(e.building||e.dept||'')}</div></div></div>`).join('')||'<div class="muted small">الكل بصم ✓</div>'}</div></div></div>
    <div class="card"><h2>🔴 انصرفوا <small>${left.length}</small></h2><div class="list">${left.map(x=>li(x,x.last&&x.last.out?`انصرف ${x.last.out.hm}${x.last.in?' — حضر '+x.last.in.hm:''}`:'')).join('')||'<div class="muted small">—</div>'}</div></div>`}
-function attLocsHTML(){return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🔳 رموز البصمة <small>${attLocs().length}</small></h2><div><button class="btn sm" id="alAll">🖨️ طباعة كل الرموز</button> <button class="btn sm sec" id="alNew">➕ موقع جديد</button></div></div>
-  <div class="note small">اطبع الرمز وعلّقه في موقعه داخل إطار يصعب تقليده. عند المسح تُحفظ صورة للرمز في مكانه — فلو صوّر أحد الرمز وطبعه في بيته يظهر ذلك في الصور. وإن تسرّب رمز اضغط «رمز جديد» فيتوقف القديم فوراً.</div>
+function attLocsHTML(){return `<div class="card"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🔳 رموز البصمة <small>${attLocs().length}</small></h2><div><button class="btn sm" id="alAll">🖨️ طباعة ${attLocs().length>1?'كل الرموز':'الرمز'}</button> <button class="btn sm sec" id="alNew">➕ موقع جديد</button>${attLocs().length>1?' <button class="btn sm sec" id="alOne">🔁 رمز واحد لكل الشركة</button>':''}</div></div>
+  <div class="note small">${attLocs().length===1?'رمز واحد لكل الشركة: اطبع منه نسخة لكل موقع (الاستقبالات، المغسلة، المكاتب). ':''}اطبع الرمز وعلّقه في موقعه داخل إطار يصعب تقليده. عند المسح تُحفظ صورة للرمز في مكانه — فلو صوّر أحد الرمز وطبعه في بيته يظهر ذلك في الصور. وإن تسرّب رمز اضغط «رمز جديد» فيتوقف القديم فوراً.</div>
   <div class="att-locs">${attLocs().map((l,i)=>`<div class="att-loc ${l.off?'off':''}"><div class="att-q" data-q="${i}"></div><div><b>${esc(l.name)}</b><div class="small muted" dir="ltr">${esc(l.id)}${l.off?' — موقوف':''}</div>
    <div class="att-la"><button class="btn sm" data-lp="${i}">🖨️ طباعة</button><button class="btn sm sec" data-ln="${i}">✏️ الاسم</button><button class="btn sm sec" data-lt="${i}">🔄 رمز جديد</button><button class="btn sm sec" data-lo="${i}">${l.off?'▶️ تفعيل':'⏸️ إيقاف'}</button></div></div></div>`).join('')}</div></div>`}
 function attTimesHTML(){const E=S.employees.filter(e=>e.status!=='terminated').sort((a,b)=>String(a.building||a.dept||'').localeCompare(String(b.building||b.dept||''))||String(a.name).localeCompare(String(b.name)));
@@ -4134,6 +4135,7 @@ BIND.attrep=()=>{const tab=V.sub.atb||'month',mon=V.sub.atm||TODAY.slice(0,7),bo
     loadScriptOnce('vendor/qrcode.min.js').then(()=>$$('[data-q]').forEach(x=>{x.innerHTML=attQRsvg(attLocs()[+x.dataset.q],3)})).catch(()=>{});
     const L=attLocs();
     $('#alAll').onclick=()=>attPrintLocs(L.filter(l=>!l.off));
+    if($('#alOne'))$('#alOne').onclick=()=>confirmBox('🔁 رمز واحد لكل الشركة','ستُلغى رموز المواقع الحالية ويُنشأ رمز واحد يُطبع ويُعلَّق في كل المواقع. متابعة؟','نعم، رمز واحد','',()=>{S.attloc={locs:[ATT_ONE()]};commit('تم — اطبع الرمز الموحّد الآن')});
     $('#alNew').onclick=()=>modal({title:'➕ موقع بصمة جديد',body:`<div class="fld"><label>اسم الموقع</label><input id="lN" placeholder="مثال: مستودع المغسلة"></div>`,foot:[{t:'إضافة',fn:b=>{const n=fv(b,'lN');if(!n){toast('اكتب الاسم');return false}L.push({id:'L'+Date.now().toString(36).toUpperCase().slice(-5),name:n,tok:attTok()});commit('تمت إضافة الموقع')}},{t:'إلغاء',cls:'sec'}]});
     $$('[data-lp]').forEach(x=>x.onclick=()=>attPrintLocs([L[+x.dataset.lp]]));
     $$('[data-ln]').forEach(x=>x.onclick=()=>{const l=L[+x.dataset.ln];modal({title:'✏️ اسم الموقع',body:`<div class="fld"><input id="lN" value="${esc(l.name)}"></div>`,foot:[{t:'حفظ',fn:b=>{const n=fv(b,'lN');if(!n)return false;l.name=n;commit('تم الحفظ')}},{t:'إلغاء',cls:'sec'}]})});
