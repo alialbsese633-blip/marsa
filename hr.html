@@ -3790,6 +3790,53 @@ function rcpXpnForm(){const b=rcpBld();
      ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
 }
 
+/* ---------- بيانات تجريبية للعرض ---------- */
+async function rcpSeedDemo(bld){
+  bld=bld||'الوادي';
+  const mkGuest=async(idNo,name,nameEn,phone,nat,dob)=>{let g=RG().find(x=>x.idNo===idNo);if(g)return g;g={id:await rcpNo('G'),idNo,name,nameEn,phone,nat,dob,at:nowTs(),by:me().name};RG().push(g);return g};
+  const pd=RCP_PRICES.find(x=>x.type==='daily')||{rate:10,k:''},pm=RCP_PRICES.find(x=>x.type==='monthly')||{rate:200,k:''};
+  const g1=await mkGuest('10012345','سالم بن راشد الكندي','Salim Al Kindi','96891234567','عماني','1990-05-12');
+  const from1=addDays(TODAY,-1),to1=addDays(TODAY,2),n1=rcpCount('daily',from1,to1);
+  const r1={id:await rcpNo('MR'),bld,unit:'101',gid:g1.id,gname:g1.name,type:'daily',from:from1,to:to1,count:n1,rate:pd.rate,priceK:pd.k||'',incl:!!pd.incl,total:r3(pd.rate*n1),comp:0,src:'اتصال / واتساب',broker:'',comm:0,note:'بيانات تجريبية للعرض على الإدارة',status:'in',inAt:nowTs(),outAt:null,elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
+  r1.no=r1.id;RS().push(r1);await rcpAddReceipt({rsv:r1,amount:r3(r1.total*0.5),method:'cash'});
+  const g2=await mkGuest('20098765','مريم بنت سعيد البلوشية','Mariam Al Balushi','96899887766','عماني','1995-02-20');
+  const from2=addDays(TODAY,3),to2=addDays(TODAY,6),n2=rcpCount('daily',from2,to2);
+  const r2={id:await rcpNo('MR'),bld,unit:'201',gid:g2.id,gname:g2.name,type:'daily',from:from2,to:to2,count:n2,rate:pd.rate,priceK:pd.k||'',incl:!!pd.incl,total:r3(pd.rate*n2),comp:1,src:'عميل سابق',broker:'',comm:0,note:'بيانات تجريبية للعرض على الإدارة',status:'booked',inAt:null,outAt:null,elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
+  r2.no=r2.id;RS().push(r2);
+  const g3=await mkGuest('30011223','خالد بن محمد الحارثي','Khalid Al Harthi','96877665544','عماني','1988-11-03');
+  const from3=addDays(TODAY,-35),to3=addDays(TODAY,-5);
+  const r3obj={id:await rcpNo('MR'),bld,unit:'301',gid:g3.id,gname:g3.name,type:'monthly',from:from3,to:to3,count:1,rate:pm.rate,priceK:pm.k||'',incl:!!pm.incl,total:r3(pm.rate),comp:0,src:'عميل سابق',broker:'',comm:0,note:'بيانات تجريبية للعرض على الإدارة',status:'out',inAt:nowTs(),outAt:nowTs(),elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
+  r3obj.no=r3obj.id;RS().push(r3obj);await rcpAddReceipt({rsv:r3obj,amount:r3obj.total,method:'transfer'});
+  rcpSetUnit(bld,'401','maint','تسريب بسيط في الحمام — تجريبي');
+  const xid=await rcpNo('EX');RX().push({id:xid,no:xid,bld,cat:'exp',amount:3.5,desc:'شراء مواد تنظيف — تجريبي',date:TODAY,at:nowTs(),by:me().name,nsNo:''});
+  commit('تم إنشاء بيانات تجريبية في بناية '+bld);
+}
+
+/* ---------- نسخ وإرسال واتساب ---------- */
+async function rcpCopyWA(text){
+  try{await navigator.clipboard.writeText(text);toast('تم النسخ — الصقه في واتساب');return}catch(e){}
+  try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('تم النسخ — الصقه في واتساب');return}catch(e){}
+  toast('تعذر النسخ');
+}
+function rcpSendWA(text){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank')}
+function rcpDayWaText(b,d){
+  const D=rcpDay(b,d),st=d===TODAY?rcpStats(b):null;
+  const vac=d===TODAY?rcpUnits(b).map(u=>[u,rcpUnitState(b,u)]).filter(([,s])=>['ready','cleaning','maint','arr'].includes(s.st)):[];
+  let t=`*نسائم صلالة — تقرير اليومية*\n${b} — ${fdate(d)}\n\nرصيد افتتاحي: ${money(D.open)} ر.ع\n`;
+  if(D.rc.length)t+=`\n*سندات القبض (${D.rc.length}):*\n`+D.rc.map(c=>`• ${c.gname}${c.unit?' — شقة '+c.unit:''}: ${money(c.amount)} ر.ع (${RCP_PAY[c.method]||''})`).join('\n')+'\n';
+  if(D.xp.length)t+=`\n*المصروفات/الإيداعات (${D.xp.length}):*\n`+D.xp.map(x=>`• ${RCP_XCAT[x.cat]||'مصروف'} — ${x.desc}: ${money(x.amount)} ر.ع`).join('\n')+'\n';
+  t+=`\nقبض نقدي: ${money(D.cashIn)} — بطاقة: ${money(D.card)} — تحويل: ${money(D.tr)}\nمصروفات: ${money(D.exp)} — إيداع بنكي: ${money(D.dep)}\n*رصيد الصندوق: ${money(D.close)} ر.ع*\n`;
+  if(st)t+=`\n*الشقق الفارغة (${vac.length} من ${st.all}) — إشغال ${st.pct}%*\n`+(vac.map(([u,s])=>`• ${u} (${RCP_ST[s.st][0]})`).join('\n')||'لا توجد شقق فارغة 🎉');
+  return t.trim();
+}
+function rcpUnitsWaText(b){
+  const s=rcpStats(b),bo=rcpBldObj(b);let grp='';
+  let t=`*نسائم صلالة — حالة الشقق*\n${b} — ${fdate(TODAY)}\n\nمشغولة: ${s.busy} — فارغة جاهزة: ${s.ready} — تنظيف: ${s.cleaning} — صيانة: ${s.maint} — الإشغال: ${s.pct}%\n`;
+  bo.u.forEach(([u,g])=>{const x=rcpUnitState(b,u);if(g&&g!==grp){grp=g;t+=`\n*${g}:*\n`}
+    t+=`• ${u} — ${x.r?x.r.gname:RCP_ST[x.st][0]}\n`});
+  return t.trim();
+}
+
 /* ---------- الواجهات ---------- */
 const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية']];
 const RCP_NAV={rcp:RCP_NAV_R,hr:RCP_NAV_R,gm:RCP_NAV_R,acc:RCP_NAV_R,sup:[['rno','🔒','الاستقبال']],emp:[['rno','🔒','الاستقبال']]};
@@ -3806,7 +3853,8 @@ VIEWS.rhome=()=>{const b=rcpBld(),s=rcpStats(b),first=String(me().name||'').spli
   <div class="grid g2"><div class="card"><h2>🔑 وصول اليوم <small>${arr.length}</small></h2>${arr.length?`<div class="list">${arr.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — حتى ${fdate(r.to)}</div></div><button class="btn sm" data-rin="${r.id}">دخول</button></div>`).join('')}</div>`:'<div class="muted small">لا يوجد وصول منتظر.</div>'}</div>
    <div class="card"><h2>🚪 مغادرة اليوم <small>${dep.length}</small></h2>${dep.length?`<div class="list">${dep.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${rcpBal(r)>0?'<span style="color:var(--critical)">عليه '+omr(rcpBal(r))+'</span>':'لا مبالغ'}</div></div><button class="btn sm" data-rout="${r.id}">خروج</button></div>`).join('')}</div>`:'<div class="muted small">لا مغادرة اليوم.</div>'}</div></div>
   ${myPend.length&&role()==='rcp'?`<div class="note small">↩️ ${myPend.length} مرتجع بانتظار موافقة المدير العام.</div>`:''}
-  <details class="card"><summary><b>❔ كيف أستخدم الاستقبال؟</b></summary><ol style="line-height:2;margin:10px 0 0"><li><b>حجز جديد:</b> صوّر البطاقة، اختر الشقة والتاريخ، واحفظ. اطبع العقد وسند القبض من نفس الشاشة.</li><li><b>وصول ومغادرة:</b> القوائم أعلاه تعرض نزلاء اليوم — اضغط دخول أو خروج.</li><li><b>القبض:</b> كل مبلغ تستلمه له سند برقم، ويظهر في اليومية تلقائياً.</li><li><b>آخر اليوم:</b> افتح اليومية وتأكد أن رصيد الصندوق يطابق النقد الذي معك، واطبعها.</li></ol></details>`};
+  <details class="card"><summary><b>❔ كيف أستخدم الاستقبال؟</b></summary><ol style="line-height:2;margin:10px 0 0"><li><b>حجز جديد:</b> صوّر البطاقة، اختر الشقة والتاريخ، واحفظ. اطبع العقد وسند القبض من نفس الشاشة.</li><li><b>وصول ومغادرة:</b> القوائم أعلاه تعرض نزلاء اليوم — اضغط دخول أو خروج.</li><li><b>القبض:</b> كل مبلغ تستلمه له سند برقم، ويظهر في اليومية تلقائياً.</li><li><b>آخر اليوم:</b> افتح اليومية وتأكد أن رصيد الصندوق يطابق النقد الذي معك، واطبعها.</li></ol></details>
+  ${['hr','gm'].includes(role())?`<div class="card"><h2>🧪 للعرض على الإدارة</h2><p class="small muted">يضيف حجوزات ونزلاء وقبوضات تجريبية في بناية ${esc(b)} فقط — للتدريب وشرح الشاشات لوضاح، لا يؤثر على أي بيانات حقيقية.</p><button class="btn sec" id="rSeed">➕ تحميل بيانات تجريبية في ${esc(b)}</button></div>`:''}`};
 BIND.rhome=()=>{rcpBindPicker();
   const pickRsv=(list,title,fn)=>{if(!list.length){toast('لا يوجد');return}if(list.length===1)return fn(list[0]);modal({title,body:`<div class="list">${list.map(r=>`<div class="li click" data-p="${r.id}" style="cursor:pointer"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)}</div></div><span>‹</span></div>`).join('')}</div>`,onMount:(m,close)=>$$('[data-p]',m).forEach(x=>x.onclick=()=>{close();fn(rRsv(x.dataset.p))})})};
   const b=rcpBld();
@@ -3819,12 +3867,16 @@ BIND.rhome=()=>{rcpBindPicker();
     go({stmt:'rstmt',units:'runits',day:'rday'}[k])});
   $$('[data-rin]').forEach(x=>x.onclick=()=>rcpCheckIn(rRsv(x.dataset.rin)));$$('[data-rout]').forEach(x=>x.onclick=()=>rcpCheckOut(rRsv(x.dataset.rout)));
   $$('[data-rt]').forEach(x=>x.onclick=()=>rcpReturnAct(RT().find(t=>t.id===x.dataset.rt)));
+  if($('#rSeed'))$('#rSeed').onclick=()=>{modal({title:'🧪 تحميل بيانات تجريبية',body:`<p>سيضيف هذا 3 حجوزات ونزلاء وسندات قبض ومصروف تجريبي في بناية <b>${esc(b)}</b>، لتشرح الشاشات لوضاح. يمكنك حذفها لاحقاً من نفس الشاشات.</p>`,
+    foot:[{t:'تأكيد',fn:()=>{rcpSeedDemo(b).catch(()=>toast('تعذّر إنشاء البيانات'));return true}},{t:'إلغاء',cls:'sec'}]})};
 };
 VIEWS.runits=()=>{const b=rcpBld(),s=rcpStats(b),bo=rcpBldObj(b);let grp='';
-  return ph('🏢 لوحة الشقق',esc(b)+' — '+s.all+' وحدة',rcpBldPicker())+`<div class="rcp-legend">${Object.entries(RCP_ST).map(([k,[l,c]])=>`<span style="--c:${c}"><i></i>${l} <b>${s[k]}</b></span>`).join('')}</div>
+  return ph('🏢 لوحة الشقق',esc(b)+' — '+s.all+' وحدة',rcpBldPicker()+` <button class="btn sec" id="uWa">📋 نسخ واتساب</button> <button class="btn sec" id="uSend">💬 إرسال واتساب</button>`)+`<div class="rcp-legend">${Object.entries(RCP_ST).map(([k,[l,c]])=>`<span style="--c:${c}"><i></i>${l} <b>${s[k]}</b></span>`).join('')}</div>
   <div class="card"><div class="rcp-grid">${bo.u.map(([u,g])=>{const x=rcpUnitState(b,u),h=g&&g!==grp&&bo.u.some(y=>y[1]!==g)?(grp=g,`<div class="rcp-gh">${esc(g)}</div>`):'';
     return h+`<button class="rcp-u" data-u="${esc(u)}" style="--c:${RCP_ST[x.st][1]}"><b>${esc(u)}</b><small>${x.r?esc(String(x.r.gname).split(' ')[0]):x.next?'محجوزة '+fdate(x.next.from).split(' ').slice(0,2).join(' '):RCP_ST[x.st][0]}</small></button>`}).join('')}</div></div>`};
-BIND.runits=()=>{rcpBindPicker();const b=rcpBld();$$('[data-u]').forEach(x=>x.onclick=()=>{const u=x.dataset.u,s=rcpUnitState(b,u);
+BIND.runits=()=>{rcpBindPicker();const b=rcpBld();
+  $('#uWa').onclick=()=>rcpCopyWA(rcpUnitsWaText(b));$('#uSend').onclick=()=>rcpSendWA(rcpUnitsWaText(b));
+  $$('[data-u]').forEach(x=>x.onclick=()=>{const u=x.dataset.u,s=rcpUnitState(b,u);
   if(s.r)return rcpOpen(s.r.id);
   modal({title:'شقة '+esc(u),sub:esc(b)+' — '+RCP_ST[s.st][0]+(s.note?' — '+esc(s.note):''),body:`${s.o?`<div class="note small">🛠️ طلب ${esc(s.o.no)} في مركز التشغيل — ${esc(s.o.title)} (${s.o.status==='new'?'جديد':s.o.status==='doing'?'قيد التنفيذ':'بانتظار الفحص'})</div>`:''}${s.next?`<div class="note small">محجوزة من ${fdate(s.next.from)} — ${esc(s.next.gname)} (${esc(s.next.id)})</div>`:''}<div class="rcp-acts"><button class="btn" data-k="book">🛏️ حجز هذه الشقة</button></div><div class="fld"><label>تغيير الحالة</label><div class="seg">${['ready','cleaning','maint'].map(k=>`<button type="button" data-st="${k}" class="${s.st===k?'on':''}">${RCP_ST[k][0]}</button>`).join('')}</div></div><div class="fld"><label>ملاحظة</label><input id="uN" placeholder="مثال: تسريب في الحمام"></div><label class="rcp-chk"><input type="checkbox" id="uOps" checked> إرسال طلب لمركز التشغيل عند اختيار تنظيف أو صيانة</label>`,
     onMount:(m,close)=>{$('[data-k="book"]',m).onclick=()=>{close();rcpBookForm({bld:b,unit:u})};$$('[data-st]',m).forEach(y=>y.onclick=()=>{const st=y.dataset.st,n=fv(m,'uN');let o=null;
@@ -3859,9 +3911,11 @@ BIND.rstmt=()=>{const qi=$('#sQ');let t;qi.oninput=()=>{clearTimeout(t);t=setTim
   if($('#sPr'))$('#sPr').onclick=()=>rcpPrintStmt(V.sub.rg);
   if($('#sPay'))$('#sPay').onclick=()=>{const L=RS().filter(r=>r.gid===V.sub.rg&&rActive(r));if(L.length)rcpPayForm(L[0]);else rcpPayForm(null,V.sub.rg)}};
 VIEWS.rday=()=>{const b=rcpBld(),d=V.sub.rdd||TODAY;
-  return ph('📊 تقرير اليومية',esc(b)+' — '+fdate(d),rcpBldPicker()+` <input type="date" id="dD" value="${d}" max="${TODAY}" style="max-width:170px"> <button class="btn" id="dPr">🖨️ طباعة</button>`)+`<div class="card">${rcpDayHTML(b,d)}</div>`};
+  return ph('📊 تقرير اليومية',esc(b)+' — '+fdate(d),rcpBldPicker()+` <input type="date" id="dD" value="${d}" max="${TODAY}" style="max-width:170px"> <button class="btn" id="dPr">🖨️ طباعة</button> <button class="btn sec" id="dWa">📋 نسخ واتساب</button> <button class="btn sec" id="dSend">💬 إرسال واتساب</button>`)+`<div class="card">${rcpDayHTML(b,d)}</div>`};
 BIND.rday=()=>{rcpBindPicker();$('#dD').onchange=e=>{V.sub.rdd=e.target.value;render()};
-  $('#dPr').onclick=()=>rcpPrintDay(rcpBld(),V.sub.rdd||TODAY)};
+  $('#dPr').onclick=()=>rcpPrintDay(rcpBld(),V.sub.rdd||TODAY);
+  $('#dWa').onclick=()=>rcpCopyWA(rcpDayWaText(rcpBld(),V.sub.rdd||TODAY));
+  $('#dSend').onclick=()=>rcpSendWA(rcpDayWaText(rcpBld(),V.sub.rdd||TODAY))};
 
 /* ---- سجل الوثائق المالية والأرقام التسلسلية ---- */
 function finRegHTML(forPrint){const P=allFinPolicies(),C=S.announcements.filter(isFinCirc).slice().sort((a,b)=>String(a.no).localeCompare(String(b.no))),Lg=(S.settings.finLetLog||[]).slice().sort((a,b)=>String(a.no).localeCompare(String(b.no)));
