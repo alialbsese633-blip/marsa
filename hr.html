@@ -520,14 +520,14 @@ let V={view:'dash',sub:{},month:MONTH};
 const API=String((window.HR_CONFIG||{}).API_URL||'').trim();
 const TOKEN_KEY='marsa_token';
 let TOKEN=null,USER=null;
-const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv',guests:'gst',rsv:'rsv',rcv:'rcv',rtn:'rtn',xpn:'xpn',units:'unt',ops:'opx'};
-const NO_ORD=['guests','rsv','rcv','rtn','xpn','units','ops'];   // سجلات الاستقبال كثيرة: تُرتّب بالرقم ولا يُحفظ لها ترتيب
+const COLL={employees:'emp',requests:'req',leaves:'lea',assets:'ast',cash:'csh',reviews:'rvw',rewards:'rwd',violations:'vio',attendance:'att',complaints:'cmp',advances:'adv',announcements:'ann',notifications:'ntf',policies:'pol',purchases:'pur',gsv:'gsv',guests:'gst',rsv:'rsv',rcv:'rcv',rtn:'rtn',xpn:'xpn',units:'unt',ops:'opx',pyr:'pyr'};
+const NO_ORD=['guests','rsv','rcv','rtn','xpn','units','ops','pyr'];   // سجلات الاستقبال كثيرة: تُرتّب بالرقم ولا يُحفظ لها ترتيب
 const KEY_OK=/^[A-Za-z0-9_.-]{1,60}$/;
 const encK=k=>String(k).replace(/:/g,'.'),decK=k=>String(k).startsWith('u.')?'u:'+String(k).slice(2):String(k);
 
 function emptyState(session){
   return {v:2,settings:{...DEFAULT_SETTINGS},matrix:JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
-    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],
+    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],
     payroll:{},policies:[],policyVersion:1,policyAcks:{},policyPrints:{},policySigned:{},accrued:'',
     audit:[],seq:{REQ:0,VIO:0,CMP:0,ANN:0,ADV:0,AST:0,CSH:0,RWD:0,PUR:0},
     session:session||{role:'hr',empId:null,supId:null}};
@@ -1238,7 +1238,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
+const NAV_IC={dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1299,6 +1299,7 @@ function renderNav(){
     if(n[0]==='sep')return '<div class="sep"></div>';
     let pill='';if(n[0]==='approvals'&&cnt)pill=`<span class="pill">${cnt}</span>`;if(n[0]==='complaints'&&openC&&R==='hr')pill=`<span class="pill">${openC}</span>`;
     if(n[0]==='rret'&&typeof rcpRetQueue==='function'){const rq=rcpRetQueue().length;if(rq)pill=`<span class="pill">${rq}</span>`}
+    if(n[0]==='rpay'&&typeof pyrQueue==='function'){const yq=pyrQueue().length;if(yq)pill=`<span class="pill">${yq}</span>`}
     if(n[0]==='procurement'){const pc=purchasesPendingForMe().length;if(pc)pill=`<span class="pill">${pc}</span>`}
     return `<button data-v="${n[0]}" class="${V.view===n[0]?'on':''}"><span class="ic">${svgIc(NAV_IC[n[0]])}</span>${n[2]}${pill}</button>`}).join('');
   $$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -1321,7 +1322,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -3450,6 +3451,12 @@ const RCP_PRICES=[{k:'d10',type:'daily',rate:10,l:'يومي — 10 ر.ع للي�
 const RCP_SRC=['مباشر (حضوري)','عميل سابق','اتصال / واتساب','Booking.com','Airbnb','سمسار','شركة','أخرى'];
 const RCP_PAY={cash:'نقداً',card:'بطاقة / فيزا',transfer:'تحويل بنكي'};
 const RCP_PAY_EN={cash:'Cash',card:'Card / Visa',transfer:'Bank transfer'};
+/* حسابات القبض في نت سويت (الصناديق والبنوك) */
+const RCP_ACCTS=[['NS-10001','صندوق الريال العماني - الرواس'],['NS-10002','صندوق الريال العماني - المعتزة'],['NS-10003','صندوق الريال العماني - عوقد'],['NS-10005','صندوق الريال العماني - السعادة 25'],['NS-10007','صندوق الريال العماني - الوادي'],['NS-10009','صندوق حجوزات موقع اكسبيديا EXPEIDEA'],['NS-10010','صندوق حجوزات موقع اجواد Agoda'],['NS-10012','صندوق الريال العماني - الحصيلة'],['NS-10013','صندوق حجوزات تطبيق مسرة'],['NS-10600','بنك ظفار - ريال عماني - Bank Dhofar'],['NS-10701','بنك مسقط - ريال عماني - Bank Muscat']];
+const RCP_BOX={'صلالة الوسطى / المعتزة':'NS-10002','عوقد الشمالية':'NS-10003','السعادة':'NS-10005','الوادي':'NS-10007','الحصيلة':'NS-10012'};
+const rcpAcctDef=(bld,method)=>method==='cash'?(RCP_BOX[bld]||''):'NS-10600';
+const rcpAcctL=k=>{const a=RCP_ACCTS.find(x=>x[0]===k);return a?a[0]+' - '+a[1]:(k||'')};
+const rcpAcctOpts=sel=>`<option value="">— اختر الحساب —</option>`+[['الصناديق',a=>/صندوق الريال/.test(a[1])],['مواقع وتطبيقات الحجز',a=>/حجوزات/.test(a[1])],['البنوك',a=>/بنك/.test(a[1])]].map(([g,f])=>`<optgroup label="${g}">${RCP_ACCTS.filter(f).map(a=>`<option value="${a[0]}" ${a[0]===sel?'selected':''}>${a[0]} - ${esc(a[1])}</option>`).join('')}</optgroup>`).join('');
 const RCP_XCAT={exp:'مصروف',dep:'إيداع في البنك'};
 const RCP_ST={ready:['فارغة — جاهزة','#1e8e5a'],cleaning:['تحت التنظيف','#0f8ea3'],maint:['تحت الصيانة','#d13b3b'],arr:['وصول اليوم','#c97c00'],occ:['مشغولة','#2f5fd0'],dep:['مغادرة اليوم','#7a4bc2']};
 const RCP_RTN={pending:['بانتظار موافقة المدير العام','w'],approved:['معتمد — بانتظار القيد في الحسابات','i'],posted:['تم القيد محاسبياً','g'],rejected:['مرفوض','c'],cancelled:['ملغي','']};
@@ -3550,7 +3557,8 @@ function rcpBookForm(pre){
    <div class="fld"><label>ملاحظة على العقد</label><textarea id="rNote" rows="2"></textarea></div></details>
   <hr class="rcp-hr">
   <label class="rcp-chk"><input type="checkbox" id="rIn" checked> تسجيل دخول النزيل الآن</label>
-  <div class="frow"><div class="fld"><label>المبلغ المستلم الآن (ر.ع)</label><input id="rPay" type="number" step="0.001" inputmode="decimal" placeholder="0"></div><div class="fld"><label>طريقة الدفع</label><select id="rPayM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>`;
+  <div class="frow"><div class="fld"><label>المبلغ المستلم الآن (ر.ع)</label><input id="rPay" type="number" step="0.001" inputmode="decimal" placeholder="0"></div><div class="fld"><label>طريقة الدفع</label><select id="rPayM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
+  <div class="fld"><label>الحساب</label><select id="rAcct">${rcpAcctOpts(rcpAcctDef(b0,'cash'))}</select></div>`;
   modal({title:'🛏️ حجز جديد',sub:'كل الحقول المهمة في صفحة واحدة — السعر والمدة والإجمالي تُحسب تلقائياً',wide:true,body,onMount:(m,close)=>{
     let type='daily';
     const bld=()=>$('#rBld',m).value;
@@ -3567,6 +3575,7 @@ function rcpBookForm(pre){
     $('#rPrice',m).onchange=()=>{const p=RCP_PRICES.find(x=>x.k===$('#rPrice',m).value);if(p)$('#rRate',m).value=p.rate;sum()};
     $('#rRate',m).oninput=sum;$('#rPay',m).oninput=()=>{$('#rPay',m).dataset.touched=1};
     $('#rSrc',m).onchange=()=>{$('#rBrokerRow',m).hidden=$('#rSrc',m).value!=='سمسار'};
+    const accDef=()=>{$('#rAcct',m).innerHTML=rcpAcctOpts(rcpAcctDef(bld(),$('#rPayM',m).value))};$('#rPayM',m).onchange=accDef;if($('#rBld',m).tagName==='SELECT')$('#rBld',m).addEventListener('change',accDef);
     const hit=()=>{const q=$('#rId',m).value.trim()||$('#rPhone',m).value.trim();const h=rcpGuestFind(q).filter(g=>g.id!==gid);
       $('#rGuestHit',m).innerHTML=h.length?`<div class="note small">نزيل سابق؟ ${h.map(g=>`<button type="button" class="btn sm sec" data-pick="${g.id}">${esc(g.name)} — ${esc(g.idNo||g.phone)}</button>`).join(' ')}</div>`:'';
       $$('[data-pick]',m).forEach(x=>x.onclick=()=>{const g=rGuest(x.dataset.pick);gid=g.id;[['rId','idNo'],['rName','name'],['rPhone','phone'],['rNat','nat'],['rDob','dob'],['rNameEn','nameEn']].forEach(([i,k])=>$('#'+i,m).value=g[k]||'');$('#rSrc',m).value='عميل سابق';$('#rGuestHit',m).innerHTML=`<div class="note g small">✓ عميل سابق: ${esc(g.name)} (${esc(g.id)})</div>`})};
@@ -3593,15 +3602,15 @@ function rcpBookForm(pre){
       const r={id:await rcpNo('MR'),bld:bld(),unit,gid:g.id,gname:g.name,type,from,to,count:n,rate,priceK:p.k||'',incl:!!p.incl,total:t,comp:+$('#rComp',m).value||0,src:$('#rSrc',m).value,broker:$('#rBroker',m).value.trim(),comm:r3(+$('#rComm',m).value||0),note:$('#rNote',m).value.trim(),
         status:doIn?'in':'booked',inAt:doIn?nowTs():null,outAt:null,elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
       r.no=r.id;RS().push(r);
-      let rc=null;if(pay>0)rc=await rcpAddReceipt({rsv:r,amount:pay,method:$('#rPayM',m).value});
+      let rc=null;if(pay>0)rc=await rcpAddReceipt({rsv:r,amount:pay,method:$('#rPayM',m).value,acct:$('#rAcct',m).value});
       if(doIn&&r.type==='monthly'){/* قراءة العداد تُطلب من شاشة الدخول عند الحاجة */}
       close();V.view='rbook';commit('تم حفظ الحجز '+r.id);rcpAfterBook(r,rc);
     };
   }});
 }
-async function rcpAddReceipt({rsv,gid,amount,method,memo,bld}){
+async function rcpAddReceipt({rsv,gid,amount,method,memo,bld,acct}){
   const g=rsv?rGuest(rsv.gid):rGuest(gid);
-  const c={id:await rcpNo('RC'),bld:rsv?rsv.bld:(bld||rcpBld()),gid:g?g.id:'',gname:g?g.name:'',rsvId:rsv?rsv.id:'',unit:rsv?rsv.unit:'',amount:r3(amount),method,
+  const c={id:await rcpNo('RC'),bld:rsv?rsv.bld:(bld||rcpBld()),gid:g?g.id:'',gname:g?g.name:'',rsvId:rsv?rsv.id:'',unit:rsv?rsv.unit:'',amount:r3(amount),method,acct:acct||rcpAcctDef(rsv?rsv.bld:(bld||rcpBld()),method),
     memo:memo||('#'+method+(rsv?' #'+rsv.unit+' #'+rsv.count+(rsv.type==='daily'?'night':'month'):'')+(g&&g.phone?' #'+g.phone:'')),date:TODAY,at:nowTs(),by:me().name,nsNo:''};
   c.no=c.id;RC().push(c);return c;
 }
@@ -3650,9 +3659,11 @@ function rcpCheckOut(r){const bal=rcpBal(r);
 function rcpPayForm(r,gid){const bal=r?rcpBal(r):0,g=r?null:rGuest(gid);
   modal({title:'💵 سند قبض',sub:r?`${esc(r.gname)} — حجز ${esc(r.id)} — شقة ${esc(r.unit)}`:esc(g?g.name:''),body:`${r?`<div class="rcp-sum"><div><span>الإجمالي</span><b>${omr(rcpTotal(r))}</b></div><div><span>المدفوع</span><b>${omr(rcpPaid(r))}</b></div><div class="t"><span>المتبقي</span><b>${omr(bal)}</b></div></div>`:''}
    <div class="frow"><div class="fld"><label>المبلغ (ر.ع) *</label><input id="pA" type="number" step="0.001" inputmode="decimal" value="${bal>0?bal:''}"></div><div class="fld"><label>طريقة الدفع</label><select id="pM">${Object.entries(RCP_PAY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
+   <div class="fld"><label>الحساب *</label><select id="pAc">${rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),'cash'))}</select></div>
    <div class="fld"><label>البيان (اختياري)</label><input id="pMemo" placeholder="يُكتب تلقائياً مثل: #cash #101 #2night"></div>`,
    onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='✔ حفظ وطباعة السند';const ok2=document.createElement('button');ok2.className='btn sec';ok2.textContent='حفظ فقط';ft.append(ok,ok2);$('.modal',m).appendChild(ft);
-     const go2=async pr=>{const a=r3(+fv(m,'pA')||0);if(!(a>0)){toast('اكتب المبلغ');return}ok.disabled=ok2.disabled=true;const c=await rcpAddReceipt({rsv:r,gid,amount:a,method:fv(m,'pM'),memo:fv(m,'pMemo')});close();commit('تم حفظ سند القبض '+c.id);if(pr)rcpPrintReceipt(c)};
+     const go2=async pr=>{const a=r3(+fv(m,'pA')||0);if(!(a>0)){toast('اكتب المبلغ');return}if(!fv(m,'pAc')){toast('اختر الحساب');return}ok.disabled=ok2.disabled=true;const c=await rcpAddReceipt({rsv:r,gid,amount:a,method:fv(m,'pM'),memo:fv(m,'pMemo'),acct:fv(m,'pAc')});close();commit('تم حفظ سند القبض '+c.id);if(pr)rcpPrintReceipt(c)};
+     $('#pM',m).onchange=()=>{$('#pAc',m).innerHTML=rcpAcctOpts(rcpAcctDef(r?r.bld:rcpBld(),fv(m,'pM')))};
      ok.onclick=()=>go2(true);ok2.onclick=()=>go2(false)}});
 }
 function rcpExtend(r){
@@ -3709,7 +3720,7 @@ function rcpPrintReceipt(c){if(!c)return;const acc='الصندوق الرئيس�
    <table>${nsRow('استلمنا من السيد / السادة',esc(c.gname||''),'Received with thanks from Mr./M/s')}
     ${nsRow('مبلغ و قدره ريال عماني',`<b dir="ltr">OMR ${money(c.amount).replace(/(\.\d\d)\d$/,'$1')}</b><div style="font-weight:500;font-size:11px">${rcpWordsAr(c.amount)}</div>`,'The Sum of Rials Omani')}
     <tr><td class="ar">التاريخ :</td><td class="v"><div style="display:flex;justify-content:space-between;gap:8px"><span>شيك رقم / نقداً: <b>${c.method==='cash'?'Cash':c.method==='card'?'Card':'Transfer'}</b></span><span dir="ltr"><b>Date:</b> ${nsD(c.date)}</span></div></td><td class="en">By Cash / Cheque No</td></tr>
-    ${nsRow('على بنك',c.method==='transfer'?'تحويل بنكي':esc(acc),'Bank')}${nsRow('الصراف الآلي',c.method==='card'?'بطاقة / فيزا':'','ATM')}
+    ${nsRow('الحساب / على بنك',c.acct?esc(rcpAcctL(c.acct)):c.method==='transfer'?'تحويل بنكي':esc(acc),'Account / Bank')}${nsRow('الصراف الآلي',c.method==='card'?'بطاقة / فيزا':'','ATM')}
     ${nsRow('و ذلك عن',c.rsvId?`سداد شقة رقم ${esc(c.unit)} — حجز ${esc(c.rsvId)}`:esc(c.memo||''),'Beign the settlement of')}</table>
    <div class="sg"><div><div class="dots">................................</div>توقيع المستلم<span>Receiver's Sign</span><div style="font-weight:500;font-size:11px">${esc(c.by||'')}</div></div><div><img src="${NS_STAMP}" alt="الختم">توقيع المحاسب<span>Accountant's Sign</span></div></div>`,'سند قبض '+c.id)}
 function rcpPrintBooking(r){const g=rGuest(r.gid)||{};
@@ -3740,7 +3751,7 @@ function rcpPrintStmt(gid){const g=rGuest(gid);if(!g)return;const rows=rcpStmtRo
    <table class="nsg" style="margin-top:10px"><thead><tr><th>Current</th><th>1-30 Days</th><th>31-60 Days</th><th>61-90 Days</th><th>Over 90 Days</th><th>Amount Due</th></tr></thead><tbody><tr>${[A.c,A.a,A.b,A.c2,A.o,Math.max(0,bal)].map(v=>`<td dir="ltr">OMR ${money(v)}</td>`).join('')}</tr></tbody></table>`,'كشف حساب '+g.name)}
 function rcpPrintDay(b,d){const D=rcpDay(b,d),acc='الصندوق الرئيسي نسائم صلالة : صندوق الريال العماني - '+b;
   const rows=[`<tr><td>رصيد افتتاحي</td><td>-</td><td>-</td><td class="t">نقدية الصندوق</td><td>-</td><td>${money(D.open)}</td><td></td></tr>`]
-   .concat(D.rc.map(c=>`<tr><td>سند قبض</td><td dir="ltr">${esc(c.id)}</td><td>${nsD(c.date)}</td><td class="t">${esc(c.gname)}${c.unit?' — #'+esc(c.unit):''} <span dir="ltr">${esc(c.memo||'')}</span></td><td class="t">${c.method==='cash'?esc(acc):RCP_PAY[c.method]}</td><td>${money(c.amount)}</td><td></td></tr>`))
+   .concat(D.rc.map(c=>`<tr><td>سند قبض</td><td dir="ltr">${esc(c.id)}</td><td>${nsD(c.date)}</td><td class="t">${esc(c.gname)}${c.unit?' — #'+esc(c.unit):''} <span dir="ltr">${esc(c.memo||'')}</span></td><td class="t">${c.acct?esc(rcpAcctL(c.acct)):c.method==='cash'?esc(acc):RCP_PAY[c.method]}</td><td>${money(c.amount)}</td><td></td></tr>`))
    .concat(D.xp.map(x=>`<tr><td>${RCP_XCAT[x.cat]||'مصروف'}</td><td dir="ltr">${esc(x.id)}</td><td>${nsD(x.date)}</td><td class="t">${esc(x.desc)}</td><td class="t">${esc(acc)}</td><td></td><td>${money(x.amount)}</td></tr>`));
   const st=d===TODAY?rcpStats(b):null,vac=d===TODAY?rcpUnits(b).filter(u=>['ready','cleaning','maint','arr'].includes(rcpUnitState(b,u).st)):[];
   nsOpen(nsHead()+`<div class="tl"><div></div><div class="c">تقرير الحركة المالية اليومية<span>Daily Report</span></div><div class="l"></div></div>
@@ -3776,7 +3787,7 @@ function rcpDayHTML(b,d,forPrint){const D=rcpDay(b,d),st=d===TODAY?rcpStats(b):n
   return `<div class="rcp-day">
    <div class="tw"><table><thead><tr><th>نوع الحركة</th><th>رقم السند</th><th>البيان</th><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody>
     <tr class="rcp-open"><td>رصيد افتتاحي</td><td>—</td><td>نقدية الصندوق</td><td>—</td><td>${money(D.open)}</td><td></td></tr>
-    ${D.rc.map(c=>`<tr><td>سند قبض</td><td dir="ltr">${esc(c.id)}</td><td>${esc(c.gname)}${c.unit?' — شقة '+esc(c.unit):''}<div class="small muted" dir="ltr">${esc(c.memo||'')}</div></td><td>${RCP_PAY[c.method]||''}</td><td>${money(c.amount)}</td><td></td></tr>`).join('')}
+    ${D.rc.map(c=>`<tr><td>سند قبض</td><td dir="ltr">${esc(c.id)}</td><td>${esc(c.gname)}${c.unit?' — شقة '+esc(c.unit):''}<div class="small muted" dir="ltr">${esc(c.memo||'')}</div></td><td>${RCP_PAY[c.method]||''}${c.acct?`<div class="small muted">${esc(rcpAcctL(c.acct))}</div>`:''}</td><td>${money(c.amount)}</td><td></td></tr>`).join('')}
     ${D.xp.map(x=>`<tr><td>${RCP_XCAT[x.cat]||'مصروف'}</td><td dir="ltr">${esc(x.id)}</td><td>${esc(x.desc)}</td><td>الصندوق</td><td></td><td>${money(x.amount)}</td></tr>`).join('')}
     ${!D.rc.length&&!D.xp.length?'<tr><td colspan="6" class="empty">لا حركات في هذا اليوم</td></tr>':''}
    </tbody></table></div>
@@ -3789,6 +3800,131 @@ function rcpXpnForm(){const b=rcpBld();
    onMount:(m,close)=>{const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='حفظ';ft.append(ok);$('.modal',m).appendChild(ft);
      ok.onclick=async()=>{const a=r3(+fv(m,'xA')||0),t=fv(m,'xT');if(!(a>0)||!t){toast('اكتب المبلغ والبيان');return}ok.disabled=true;const x={id:await rcpNo('EX'),bld:b,cat:fv(m,'xC'),amount:a,desc:t,date:fv(m,'xD')||TODAY,at:nowTs(),by:me().name,nsNo:''};x.no=x.id;RX().push(x);close();commit('تم الحفظ '+x.id)}}});
 }
+
+/* ---------- طلبات الصرف (الاستقبال ← المدير العام ← الحسابات) ---------- */
+const RP=()=>S.pyr||(S.pyr=[]);
+const PYR_MAX_ATT=10;
+const PYR_ST={pending:['بانتظار موافقة المدير العام','w'],approved:['معتمد — بانتظار الصرف','i'],paid:['تم الصرف والقيد','g'],rejected:['مرفوض','c'],cancelled:['ملغي','']};
+const PYR_QUICK=['مواد تنظيف','صيانة وإصلاح','كهرباء','مياه','غاز','أدوات ومعدات','مواصلات / بنزين','ضيافة','قرطاسية'];
+const pyrTotal=p=>r3((p.lines||[]).reduce((a,l)=>a+(+l.amount||0),0));
+const pyrAttN=p=>(p.lines||[]).reduce((a,l)=>a+(l.att||[]).length,0);
+const pyrBadge=p=>badge((PYR_ST[p.status]||['—',''])[0],(PYR_ST[p.status]||['',''])[1]);
+function pyrQueue(){const R=role();return RP().filter(p=>(R==='gm'&&p.status==='pending')||(R==='acc'&&p.status==='approved'))}
+function fileB64(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>res(String(fr.result).split(',')[1]||'');fr.readAsDataURL(file)})}
+async function pyrPrep(file){
+  const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name||'');
+  if(!isPdf&&!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|heic)$/i.test(file.name||'')){toast('المرفق يجب أن يكون صورة أو PDF');return null}
+  if(isPdf){if(file.size>1100000){toast('ملف PDF أكبر من 1 ميجابايت — صوّر الفاتورة بدلاً منه');return null}return {name:file.name||'ملف.pdf',mime:'application/pdf',file}}
+  let prev='';try{prev=await polCompress(file,240,0.6)}catch(e){toast('تعذّر قراءة الصورة');return null}
+  return {name:file.name||'صورة',mime:'image/jpeg',file,prev};
+}
+async function pyrUpload(a){
+  if(DEMO||!TOKEN)return a.mime==='application/pdf'?{name:a.name,mime:a.mime,demo:1}:{name:a.name,mime:a.mime,thumb:await polCompress(a.file,420,0.5)};
+  let b64='';
+  if(a.mime==='application/pdf')b64=await fileB64(a.file);
+  else for(const [side,q] of [[1600,0.7],[1300,0.6],[1000,0.5]]){const d=await polCompress(a.file,side,q);b64=d.split(',')[1]||'';if(b64.length<=590000)break}
+  const up=await call('upload',{mime:a.mime,b64}).catch(()=>null);
+  if(up&&up.ok)return {name:a.name,mime:a.mime,id:up.id};
+  throw new Error(up&&(up.error==='bad_type'||up.error==='bad_file')&&a.mime==='application/pdf'?'pdf':'up');
+}
+function pyrAttView(a){if(!a)return;
+  if(a.thumb)return purPhotoView({thumb:a.thumb},a.name);
+  if(a.demo){toast('ملف تجريبي — لا يُرفع في وضع التجربة');return}
+  if(a.mime!=='application/pdf')return purPhotoView({id:a.id},a.name);
+  let w=null;try{w=window.open('','_blank')}catch(e){}toast('جارٍ فتح الملف…');
+  call('file',{id:a.id}).then(r=>{if(!(r&&r.ok)){if(w)w.close();toast('تعذّر فتح الملف');return}
+    const bin=atob(r.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    const url=URL.createObjectURL(new Blob([u],{type:'application/pdf'}));if(w)w.location.href=url;else location.href=url}).catch(()=>{if(w)w.close();toast('تعذّر فتح الملف')});
+}
+function pyrForm(src){
+  if(!rcpCan()){toast('هذا القسم للاستقبال والإدارة');return}
+  const b0=src?src.bld:rcpBld();
+  const lines=src?src.lines.map(l=>({desc:l.desc,amount:l.amount,att:[]})):[{desc:'',amount:'',att:[]}];
+  modal({title:'🧾 إنشاء طلب صرف',sub:'عدة بنود في طلب واحد — حتى '+PYR_MAX_ATT+' مرفقات',wide:true,body:`
+   <div class="pyr-head"><div>${rcpMyBld()?`<span class="bd a">🏢 ${esc(b0)}</span><input type="hidden" id="yB" value="${esc(b0)}">`:`<span class="small muted">المبنى</span> <select id="yB" class="rb-sel">${RCP_BLD.map(x=>`<option ${x.n===b0?'selected':''}>${esc(x.n)}</option>`).join('')}</select>`}</div><div class="small muted">${fdate(TODAY)} — ${esc(me().name)}</div></div>
+   <div id="yL"></div>
+   <button type="button" class="pyr-add" id="yAdd">➕ إضافة بند صرف آخر</button>
+   <div class="pyr-tot" id="yT"></div>
+   <div class="fld"><label>ملاحظة للمدير العام (اختياري)</label><textarea id="yN" rows="2" placeholder="مثال: عاجل — الفنّي بانتظار المواد"></textarea></div>`,
+  onMount:(m,close)=>{
+   const attN=()=>lines.reduce((a,l)=>a+l.att.length,0);
+   const sync=()=>$$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;lines[i].desc=$('[data-k="d"]',el).value;lines[i].amount=$('[data-k="a"]',el).value});
+   const tot=()=>{const t=r3(lines.reduce((a,l)=>a+(+l.amount||0),0)),n=attN();
+     $('#yT',m).innerHTML=`<div><span>البنود</span><b>${lines.length}</b></div><div><span>المرفقات</span><b class="${n>=PYR_MAX_ATT?'full':''}">${n} / ${PYR_MAX_ATT}</b></div><div class="t"><span>إجمالي الطلب</span><b>${omr(t)}</b>${t>0?`<small>${rcpWordsAr(t)}</small>`:''}</div>`};
+   const draw=()=>{const n=attN();
+     $('#yL',m).innerHTML=lines.map((l,i)=>`<div class="pyr-line" data-yl="${i}">
+       <div class="pyr-no">${i+1}</div>
+       <div class="pyr-body">
+        <div class="frow"><div class="fld"><label>البيان *</label><input data-k="d" value="${esc(l.desc)}" placeholder="مثال: مواد تنظيف للشقق — فاتورة 1234"></div><div class="fld pyr-amt"><label>المبلغ (ر.ع) *</label><input data-k="a" type="number" step="0.001" min="0" inputmode="decimal" value="${esc(l.amount)}" placeholder="0.000"></div></div>
+        <div class="pyr-chips">${PYR_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${q}</button>`).join('')}</div>
+        <div class="pyr-att">${l.att.map((a,j)=>`<span class="pyr-f">${a.prev?`<img src="${a.prev}" alt="">`:'<i>PDF</i>'}<em>${esc(a.name)}</em><button type="button" data-rm="${j}" aria-label="حذف المرفق">×</button></span>`).join('')}
+         <label class="pyr-up ${n>=PYR_MAX_ATT?'off':''}">📎 إرفاق فاتورة / صورة<input type="file" accept="image/*,application/pdf" multiple hidden ${n>=PYR_MAX_ATT?'disabled':''}></label></div>
+       </div>
+       ${lines.length>1?`<button type="button" class="pyr-del" data-del title="حذف البند" aria-label="حذف البند">🗑️</button>`:''}</div>`).join('');
+     $$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;
+       $$('input[data-k]',el).forEach(x=>x.oninput=()=>{sync();tot()});
+       $$('[data-q]',el).forEach(x=>x.onclick=()=>{const d=$('[data-k="d"]',el);const v=d.value.trim();d.value=!v||PYR_QUICK.includes(v)?x.dataset.q:v+' — '+x.dataset.q;sync();d.focus()});
+       $$('[data-rm]',el).forEach(x=>x.onclick=()=>{sync();lines[i].att.splice(+x.dataset.rm,1);draw()});
+       const del=$('[data-del]',el);if(del)del.onclick=()=>{sync();lines.splice(i,1);draw()};
+       $('input[type=file]',el).onchange=async ev=>{sync();const fs=[...ev.target.files];ev.target.value='';
+         for(const f of fs){if(attN()>=PYR_MAX_ATT){toast('الحد الأقصى '+PYR_MAX_ATT+' مرفقات في الطلب الواحد');break}const a=await pyrPrep(f);if(a)lines[i].att.push(a)}draw()}});
+     tot()};
+   $('#yAdd',m).onclick=()=>{sync();lines.push({desc:'',amount:'',att:[]});draw();const ls=$$('[data-yl]',m);$('[data-k="d"]',ls[ls.length-1]).focus()};
+   draw();
+   const ft=document.createElement('div');ft.className='mf';const sv=document.createElement('button');sv.className='btn';sv.textContent='📤 إرسال للمدير العام';const cn=document.createElement('button');cn.className='btn sec';cn.textContent='إلغاء';cn.onclick=close;ft.append(sv,cn);$('.modal',m).appendChild(ft);
+   sv.onclick=async()=>{sync();
+     const L=lines.filter(l=>String(l.desc).trim()||+l.amount||l.att.length);
+     if(!L.length){toast('أضف بنداً واحداً على الأقل');return}
+     const bad=L.findIndex(l=>!String(l.desc).trim()||!(+l.amount>0));if(bad>=0){toast('البند '+(bad+1)+': اكتب البيان والمبلغ');return}
+     sv.disabled=cn.disabled=true;const N=L.reduce((a,l)=>a+l.att.length,0);let done=0;const out=[];
+     try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att})}}
+     catch(e){sv.disabled=cn.disabled=false;sv.textContent='📤 إرسال للمدير العام';toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الفاتورة':'تعذّر رفع مرفق — تحقق من الاتصال وأعد المحاولة');return}
+     sv.textContent='جارٍ الحفظ…';
+     const id=await rcpNo('PR'),bld=fv(m,'yB')||b0;
+     const p={id,no:id,bld,lines:out,total:r3(out.reduce((a,l)=>a+l.amount,0)),note:fv(m,'yN'),status:'pending',at:nowTs(),by:me().name,byId:String(S.session.empId||''),acct:'',nsNo:'',history:[{at:nowTs(),by:me().name,act:'أنشأ الطلب'}]};
+     RP().push(p);if(role()!=='rcp')notify('role:gm','🧾','طلب صرف جديد',`${id} — ${bld} — ${omr(p.total)}`,{view:'rpay'});
+     close();V.view='rpay';commit('تم إرسال طلب الصرف '+id+' للمدير العام');
+   }}});
+}
+function pyrWaText(p){const t=pyrTotal(p);
+  return `*نسائم صلالة — طلب صرف ${p.id}*\n${p.bld} — ${ftime(p.at)}\nالحالة: ${(PYR_ST[p.status]||[''])[0]}\n\n`+p.lines.map((l,i)=>`${i+1}. ${l.desc}: ${money(l.amount)} ر.ع${(l.att||[]).length?' 📎'+l.att.length:''}`).join('\n')+
+   `\n\n*الإجمالي: ${money(t)} ر.ع*\n${rcpWordsAr(t)}`+(p.note?`\nملاحظة: ${p.note}`:'')+`\nمقدّم الطلب: ${p.by}`}
+function pyrPrint(p){const t=pyrTotal(p),ok=p.gmBy&&['approved','paid'].includes(p.status);
+  nsOpen(nsHead()+`<div class="tl"><div>التاريخ : ${nsD(String(p.at).slice(0,10))}</div><div class="c">طلب صرف<span>Payment Request</span></div><div class="l">${esc(p.id)}</div></div>
+   <div class="ib"><span><b>المبنى:</b> الادارة العامة نسائم صلالة : ${esc(p.bld)}</span><span><b>الحالة:</b> ${(PYR_ST[p.status]||[''])[0]}</span></div>
+   <table class="nsg"><thead><tr><th style="width:34px">#</th><th>البيان</th><th style="width:70px">المرفقات</th><th style="width:110px">المبلغ</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td class="t">${esc(l.desc)}</td><td>${(l.att||[]).length||'—'}</td><td>${money(l.amount)}</td></tr>`).join('')}
+    <tr><th colspan="3">الإجمالي</th><th>${money(t)}</th></tr></tbody></table>
+   <div style="margin:8px 0;font-weight:700">${rcpWordsAr(t)}</div>${p.note?`<div style="margin-bottom:6px">ملاحظة: ${esc(p.note)}</div>`:''}
+   ${p.status==='paid'?`<div class="ib"><span><b>صُرف من:</b> ${esc(rcpAcctL(p.acct))}</span>${p.nsNo?`<span><b>رقم القيد:</b> <span dir="ltr">${esc(p.nsNo)}</span></span>`:''}</div>`:''}
+   <div class="sg" style="grid-template-columns:repeat(3,1fr);gap:20px"><div><div class="dots">................................</div>مقدّم الطلب<span>${esc(p.by)}</span></div><div><div class="dots">${ok?'✓ '+esc(p.gmBy):'................................'}</div>المدير العام<span>General Manager</span></div><div>${p.status==='paid'?`<img src="${NS_STAMP}" alt="الختم">`:'<div class="dots">................................</div>'}الحسابات<span>Accounts</span></div></div>`,'طلب صرف '+p.id)}
+function pyrOpen(p){if(!p)return;const R=role(),mine=String(p.byId||'')===String(S.session.empId||'')&&!!p.byId;
+  const tl=(p.history||[]).map(h=>`<div class="small">• ${esc(h.act)} — <span class="muted">${esc(h.by)} — ${ftime(h.at)}</span></div>`).join('');
+  const body=`<div class="rcp-kv"><div><span>المبنى</span><b>${esc(p.bld)}</b></div><div><span>الحالة</span><b>${pyrBadge(p)}</b></div><div><span>مقدّم الطلب</span><b>${esc(p.by)} — ${ftime(p.at)}</b></div>${p.note?`<div><span>ملاحظة</span><b>${esc(p.note)}</b></div>`:''}${p.gmBy?`<div><span>المدير العام</span><b>${esc(p.gmBy)}${p.gmNote?' — '+esc(p.gmNote):''}</b></div>`:''}${p.status==='paid'?`<div><span>الصرف</span><b>${esc(rcpAcctL(p.acct))}${p.nsNo?' — '+esc(p.nsNo):''}</b></div>`:''}</div>
+   <div class="tw" style="margin-top:10px"><table><thead><tr><th>#</th><th>البيان</th><th>المبلغ</th><th>المرفقات</th></tr></thead><tbody>${p.lines.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.desc)}</td><td><b>${money(l.amount)}</b></td><td>${(l.att||[]).map((a,j)=>`<button class="btn sm sec" data-av="${i}.${j}" title="${esc(a.name)}">${a.mime==='application/pdf'?'📄':'🖼️'} ${j+1}</button>`).join(' ')||'—'}</td></tr>`).join('')}
+   <tr><th colspan="2">الإجمالي</th><th>${money(pyrTotal(p))}</th><th></th></tr></tbody></table></div><div class="small muted" style="margin-top:6px">${rcpWordsAr(pyrTotal(p))}</div>
+   ${tl?`<details style="margin-top:8px"><summary class="small"><b>سجل الطلب</b></summary>${tl}</details>`:''}
+   ${R==='gm'&&p.status==='pending'?`<div class="fld" style="margin-top:10px"><label>ملاحظة المدير العام</label><textarea id="gN" rows="2"></textarea></div>`:''}
+   ${R==='acc'&&p.status==='approved'?`<div class="frow" style="margin-top:10px"><div class="fld"><label>الصرف من حساب *</label><select id="aAc">${rcpAcctOpts(RCP_BOX[p.bld]||'')}</select></div><div class="fld"><label>رقم القيد في نت سويت</label><input id="aNs" dir="ltr" placeholder="EXP-000123"></div></div>`:''}`;
+  const log=a=>{p.history=(p.history||[]).concat([{at:nowTs(),by:me().name,act:a}])},foot=[];
+  if(R==='gm'&&p.status==='pending'){
+    foot.push({t:'✓ اعتماد',cls:'good',fn:b=>{p.status='approved';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=fv(b,'gN');log('اعتمد الطلب'+(p.gmNote?': '+p.gmNote:''));notify('role:acc','🧾','طلب صرف معتمد — للصرف',`${p.id} — ${p.bld} — ${omr(pyrTotal(p))}`,{view:'rpay'});notify('bld:'+p.bld,'🧾','تم اعتماد طلب الصرف',`${p.id} — ${omr(pyrTotal(p))}`,{view:'rpay'});commit('تم الاعتماد — أُرسل للحسابات')}});
+    foot.push({t:'✕ رفض',cls:'crit',fn:b=>{const n=fv(b,'gN');if(!n){toast('اكتب سبب الرفض في الملاحظة');return false}p.status='rejected';p.gmBy=me().name;p.gmAt=nowTs();p.gmNote=n;log('رفض الطلب: '+n);notify('bld:'+p.bld,'🧾','رُفض طلب الصرف',`${p.id} — ${n}`,{view:'rpay'});commit('تم الرفض')}})}
+  if(R==='acc'&&p.status==='approved')foot.push({t:'✓ تم الصرف والقيد',cls:'good',fn:b=>{const a=fv(b,'aAc');if(!a){toast('اختر الحساب الذي صُرف منه');return false}p.status='paid';p.acct=a;p.nsNo=fv(b,'aNs');p.paidBy=me().name;p.paidAt=nowTs();log('صرف من '+rcpAcctL(a)+(p.nsNo?' — '+p.nsNo:''));notify('bld:'+p.bld,'🧾','تم صرف طلبك',`${p.id} — ${omr(pyrTotal(p))}`,{view:'rpay'});commit('تم الصرف والقيد')}});
+  if(p.status==='pending'&&(mine||R==='hr'))foot.push({t:'إلغاء الطلب',cls:'sec',fn:()=>{p.status='cancelled';log('ألغى الطلب');commit('تم إلغاء الطلب')}});
+  foot.push({t:'🖨️ طباعة',cls:'sec',fn:()=>{pyrPrint(p);return false}},{t:'📋 واتساب',cls:'sec',fn:()=>{rcpCopyWA(pyrWaText(p));return false}},{t:'↺ طلب مشابه',cls:'sec',fn:()=>{setTimeout(()=>pyrForm(p),60)}},{t:'إغلاق',cls:'sec'});
+  modal({title:'🧾 طلب صرف '+esc(p.id),sub:`${esc(p.bld)} — ${omr(pyrTotal(p))}`,wide:true,body,foot,onMount:m=>$$('[data-av]',m).forEach(x=>x.onclick=()=>{const [i,j]=x.dataset.av.split('.').map(Number);pyrAttView(p.lines[i].att[j])})});
+}
+VIEWS.rpay=()=>{const R=role(),mine=rcpMyBld(),f=V.sub.yf||'open';
+  const L=RP().filter(p=>!mine||p.bld===mine);
+  const pick=k=>L.filter(p=>k==='open'?['pending','approved'].includes(p.status):k==='all'?true:p.status===k);
+  const sh=pick(f).slice().sort((a,c)=>String(c.at).localeCompare(String(a.at))).slice(0,200),q=pyrQueue();
+  const month=r3(L.filter(p=>p.status==='paid'&&String(p.paidAt||'').slice(0,7)===TODAY.slice(0,7)).reduce((a,p)=>a+pyrTotal(p),0));
+  return ph('🧾 طلبات الصرف','الاستقبال ينشئ ← المدير العام يعتمد ← الحسابات تصرف وتقيّد',`<button class="btn" id="yNew">➕ إنشاء طلب صرف</button>`)+
+  `<div class="rcp-kpis"><div style="--c:#c97c00"><b>${pick('pending').length}</b><span>بانتظار المدير</span></div><div style="--c:#2f5fd0"><b>${pick('approved').length}</b><span>بانتظار الصرف</span></div><div style="--c:#1e8e5a"><b>${money(month)}</b><span>صُرف هذا الشهر</span></div></div>
+  ${q.length?`<div class="note small">✅ ${q.length} طلب بانتظار ${R==='gm'?'اعتمادك':'صرفك'} — اضغط على الطلب لمراجعته</div>`:''}
+  <div class="card"><div class="seg" id="yF">${[['open','المفتوحة'],['pending','بانتظار المدير'],['approved','معتمدة'],['paid','مصروفة'],['rejected','مرفوضة'],['all','الكل']].map(([k,l])=>`<button data-f="${k}" class="${f===k?'on':''}">${l} <small>${pick(k).length}</small></button>`).join('')}</div>
+  ${sh.length?`<div class="list" style="margin-top:12px">${sh.map(p=>`<div class="li click pyr-row" data-y="${p.id}"><div class="av">🧾</div><div class="pyr-rm"><b dir="ltr">${esc(p.id)}</b> — ${esc(p.lines.map(l=>l.desc).join('، ').slice(0,90))}<div class="small muted">${esc(p.bld)} — ${p.lines.length} بند${pyrAttN(p)?' — 📎 '+pyrAttN(p):''} — ${esc(p.by)} — ${ftime(p.at)}</div></div><div class="pyr-rv"><b>${omr(pyrTotal(p))}</b><div>${pyrBadge(p)}</div></div></div>`).join('')}</div>`:'<div class="empty">لا طلبات هنا — اضغط «إنشاء طلب صرف» للبدء</div>'}</div>`};
+BIND.rpay=()=>{$('#yNew').onclick=()=>pyrForm();$$('#yF button').forEach(x=>x.onclick=()=>{V.sub.yf=x.dataset.f;render()});$$('[data-y]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.y)))};
 
 /* ---------- بيانات تجريبية للعرض ---------- */
 async function rcpSeedDemo(bld){
@@ -3808,6 +3944,7 @@ async function rcpSeedDemo(bld){
   const r3obj={id:await rcpNo('MR'),bld,unit:'301',gid:g3.id,gname:g3.name,type:'monthly',from:from3,to:to3,count:1,rate:pm.rate,priceK:pm.k||'',incl:!!pm.incl,total:r3(pm.rate),comp:0,src:'عميل سابق',broker:'',comm:0,note:'بيانات تجريبية للعرض على الإدارة',status:'out',inAt:nowTs(),outAt:nowTs(),elecIn:'',elecOut:'',ext:[],at:nowTs(),by:me().name,nsNo:''};
   r3obj.no=r3obj.id;RS().push(r3obj);await rcpAddReceipt({rsv:r3obj,amount:r3obj.total,method:'transfer'});
   rcpSetUnit(bld,'401','maint','تسريب بسيط في الحمام — تجريبي');
+  const pid=await rcpNo('PR');RP().push({id:pid,no:pid,bld,lines:[{desc:'مواد تنظيف للشقق — فاتورة 4471',amount:12.5,att:[]},{desc:'تصليح سخان شقة 203',amount:18,att:[]},{desc:'لمبات LED للممرات',amount:6.75,att:[]}],total:37.25,note:'تجريبي — للعرض',status:'pending',at:nowTs(),by:me().name,byId:String(S.session.empId||''),acct:'',nsNo:'',history:[{at:nowTs(),by:me().name,act:'أنشأ الطلب'}]});
   const xid=await rcpNo('EX');RX().push({id:xid,no:xid,bld,cat:'exp',amount:3.5,desc:'شراء مواد تنظيف — تجريبي',date:TODAY,at:nowTs(),by:me().name,nsNo:''});
   commit('تم إنشاء بيانات تجريبية في بناية '+bld);
 }
@@ -3838,17 +3975,19 @@ function rcpUnitsWaText(b){
 }
 
 /* ---------- الواجهات ---------- */
-const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية']];
+const RCP_NAV_R=[['rhome','🏠','الرئيسية'],['runits','🏢','الشقق'],['rbook','🛏️','الحجوزات'],['rcash','💵','القبض والمصروفات'],['rpay','🧾','طلبات الصرف'],['rret','↩️','المرتجعات'],['rstmt','📄','كشف حساب'],['rday','📊','اليومية']];
 const RCP_NAV={rcp:RCP_NAV_R,hr:RCP_NAV_R,gm:RCP_NAV_R,acc:RCP_NAV_R,sup:[['rno','🔒','الاستقبال']],emp:[['rno','🔒','الاستقبال']]};
 VIEWS.rno=()=>ph('الاستقبال','')+`<div class="card"><div class="empty">هذا القسم لموظفي الاستقبال والإدارة والحسابات.</div></div>`;
 function rcpRetQueue(){const R=role();return RT().filter(t=>(R==='gm'&&t.status==='pending')||(R==='acc'&&t.status==='approved'))}
 VIEWS.rhome=()=>{const b=rcpBld(),s=rcpStats(b),first=String(me().name||'').split(' ')[0];
   const arr=RS().filter(r=>r.bld===b&&r.status==='booked'&&r.from<=TODAY),dep=RS().filter(r=>r.bld===b&&r.status==='in'&&r.to<=TODAY),due=RS().filter(r=>r.bld===b&&r.status==='in'&&rcpBal(r)>0);
   const q=rcpRetQueue(),myPend=RT().filter(t=>t.bld===b&&t.status==='pending');
-  const big=[['new','🛏️','حجز جديد','بتصوير البطاقة'],['in','🔑','تسجيل دخول',arr.length?arr.length+' وصول اليوم':'لا وصول'],['out','🚪','تسجيل خروج',dep.length?dep.length+' مغادرة اليوم':'لا مغادرة'],['pay','💵','قبض',due.length?due.length+' عليهم مبالغ':'سند قبض'],['ret','↩️','مرتجع','يحتاج موافقة'],['stmt','📄','كشف حساب','لأي نزيل'],['units','🏢','لوحة الشقق',s.ready+' فارغة جاهزة'],['day','📊','اليومية','قبض ومصروفات اليوم']];
+  const big=[['new','🛏️','حجز جديد','بتصوير البطاقة'],['in','🔑','تسجيل دخول',arr.length?arr.length+' وصول اليوم':'لا وصول'],['out','🚪','تسجيل خروج',dep.length?dep.length+' مغادرة اليوم':'لا مغادرة'],['pay','💵','قبض',due.length?due.length+' عليهم مبالغ':'سند قبض'],['ret','↩️','مرتجع','يحتاج موافقة'],['stmt','📄','كشف حساب','لأي نزيل'],['units','🏢','لوحة الشقق',s.ready+' فارغة جاهزة'],['day','📊','اليومية','قبض ومصروفات اليوم'],['pyr','🧾','طلب صرف','بنود ومرفقات'],['plist','📂','طلباتي للصرف',(()=>{const n=RP().filter(p=>p.bld===b&&['pending','approved'].includes(p.status)).length;return n?n+' مفتوح':'المتابعة'})()]];
+  const pq=pyrQueue();
   return `<div class="gs-hi between"><div><h1>${role()==='rcp'?'مرحباً '+esc(first)+' 👋':'الاستقبال'}</h1><p>${fdate(TODAY)} — ${rcpBldPicker()}</p></div></div>
   <div class="rcp-kpis"><div style="--c:#2f5fd0"><b>${s.busy}</b><span>مشغولة</span></div><div style="--c:#1e8e5a"><b>${s.ready}</b><span>فارغة جاهزة</span></div><div style="--c:#0f8ea3"><b>${s.cleaning}</b><span>تنظيف</span></div><div style="--c:#d13b3b"><b>${s.maint}</b><span>صيانة</span></div><div style="--c:#16365B"><b>${s.pct}%</b><span>الإشغال</span></div></div>
   ${q.length?`<div class="card"><h2>✅ بانتظار ${role()==='gm'?'موافقتك':'قيدك'} <span class="pill">${q.length}</span></h2><div class="list">${q.map(t=>`<div class="li click" data-rt="${t.id}" style="cursor:pointer"><div class="av">↩️</div><div><b>${esc(t.id)}</b> — ${esc(t.gname)} <span class="muted small">${esc(t.bld)} — ${esc(t.reason)}</span></div><b>${omr(t.amount)}</b></div>`).join('')}</div></div>`:''}
+  ${pq.length?`<div class="card"><h2>🧾 طلبات صرف بانتظار ${role()==='gm'?'اعتمادك':'صرفك'} <span class="pill">${pq.length}</span></h2><div class="list">${pq.map(p=>`<div class="li click" data-yq="${p.id}" style="cursor:pointer"><div class="av">🧾</div><div><b>${esc(p.id)}</b> — ${esc(p.bld)} <span class="muted small">${p.lines.length} بند — ${esc(p.by)}</span></div><b>${omr(pyrTotal(p))}</b></div>`).join('')}</div></div>`:''}
   <div class="gs-big rcp-big">${big.map(([k,ic,t,sm])=>`<button data-rgo="${k}"><span class="i">${ic}</span><b>${t}</b><small>${sm}</small></button>`).join('')}</div>
   <div class="grid g2"><div class="card"><h2>🔑 وصول اليوم <small>${arr.length}</small></h2>${arr.length?`<div class="list">${arr.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${esc(r.id)} — حتى ${fdate(r.to)}</div></div><button class="btn sm" data-rin="${r.id}">دخول</button></div>`).join('')}</div>`:'<div class="muted small">لا يوجد وصول منتظر.</div>'}</div>
    <div class="card"><h2>🚪 مغادرة اليوم <small>${dep.length}</small></h2>${dep.length?`<div class="list">${dep.map(r=>`<div class="li"><div class="av">${esc(r.unit)}</div><div><b>${esc(r.gname)}</b><div class="small muted">${rcpBal(r)>0?'<span style="color:var(--critical)">عليه '+omr(rcpBal(r))+'</span>':'لا مبالغ'}</div></div><button class="btn sm" data-rout="${r.id}">خروج</button></div>`).join('')}</div>`:'<div class="muted small">لا مغادرة اليوم.</div>'}</div></div>
@@ -3860,6 +3999,7 @@ BIND.rhome=()=>{rcpBindPicker();
   const b=rcpBld();
   $$('[data-rgo]').forEach(x=>x.onclick=()=>{const k=x.dataset.rgo;
     if(k==='new')return rcpBookForm({bld:b});
+    if(k==='pyr')return pyrForm();if(k==='plist')return go('rpay');
     if(k==='in')return pickRsv(RS().filter(r=>r.bld===b&&r.status==='booked'&&r.from<=TODAY),'🔑 من سيدخل؟',rcpCheckIn);
     if(k==='out')return pickRsv(RS().filter(r=>r.bld===b&&r.status==='in').sort((a,c)=>a.to.localeCompare(c.to)),'🚪 من سيخرج؟',rcpCheckOut);
     if(k==='pay')return pickRsv(RS().filter(r=>r.bld===b&&rActive(r)).sort((a,c)=>rcpBal(c)-rcpBal(a)),'💵 القبض من؟',r=>rcpPayForm(r));
@@ -3867,6 +4007,7 @@ BIND.rhome=()=>{rcpBindPicker();
     go({stmt:'rstmt',units:'runits',day:'rday'}[k])});
   $$('[data-rin]').forEach(x=>x.onclick=()=>rcpCheckIn(rRsv(x.dataset.rin)));$$('[data-rout]').forEach(x=>x.onclick=()=>rcpCheckOut(rRsv(x.dataset.rout)));
   $$('[data-rt]').forEach(x=>x.onclick=()=>rcpReturnAct(RT().find(t=>t.id===x.dataset.rt)));
+  $$('[data-yq]').forEach(x=>x.onclick=()=>pyrOpen(RP().find(p=>p.id===x.dataset.yq)));
   if($('#rSeed'))$('#rSeed').onclick=()=>{modal({title:'🧪 تحميل بيانات تجريبية',body:`<p>سيضيف هذا 3 حجوزات ونزلاء وسندات قبض ومصروف تجريبي في بناية <b>${esc(b)}</b>، لتشرح الشاشات لوضاح. يمكنك حذفها لاحقاً من نفس الشاشات.</p>`,
     foot:[{t:'تأكيد',fn:()=>{rcpSeedDemo(b).catch(()=>toast('تعذّر إنشاء البيانات'));return true}},{t:'إلغاء',cls:'sec'}]})};
 };
@@ -4038,7 +4179,7 @@ async function sandboxStart(){
   S=JSON.parse(JSON.stringify(real));S.session={...real.session};
   DEMO={real,sbx:true,realSession:real.session,realView:V.view,realSub:V.sub};
   V.sub={...V.sub};
-  ['guests','rsv','rcv','rtn','xpn','units'].forEach(k=>S[k]=[]);
+  ['guests','rsv','rcv','rtn','xpn','units','pyr'].forEach(k=>S[k]=[]);
   document.body.classList.add('sbx-on');
   const b=document.createElement('div');b.id='sbxBar';b.innerHTML='🧪 وضع التجربة — بيانات تجريبية ولا يُحفظ أي شيء <button class="btn sm" id="sbxEnd">إنهاء التجربة</button>';document.body.appendChild(b);$('#sbxEnd').onclick=()=>sandboxStop();
   if(APP==='rcp'){V.sub.rb='الوادي';V.view='rhome';try{await rcpSeedDemo('الوادي')}catch(e){}}
@@ -4103,6 +4244,32 @@ function demoFinish(){const p=S.purchases.find(x=>x.id===DEMO.pid);DEMO.step='pa
   $('#dfAgain').onclick=()=>{demoStop();demoStart()};$('#dfEnd').onclick=demoStop;
 }
 document.head.insertAdjacentHTML('beforeend',`<style id="democss">
+
+.pyr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pyr-line{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:start;border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;background:var(--surface);animation:pyrIn .25s ease}
+@keyframes pyrIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pyr-no{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;margin-top:22px}
+.pyr-body .frow{grid-template-columns:1fr 150px}
+.pyr-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
+.pyr-chips button{border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.pyr-chips button:hover{border-color:var(--accent);color:var(--accent)}
+.pyr-att{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pyr-f{position:relative;display:flex;flex-direction:column;align-items:center;width:78px;border:1px solid var(--border);border-radius:12px;padding:4px;background:var(--surface-2)}
+.pyr-f img{width:68px;height:56px;object-fit:cover;border-radius:8px}
+.pyr-f i{width:68px;height:56px;display:grid;place-items:center;font-style:normal;font-weight:800;color:#fff;background:#d13b3b;border-radius:8px}
+.pyr-f em{font-style:normal;font-size:10.5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);margin-top:2px}
+.pyr-f button{position:absolute;top:-7px;inset-inline-start:-7px;width:22px;height:22px;border-radius:50%;border:none;background:#d13b3b;color:#fff;font-size:14px;line-height:1;cursor:pointer}
+.pyr-up{display:inline-flex;align-items:center;gap:6px;border:2px dashed var(--accent);color:var(--accent);border-radius:12px;padding:16px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.pyr-up.off{opacity:.4;pointer-events:none}
+.pyr-del{border:none;background:transparent;font-size:18px;cursor:pointer;margin-top:22px}
+.pyr-add{width:100%;border:2px dashed var(--border);background:transparent;color:var(--ink);border-radius:14px;padding:12px;font:inherit;font-weight:700;cursor:pointer;margin-bottom:12px}
+.pyr-add:hover{border-color:var(--accent);color:var(--accent)}
+.pyr-tot{display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px;margin-bottom:12px}
+.pyr-tot>div{border-radius:14px;padding:10px 12px;background:var(--surface-2);display:flex;flex-direction:column}
+.pyr-tot span{font-size:12px;color:var(--muted)}.pyr-tot b{font-size:18px}.pyr-tot b.full{color:#d13b3b}
+.pyr-tot .t{background:linear-gradient(135deg,#1F5F5B,#2a7a78);color:#fff}.pyr-tot .t span,.pyr-tot .t small{color:rgba(255,255,255,.85)}.pyr-tot .t b{font-size:22px}.pyr-tot small{font-size:11px;margin-top:2px}
+.pyr-row{cursor:pointer}.pyr-rm{flex:1;min-width:0}.pyr-rv{text-align:end}
+@media(max-width:640px){.pyr-body .frow{grid-template-columns:1fr}.pyr-tot{grid-template-columns:1fr 1fr}.pyr-tot .t{grid-column:1/-1}.pyr-line{grid-template-columns:28px 1fr auto;padding:10px}.pyr-no{margin-top:0}}
 body.sbx-on #sbxBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#b8860b;color:#fff;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;gap:10px;align-items:center;white-space:nowrap;max-width:94vw}#sbxBar .btn{background:#fff;color:#7a5a00;padding:4px 10px}
 body.demo-on{padding-bottom:170px}
 body.demo-on .mback{padding-bottom:150px!important}
