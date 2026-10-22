@@ -2014,9 +2014,9 @@ function empTable(list,cols){return `<div class="tw"><table><thead><tr><th>ال�
 VIEWS.team=()=>ph('فريقي','الموظفون التابعون لإشرافك')+empTable(team(S.session.supId),{pay:false});
 VIEWS.employees=()=>{const q=V.sub.q||'',b=V.sub.b||'',st=V.sub.st||'active';
   let l=S.employees.filter(e=>(st==='all'||e.status===st)&&(!b||e.building===b)&&(!q||(e.name+e.code+e.job+e.nationality).includes(q)));
-  return ph('الموظفون',`${activeEmps().length} على رأس العمل`,role()==='hr'?`<button class="btn" id="addE">➕ إضافة موظف</button><button class="btn sec" id="csvE">⬇️ تصدير CSV</button>`:'')+
+  return ph('الموظفون',`${activeEmps().length} على رأس العمل`,role()==='hr'?`<button class="btn" id="addE">➕ إضافة موظف</button><button class="btn" id="stfE">📥 رفع موظفين وصلاحيات (Excel)</button><button class="btn sec" id="csvE">⬇️ تصدير CSV</button>`:'')+
   `<div class="toolbar"><input type="search" id="q" placeholder="بحث بالاسم أو الرقم أو الوظيفة…" value="${esc(q)}"><select id="fb"><option value="">كل البنايات</option>${BUILDINGS.map(x=>`<option ${x===b?'selected':''}>${x}</option>`).join('')}</select><select id="fs"><option value="active" ${st==='active'?'selected':''}>على رأس العمل</option><option value="terminated" ${st==='terminated'?'selected':''}>منتهي الخدمة</option><option value="all" ${st==='all'?'selected':''}>الكل</option></select></div>`+empTable(l,{pay:true})};
-BIND.employees=()=>{const q=$('#q');q.oninput=()=>{V.sub.q=q.value;const p=q.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(p,p)};$('#fb').onchange=e=>{V.sub.b=e.target.value;render()};$('#fs').onchange=e=>{V.sub.st=e.target.value;render()};
+BIND.employees=()=>{if($('#stfE'))$('#stfE').onclick=stfImport;const q=$('#q');q.oninput=()=>{V.sub.q=q.value;const p=q.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(p,p)};$('#fb').onchange=e=>{V.sub.b=e.target.value;render()};$('#fs').onchange=e=>{V.sub.st=e.target.value;render()};
   $('#addE')&&($('#addE').onclick=()=>empForm());$('#csvE')&&($('#csvE').onclick=()=>download('employees.csv',toCSV([['الرقم','الاسم','الوظيفة','القسم','البناية','الجنسية','التعيين','الأساسي','السكن','المواصلات','أخرى','الإجمالي','رصيد السنوية','انتهاء الإقامة','انتهاء الجواز'],...activeEmps().map(e=>[e.code,e.name,e.job,e.dept,e.building,e.nationality,e.joinDate,e.basic,e.housing,e.transport,e.other,gross(e),e.annualBalance,e.residenceExp,e.passportExp])])))};
 VIEWS.docs=()=>{const all=[];activeEmps().forEach(e=>[['residenceExp','البطاقة / الإقامة'],['passportExp','جواز السفر'],['licenseExp','رخصة القيادة'],['contractEnd','عقد العمل']].forEach(([k,n])=>{if(e[k])all.push({e,n,date:e[k],d:diffDays(TODAY,e[k])})}));all.sort((a,b)=>a.d-b.d);
   const f=V.sub.df||'warn';const l=f==='warn'?all.filter(x=>x.d<=S.settings.docWarnDays):all;
@@ -4563,6 +4563,59 @@ const BULK_ROLE={'hr':'hr','موارد بشرية':'hr','الموارد البش
 const normName=s=>String(s||'').replace(/[ًٌٍَُِّْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();
 function matchEmp(name){const n=normName(name),toks=n.split(' ').filter(t=>t.length>1);let best=null,score=0;
   activeEmps().forEach(e=>{const en=normName(e.name);if(en===n){best=e;score=99;return}const hit=toks.filter(t=>en.includes(t)).length;if(hit>score&&hit>=Math.min(2,toks.length)){best=e;score=hit}});return best}
+/* ================= رفع الموظفين وصلاحياتهم دفعة واحدة (Excel) — ينشئ ملف الموظف وحساب الدخول معاً ================= */
+const STF_COLS=['الاسم','الوظيفة','القسم','البناية','الجوال','المشرف المباشر','الصلاحية','اسم المستخدم'];
+const STF_ROLE={...BULK_ROLE,'rcp':'rcp','استقبال':'rcp','موظف استقبال':'rcp','الاستقبال':'rcp','مسؤول بناية':'rcp','مشرف بناية':'rcp','مشرف عام':'sup','بدون حساب':'','-':''};
+const stfRole=t=>{t=String(t||'').trim();if(!t)return '';return t in STF_ROLE?STF_ROLE[t]:(STF_ROLE[t.toLowerCase()]??null)};
+const stfBld=t=>{t=String(t||'').trim();if(!t)return '';return BUILDINGS.find(b=>b===t)||BUILDINGS.find(b=>b.includes(t)||t.includes(b.split(' ')[0]))||null};
+async function stfTemplate(){try{if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}catch(e){toast('تعذّر تحميل Excel');return}
+  const rows=activeEmps().map(e=>[e.name,e.job||'',e.dept||'',e.building||'',e.phone||'',e.supervisorId?empName(e.supervisorId):'','','']);
+  const ws=XLSX.utils.aoa_to_sheet([STF_COLS,...rows]);ws['!cols']=[{wch:30},{wch:22},{wch:16},{wch:22},{wch:14},{wch:24},{wch:16},{wch:18}];
+  const help=XLSX.utils.aoa_to_sheet([['العمود','القيم المسموحة'],['القسم',DEPTS.join(' / ')],['البناية',BUILDINGS.join(' / ')],['الصلاحية','موظف / موظف استقبال / مشرف / حسابات / مدير عام / موارد بشرية / بدون حساب'],['اسم المستخدم','حروف إنجليزية صغيرة وأرقام (مثال: jalshan) — اتركه فارغاً ليُولَّد من الرقم الوظيفي'],['المشرف المباشر','اسم المشرف كما هو مكتوب في عمود الاسم'],['ملاحظة','موظف الاستقبال يرى بناية ملفه فقط — لذلك البناية مهمة له']]);help['!cols']=[{wch:18},{wch:90}];
+  const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'الموظفون');XLSX.utils.book_append_sheet(wb,help,'شرح');XLSX.writeFile(wb,'قالب-الموظفين-والصلاحيات.xlsx')}
+function stfImport(){const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}catch(e){toast('تعذّر تحميل Excel');return}
+    let A;try{const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});A=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:false})}catch(e){toast('تعذّر قراءة الملف');return}
+    const h=(A[0]||[]).map(x=>String(x).trim()),ix=k=>h.indexOf(k);if(ix('الاسم')<0){toast('لم أجد عمود «الاسم» — استخدم القالب');return}
+    const g=(r,k)=>ix(k)<0?'':String(r[ix(k)]??'').trim();
+    const rows=A.slice(1).filter(r=>g(r,'الاسم')).map(r=>{const name=g(r,'الاسم'),rt=g(r,'الصلاحية'),role=stfRole(rt),bt=g(r,'البناية'),b=stfBld(bt),dt=g(r,'القسم');
+      const e=matchEmp(name),me=USER&&normName(USER.name)===normName(name);
+      const x={name,job:g(r,'الوظيفة'),dept:DEPTS.includes(dt)?dt:(dt||''),bt,b,phone:g(r,'الجوال'),supName:g(r,'المشرف المباشر'),rt,role,u:g(r,'اسم المستخدم').toLowerCase().replace(/\s+/g,''),e,me,err:[]};
+      if(role===null)x.err.push('صلاحية غير معروفة: '+rt);if(b===null)x.err.push('بناية غير معروفة: '+bt);if(role==='rcp'&&!b&&!(e&&e.building))x.err.push('موظف الاستقبال يحتاج بناية');
+      if(x.u&&!/^[a-z0-9._-]{3,30}$/.test(x.u))x.err.push('اسم المستخدم: إنجليزي صغير وأرقام فقط');return x});
+    if(!rows.length){toast('الملف فارغ');return}stfPreview(rows)};inp.click()}
+function stfPreview(rows){const bad=rows.filter(r=>r.err.length).length,nNew=rows.filter(r=>!r.e).length,nAcc=rows.filter(r=>r.role&&!r.me).length;
+  modal({title:'📥 رفع الموظفين والصلاحيات',sub:`${rows.length} موظف — ${nNew} ملف جديد — ${nAcc} حساب دخول`,wide:true,body:`${bad?`<div class="note c small">⛔ ${bad} سطر فيه خطأ وسيتم تخطيه — صحّحه في الملف وارفعه مرة أخرى.</div>`:''}
+    <div class="tw"><table><thead><tr><th>الاسم</th><th>الوظيفة / القسم</th><th>البناية</th><th>المشرف</th><th>الصلاحية</th><th>اسم المستخدم</th><th>الحالة</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(r.name)}</b>${r.me?' <small>(أنت)</small>':''}</td><td class="small">${esc(r.job)}${r.dept?' — '+esc(r.dept):''}</td><td>${esc(r.b||'')}</td><td class="small">${esc(r.supName||'—')}</td><td>${r.role?esc(ROLES[r.role].label):r.role===''?'<span class="muted">بدون حساب</span>':'—'}</td><td dir="ltr">${esc(r.u||(r.role&&!r.me?'(تلقائي)':''))}</td>
+      <td>${r.err.length?`<span class="bd c">${esc(r.err.join('، '))}</span>`:r.e?'<span class="bd i">موجود — يُحدَّث</span>':'<span class="bd g">جديد</span>'}</td></tr>`).join('')}</tbody></table></div>
+    <div class="note small" style="margin-top:8px">كلمات المرور المؤقتة تُولَّد الآن وتظهر لك <b>مرة واحدة</b> بعد الرفع لتسلّمها لكل موظف — ويُطلب منه تغييرها عند أول دخول.</div>`,
+    foot:[{t:'✓ رفع وإنشاء الحسابات',fn:b=>{stfRun(rows);return true}},{t:'إلغاء',cls:'sec'}]})}
+async function stfRun(rows){
+  const ok=rows.filter(r=>!r.err.length);
+  ok.forEach(r=>{let e=r.e;
+    if(!e){let n=1001;while(S.employees.some(x=>x.code==='E'+n))n++;e={...firstEmployee({name:r.name,empId:'E'+n}),job:r.job||'',dept:r.dept||(r.role==='rcp'?'الاستقبال':''),building:r.b||'',phone:r.phone||'',onboard:obInit(ONBOARD_ITEMS)};S.employees.push(e);r.created=true}
+    else{if(r.job)e.job=r.job;if(r.dept)e.dept=r.dept;if(r.b)e.building=r.b;if(r.phone)e.phone=r.phone}
+    if(r.role==='sup')e.isSupervisor=true;r.emp=e});
+  ok.forEach(r=>{if(r.supName){const s=ok.find(x=>normName(x.name)===normName(r.supName))?.emp||matchEmp(r.supName);if(s&&s.id!==r.emp.id){r.emp.supervisorId=s.id;s.isSupervisor=true}}});
+  log(`رفع ${ok.length} موظف من Excel`);commit();
+  const w=modal({title:'⏳ جارٍ إنشاء الحسابات…',body:'<div id="stfP" class="muted">0 / 0</div>'});const P=ok.filter(r=>r.role&&!r.me);let i=0,selfOff=false;
+  const LU=await call('listUsers').catch(()=>null),byEmp={},byU={};((LU&&LU.users)||[]).forEach(u=>{if(u.empId)byEmp[u.empId]=u;byU[u.u]=u});
+  for(const r of P){$('#stfP',w.el)&&($('#stfP',w.el).textContent=(++i)+' / '+P.length+' — '+r.name);
+    const ex=byEmp[r.emp.id]||(r.u&&byU[r.u]&&byU[r.u].empId===r.emp.id?byU[r.u]:null);
+    if(ex){r.u=ex.u;if(ex.role===r.role){r.res='same';continue}const y=await call('setRole',{u:ex.u,role:r.role}).catch(()=>null);r.res=y&&y.ok?'exists':'⚠️ '+userErr(y);continue}
+    r.u=r.u||String(r.emp.code||r.emp.id).toLowerCase();r.pw=tempPw();
+    let x=await call('createUser',{u:r.u,name:r.name,role:r.role,empId:r.emp.id,title:r.job||ROLES[r.role].label,password:r.pw}).catch(()=>null);
+    if(x&&x.ok){r.res='ok';continue}
+    r.pw='';if(x&&x.error==='exists'){const y=await call('setRole',{u:r.u,role:r.role}).catch(()=>null);r.res=y&&y.ok?'exists':'⚠️ الحساب موجود — '+userErr(y);continue}
+    if(x&&x.error==='self_service_disabled')selfOff=true;r.res='⚠️ '+userErr(x)}
+  w.close();loadUsers();stfResult(ok,selfOff)}
+function stfSlip(r){const url=location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,'');return `مرحباً ${r.name} 👋\nحسابك في تطبيق مرسى — نسائم صلالة:\nالرابط: ${url}\nاسم المستخدم: ${r.u}\nكلمة المرور المؤقتة: ${r.pw}\nسيُطلب منك تغيير كلمة المرور عند أول دخول.`}
+function stfResult(rows,selfOff){const made=rows.filter(r=>r.res==='ok');
+  modal({title:'✅ تم رفع الموظفين',sub:`${rows.length} ملف موظف — ${made.length} حساب جديد`,wide:true,body:`${selfOff?`<div class="note c small">⛔ حسابات «موظف» و«مشرف» لم تُنشأ لأن الخاصية <b dir="ltr">ALLOW_SELF_SERVICE</b> غير مفعّلة في الخادم. فعّلها من مشروع NassayemHR-API ← ⚙️ Project Settings ← Script Properties ← أضف <b dir="ltr">ALLOW_SELF_SERVICE = 1</b> ثم ارفع الملف مرة أخرى (الموجودون لا يتكررون).</div>`:''}
+   <div class="note w small">⚠️ كلمات المرور المؤقتة تظهر <b>الآن فقط</b> — اطبع القائمة أو أرسل لكل موظف بياناته قبل إغلاق هذه النافذة.</div>
+   <div class="tw"><table><thead><tr><th>الاسم</th><th>الصلاحية</th><th>اسم المستخدم</th><th>كلمة المرور المؤقتة</th><th>النتيجة</th><th></th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><b>${esc(r.name)}</b>${r.created?' <span class="bd g">ملف جديد</span>':''}</td><td>${r.role?esc(ROLES[r.role].label):'<span class="muted">بدون حساب</span>'}</td><td dir="ltr">${esc(r.u||'')}</td><td dir="ltr"><b>${esc(r.pw||'')}</b></td><td class="small">${r.res==='ok'?'✅ تم الإنشاء':r.res==='exists'?'✓ موجود — حُدّثت الصلاحية':r.res==='same'?'✓ موجود مسبقاً بنفس الصلاحية':r.me?'حسابك الحالي':esc(r.res||'—')}</td><td>${r.pw?`<button class="btn sm sec" data-slip="${i}">📋 نسخ</button>`:''}</td></tr>`).join('')}</tbody></table></div>`,
+   foot:[{t:'🖨️ طباعة بيانات الدخول',fn:()=>{printHTML(`<div class="doc"><h2 style="text-align:center">بيانات الدخول — مرسى</h2>${made.map(r=>`<div style="border:1.5px dashed #888;border-radius:10px;padding:12px 14px;margin:10px 0;page-break-inside:avoid"><b style="font-size:15px">${esc(r.name)}</b> — ${esc(ROLES[r.role].label)}<div dir="ltr" style="text-align:right;margin-top:6px">اسم المستخدم: <b>${esc(r.u)}</b> &nbsp; | &nbsp; كلمة المرور المؤقتة: <b>${esc(r.pw)}</b></div><div class="small" style="margin-top:4px">الرابط: ${esc(location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,''))} — غيّر كلمة المرور عند أول دخول</div></div>`).join('')}</div>`,'بيانات الدخول');return false}},{t:'إغلاق',cls:'sec'}],
+   onMount:m=>$$('[data-slip]',m).forEach(x=>x.onclick=()=>rcpCopyWA(stfSlip(rows[+x.dataset.slip])))})}
 function bulkUsersModal(){
   modal({title:'📋 إضافة مجموعة مستخدمين',wide:true,body:`<div class="note small">سطر لكل مستخدم بالصيغة:<br><b dir="ltr">الاسم | المسمى | الصلاحية | القسم | اسم المستخدم | مهمة مالية (اختياري)</b><br>الصلاحية: موارد بشرية / محاسبة / مدير عام / مشرف / موظف — المهمة المالية: حسابات أو مشتريات. كلمات المرور المؤقتة تُولَّد هنا ولا تُحفظ في أي ملف، ويُطلب من كل مستخدم تغييرها عند أول دخول.</div>
   <div class="fld"><label>القائمة</label><textarea id="bu_t" style="min-height:240px;direction:rtl;font-size:13px"></textarea></div><div id="bu_prev"></div>`,
@@ -5382,12 +5435,12 @@ function describeLog(a){
 VIEWS.settings=()=>ph('الإعدادات','كل الأرقام هنا تُطبّق فوراً على النظام بالكامل')+`<div class="grid g2">${SET_FIELDS.map(([g,fs])=>`<div class="card"><h2>${g}</h2><div class="stack">${fs.map(([k,n])=>`<div class="between"><label for="s_${k}" class="small">${n}</label><input id="s_${k}" type="number" step="any" value="${S.settings[k]}" style="width:110px;padding:8px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);text-align:center"></div>`).join('')}</div></div>`).join('')}</div>
   <div class="note w" style="margin-top:12px">نسبة اشتراك الحماية الاجتماعية وبعض الحدود قيم افتراضية — يرجى مطابقتها مع النسب المعتمدة من صندوق الحماية الاجتماعية ووزارة العمل قبل الاعتماد.</div>
   <div class="card" style="margin-top:14px"><h2>لائحة الجزاءات <small>القيم: warn = إنذار، أقل من 1 = نسبة من أجر يوم، 1 فأكثر = أيام</small></h2><div class="tw"><table><thead><tr><th>الرمز</th><th>المخالفة</th><th>1</th><th>2</th><th>3</th><th>4+</th></tr></thead><tbody>${S.matrix.map((m,i)=>`<tr><td class="b">${m.code}</td><td><input data-mn="${i}" value="${esc(m.n)}" style="width:100%;min-width:220px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)"></td>${m.p.map((p,j)=>`<td><input data-mp="${i}-${j}" value="${p}" style="width:64px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);text-align:center"></td>`).join('')}</tr>`).join('')}</tbody></table></div></div>
-  <div class="card" style="margin-top:14px"><h2>المستخدمون والصلاحيات <small>الحسابات التي تدخل النظام: الموارد البشرية والمدير العام والمحاسبة</small></h2><div id="usersBox" class="muted">جارٍ التحميل…</div><button class="btn sm sec" id="uAdd" style="margin-top:10px">➕ إضافة مستخدم</button> <button class="btn sm" id="uBulk" style="margin-top:10px">📋 إضافة مجموعة مستخدمين</button></div>
+  <div class="card" style="margin-top:14px"><h2>المستخدمون والصلاحيات <small>الحسابات التي تدخل النظام: الموارد البشرية والمدير العام والمحاسبة</small></h2><div id="usersBox" class="muted">جارٍ التحميل…</div><button class="btn sm" id="uStf" style="margin-top:10px">📥 رفع الموظفين والصلاحيات (Excel)</button> <button class="btn sm sec" id="uTpl" style="margin-top:10px">⬇️ قالب Excel</button> <button class="btn sm sec" id="uAdd" style="margin-top:10px">➕ إضافة مستخدم</button> <button class="btn sm" id="uBulk" style="margin-top:10px">📋 إضافة مجموعة مستخدمين</button></div>
   <div class="row" style="margin-top:14px"><button class="btn" id="sSave">حفظ الإعدادات</button></div>`;
 BIND.settings=()=>{$('#sSave').onclick=()=>{SET_FIELDS.forEach(([,fs])=>fs.forEach(([k])=>{const v=+$('#s_'+k).value;if(!isNaN(v))S.settings[k]=v}));
   $$('[data-mn]').forEach(i=>S.matrix[+i.dataset.mn].n=i.value);let bad=false;$$('[data-mp]').forEach(i=>{const [a,b]=i.dataset.mp.split('-').map(Number);const v=i.value.trim();if(v==='warn')S.matrix[a].p[b]='warn';else if(!isNaN(+v)&&+v>0)S.matrix[a].p[b]=+v;else bad=true});
   log('تعديل الإعدادات');commit(bad?'تم الحفظ — تم تجاهل قيم غير صالحة':'تم حفظ الإعدادات')};
-  loadUsers();$('#uAdd').onclick=addUserModal;$('#uBulk').onclick=bulkUsersModal};
+  loadUsers();$('#uAdd').onclick=addUserModal;$('#uStf').onclick=stfImport;$('#uTpl').onclick=stfTemplate;$('#uBulk').onclick=bulkUsersModal};
 
 /* ---------- سجل العمليات ---------- */
 VIEWS.audit=()=>ph('سجل العمليات','Audit Trail — كل عملية مسجلة بالوقت والمستخدم (يحفظه الخادم)')+`<div class="tw" id="audBox"><div class="empty">جارٍ التحميل…</div></div>`;
