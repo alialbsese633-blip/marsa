@@ -285,6 +285,11 @@ html[dir=rtl] .hero::before{background-position:-40px -30px}
 .pd-head img{width:62px;height:62px;object-fit:contain}.pd-head .co{flex:1}.pd-head .co b{display:block;font-size:14pt}.pd-head .co span{font-size:10pt;color:#555}
 .pd-head .ref{font-size:9.5pt;color:#555;text-align:end;line-height:1.6}
 .pd-head .co span.pa{display:block;font-size:9pt;color:#666}.pd-head img.pd-parent{width:auto;height:62px;max-width:96px}
+.lh-pg{width:100%;border-collapse:collapse}.lh-pg>*>tr>td{padding:0;border:0}
+.lh-hd{text-align:center;border-bottom:2.2px solid #16365B;padding-bottom:8px;margin-bottom:14px}.lh-hd img{height:100px;width:auto;display:block;margin:0 auto 2px}.lh-hd b{display:block;font-size:15pt;color:#58595B}.lh-hd span{display:block;font-size:10pt;color:#58595B;letter-spacing:.5px}
+.lh-wmh{position:relative;height:0}.lh-wm{position:absolute;top:92mm;left:50%;transform:translateX(-50%);width:150mm;max-width:90%;opacity:.1;z-index:5;pointer-events:none}
+.lh-fsp{height:22mm}.lh-ff{position:fixed;left:0;right:0;bottom:0;border-top:2.2px solid #16365B;padding-top:6px;text-align:center;font-size:9pt;color:#333;line-height:1.7;background:#fff}
+.pd-ref{text-align:center;color:#888;font-size:9.5pt;margin:-6px 0 12px}
 .pd-title{font-size:17pt;margin:0 0 4px}.pd-sub{color:#555;font-size:10.5pt;margin:0 0 14px}
 .pd-sec{page-break-inside:avoid;margin-bottom:12px}.pd-sec h3{font-size:12.5pt;margin:0 0 6px;color:#16474A}
 .pd-box{border:1px solid #999;border-radius:6px;padding:12px 14px;margin:12px 0}
@@ -670,10 +675,12 @@ function printHTML(html){
     f.srcdoc=doc;document.body.appendChild(f);
   }catch(e){printInline(html)}
 }
-function printPolicy(p){printHTML(pdHead((p.no||'')+' — الإصدار '+(p.version||1))+'<h1 class="pd-title">'+esc(p.title)+'</h1>'+(p.summary?'<p class="pd-sub">'+esc(p.summary)+'</p>':'')+
+/* الورق الرسمي للشركة (قالب Word المعتمد): الترويسة والعلامة المائية والتذييل تتكرر في كل صفحة */
+function lhWrap(inner){return '<style>@media print{@page{margin:10mm 16mm 8mm}}</style><table class="lh-pg"><thead><tr><td><div class="lh-wmh"><img class="lh-wm" src="icons/lh-logo.jpg" alt=""></div><div class="lh-hd"><img src="icons/lh-logo.jpg" alt="العالمية السعيدة المتحدة"><b>العالمية السعيدة المتحدة ش.م.م</b><span dir="ltr">AL ALAMIAH AL SAIDAH UNITED L.L.C.</span></div></td></tr></thead><tfoot><tr><td><div class="lh-fsp"></div></td></tr></tfoot><tbody><tr><td>'+inner+'</td></tr></tbody></table><div class="lh-ff">Sultanate of Oman – Salalah<br>Tel: +968 99551237 | Email: alalamiahalsaeedah@gmail.com | Web: www.nassayem.com<br><b>C.R. No. 1428061</b></div>'}
+function printPolicy(p){printHTML(lhWrap('<div class="pd-ref">'+esc((p.no||'')+' — الإصدار '+(p.version||1))+' — '+fdate(today())+'</div><h1 class="pd-title">'+esc(p.title)+'</h1>'+(p.summary?'<p class="pd-sub">'+esc(p.summary)+'</p>':'')+
   (p.sections||[]).map(function(s,i){return '<div class="pd-sec"><h3>'+(i+1)+'. '+esc(s.title||'')+'</h3>'+fmtText(s.body)+'</div>'}).join('')+
   '<div class="pd-box"><b>بنود الإقرار</b><ul>'+(p.statements&&p.statements.length?p.statements:[W.defStmt[0]]).map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ul></div>'+
-  '<table class="pd-tb" style="margin-top:14px"><tr><th style="width:32%">إعداد</th><td>الموارد البشرية</td></tr><tr><th>الاعتماد</th><td>'+(p.approvedBy?esc(p.approvedBy)+' — المدير العام — '+fdate(p.approvedAt):'المدير العام')+'</td></tr><tr><th>رقم السياسة / الإصدار</th><td>'+esc(p.no||'')+' — الإصدار '+(p.version||1)+'</td></tr></table>'+pdFoot())}
+  '<table class="pd-tb" style="margin-top:14px"><tr><th style="width:32%">إعداد</th><td>الموارد البشرية</td></tr><tr><th>الاعتماد</th><td>'+(p.approvedBy?esc(p.approvedBy)+' — المدير العام — '+fdate(p.approvedAt):'المدير العام')+'</td></tr><tr><th>رقم السياسة / الإصدار</th><td>'+esc(p.no||'')+' — الإصدار '+(p.version||1)+'</td></tr></table>'))}
 function printReceipt(p,a,e){e=e||{};printHTML(pdHead(esc(a.ref||''))+'<h1 class="pd-title">إيصال إقرار بالاطلاع على سياسة عمل</h1><p class="pd-sub">Policy Acknowledgement Receipt</p>'+
   '<table class="pd-tb"><tr><th style="width:32%">الموظف</th><td>'+esc(e.name||a.name)+'</td></tr><tr><th>الرقم الوظيفي</th><td>'+esc(e.code||a.code||'')+'</td></tr><tr><th>البناية / القسم</th><td>'+esc(e.building||a.building||'')+'</td></tr>'+
   '<tr><th>السياسة</th><td>'+esc(p.title||a.title)+(p.no?' ('+esc(p.no)+')':'')+'</td></tr><tr><th>رقم الإصدار</th><td>'+esc(a.v)+'</td></tr><tr><th>تاريخ ووقت الإقرار</th><td>'+ftime(a.at)+'</td></tr><tr><th>التوقيع الإلكتروني (الاسم المكتوب)</th><td>'+esc(a.name)+'</td></tr><tr><th>المرجع</th><td dir="ltr" style="text-align:left">'+esc(a.ref||'')+'</td></tr></table>'+
