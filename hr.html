@@ -543,13 +543,13 @@ function emptyState(session){
 S=emptyState();
 
 /* ---------- الشبكة ---------- */
-function api(body){
-  const ctl=typeof AbortController==='function'?new AbortController():null,t=setTimeout(()=>{if(ctl)ctl.abort()},30000);
+function api(body,ms){
+  const ctl=typeof AbortController==='function'?new AbortController():null,t=setTimeout(()=>{if(ctl)ctl.abort()},ms||30000);
   return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
     .then(r=>r.text()).then(x=>{clearTimeout(t);return JSON.parse(x)}).catch(e=>{clearTimeout(t);throw e});
 }
-async function call(action,extra){
-  const r=await api(Object.assign({action,t:TOKEN},extra||{}));
+async function call(action,extra,ms){
+  const r=await api(Object.assign({action,t:TOKEN},extra||{}),ms);
   if(r&&r.error==='auth'&&TOKEN){
     const unsaved=DIRTY;TOKEN=null;USER=null;try{(localStorage.removeItem(TOKEN_KEY),localStorage.removeItem('marsa_user'))}catch(e){}
     clearInterval(pollT);authInit('انتهت الجلسة، سجّل الدخول من جديد.'+(unsaved?' قد لا تكون آخر تعديلاتك محفوظة.':''));
@@ -3551,15 +3551,24 @@ function rcpWordsEn(v){v=r3(v);const r=Math.floor(v),b=Math.round((v-r)*1000);le
 /* ---------- قراءة البطاقة ---------- */
 function rcpShrink(file,max){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('img'))};im.src=u})}
-async function rcpScan(file){
+async function rcpScan(file,onStep){
   if((DEMO&&!DEMO.sbx)||!TOKEN)return {ok:false,msg:'قراءة البطاقة تعمل بعد تسجيل الدخول'};
-  let b64;try{b64=await rcpShrink(file,1600)}catch(e){return {ok:false,msg:'تعذّرت قراءة الصورة'}}
-  const r=await call('ocr',{b64,mime:'image/jpeg'}).catch(()=>null);
-  if(r&&r.ok&&r.fields)return {ok:true,f:r.fields};
-  const m={no_key:'قراءة البطاقة لم تُفعّل بعد في الخادم — اكتب البيانات يدوياً',bad_action:'الخادم لم يُحدَّث بعد لقراءة البطاقة — اكتب البيانات يدوياً',locked:'محاولات كثيرة، انتظر قليلاً',ocr_failed:'لم تتضح البيانات — صوّر البطاقة بإضاءة أفضل أو اكتبها يدوياً'};
-  if(r&&r.error==='ocr_api')return {ok:false,msg:'خدمة القراءة من Google رفضت الطلب — أرسل هذه الرسالة للدعم: '+String(r.detail||'').slice(0,160)};
-  if(r&&r.error==='ocr_failed'&&r.detail&&r.detail!=='empty'&&r.detail!=='bad_json')return {ok:false,msg:'لم تُقرأ البطاقة ('+r.detail+') — اكتب البيانات يدوياً'};
-  return {ok:false,msg:(r&&m[r.error])||'تعذّر الاتصال بالخادم — اكتب البيانات يدوياً'};
+  let b64;try{b64=await rcpShrink(file,1400)}catch(e){return {ok:false,msg:'تعذّرت قراءة الصورة'}}
+  const m={no_key:'قراءة البطاقة لم تُفعّل بعد في الخادم — اكتب البيانات يدوياً',bad_action:'الخادم لم يُحدَّث بعد لقراءة البطاقة — اكتب البيانات يدوياً',locked:'محاولات كثيرة، انتظر دقيقة ثم أعد التصوير',ocr_failed:'لم تتضح البيانات — صوّر البطاقة قريبة، مسطّحة وبإضاءة جيدة ثم أعد المحاولة',forbidden:'هذه الخدمة للاستقبال والإدارة فقط'};
+  let r=null;
+  // إعادة تلقائية: الخادم قد يتأخر في أول طلب، وGemini قد ينشغل لحظياً — لا نُزعج المستخدم بأعطال عابرة
+  for(let i=0;i<3;i++){
+    if(i&&onStep)onStep('⏳ جارٍ إعادة المحاولة ('+(i+1)+'/3)…');
+    r=await call('ocr',{b64,mime:'image/jpeg'},55000).catch(()=>null);
+    if(r&&r.ok&&r.fields)return {ok:true,f:r.fields};
+    if(r&&r.error&&['ocr_api','ocr_busy',undefined].indexOf(r.error)<0&&r.error!=='ocr_failed')break;   // خطأ دائم: لا فائدة من التكرار
+    if(r&&r.error==='ocr_api'&&/API key|PERMISSION|403|401|key/i.test(String(r.detail||'')))break;
+    await new Promise(z=>setTimeout(z,1200*(i+1)));
+  }
+  if(r&&r.error==='ocr_api')return {ok:false,msg:'خدمة القراءة غير متاحة الآن — اكتب البيانات يدوياً (يمكنك المحاولة لاحقاً). السبب: '+String(r.detail||'').slice(0,90)};
+  if(r&&r.error==='ocr_busy')return {ok:false,msg:'خدمة القراءة مشغولة لحظياً — اضغط التصوير مرة أخرى بعد قليل أو اكتب البيانات يدوياً'};
+  if(r&&r.error&&m[r.error])return {ok:false,msg:m[r.error]};
+  return {ok:false,msg:'الاتصال بالخادم بطيء أو منقطع — تأكد من الإنترنت وأعد التصوير'};
 }
 
 /* ---------- نموذج الحجز ---------- */
@@ -3625,7 +3634,7 @@ function rcpBookForm(pre){
     let cT;const cardSoon=()=>{clearTimeout(cT);cT=setTimeout(card,350)};
     $('#rId',m).oninput=()=>{gid=null;cardSoon()};$('#rPhone',m).oninput=()=>{if(!gid)cardSoon()};
     $('#rIdPh',m).onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const msg=$('#rScanMsg',m);msg.textContent='⏳ جارٍ قراءة البطاقة…';
-      const r=await rcpScan(f);ev.target.value='';if(!r.ok){msg.textContent='⚠️ '+r.msg;return}
+      const r=await rcpScan(f,t=>{msg.textContent=t});ev.target.value='';if(!r.ok){msg.textContent='⚠️ '+r.msg;return}
       const F=r.f,set=(i,v)=>{if(v&&String(v).trim())$('#'+i,m).value=String(v).trim()};
       set('rId',F.idNo);set('rName',F.nameAr||F.nameEn);set('rNameEn',F.nameEn);set('rNat',F.nationality);if(/^\d{4}-\d\d-\d\d$/.test(F.dob||''))set('rDob',F.dob);
       gid=null;card();msg.textContent=gid?'✓ تمت القراءة — العميل مسجّل لدينا مسبقاً':'✓ تمت القراءة — عميل جديد، راجع البيانات قبل الحفظ'};
