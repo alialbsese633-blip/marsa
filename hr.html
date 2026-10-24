@@ -2388,9 +2388,10 @@ VIEWS.budgets=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R)||isAccou
   const T=rows.reduce((s,x)=>({b:s.b+x.bi.budget,sp:s.sp+x.bi.spent}),{b:0,sp:0});
   const over=rows.filter(x=>x.bi.spent>x.bi.budget&&x.bi.spent>0);
   let g='';
-  return ph('الحسابات والموازنات','دليل حسابات المصروفات والموازنة الشهرية لكل حساب — منها تختار الحسابات عند اعتماد كل طلب',canEdit?`<button class="btn sec" id="budImp">⬆️ استيراد كشف الموازنة (Excel)</button><button class="btn sec" id="budAdd">➕ حساب</button><button class="btn" id="budSave">حفظ</button>`:'')+
+  return ph('الحسابات والموازنات','دليل حسابات المصروفات والموازنة الشهرية لكل حساب — منها تختار الحسابات عند اعتماد كل طلب',`<button class="btn" id="budRep">📋 نسخ التقرير كصورة</button>`+(canEdit?`<button class="btn sec" id="budImp">⬆️ استيراد كشف الموازنة (Excel)</button><button class="btn sec" id="budAdd">➕ حساب</button><button class="btn" id="budSave">حفظ</button>`:''))+
   (imp?`<div class="note small" style="margin-bottom:12px">مصدر الأرقام: <b dir="ltr">${esc(imp.src||'Budget vs. Actual')}</b> — ${monthName(imp.month)} — استُورد ${ftime(imp.at)} بواسطة ${esc(imp.by||'')}. يُضاف إليها ما تعتمده الحسابات في مرسى بعد هذا التاريخ.</div>`:'')+
   `<div class="grid g4">${kpi('موازنة المصروفات — '+monthName(M),omr(T.b))}${kpi('المصروف الفعلي',omr(T.sp),T.b?Math.round(T.sp/T.b*100)+'% من الموازنة':'')}${kpi('المتبقي',omr(T.b-T.sp),'',T.b-T.sp<0?'c':'g')}${kpi('حسابات تجاوزت الموازنة',over.length,over.length?'إجمالي التجاوز '+omr(over.reduce((s,x)=>s+x.bi.spent-x.bi.budget,0)):'',over.length?'c':'')}</div>
+  ${budgetAlertsHTML(M)}
   <div class="tw" style="margin-top:14px"><table><thead><tr><th>الحساب</th><th class="n">الموازنة الشهرية</th><th class="n">الفعلي ${monthName(M)}</th><th class="n">المتبقي / التجاوز</th><th class="n">النسبة</th></tr></thead><tbody>${rows.map(({a,bi},i)=>{const head=a.group&&a.group!==g?(g=a.group,`<tr><td colspan="5" style="background:var(--surface-2);font-weight:700">${esc(a.group)}</td></tr>`):'';const ov=bi.spent>bi.budget&&bi.spent>0;
     return head+`<tr><td><span class="muted small" dir="ltr">${esc(a.code)}</span> ${canEdit?`<input data-bn="${i}" value="${esc(a.name)}" style="min-width:180px;width:60%">`:esc(a.name)}</td><td class="n">${canEdit?`<input data-bb="${i}" type="number" step="0.001" value="${bi.budget}" style="width:100px;text-align:center">`:money(bi.budget)}</td><td class="n">${money(bi.spent)}</td><td class="n" style="${ov?'color:var(--critical);font-weight:700':''}">${ov?'+'+money(bi.spent-bi.budget):money(bi.remaining)}</td><td class="n">${bi.budget?badge(bi.pctBefore+'%',bi.pctBefore>100?'c':bi.pctBefore>=80?'w':'g'):bi.spent>0?badge('بدون موازنة','c'):'—'}</td></tr>`}).join('')}</tbody>
   <tfoot><tr><td>الإجمالي</td><td class="n">${money(T.b)}</td><td class="n">${money(T.sp)}</td><td class="n">${money(T.b-T.sp)}</td><td class="n">${T.b?Math.round(T.sp/T.b*100)+'%':'—'}</td></tr></tfoot></table></div>
@@ -2403,6 +2404,7 @@ function dutyCard(R){return ['hr','gm'].includes(R)?`<div class="card" style="ma
 BIND.budgets=()=>{
   $('#fdSave')&&($('#fdSave').onclick=()=>{const sp=v=>v.split(/[,،\s]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);S.settings.finDuty={accounts:sp($('#fdAcc').value),buyers:sp($('#fdBuy').value)};log('تعديل مسؤوليات الإدارة المالية');commit('تم حفظ المسؤوليات')});
   $('#budImp')&&($('#budImp').onclick=budgetImportModal);
+  $('#budRep')&&($('#budRep').onclick=()=>budgetReportShow());$('#budRep2')&&($('#budRep2').onclick=()=>budgetReportShow());
   $('#budAdd')&&($('#budAdd').onclick=()=>modal({title:'➕ حساب مصروف',body:`<div class="frow"><div class="fld"><label>رقم الحساب</label><input id="na_c" dir="ltr"></div><div class="fld"><label>الموازنة الشهرية (ر.ع)</label><input id="na_b" type="number" step="0.001" value="0"></div></div><div class="fld"><label>اسم الحساب</label><input id="na_n"></div><div class="fld"><label>المجموعة</label><input id="na_g" value="حسابات مضافة"></div>`,
     foot:[{t:'إضافة',fn:b=>{const c=fv(b,'na_c'),n=fv(b,'na_n');if(!c||!n){toast('أكمل الرقم والاسم');return false}if(expAccounts().some(a=>a.code===c)){toast('رقم الحساب موجود');return false}S.settings.expAccounts=expAccounts().concat([{code:c,name:n,group:fv(b,'na_g'),budget:r3(+fv(b,'na_b')||0)}]);log('إضافة حساب مصروف '+c);commit('تمت الإضافة')}},{t:'إلغاء',cls:'sec'}]}));
   $('#budSave')&&($('#budSave').onclick=()=>{const a=expAccounts().map((x,i)=>({...x,name:(($(`[data-bn="${i}"]`)||{}).value||x.name).trim(),budget:r3(+(($(`[data-bb="${i}"]`)||{}).value??x.budget)||0)}));S.settings.expAccounts=a;log('تعديل الموازنات');commit('تم حفظ الموازنات')});
@@ -2428,12 +2430,92 @@ function budgetImportModal(){
     foot:[{t:'اعتماد الاستيراد',fn:b=>{const P=b.__p;if(!P||!P.accs.length){toast('اختر الملف أولاً');return false}
       const keep=expAccounts().filter(a=>!P.accs.some(x=>x.code===a.code));
       S.settings.expAccounts=P.accs.concat(keep);S.settings.expActuals={...(S.settings.expActuals||{}),[P.month]:{at:nowTs(),by:me().name,src:P.src,rows:P.act}};
-      log(`استيراد موازنة ${P.month} (${P.accs.length} حساب)`);commit(`تم استيراد ${P.accs.length} حساباً — ${monthName(P.month)}`)}},{t:'إلغاء',cls:'sec'}],
+      log(`استيراد موازنة ${P.month} (${P.accs.length} حساب)`);commit(`تم استيراد ${P.accs.length} حساباً — ${monthName(P.month)}`);setTimeout(()=>budgetReportShow(P.month),400)}},{t:'إلغاء',cls:'sec'}],
     onMount:b=>{$('#bi_f',b).onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const pv=$('#bi_prev',b);pv.textContent='جارٍ قراءة الملف…';
       try{await loadScriptOnce(XLSX_URL);const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
         const P=parseBudgetRows(rows,f.name);b.__p=P;const tb=P.accs.reduce((s,a)=>s+a.budget,0),ta=P.accs.reduce((s,a)=>s+P.act[a.code],0),ov=P.accs.filter(a=>P.act[a.code]>a.budget&&P.act[a.code]>0);
         pv.innerHTML=P.accs.length?`<div class="grid g4" style="margin-top:8px">${kpi('الشهر',monthName(P.month))}${kpi('حسابات المصروفات',P.accs.length)}${kpi('الموازنة / الفعلي',money(tb)+' / '+money(ta))}${kpi('تجاوزت الموازنة',ov.length,'','c')}</div><div class="tw" style="max-height:260px;overflow:auto;margin-top:8px"><table><thead><tr><th>الحساب</th><th class="n">الموازنة</th><th class="n">الفعلي</th></tr></thead><tbody>${P.accs.map(a=>`<tr><td><span class="muted small" dir="ltr">${esc(a.code)}</span> ${esc(a.name)}</td><td class="n">${money(a.budget)}</td><td class="n" style="${P.act[a.code]>a.budget&&P.act[a.code]>0?'color:var(--critical);font-weight:700':''}">${money(P.act[a.code])}</td></tr>`).join('')}</tbody></table></div>`:'<div class="note c">لم يُعثر على حسابات مصروفات في الملف — تأكد أنه تقرير Budget vs. Actual</div>';
       }catch(e){pv.innerHTML='<div class="note c">تعذّر قراءة الملف — تأكد من الاتصال بالإنترنت وأن الملف Excel</div>'}}}});
+}
+/* ---- تنبيهات الموازنة: المتجاوزة والقريبة + نسخ التقرير كصورة للمشاركة في مجموعات الموظفين والإدارة ---- */
+const BUD_NEAR=80;
+function budgetAlerts(M){
+  const rows=expAccounts().map(a=>({a,bi:budgetInfo(a.code,0,null,M)}));
+  const over=rows.filter(x=>x.bi.spent>x.bi.budget&&x.bi.spent>0).sort((x,y)=>(y.bi.spent-y.bi.budget)-(x.bi.spent-x.bi.budget));
+  const near=rows.filter(x=>x.bi.budget>0&&x.bi.spent<=x.bi.budget&&x.bi.spent>0&&x.bi.pctBefore>=BUD_NEAR).sort((x,y)=>y.bi.pctBefore-x.bi.pctBefore);
+  const okN=rows.filter(x=>x.bi.budget>0&&x.bi.pctBefore<BUD_NEAR).length;
+  const T=rows.reduce((s,x)=>({b:s.b+x.bi.budget,sp:s.sp+x.bi.spent}),{b:0,sp:0});
+  return {M,rows,over,near,okN,T,overSum:r3(over.reduce((s,x)=>s+x.bi.spent-x.bi.budget,0))};
+}
+function budgetAlertsHTML(M){
+  const A=budgetAlerts(M);if(!A.rows.length)return '';
+  const li=(x,kind)=>{const bi=x.bi,ov=kind==='c',pct=bi.budget?bi.pctBefore:null;
+    return `<div class="hb" style="grid-template-columns:minmax(120px,1.3fr) 1fr 62px 96px;gap:10px;align-items:center;padding:5px 0"><span class="small"><span class="muted" dir="ltr">${esc(x.a.code)}</span> ${esc(x.a.name)}</span><div class="bar"><i style="width:${Math.min(100,pct==null?100:pct)}%;background:var(--${ov?'critical':'warning'})"></i></div><b class="num small" style="color:var(--${ov?'critical':'warning'})">${pct==null?'بدون موازنة':pct+'%'}</b><span class="num small muted">${ov?'+'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining)}</span></div>`};
+  const sec=(t,L,k)=>L.length?`<h3 style="margin:12px 0 4px;font-size:14px">${t} <small>${L.length}</small></h3>${L.map(x=>li(x,k)).join('')}`:'';
+  return `<div class="card" style="margin-top:14px"><div class="between" style="flex-wrap:wrap;gap:8px"><h2>🚦 تنبيهات الموازنة — ${monthName(M)}</h2><button class="btn sm" id="budRep2">📋 نسخ التقرير كصورة</button></div>
+  <div class="grid g4" style="margin-top:8px">${kpi('🔴 متجاوزة للموازنة',A.over.length,A.over.length?'إجمالي التجاوز '+omr(A.overSum):'لا يوجد',A.over.length?'c':'g')}${kpi('🟠 قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'',A.near.length?'w':'g')}${kpi('🟢 ضمن الموازنة',A.okN)}${kpi('الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',omr(A.T.sp)+' من '+omr(A.T.b))}</div>
+  ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
+}
+async function budgetReportCanvas(M){
+  const A=budgetAlerts(M),imp=lastBudgetImport(),LIM=16;
+  const W=1080,P=40,RH=104,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+  const over=A.over.slice(0,LIM),near=A.near.slice(0,LIM),hidO=A.over.length-over.length,hidN=A.near.length-near.length;
+  const secH=n=>n?84+n*RH:0,more=(h)=>h>0?50:0;
+  const H=250+190+secH(over.length)+more(hidO)+secH(near.length)+more(hidN)+((!A.over.length&&!A.near.length)?110:0)+130;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const RED='#C0392B',AMB='#D68910',GRN='#1E8449',TEAL='#1F5F5B',INK='#16302f',MUT='#607573';
+  const rr=(px,py,w,h,r,fill,stroke)=>{x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);if(fill){x.fillStyle=fill;x.fill()}if(stroke){x.strokeStyle=stroke;x.lineWidth=2;x.stroke()}};
+  const fit=(t,mw,font)=>{x.font=font;t=String(t);if(x.measureText(t).width<=mw)return t;while(t.length>2&&x.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…'};
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.direction='rtl';
+  /* الترويسة */
+  x.fillStyle=TEAL;x.fillRect(0,0,W,12);
+  try{const im=new Image();im.src='icons/marsa-lockup.png';await im.decode();const lh=84,lw=lh*im.width/im.height;x.drawImage(im,P,40,lw,lh)}catch(e){}
+  x.textAlign='right';x.fillStyle=INK;x.font='800 46px '+F;x.fillText('تنبيه الموازنة والمصروفات',W-P,84);
+  x.fillStyle=TEAL;x.font='700 34px '+F;x.fillText(monthName(M),W-P,134);
+  x.fillStyle=MUT;x.font='500 24px '+F;x.fillText('الإدارة المالية — نسائم صلالة'+(imp&&imp.month===M?' · الأرقام حتى '+fdate(String(imp.at).slice(0,10)):''),W-P,178);
+  x.fillStyle='#E3EAE9';x.fillRect(P,208,W-2*P,2);
+  /* المؤشرات */
+  const bw=(W-2*P-40)/3,by=240,bh=140;
+  [[ 'متجاوزة للموازنة',A.over.length,A.over.length?'التجاوز '+omr(A.overSum):'لا يوجد',RED,'#FBEDEB'],['قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'تحتاج انتباه',AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,A.T.b?'الاستهلاك الكلي \u2066'+Math.round(A.T.sp/A.T.b*100)+'%\u2069':'',GRN,'#E8F4EC']].forEach(([l,v,s,col,bg],i)=>{
+    const bx=W-P-(i+1)*bw-i*20;rr(bx,by,bw,bh,18,bg);x.fillStyle=col;x.fillRect(bx+bw-8,by+14,8,bh-28);
+    x.textAlign='center';x.fillStyle=col;x.font='800 58px '+F;x.fillText(String(v),bx+bw/2,by+66);
+    x.fillStyle=INK;x.font='700 24px '+F;x.fillText(fit(l,bw-30,'700 24px '+F),bx+bw/2,by+100);
+    x.fillStyle=MUT;x.font='500 20px '+F;x.fillText(fit(s,bw-30,'500 20px '+F),bx+bw/2,by+128)});
+  let y=by+bh+40;
+  const section=(title,L,hid,col,bg,kind)=>{if(!L.length)return;
+    x.textAlign='right';x.fillStyle=col;x.font='800 32px '+F;x.fillText(title+' ('+(L.length+hid)+')',W-P,y+34);y+=62;
+    L.forEach(({a,bi})=>{
+      rr(P,y,W-2*P,RH-12,16,bg);
+      x.textAlign='right';x.fillStyle=INK;x.font='700 27px '+F;x.fillText(fit(a.code+' — '+a.name,600,'700 27px '+F),W-P-20,y+36);
+      x.fillStyle=MUT;x.font='500 21px '+F;x.fillText('الموازنة '+money(bi.budget)+'  ·  الفعلي '+money(bi.spent),W-P-20,y+66);
+      const pct=bi.budget?bi.pctBefore:null;
+      x.textAlign='left';x.fillStyle=col;x.font='800 34px '+F;x.fillText(pct==null?'بدون موازنة':pct+'%',P+22,y+40);
+      x.font='700 21px '+F;x.fillText(kind==='c'?'تجاوز +'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining),P+22,y+68);
+      const bx0=P+250,bx1=W-P-20,bwid=bx1-bx0;rr(bx0,y+78,bwid,8,4,'#D9E2E1');
+      const f=Math.min(1,pct==null?1:pct/100);rr(bx1-bwid*f,y+78,Math.max(8,bwid*f),8,4,col);
+      y+=RH});
+    if(hid>0){x.textAlign='center';x.fillStyle=MUT;x.font='600 22px '+F;x.fillText('و '+hid+' حسابات أخرى — التفاصيل في مرسى',W/2,y+24);y+=50}
+    y+=22};
+  section('🔴 حسابات تجاوزت الموازنة',over,hidO,RED,'#FBEDEB','c');
+  section('🟠 حسابات قريبة من الحد',near,hidN,AMB,'#FDF3E1','w');
+  if(!A.over.length&&!A.near.length){x.textAlign='center';x.fillStyle=GRN;x.font='700 30px '+F;x.fillText('لا توجد حسابات متجاوزة أو قريبة من الحد 👌',W/2,y+50);y+=110}
+  /* التذييل */
+  x.fillStyle='#E3EAE9';x.fillRect(P,H-112,W-2*P,2);
+  x.textAlign='center';x.fillStyle=INK;x.font='700 26px '+F;x.fillText('نرجو الانتباه للمصاريف وترشيد الإنفاق في الحسابات أعلاه',W/2,H-66);
+  x.fillStyle=MUT;x.font='500 20px '+F;x.fillText('مرسى — الإدارة المالية · '+fdate(TODAY),W/2,H-30);
+  return c;
+}
+async function budgetReportShow(M){
+  M=M||(lastBudgetImport()||{}).month||MONTH;
+  if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
+  let c,blob;try{c=await budgetReportCanvas(M);blob=await new Promise(r=>c.toBlob(r,'image/png'))}catch(e){toast('تعذّر إنشاء صورة التقرير');return}
+  const url=c.toDataURL('image/png'),name='تنبيه-الموازنة-'+M+'.png';
+  const dl=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  modal({title:'📋 تقرير الموازنة — '+monthName(M),sub:'صورة جاهزة للإرسال في مجموعة الموظفين والإدارة',wide:true,
+    body:`<img src="${url}" alt="" style="width:100%;max-width:460px;display:block;margin:0 auto;border:1px solid var(--border);border-radius:10px"><div class="small muted" style="text-align:center;margin-top:8px">اضغط «نسخ الصورة» ثم الصقها في واتساب. إن لم يدعم جهازك النسخ استخدم «مشاركة» أو «تنزيل».</div>`,
+    foot:[{t:'📋 نسخ الصورة',fn:()=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
+      {t:'📤 مشاركة',cls:'sec',fn:()=>{const f=new File([blob],name,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تنبيه الموازنة'}).catch(()=>{});else dl();return false}},
+      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}]});
 }
 VIEWS.purreports=()=>{const per=V.sub.prp||'month';
   const inPer=p=>{const m=purMonthOf(p);return per==='month'?m===MONTH:per==='prev'?m===prevMonth(MONTH):per==='year'?m.slice(0,4)===MONTH.slice(0,4):true};
