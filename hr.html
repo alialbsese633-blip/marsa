@@ -2470,7 +2470,7 @@ const BUD_KW=[[/كهرب|electric/i,['الكهرباء',['فواتير الكه�
  [/اكرام|إكرام|tips|gratu/i,['الإكراميات',['إكراميات العاملين والخدمات','مكافآت رمزية']]],[/اعلان|إعلان|تسويق|market|advert/i,['التسويق والإعلان',['إعلانات ومنصات الحجز','مواد دعائية وتصميم']]]];
 function budDescGet(a){const ov=(S.settings.expDesc||{})[a.code];
   const d=BUD_DESC[a.code]||(BUD_KW.find(k=>k[0].test(a.name))||[0,null])[1];
-  const title=(ov&&ov.t)||(d&&d[0])||a.name;
+  const title=(ov&&ov.t)||(BUD_DESC[a.code]&&BUD_DESC[a.code][0])||a.name;
   const bullets=(ov&&Array.isArray(ov.b))?ov.b:(d?d[1]:[]);
   return {t:title,b:bullets,def:d?d[1]:[],defT:d?d[0]:a.name}}
 function budDescSave(a,title,text){const b=String(text||'').split('\n').map(x=>x.replace(/^[•\-\s]+/,'').trim()).filter(Boolean);
@@ -2499,7 +2499,7 @@ function budgetAlertsHTML(M){
 const BUD_TITLES={alerts:'تنبيه المصاريف والموازنة',groups:'الموازنة حسب المجموعة',top:'أكثر الحسابات إنفاقاً',full:'كشف الموازنة والمصروفات'};
 async function budgetReportCanvas(M,type,excl){
   type=type||'alerts';const A=budgetAlerts(M,excl),imp=lastBudgetImport();
-  const W=1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+  const W=type==='top'?1920:1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
   let logo=null;try{logo=new Image();logo.src='icons/logo-full.png';await logo.decode()}catch(e){logo=null}
   const BR='#0F7C8F',DK='#0B4F5C',RED='#C0392B',AMB='#D68910',GRN='#1E8449',INK='#16302f',MUT='#607573',SOFT='#F1F7F8',LINE='#DCE8EA';
   const stCol=p=>p>100?RED:p>=BUD_NEAR?AMB:GRN, stBg=p=>p>100?'#FBEDEB':p>=BUD_NEAR?'#FDF3E1':'#E8F4EC';
@@ -2535,14 +2535,18 @@ async function budgetReportCanvas(M,type,excl){
         T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T('الموازنة '+money(gr.b)+'  ·  الفعلي '+money(gr.sp),W-P-28,y+98,'500 20px '+F,MUT);
         bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
     if(type==='top'){
-      T('ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى',W-P,y+30,'700 25px '+F,MUT);y+=56;
+      T('ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى',W-P,y+30,'700 26px '+F,MUT);y+=58;
       const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
-      A.top.forEach(({a},i)=>{const d=budDescGet(a),BW=W-2*P-140,BF='500 22px '+F;const lines=d.b.map(b=>wrap(b,BW,BF));const nl=lines.reduce((n,l)=>n+l.length,0);
-        const h=78+(nl?nl*33+(lines.length-1)*6+14:0);rr(P,y,W-2*P,h,18,i%2?'#F8FBFB':SOFT);
-        x.fillStyle=i<3?BR:'#8DB3BA';x.beginPath();x.arc(W-P-44,y+42,26,0,7);x.fill();T(String(i+1),W-P-44,y+51,'800 26px '+F,'#fff','center');
-        T(fit(d.t,W-2*P-150,'800 30px '+F),W-P-92,y+50,'800 30px '+F,INK);
-        let ly=y+86;lines.forEach(L=>{L.forEach((ln,k)=>{if(k===0){x.fillStyle=BR;x.beginPath();x.arc(W-P-100,ly-8,4.5,0,7);x.fill()}T(ln,W-P-114,ly,BF,'#3C5553');ly+=33});ly+=6});
-        y+=h+12});y+=10}
+      const COLS=3,GAP=22,cw=(W-2*P-GAP*(COLS-1))/COLS,BW=cw-128,BF='500 20px '+F,LH=29;
+      const cards=A.top.map(({a})=>{const d=budDescGet(a),lines=d.b.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);return {d,lines,h:68+(nl?nl*LH+(lines.length-1)*5+12:0)}});
+      const per=Math.ceil(cards.length/COLS);let yEnd=y;
+      for(let ci=0;ci<COLS;ci++){const R=W-P-ci*(cw+GAP);let cy=y;
+        cards.slice(ci*per,(ci+1)*per).forEach((c,k)=>{const i=ci*per+k;rr(R-cw,cy,cw,c.h,16,(k%2)?'#F8FBFB':SOFT);
+          x.fillStyle=i<3?BR:'#8DB3BA';x.beginPath();x.arc(R-36,cy+36,22,0,7);x.fill();T(String(i+1),R-36,cy+44,'800 22px '+F,'#fff','center');
+          T(fit(c.d.t,cw-100,'800 27px '+F),R-76,cy+44,'800 27px '+F,INK);
+          let ly=cy+76;c.lines.forEach(L=>{L.forEach((ln,q)=>{if(q===0){x.fillStyle=BR;x.beginPath();x.arc(R-86,ly-7,4,0,7);x.fill()}T(ln,R-100,ly,BF,'#3C5553');ly+=LH});ly+=5});
+          cy+=c.h+12});yEnd=Math.max(yEnd,cy)}
+      y=yEnd+8}
     if(type==='full'){strip();const cn=W-P-16,c1=cn-340-64,c2=c1-128,c3=c2-138,c4=c3-150;
       rr(P,y,W-2*P,56,14,BR);T('الحساب',cn,y+37,'700 22px '+F,'#fff');[['الموازنة',c1],['الفعلي',c2],['المتبقي / التجاوز',c3],['النسبة',c4]].forEach(([l,cx])=>T(l,cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
       let cnt=0,gp='',hid=0;const LIM=34;
