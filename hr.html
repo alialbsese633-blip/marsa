@@ -5204,25 +5204,20 @@ function asgPending(){return asgMine().filter(a=>['new','ack'].includes(a.status
 const asgWho=()=>S.session.name||(emp(S.session.empId)||{}).name||(ROLES[role()]||{}).label||'';
 function asgUpd(a,ic,txt){(a.upd=a.upd||[]).push({at:nowTs(),by:asgWho(),ic,txt})}
 function asgNotifyIssuer(a,title,body){notify(a.byEmp?'emp:'+a.byEmp:'role:'+(a.byRole||'hr'),'📌',title,body,{view:'assign'})}
-function asgSig(a){const ack=a.ack,gm=a.byRole==='gm';
-  const cell=(lab,img,dt,nm,sub)=>`<div>${lab}${nm?`<br><b>${esc(nm)}</b>${sub?`<br><span class="small">${esc(sub)}</span>`:''}`:''}<br>${img?`<img src="${img}" style="height:56px;max-width:90%;object-fit:contain;display:block;margin:2px auto">`:'<br>التوقيع / Signature: ............'}<br>التاريخ / Date: ${dt?fdate(String(dt).slice(0,10)):'............'}</div>`;
-  const cols=2;
-  return `<div class="sig" style="grid-template-columns:repeat(${cols},1fr)">${cell('الجهة المكلفة / Issued by',gm?COMPANY_STAMP:null,a.date,a.by,((ROLES[a.byRole]||{}).label)!==a.by?(ROLES[a.byRole]||{}).label:'')}${cell('الموظف المكلف (إقرار بالاستلام) / Assignee',ack&&ack.sig,ack&&ack.at,empName(a.empId))}</div>`}
 function assignDoc(a){const e=emp(a.empId)||{};const tasks=(a.tasks||[]).filter(Boolean);
   return `<div class="doc lh-doc">${LH_WMI}${offHead('تكليف رسمي','Official Assignment',a.no)}<table>${BR('رقم التكليف','Assignment No.',`<b dir="ltr">${esc(a.no)}</b>`)}${BR('التاريخ','Date',fdate(a.date))}${BR('الموظف المكلف','Assigned To',esc(e.name||'—'))}${BR('الرقم الوظيفي','Employee ID',esc(e.code||'—'))}${BR('الوظيفة','Job Title',esc(e.job||'—'))}${BR('المبنى / القسم','Building / Dept',esc(e.building||e.dept||'—'))}${BR('نوع التكليف','Assignment Type',esc(a.type||'تكليف بمهمة'))}${BR('الأولوية','Priority',esc(a.priority||'عادي'))}${BR('موعد التنفيذ','Due Date',a.due?fdate(a.due):'حسب الحاجة')}</table>
   <h4 style="margin:16px 0 8px;font-size:16px">${esc(a.title)}</h4>${a.body?`<div style="white-space:pre-wrap;line-height:2;font-size:14px">${esc(a.body)}</div>`:''}
   ${tasks.length?`<table style="margin-top:10px"><tr><th style="width:8%">م / No.</th><th>المهام المطلوبة / Required Tasks</th></tr>${tasks.map((t,i)=>`<tr><td style="text-align:center">${i+1}</td><td style="line-height:1.9">${esc(t)}</td></tr>`).join('')}</table>`:''}
   ${a.notes?`<table style="margin-top:10px"><tr><th>ملاحظات وصلاحيات / Notes &amp; Authorities</th></tr><tr><td style="white-space:pre-wrap;line-height:1.9">${esc(a.notes)}</td></tr></table>`:''}
   <p style="font-size:13px;line-height:2;margin-top:12px">يرجى التقيد بما ورد أعلاه وإفادتنا بالإنجاز في الموعد المحدد، والتواصل مع الجهة المكلفة عند وجود أي استفسار أو عائق.</p>
-  ${a.ack?`<p style="font-size:12.5px;line-height:1.9">أقر باستلام هذا التكليف والاطلاع عليه، وأتعهد بتنفيذه وفق الموعد والتعليمات المحددة.</p>`:''}
-  ${asgSig(a)}${offFoot()}</div>`}
+  ${offFoot()}</div>`}
 function asgPrint(a){const can=asgCanIssue();docLangPrint(assignDoc(a),a.no,{saved:a.tr,save:can?(l,h)=>{a.tr={...(a.tr||{}),[l]:h};log(`حفظ ترجمة ${l} للتكليف ${a.no}`);save()}:null})}
 VIEWS.assign=()=>{const can=asgCanIssue(),tab=can?(V.sub.asgT||'all'):'mine',f=V.sub.asgF||'all';
   const base=tab==='mine'?asgMine():asgAll(),cnt=k=>base.filter(a=>k==='late'?asgOverdue(a):a.status===k).length;
   const L=base.filter(a=>f==='all'||(f==='late'?asgOverdue(a):a.status===f));
   const row=a=>{const e=emp(a.empId)||{},st=ASG_ST[a.status]||['',''];
     return `<div class="li click" data-asg="${a.id}"><div class="av">📌</div><div style="min-width:0"><div class="t">${esc(a.title)} <span class="muted small" dir="ltr">${esc(a.no)}</span></div><div class="s">${tab==='mine'?'من: '+esc(a.by):'إلى: '+esc(empName(a.empId))+(e.building?' — '+esc(e.building):'')} · ${esc(a.type||'')}${a.due?' · موعد التنفيذ '+fdate(a.due):''}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${a.priority&&a.priority!=='عادي'?badge(esc(a.priority),ASG_PR[a.priority]):''}${asgOverdue(a)?badge('متأخر','c'):''}${badge(st[0],st[1])}</div></div>`};
-  return ph(can?'التكليفات':'تكليفاتي',can?'مهام وتكليفات رسمية موجهة لموظف محدد على نموذج العالمية السعيدة — مع الاستلام والمتابعة':'التكليفات الموجهة إليك — استلمها ووقّع، ثم أبلغ بالإنجاز',can?`<button class="btn" id="nAsg">📌 تكليف جديد</button>`:'')+
+  return ph(can?'التكليفات':'تكليفاتي',can?'مهام وتكليفات رسمية موجهة لموظف محدد على نموذج العالمية السعيدة — مع الاستلام والمتابعة':'التكليفات الموجهة إليك — استلمها ثم أبلغ بالإنجاز',can?`<button class="btn" id="nAsg">📌 تكليف جديد</button>`:'')+
   (can?`<div class="grid g4">${kpi('بانتظار الاستلام',asgAll().filter(a=>a.status==='new').length,'','w')}${kpi('قيد التنفيذ',asgAll().filter(a=>a.status==='ack').length)}${kpi('متأخرة',asgAll().filter(asgOverdue).length,'',asgAll().some(asgOverdue)?'c':'')}${kpi('بانتظار الاعتماد',asgAll().filter(a=>a.status==='done').length,'',asgAll().some(a=>a.status==='done')?'a':'')}</div>`:'')+
   `<div class="toolbar" style="margin-top:${can?14:0}px">${can?`<div class="seg">${[['all','كل التكليفات'],['mine','الموجهة إليّ']].map(([k,n])=>`<button data-asgt="${k}" class="${tab===k?'on':''}">${n}</button>`).join('')}</div>`:''}<div class="seg">${[['all','الكل'],['new','بانتظار الاستلام'],['ack','قيد التنفيذ'],['done','بانتظار الاعتماد'],['closed','مغلق'],['late','متأخر']].map(([k,n])=>`<button data-asgf="${k}" class="${f===k?'on':''}">${n}${k!=='all'&&cnt(k)?` <span class="muted small">${cnt(k)}</span>`:''}</button>`).join('')}</div></div>
   <div class="card"><div class="list">${L.map(row).join('')||`<div class="empty">${can&&tab==='all'?'لا توجد تكليفات بعد — اضغط «تكليف جديد»':'لا توجد تكليفات'}</div>`}</div></div>`};
@@ -5235,14 +5230,14 @@ function asgOpen(id){const a=S.announcements.find(x=>x.id===id);if(!a)return;let
   const mineA=a.empId===S.session.empId,can=asgCanIssue(),st=ASG_ST[a.status]||['',''];
   const logH=(a.upd||[]).length?`<div class="card" style="margin-top:12px"><h2>سجل المتابعة</h2><div class="list">${a.upd.map(u=>`<div class="li"><div class="av">${u.ic||'📝'}</div><div><div class="t">${esc(u.by)} <span class="muted small">${ftime(u.at)}</span></div><div class="s">${esc(u.txt)}</div></div></div>`).join('')}</div></div>`:'';
   const act=fn=>()=>{M.close();fn(a);return false},foot=[];
-  if(mineA&&a.status==='new')foot.push({t:'✍️ استلمت التكليف',fn:act(asgAck)});
+  if(mineA&&a.status==='new')foot.push({t:'📥 استلمت التكليف',fn:act(asgAck)});
   if(mineA&&a.status==='ack'){foot.push({t:'✅ تم الإنجاز',fn:act(asgDone)});foot.push({t:'📝 إضافة تحديث',cls:'sec',fn:act(asgNote)})}
   if(can&&a.status==='done'){foot.push({t:'✔️ اعتماد وإغلاق',fn:act(asgClose)});foot.push({t:'↩️ إعادة للتنفيذ',cls:'sec',fn:act(asgReopen)})}
   if(can&&['new','ack'].includes(a.status))foot.push({t:'⛔ إلغاء التكليف',cls:'sec',fn:act(asgCancel)});
   foot.push({t:'🌐 طباعة / ترجمة',cls:'sec',fn:()=>{asgPrint(a);return false}},{t:'إغلاق',cls:'sec'});
   M=modal({title:'📌 '+esc(a.title),sub:`${a.no} — ${st[0]}${asgOverdue(a)?' — متأخر':''}`,wide:true,body:assignDoc(a)+logH,foot})}
-function asgAck(a){modal({title:'✍️ الإقرار باستلام التكليف',sub:a.no+' — '+esc(a.title),body:`<div class="note small">أقر باستلام هذا التكليف والاطلاع عليه، وأتعهد بتنفيذه وفق الموعد والتعليمات المحددة.</div>${sigPadHTML('asgSig')}<div class="fld"><label>ملاحظة (اختياري)</label><textarea id="asgN"></textarea></div>`,onMount:b=>bindSigPad(b,'asgSig'),
-  foot:[{t:'تأكيد الاستلام',fn:b=>{if(sigIsEmpty(b,'asgSig')){toast('وقّع أولاً');return false}a.ack={at:nowTs(),sig:sigDataURL(b,'asgSig')};a.status='ack';const n=fv(b,'asgN');asgUpd(a,'✍️','استلم التكليف ووقّع'+(n?' — '+n:''));asgNotifyIssuer(a,'تم استلام التكليف',empName(a.empId)+' — '+a.title);log(`استلام التكليف ${a.no}`);commit('تم استلام التكليف')}},{t:'إلغاء',cls:'sec'}]})}
+function asgAck(a){modal({title:'📥 تأكيد استلام التكليف',sub:a.no+' — '+esc(a.title),body:`<div class="note small">بتأكيدك تفيد الجهة المكلفة بأنك استلمت التكليف واطلعت عليه وبدأت تنفيذه.</div><div class="fld"><label>ملاحظة (اختياري)</label><textarea id="asgN"></textarea></div>`,
+  foot:[{t:'تأكيد الاستلام',fn:b=>{a.ack={at:nowTs()};a.status='ack';const n=fv(b,'asgN');asgUpd(a,'📥','استلم التكليف'+(n?' — '+n:''));asgNotifyIssuer(a,'تم استلام التكليف',empName(a.empId)+' — '+a.title);log(`استلام التكليف ${a.no}`);commit('تم استلام التكليف')}},{t:'إلغاء',cls:'sec'}]})}
 function asgDone(a){modal({title:'✅ الإبلاغ بإنجاز التكليف',sub:a.no+' — '+esc(a.title),body:`<div class="fld"><label>ما الذي تم إنجازه؟ (إلزامي)</label><textarea id="asgN" style="min-height:110px"></textarea></div>`,
   foot:[{t:'إرسال للاعتماد',fn:b=>{const n=fv(b,'asgN');if(!n){toast('اكتب ملخص الإنجاز');return false}a.status='done';a.doneAt=nowTs();asgUpd(a,'✅','أبلغ بالإنجاز — '+n);asgNotifyIssuer(a,'تكليف أُنجز بانتظار اعتمادك',empName(a.empId)+' — '+a.title);log(`إنجاز التكليف ${a.no}`);commit('تم إرسال الإنجاز للاعتماد')}},{t:'إلغاء',cls:'sec'}]})}
 function asgNote(a){modal({title:'📝 تحديث على التكليف',sub:a.no,body:`<div class="fld"><label>التحديث</label><textarea id="asgN" style="min-height:90px"></textarea></div>`,
@@ -5252,7 +5247,7 @@ function asgReopen(a){confirmBox('إعادة التكليف للتنفيذ','س�
 function asgCancel(a){confirmBox('إلغاء التكليف','سيُلغى التكليف '+esc(a.no)+' ويُبلَّغ الموظف.','إلغاء التكليف','crit',n=>{a.status='cancelled';asgUpd(a,'⛔','أُلغي التكليف'+(n?' — '+n:''));notify('emp:'+a.empId,'⛔','أُلغي التكليف',a.title,{view:'assign'});log(`إلغاء التكليف ${a.no}`);commit('تم إلغاء التكليف')},'req','سبب الإلغاء')}
 function asgForm(){
   const E=activeEmps().slice().sort((x,y)=>String(x.name).localeCompare(String(y.name),'ar'));
-  modal({title:'📌 تكليف جديد',sub:'سيصدر على نموذج العالمية السعيدة ويصل الموظف إشعاراً ليستلمه ويوقّع',wide:true,
+  modal({title:'📌 تكليف جديد',sub:'سيصدر على نموذج العالمية السعيدة ويصل الموظف إشعاراً ليستلمه',wide:true,
     body:`<div class="note small" style="margin-bottom:10px">رقم التكليف التالي: <b dir="ltr">${asgPeek()}</b></div>
     <div class="fld"><label>نموذج جاهز (اختياري)</label><select id="as_tpl"><option value="">— اختر لتعبئة الحقول —</option>${ASG_TPL.map(t=>`<option value="${t.k}">${esc(t.n)}</option>`).join('')}</select></div>
     <div class="fld"><label>الموظف المكلف</label><select id="as_e"><option value="">— اختر الموظف —</option>${E.map(e=>`<option value="${esc(e.id)}">${esc(e.name)}${e.job?' — '+esc(e.job):''}${e.building?' ('+esc(e.building)+')':''}</option>`).join('')}</select></div>
