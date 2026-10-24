@@ -2468,13 +2468,66 @@ const BUD_KW=[[/كهرب|electric/i,['الكهرباء',['فواتير الكه�
  [/تأمين|تامين|insur/i,['التأمين',['وثائق تأمين المباني والمركبات والموظفين']]],[/بنك|bank/i,['الرسوم البنكية',['عمولات وتحويلات','رسوم أجهزة الدفع']]],
  [/سفر|تذاكر|travel/i,['السفر والتذاكر',['تذاكر سفر الموظفين','بدلات السفر']]],[/حكوم|govern|رسوم|licen/i,['الرسوم الحكومية',['رسوم التراخيص والتصاريح','رسوم الجهات الحكومية']]],
  [/اكرام|إكرام|tips|gratu/i,['الإكراميات',['إكراميات العاملين والخدمات','مكافآت رمزية']]],[/اعلان|إعلان|تسويق|market|advert/i,['التسويق والإعلان',['إعلانات ومنصات الحجز','مواد دعائية وتصميم']]]];
-function budDescGet(a){const ov=(S.settings.expDesc||{})[a.code];
-  const d=BUD_DESC[a.code]||(BUD_KW.find(k=>k[0].test(a.name))||[0,null])[1];
-  const title=(ov&&ov.t)||(BUD_DESC[a.code]&&BUD_DESC[a.code][0])||a.name;
-  const bullets=(ov&&Array.isArray(ov.b))?ov.b:(d?d[1]:[]);
-  return {t:title,b:bullets,def:d?d[1]:[],defT:d?d[0]:a.name}}
-function budDescSave(a,title,text){const b=String(text||'').split('\n').map(x=>x.replace(/^[•\-\s]+/,'').trim()).filter(Boolean);
-  S.settings.expDesc=S.settings.expDesc||{};S.settings.expDesc[a.code]={t:(title||'').trim()||a.name,b};try{save()}catch(e){}}
+const BUD_DESC_T={
+en:{'9451':['Electricity',['Electricity bills for buildings and apartments','Lighting for entrances, corridors, parking and shared areas','Meter top-ups and bill settlements']],
+ '9654':['Tools & Equipment',['Hand and power maintenance tools (screwdrivers, drills, ladders)','Small plumbing and electrical supplies','Daily operating equipment for the buildings']],
+ '9154':['General Maintenance & Repairs',['A/C, plumbing and electrical repairs in the apartments','Painting and repair of furniture, doors and locks','Spare parts and technician / contractor fees']],
+ '9903':['Bank Fees & Charges',['Bank account commissions and transfers','Card machine and payment gateway fees','Cheque book and banking service fees']],
+ '9046':['Staff Travel Allowances & Tickets',['Staff air tickets (annual leave, arrival and departure)','Travel allowances due to employees']],
+ '9013':['Gratuities',['Tips for delivery and service workers','Small rewards for staff on extra work','Holiday and occasion gratuities']],
+ '9064':['Vehicle Fuel & Oil',['Fuel for company vehicles','Oil, filters and periodic vehicle servicing','Vehicle washing and supplies']],
+ '9652':['Cleaning Supplies',['Detergents, disinfectants and polishes for the apartments','Garbage bags, toilet paper and tissues','Mops, cleaning tools and guest consumables']],
+ '9011':['Social Security',["Company's share of social protection contributions for Omani employees"]],
+ '9682':['Government Fees',['Licence and commercial registration fees and renewals','Labour, residency and employee permit fees','Municipality and other government fees']],
+ '9002':['Salaries & Wages',['Monthly basic salaries of employees','Monthly wages and entitlements']],
+ '9003':['Incentives & Commissions',['Employee incentives','Booking and occupancy commissions']],
+ '9006':['Appearance Allowance',['Appearance and uniform allowance for employees']],
+ '9012':['End-of-Service Benefits',['End-of-service entitlements for departing employees']],
+ '9015':['Staff Food & Refreshments',['Tea, coffee and hospitality for staff','Meals and food supplies for teams']],
+ '9016':['Workers Medical Expenses',['Medical checks and treatment for workers','Medicines and clinic visits']]},
+bn:{'9451':['বিদ্যুৎ',['ভবন ও অ্যাপার্টমেন্টের বিদ্যুৎ বিল','প্রবেশপথ, করিডর, পার্কিং ও সাধারণ এলাকার আলো','মিটার রিচার্জ ও বিল নিষ্পত্তি']],
+ '9654':['যন্ত্রপাতি ও সরঞ্জাম',['হাতে ও বিদ্যুৎচালিত রক্ষণাবেক্ষণ সরঞ্জাম (স্ক্রুড্রাইভার, ড্রিল, মই)','ছোটখাটো প্লাম্বিং ও বৈদ্যুতিক সামগ্রী','ভবনের দৈনন্দিন কাজের সরঞ্জাম']],
+ '9154':['সাধারণ রক্ষণাবেক্ষণ ও মেরামত',['অ্যাপার্টমেন্টে এসি, প্লাম্বিং ও বৈদ্যুতিক মেরামত','রং করা এবং আসবাব, দরজা ও তালা মেরামত','যন্ত্রাংশ এবং টেকনিশিয়ান/ঠিকাদারের মজুরি']],
+ '9903':['ব্যাংক চার্জ ও ফি',['ব্যাংক অ্যাকাউন্টের কমিশন ও ট্রান্সফার','কার্ড মেশিন ও পেমেন্ট গেটওয়ে ফি','চেকবই ও ব্যাংক সেবার ফি']],
+ '9046':['কর্মীদের ভ্রমণ ভাতা ও টিকিট',['কর্মীদের বিমান টিকিট (বার্ষিক ছুটি, আগমন ও প্রস্থান)','কর্মীদের প্রাপ্য ভ্রমণ ভাতা']],
+ '9013':['বখশিশ',['ডেলিভারি ও সেবাকর্মীদের বখশিশ','অতিরিক্ত কাজের জন্য কর্মীদের প্রতীকী পুরস্কার','ঈদ ও বিভিন্ন উপলক্ষের বখশিশ']],
+ '9064':['গাড়ির জ্বালানি ও তেল',['কোম্পানির গাড়ির জ্বালানি','তেল, ফিল্টার ও নিয়মিত গাড়ি সার্ভিসিং','গাড়ি ধোয়া ও আনুষঙ্গিক সামগ্রী']],
+ '9652':['পরিচ্ছন্নতা সামগ্রী',['অ্যাপার্টমেন্টের ডিটারজেন্ট, জীবাণুনাশক ও পলিশ','ময়লার ব্যাগ, টয়লেট পেপার ও টিস্যু','মপ, পরিষ্কারের সরঞ্জাম ও অতিথিদের ব্যবহার্য সামগ্রী']],
+ '9011':['সামাজিক নিরাপত্তা',['ওমানি কর্মীদের সামাজিক সুরক্ষা অবদানে কোম্পানির অংশ']],
+ '9682':['সরকারি ফি',['লাইসেন্স ও বাণিজ্যিক নিবন্ধন ফি এবং নবায়ন','শ্রম, ইকামা ও কর্মীদের পারমিট ফি','পৌরসভা ও অন্যান্য সরকারি ফি']],
+ '9002':['বেতন ও মজুরি',['কর্মীদের মাসিক মূল বেতন','মাসিক মজুরি ও প্রাপ্য']],
+ '9003':['প্রণোদনা ও কমিশন',['কর্মীদের প্রণোদনা','বুকিং ও অকুপেন্সি কমিশন']],
+ '9006':['পোশাক ও চেহারা ভাতা',['কর্মীদের পোশাক ও চেহারা ভাতা']],
+ '9012':['চাকরি শেষে প্রাপ্য সুবিধা',['চাকরি ছেড়ে যাওয়া কর্মীদের প্রাপ্য']],
+ '9015':['কর্মীদের খাবার ও আপ্যায়ন',['কর্মীদের জন্য চা, কফি ও আপ্যায়ন','দলের খাবার ও খাদ্য সামগ্রী']],
+ '9016':['শ্রমিকদের চিকিৎসা ব্যয়',['শ্রমিকদের চিকিৎসা পরীক্ষা ও চিকিৎসা','ওষুধ ও ক্লিনিক ভিজিট']]}};
+/* ترجمة الكلمات المفتاحية — بنفس ترتيب BUD_KW */
+const BUD_KW_T=[
+ {en:['Electricity',['Electricity bills for buildings and apartments','Lighting for shared areas']],bn:['বিদ্যুৎ',['ভবন ও অ্যাপার্টমেন্টের বিদ্যুৎ বিল','সাধারণ এলাকার আলো']]},
+ {en:['Water',['Water bills for buildings and apartments','Maintenance of water lines and tanks']],bn:['পানি',['ভবন ও অ্যাপার্টমেন্টের পানির বিল','পানির লাইন ও ট্যাংক রক্ষণাবেক্ষণ']]},
+ {en:['Telecom & Internet',['Internet subscriptions for buildings and apartments','Phone lines and communications']],bn:['টেলিযোগাযোগ ও ইন্টারনেট',['ভবন ও অ্যাপার্টমেন্টের ইন্টারনেট সাবস্ক্রিপশন','ফোন লাইন ও যোগাযোগ']]},
+ {en:['Cleaning',['Detergents and disinfectants for apartments','Garbage bags, paper and tissues']],bn:['পরিচ্ছন্নতা',['অ্যাপার্টমেন্টের ডিটারজেন্ট ও জীবাণুনাশক','ময়লার ব্যাগ, কাগজ ও টিস্যু']]},
+ {en:['Maintenance & Repairs',['A/C, plumbing and electrical repairs','Spare parts and technician fees']],bn:['রক্ষণাবেক্ষণ ও মেরামত',['এসি, প্লাম্বিং ও বৈদ্যুতিক মেরামত','যন্ত্রাংশ ও টেকনিশিয়ানের মজুরি']]},
+ {en:['Fuel & Vehicles',['Fuel for company vehicles','Vehicle maintenance and oil']],bn:['জ্বালানি ও গাড়ি',['কোম্পানির গাড়ির জ্বালানি','গাড়ির রক্ষণাবেক্ষণ ও তেল']]},
+ {en:['Rent',['Rent of buildings and facilities']],bn:['ভাড়া',['ভবন ও স্থাপনার ভাড়া']]},
+ {en:['Linen Laundry',['Washing of bedding and towels','Laundry supplies']],bn:['লন্ড্রি',['বিছানার চাদর ও তোয়ালে ধোয়া','লন্ড্রির সামগ্রী']]},
+ {en:['Furnishings',['Buying and replacing bedding and towels','Furniture and apartment fittings']],bn:['আসবাব ও সজ্জা',['বিছানার চাদর ও তোয়ালে কেনা ও পরিবর্তন','আসবাব ও অ্যাপার্টমেন্ট সরঞ্জাম']]},
+ {en:['Stationery & Office Supplies',['Paper, ink and office items']],bn:['স্টেশনারি ও অফিস সামগ্রী',['কাগজ, কালি ও অফিস সামগ্রী']]},
+ {en:['Insurance',['Insurance policies for buildings, vehicles and staff']],bn:['বিমা',['ভবন, গাড়ি ও কর্মীদের বিমা পলিসি']]},
+ {en:['Bank Fees',['Commissions and transfers','Card machine fees']],bn:['ব্যাংক ফি',['কমিশন ও ট্রান্সফার','কার্ড মেশিন ফি']]},
+ {en:['Travel & Tickets',['Staff air tickets','Travel allowances']],bn:['ভ্রমণ ও টিকিট',['কর্মীদের বিমান টিকিট','ভ্রমণ ভাতা']]},
+ {en:['Government Fees',['Licence and permit fees','Government authority fees']],bn:['সরকারি ফি',['লাইসেন্স ও পারমিট ফি','সরকারি দপ্তরের ফি']]},
+ {en:['Gratuities',['Tips for staff and service workers','Small rewards']],bn:['বখশিশ',['কর্মী ও সেবাকর্মীদের বখশিশ','প্রতীকী পুরস্কার']]},
+ {en:['Marketing & Advertising',['Ads and booking platforms','Promotional materials and design']],bn:['মার্কেটিং ও বিজ্ঞাপন',['বিজ্ঞাপন ও বুকিং প্ল্যাটফর্ম','প্রচার সামগ্রী ও ডিজাইন']]}];
+function budOv(code,lang){const o=(S.settings.expDesc||{})[code];if(!o)return null;if(o.t!==undefined)return lang==='ar'?o:null;return o[lang]||null}
+function budDescGet(a,lang){lang=lang||'ar';const ov=budOv(a.code,lang);
+  const codeD=lang==='ar'?BUD_DESC[a.code]:(BUD_DESC_T[lang]||{})[a.code];
+  const ki=BUD_KW.findIndex(k=>k[0].test(a.name));
+  const kwD=ki<0?null:(lang==='ar'?BUD_KW[ki][1]:BUD_KW_T[ki][lang]);
+  const d=codeD||kwD;
+  return {t:(ov&&ov.t)||(codeD&&codeD[0])||a.name,b:(ov&&Array.isArray(ov.b))?ov.b:(d?d[1]:[]),needsTr:lang!=='ar'&&!(ov&&ov.t)&&!codeD}}
+function budDescSave(a,lang,title,text){const b=String(text||'').split('\n').map(x=>x.replace(/^[•\-\s]+/,'').trim()).filter(Boolean);
+  S.settings.expDesc=S.settings.expDesc||{};let o=S.settings.expDesc[a.code];if(o&&o.t!==undefined)o={ar:o};o=o||{};o[lang]={t:(title||'').trim()||a.name,b};S.settings.expDesc[a.code]=o;try{save()}catch(e){}}
 function budgetAlerts(M,excl){
   excl=excl||new Set();
   const rows=expAccounts().filter(a=>!excl.has(a.code)).map(a=>({a,bi:budgetInfo(a.code,0,null,M)})).filter(x=>x.bi.budget>0||x.bi.spent>0);
@@ -2496,72 +2549,91 @@ function budgetAlertsHTML(M){
   <div class="grid g4" style="margin-top:8px">${kpi('🔴 متجاوزة للموازنة',A.over.length,A.over.length?'إجمالي التجاوز '+omr(A.overSum):'لا يوجد',A.over.length?'c':'g')}${kpi('🟠 قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'',A.near.length?'w':'g')}${kpi('🟢 ضمن الموازنة',A.okN)}${kpi('الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',omr(A.T.sp)+' من '+omr(A.T.b))}</div>
   ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
 }
-const BUD_TITLES={alerts:'تنبيه المصاريف والموازنة',groups:'الموازنة حسب المجموعة',top:'أكثر الحسابات إنفاقاً',full:'كشف الموازنة والمصروفات'};
-async function budgetReportCanvas(M,type,excl){
-  type=type||'alerts';const A=budgetAlerts(M,excl),imp=lastBudgetImport();
-  const W=type==='top'?1920:1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+const BUD_LANGS=[['ar','عربي'],['en','English'],['bn','বাংলা']];
+const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Expenses & Budget Alert','ব্যয় ও বাজেট সতর্কতা'],title_groups:['الموازنة حسب المجموعة','Budget by Account Group','অ্যাকাউন্ট গ্রুপ অনুযায়ী বাজেট'],title_top:['أكثر الحسابات إنفاقاً','Highest-Spending Accounts','সর্বাধিক ব্যয়ের অ্যাকাউন্ট'],title_full:['كشف الموازنة والمصروفات','Budget & Expenses Statement','বাজেট ও ব্যয় বিবরণী'],
+ org:['نسائم صلالة للشقق المفروشة — الإدارة المالية','Nassayem Salalah Furnished Apartments — Finance Department','নাসায়েম সালালাহ ফার্নিশড অ্যাপার্টমেন্টস — অর্থ বিভাগ'],asof:['الأرقام حتى','Figures as of','তথ্য হালনাগাদ'],
+ over:['متجاوزة','Over budget','বাজেট অতিক্রান্ত'],near:['قريبة من الحد','Near the limit','সীমার কাছাকাছি'],ok:['ضمن الموازنة','Within budget','বাজেটের মধ্যে'],
+ secOver:['حسابات تجاوزت الموازنة','Accounts over budget','বাজেট অতিক্রম করা অ্যাকাউন্ট'],secNear:['حسابات قريبة من الحد','Accounts near the limit','সীমার কাছাকাছি অ্যাকাউন্ট'],
+ budget:['الموازنة','Budget','বাজেট'],actual:['الفعلي','Actual','প্রকৃত'],overBy:['تجاوز','Over by','অতিরিক্ত'],rem:['متبقي','Remaining','অবশিষ্ট'],noBudget:['بدون موازنة','No budget','বাজেট নেই'],none:['بدون','None','নেই'],
+ more:['و {n} حسابات أخرى','and {n} more accounts','এবং আরও {n}টি অ্যাকাউন্ট'],accN:['{n} حساب','{n} accounts','{n}টি অ্যাকাউন্ট'],overN:['{n} متجاوزة','{n} over budget','{n}টি অতিক্রান্ত'],
+ grpTitle:['الاستهلاك حسب مجموعة الحسابات','Spending by account group','অ্যাকাউন্ট গ্রুপ অনুযায়ী ব্যয়'],otherGrp:['حسابات أخرى','Other accounts','অন্যান্য অ্যাকাউন্ট'],
+ topSub:['ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى','Highest-spending accounts this month — ranked from highest to lowest','এই মাসে সর্বোচ্চ ব্যয়ের অ্যাকাউন্ট — সর্বোচ্চ থেকে সর্বনিম্ন'],
+ cAcc:['الحساب','Account','অ্যাকাউন্ট'],cRem:['المتبقي / التجاوز','Remaining / Over','অবশিষ্ট / অতিরিক্ত'],cPct:['النسبة','%','শতাংশ'],
+ noneAll:['لا توجد حسابات متجاوزة أو قريبة من الحد','No accounts are over budget or near the limit','কোনো অ্যাকাউন্ট বাজেট অতিক্রম করেনি বা সীমার কাছাকাছি নয়'],
+ foot1:['نرجو الانتباه للمصاريف وترشيد الإنفاق','Please keep an eye on expenses and control spending','অনুগ্রহ করে ব্যয়ের প্রতি নজর রাখুন এবং খরচ নিয়ন্ত্রণে রাখুন'],foot2:['نسائم صلالة — الإدارة المالية','Nassayem Salalah — Finance Department','নাসায়েম সালালাহ — অর্থ বিভাগ']};
+const BUD_MON={en:['January','February','March','April','May','June','July','August','September','October','November','December'],bn:['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর']};
+function budMonth(M,lang){if(lang==='ar')return monthName(M);const [y,m]=M.split('-');return BUD_MON[lang][+m-1]+' '+y}
+function budDate(s,lang){if(lang==='ar')return fdate(s);const d=new Date(s.length>10?s:s+'T00:00:00');return d.getDate()+' '+BUD_MON[lang][d.getMonth()]+' '+d.getFullYear()}
+async function budgetReportCanvas(M,type,excl,lang){
+  type=type||'alerts';lang=lang||'ar';const li=lang==='en'?1:lang==='bn'?2:0,MX=lang!=='ar';
+  const A=budgetAlerts(M,excl),imp=lastBudgetImport();
+  const tr=(k,n)=>String(BUD_I[k][li]).replace('{n}',n),nm=a=>lang==='ar'?a.name:budDescGet(a,lang).t,lp=n=>lang==='ar'?LP(n):n+'%';
+  const W=type==='top'?1920:1080,P=40;let F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+  if(lang==='bn'){F='"Noto Sans Bengali",'+F;try{loadBnFont();await Promise.race([Promise.all(['500 20px','700 28px','800 30px'].map(f=>document.fonts.load(f+' "Noto Sans Bengali"','অআক'))),new Promise(r=>setTimeout(r,5000))])}catch(e){}}
   let logo=null;try{logo=new Image();logo.src='icons/logo-full.png';await logo.decode()}catch(e){logo=null}
   const BR='#0F7C8F',DK='#0B4F5C',RED='#C0392B',AMB='#D68910',GRN='#1E8449',INK='#16302f',MUT='#607573',SOFT='#F1F7F8',LINE='#DCE8EA';
   const stCol=p=>p>100?RED:p>=BUD_NEAR?AMB:GRN, stBg=p=>p>100?'#FBEDEB':p>=BUD_NEAR?'#FDF3E1':'#E8F4EC';
   const draw=x=>{
-    x.direction='rtl';
-    const rr=(px,py,w,h,r,fill)=>{x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);if(fill){x.fillStyle=fill;x.fill()}};
+    x.direction=MX?'ltr':'rtl';
+    const rr=(px,py,w,h,r,fill)=>{if(MX)px=W-px-w;x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);if(fill){x.fillStyle=fill;x.fill()}};
+    const fR=(px,py,w,h,fill)=>{if(MX)px=W-px-w;x.fillStyle=fill;x.fillRect(px,py,w,h)};
+    const circ=(cx,cy,r,fill)=>{x.fillStyle=fill;x.beginPath();x.arc(MX?W-cx:cx,cy,r,0,7);x.fill()};
     const fit=(t,mw,font)=>{x.font=font;t=String(t);if(x.measureText(t).width<=mw)return t;while(t.length>2&&x.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…'};
-    const T=(t,px,py,font,col,al)=>{x.textAlign=al||'right';x.fillStyle=col;x.font=font;x.fillText(t,px,py)};
+    const T=(t,px,py,font,col,al)=>{al=al||'right';if(MX){px=W-px;al=al==='right'?'left':al==='left'?'right':al}x.textAlign=al;x.fillStyle=col;x.font=font;x.fillText(t,px,py)};
     const bar=(x0,x1,py,h,f,col)=>{rr(x0,py,x1-x0,h,h/2,LINE);f=Math.max(0,Math.min(1,f));if(f>0)rr(x1-(x1-x0)*f,py,Math.max(h,(x1-x0)*f),h,h/2,col)};
     x.fillStyle='#fff';x.fillRect(0,0,W,9000);
     /* الترويسة */
     const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,DK);g.addColorStop(1,BR);x.fillStyle=g;x.fillRect(0,0,W,16);
-    if(logo)x.drawImage(logo,P,38,128,128);
-    T(BUD_TITLES[type],W-P,92,'800 48px '+F,INK);
-    T(monthName(M),W-P,142,'700 34px '+F,BR);
-    T('نسائم صلالة للشقق المفروشة — الإدارة المالية'+(imp&&imp.month===M?' · الأرقام حتى '+fdate(String(imp.at).slice(0,10)):''),W-P,186,'500 23px '+F,MUT);
-    x.fillStyle=LINE;x.fillRect(P,208,W-2*P,2);
+    if(logo)x.drawImage(logo,MX?W-P-128:P,38,128,128);
+    T(tr('title_'+type),W-P,92,'800 48px '+F,INK);
+    T(budMonth(M,lang),W-P,142,'700 34px '+F,BR);
+    T(tr('org')+(imp&&imp.month===M?' · '+tr('asof')+' '+budDate(String(imp.at).slice(0,10),lang):''),W-P,186,'500 23px '+F,MUT);
+    fR(P,208,W-2*P,2,LINE);
     let y=236;
-    const chips=[['متجاوزة',A.over.length,RED,'#FBEDEB'],['قريبة من الحد',A.near.length,AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,GRN,'#E8F4EC']];
-    const strip=(big)=>{const cw=(W-2*P-28)/3,h=big?150:108;chips.forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,h,20,bg);x.fillStyle=col;x.fillRect(bx+cw-8,y+18,8,h-36);T(String(v),bx+cw/2,y+(big?84:60),'800 '+(big?64:42)+'px '+F,col,'center');T(l,bx+cw/2,y+(big?124:92),'700 '+(big?24:20)+'px '+F,INK,'center')});y+=h+26};
+    const chips=[[tr('over'),A.over.length,RED,'#FBEDEB'],[tr('near'),A.near.length,AMB,'#FDF3E1'],[tr('ok'),A.okN,GRN,'#E8F4EC']];
+    const strip=(big)=>{const cw=(W-2*P-28)/3,h=big?150:108;chips.forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,h,20,bg);fR(bx+cw-8,y+18,8,h-36,col);T(String(v),bx+cw/2,y+(big?84:60),'800 '+(big?64:42)+'px '+F,col,'center');T(fit(l,cw-30,'700 '+(big?24:20)+'px '+F),bx+cw/2,y+(big?124:92),'700 '+(big?24:20)+'px '+F,INK,'center')});y+=h+26};
     const list=(title,L,col,bg,kind)=>{if(!L.length)return;const LIM=14,S=L.slice(0,LIM),hid=L.length-S.length;
       T(title+' ('+L.length+')',W-P,y+34,'800 32px '+F,col);y+=62;
       S.forEach(({a,bi})=>{rr(P,y,W-2*P,92,16,bg);const pct=bi.budget?bi.pctBefore:null;
-        T(fit(a.code+' — '+a.name,620,'700 27px '+F),W-P-20,y+34,'700 27px '+F,INK);T('الموازنة '+money(bi.budget)+'  ·  الفعلي '+money(bi.spent),W-P-20,y+62,'500 21px '+F,MUT);
-        T(pct==null?'بدون موازنة':pct+'%',P+22,y+38,'800 34px '+F,col,'left');T(kind==='c'?'تجاوز +'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining),P+22,y+66,'700 21px '+F,col,'left');
-        bar(P+260,W-P-20,y+74,8,pct==null?1:pct/100,col);y+=104});
-      if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+22,'600 22px '+F,MUT,'center');y+=46}y+=20};
-    if(type==='alerts'){strip(true);list('🔴 حسابات تجاوزت الموازنة',A.over,RED,'#FBEDEB','c');list('🟠 حسابات قريبة من الحد',A.near,AMB,'#FDF3E1','w');
-      if(!A.over.length&&!A.near.length){T('لا توجد حسابات متجاوزة أو قريبة من الحد 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}}
-    if(type==='groups'){strip(true);T('الاستهلاك حسب مجموعة الحسابات',W-P,y+34,'800 32px '+F,DK);y+=62;
-      A.groups.forEach(gr=>{const pct=gr.b?Math.round(gr.sp/gr.b*100):(gr.sp>0?999:0),col=stCol(pct);rr(P,y,W-2*P,118,18,stBg(pct));x.fillStyle=col;x.fillRect(W-P-8,y+16,8,86);
-        T(fit(gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(gr.n+' حساب'+(gr.over?' · '+gr.over+' متجاوزة':''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
-        T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T('الموازنة '+money(gr.b)+'  ·  الفعلي '+money(gr.sp),W-P-28,y+98,'500 20px '+F,MUT);
+        T(fit(a.code+' — '+nm(a),620,'700 27px '+F),W-P-20,y+34,'700 27px '+F,INK);T(fit(tr('budget')+' '+money(bi.budget)+'  ·  '+tr('actual')+' '+money(bi.spent),620,'500 21px '+F),W-P-20,y+62,'500 21px '+F,MUT);
+        T(pct==null?tr('noBudget'):pct+'%',P+22,y+38,'800 '+(pct==null?26:34)+'px '+F,col,'left');T(kind==='c'?tr('overBy')+' +'+money(bi.spent-bi.budget):tr('rem')+' '+money(bi.remaining),P+22,y+66,'700 21px '+F,col,'left');
+        bar(P+300,W-P-20,y+74,8,pct==null?1:pct/100,col);y+=104});
+      if(hid>0){T(tr('more',hid),W/2,y+22,'600 22px '+F,MUT,'center');y+=46}y+=20};
+    if(type==='alerts'){strip(true);list('🔴 '+tr('secOver'),A.over,RED,'#FBEDEB','c');list('🟠 '+tr('secNear'),A.near,AMB,'#FDF3E1','w');
+      if(!A.over.length&&!A.near.length){T(tr('noneAll')+' 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}}
+    if(type==='groups'){strip(true);T(tr('grpTitle'),W-P,y+34,'800 32px '+F,DK);y+=62;
+      A.groups.forEach(gr=>{const pct=gr.b?Math.round(gr.sp/gr.b*100):(gr.sp>0?999:0),col=stCol(pct);rr(P,y,W-2*P,118,18,stBg(pct));fR(W-P-8,y+16,8,86,col);
+        T(fit(gr.name==='حسابات أخرى'?tr('otherGrp'):gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(tr('accN',gr.n)+(gr.over?' · '+tr('overN',gr.over):''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
+        T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T(fit(tr('budget')+' '+money(gr.b)+'  ·  '+tr('actual')+' '+money(gr.sp),600,'500 20px '+F),W-P-28,y+98,'500 20px '+F,MUT);
         bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
     if(type==='top'){
-      T('ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى',W-P,y+30,'700 26px '+F,MUT);y+=58;
+      T(tr('topSub'),W-P,y+30,'700 26px '+F,MUT);y+=58;
       const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
-      const COLS=3,GAP=22,cw=(W-2*P-GAP*(COLS-1))/COLS,BW=cw-128,BF='500 20px '+F,LH=29;
-      const cards=A.top.map(({a})=>{const d=budDescGet(a),lines=d.b.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);return {d,lines,h:68+(nl?nl*LH+(lines.length-1)*5+12:0)}});
+      const COLS=3,GAP=22,cw=(W-2*P-GAP*(COLS-1))/COLS,BW=cw-128,BF='500 20px '+F,LH=lang==='bn'?32:29;
+      const cards=A.top.map(({a})=>{const d=budDescGet(a,lang),lines=d.b.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);return {d,lines,h:68+(nl?nl*LH+(lines.length-1)*5+12:0)}});
       const per=Math.ceil(cards.length/COLS);let yEnd=y;
       for(let ci=0;ci<COLS;ci++){const R=W-P-ci*(cw+GAP);let cy=y;
         cards.slice(ci*per,(ci+1)*per).forEach((c,k)=>{const i=ci*per+k;rr(R-cw,cy,cw,c.h,16,(k%2)?'#F8FBFB':SOFT);
-          x.fillStyle=i<3?BR:'#8DB3BA';x.beginPath();x.arc(R-36,cy+36,22,0,7);x.fill();T(String(i+1),R-36,cy+44,'800 22px '+F,'#fff','center');
+          circ(R-36,cy+36,22,i<3?BR:'#8DB3BA');T(String(i+1),R-36,cy+44,'800 22px '+F,'#fff','center');
           T(fit(c.d.t,cw-100,'800 27px '+F),R-76,cy+44,'800 27px '+F,INK);
-          let ly=cy+76;c.lines.forEach(L=>{L.forEach((ln,q)=>{if(q===0){x.fillStyle=BR;x.beginPath();x.arc(R-86,ly-7,4,0,7);x.fill()}T(ln,R-100,ly,BF,'#3C5553');ly+=LH});ly+=5});
+          let ly=cy+76;c.lines.forEach(L=>{L.forEach((ln,q)=>{if(q===0)circ(R-86,ly-7,4,BR);T(ln,R-100,ly,BF,'#3C5553');ly+=LH});ly+=5});
           cy+=c.h+12});yEnd=Math.max(yEnd,cy)}
       y=yEnd+8}
     if(type==='full'){strip();const cn=W-P-16,c1=cn-340-64,c2=c1-128,c3=c2-138,c4=c3-150;
-      rr(P,y,W-2*P,56,14,BR);T('الحساب',cn,y+37,'700 22px '+F,'#fff');[['الموازنة',c1],['الفعلي',c2],['المتبقي / التجاوز',c3],['النسبة',c4]].forEach(([l,cx])=>T(l,cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
+      rr(P,y,W-2*P,56,14,BR);T(tr('cAcc'),cn,y+37,'700 22px '+F,'#fff');[[tr('budget'),c1],[tr('actual'),c2],[tr('cRem'),c3],[tr('cPct'),c4]].forEach(([l,cx])=>T(fit(l,136,'700 21px '+F),cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
       let cnt=0,gp='',hid=0;const LIM=34;
       A.rows.forEach(({a,bi})=>{if(cnt>=LIM){hid++;return}
-        const gname=a.group||'حسابات أخرى';if(gname!==gp){gp=gname;rr(P,y,W-2*P,42,10,'#E1EEF0');T(fit(gp,800,'800 22px '+F),cn,y+29,'800 22px '+F,DK);y+=46}
+        const gname=a.group||'حسابات أخرى';if(gname!==gp){gp=gname;rr(P,y,W-2*P,42,10,'#E1EEF0');T(fit(gp==='حسابات أخرى'?tr('otherGrp'):gp,800,'800 22px '+F),cn,y+29,'800 22px '+F,DK);y+=46}
         const pct=bi.budget?bi.pctBefore:null,ov=bi.spent>bi.budget&&bi.spent>0,col=pct==null?RED:stCol(pct);
         if(cnt%2===0)rr(P,y,W-2*P,54,10,'#F8FBFB');
-        T(fit(a.code+' — '+a.name,340,'600 21px '+F),cn,y+35,'600 21px '+F,INK);T(money(bi.budget),c1,y+35,'500 21px '+F,INK,'center');T(money(bi.spent),c2,y+35,'600 21px '+F,INK,'center');
+        T(fit(a.code+' — '+nm(a),340,'600 21px '+F),cn,y+35,'600 21px '+F,INK);T(money(bi.budget),c1,y+35,'500 21px '+F,INK,'center');T(money(bi.spent),c2,y+35,'600 21px '+F,INK,'center');
         T(ov?'+'+money(bi.spent-bi.budget):money(bi.remaining),c3,y+35,'700 21px '+F,ov?RED:INK,'center');
-        rr(c4-48,y+8,96,38,19,pct==null?'#FBEDEB':stBg(pct));T(pct==null?'بدون':pct+'%',c4,y+35,'800 20px '+F,col,'center');y+=56;cnt++});
-      if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+28,'600 22px '+F,MUT,'center');y+=50}
+        rr(c4-48,y+8,96,38,19,pct==null?'#FBEDEB':stBg(pct));T(pct==null?tr('none'):pct+'%',c4,y+35,'800 20px '+F,col,'center');y+=56;cnt++});
+      if(hid>0){T(tr('more',hid),W/2,y+28,'600 22px '+F,MUT,'center');y+=50}
       y+=10}
     /* التذييل */
-    y+=14;x.fillStyle=LINE;x.fillRect(P,y,W-2*P,2);
-    T('نرجو الانتباه للمصاريف وترشيد الإنفاق',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
+    y+=14;fR(P,y,W-2*P,2,LINE);
+    T(tr('foot1'),W/2,y+46,'700 25px '+F,INK,'center');T(tr('foot2')+' · '+budDate(TODAY,lang),W/2,y+82,'500 20px '+F,MUT,'center');
     x.fillStyle=g;x.fillRect(0,y+104,W,12);
     return y+116;
   };
@@ -2572,14 +2644,16 @@ const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['groups','🗂️
 async function budgetReportShow(M){
   M=M||(lastBudgetImport()||{}).month||MONTH;
   if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
-  const excl=budExcl();let type='alerts',busy=0;const cur={blob:null};
+  const excl=budExcl();let type='alerts',lang='ar',busy=0;const cur={blob:null};
   const accs=expAccounts().map(a=>({a,bi:budgetInfo(a.code,0,null,M)})).filter(x=>x.bi.budget>0||x.bi.spent>0);
   accs.forEach(x=>{});
   let g='';const lst=accs.map(({a,bi})=>{const head=a.group&&a.group!==g?(g=a.group,`<div class="small" style="font-weight:700;margin:10px 0 2px;color:var(--accent)">${esc(g)}</div>`):'';
     return head+`<label style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" data-bx="${esc(a.code)}" ${excl.has(a.code)?'':'checked'}><span dir="ltr" class="muted">${esc(a.code)}</span><span>${esc(a.name)}</span><span class="muted small num" style="margin-inline-start:auto">${money(bi.spent)}</span></label>`}).join('');
-  const dl=()=>{if(!cur.blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(cur.blob);a.download='تقرير-الموازنة-'+type+'-'+M+'.png';document.body.appendChild(a);a.click();a.remove()};
-  modal({title:'📋 تقرير الموازنة — '+monthName(M),sub:'اختر التقرير، واحذف الحسابات التي لا تريد ظهورها، ثم انسخ الصورة وأرسلها في المجموعة',wide:true,
+  const dl=()=>{if(!cur.blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(cur.blob);a.download='budget-'+type+'-'+lang+'-'+M+'.png';document.body.appendChild(a);a.click();a.remove()};
+  modal({title:'📋 تقرير الموازنة — '+monthName(M),sub:'اختر التقرير واللغة، واحذف الحسابات التي لا تريد ظهورها، ثم انسخ الصورة وأرسلها في المجموعة',wide:true,
     body:`<div class="toolbar" style="margin-bottom:10px"><div class="seg" id="brTabs">${BUD_REPS.map(([k,n])=>`<button data-br="${k}" class="${k===type?'on':''}">${n}</button>`).join('')}</div></div>
+    <div class="toolbar" style="margin-bottom:10px;align-items:center;gap:10px;flex-wrap:wrap"><b class="small">🌐 لغة التقرير:</b><div class="seg" id="brLangs">${BUD_LANGS.map(([k,n])=>`<button data-bl="${k}" class="${k===lang?'on':''}"${k==='bn'?' style="font-family:\'Noto Sans Bengali\',inherit"':''}>${n}</button>`).join('')}</div></div>
+    <div id="brTrNote" class="note small c" style="display:none;margin-bottom:10px"></div>
     <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">🧹 الحسابات المشمولة في التقرير <span class="muted small" id="brCnt"></span></summary>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="brAll">تحديد الكل</button><button class="btn sm sec" id="brNone">إلغاء الكل</button><button class="btn sm sec" id="brZero">إخفاء الحسابات بدون مصروف</button></div>
       <div id="brList" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div>
@@ -2592,15 +2666,19 @@ async function budgetReportShow(M){
       {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-الموازنة.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير الموازنة'}).catch(()=>{});else dl();return false}},
       {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
     onMount:b=>{
-      const renderDesc=()=>{const box=$('#brDesc',b);box.innerHTML=budgetAlerts(M,excl).top.map(({a})=>{const d=budDescGet(a);return `<div class="card" style="padding:10px;margin-bottom:8px"><div class="small muted" dir="auto" style="margin-bottom:4px">${esc(a.code)} — ${esc(a.name)}</div><input data-dt="${esc(a.code)}" value="${esc(d.t)}" style="width:100%;margin-bottom:6px;font-weight:700"><textarea data-dd="${esc(a.code)}" rows="3" style="width:100%" placeholder="اكتب ما يدخل في هذا الحساب، كل بند في سطر">${esc(d.b.join('\n'))}</textarea></div>`}).join('')||'<div class="empty">لا توجد حسابات</div>';
-        const h=el=>{const c=el.dataset.dt||el.dataset.dd,a=expAcc(c);if(!a)return;const par=el.closest('.card');budDescSave(a,$('[data-dt]',par).value,$('[data-dd]',par).value);gen()};
+      const eset=()=>{const A=budgetAlerts(M,excl);return (type==='top'?A.top:type==='alerts'?[...A.over,...A.near]:type==='full'?A.rows:[]).slice(0,40)};
+      const noteTr=()=>{const n=$('#brTrNote',b);if(!n)return;const miss=lang==='ar'?[]:eset().filter(({a})=>budDescGet(a,lang).needsTr);
+        if(miss.length){n.style.display='';n.textContent='⚠️ '+miss.length+' حساب لا توجد له ترجمة ('+miss.slice(0,4).map(x=>x.a.code).join('، ')+(miss.length>4?'…':'')+') — اكتب ترجمته من «✏️ شرح الحسابات» وستظهر في الصورة.'}else n.style.display='none'};
+      const renderDesc=()=>{const box=$('#brDesc',b);box.dir=lang==='ar'?'rtl':'ltr';box.innerHTML=(type==='groups'?'<div class="empty">هذا التقرير لا يحتوي شروحات حسابات</div>':'')+eset().map(({a})=>{const d=budDescGet(a,lang);return `<div class="card" style="padding:10px;margin-bottom:8px"><div class="small muted" dir="auto" style="margin-bottom:4px">${esc(a.code)} — ${esc(a.name)}${d.needsTr?' <b style="color:var(--critical)">⚠️ بلا ترجمة</b>':''}</div><input data-dt="${esc(a.code)}" value="${esc(d.t)}" style="width:100%;margin-bottom:6px;font-weight:700"><textarea data-dd="${esc(a.code)}" rows="3" style="width:100%" placeholder="${lang==='ar'?'اكتب ما يدخل في هذا الحساب، كل بند في سطر':'Write what goes into this account, one item per line'}">${esc(d.b.join('\n'))}</textarea></div>`}).join('')||'<div class="empty">لا توجد حسابات</div>';
+        const h=el=>{const c=el.dataset.dt||el.dataset.dd,a=expAcc(c);if(!a)return;const par=el.closest('.card');budDescSave(a,lang,$('[data-dt]',par).value,$('[data-dd]',par).value);renderDesc();gen()};
         box.querySelectorAll('[data-dt],[data-dd]').forEach(el=>el.onchange=()=>h(el))};
       const cnt=()=>{$('#brCnt',b).textContent='('+(accs.length-accs.filter(x=>excl.has(x.a.code)).length)+' من '+accs.length+')';renderDesc()};
-      const gen=async()=>{const my=++busy;$('#brLoad',b).style.display='';$('#brImg',b).style.opacity='.4';
-        try{const c=await budgetReportCanvas(M,type,excl);const bl=await new Promise(r=>c.toBlob(r,'image/png'));if(my!==busy)return;cur.blob=bl;const im=$('#brImg',b);im.src=c.toDataURL('image/png');im.style.display='block';im.style.opacity='1';$('#brLoad',b).style.display='none'}
+      const gen=async()=>{const my=++busy;noteTr();$('#brLoad',b).style.display='';$('#brImg',b).style.opacity='.4';
+        try{const c=await budgetReportCanvas(M,type,excl,lang);const bl=await new Promise(r=>c.toBlob(r,'image/png'));if(my!==busy)return;cur.blob=bl;const im=$('#brImg',b);im.src=c.toDataURL('image/png');im.style.display='block';im.style.opacity='1';$('#brLoad',b).style.display='none'}
         catch(e){if(my===busy)$('#brLoad',b).textContent='تعذّر إنشاء صورة التقرير'}};
       const sync=()=>{b.querySelectorAll('[data-bx]').forEach(i=>i.checked=!excl.has(i.dataset.bx));budExclSave(excl);cnt();gen()};
-      b.querySelectorAll('[data-br]').forEach(t=>t.onclick=()=>{type=t.dataset.br;b.querySelectorAll('[data-br]').forEach(o=>o.classList.toggle('on',o===t));gen()});
+      b.querySelectorAll('[data-br]').forEach(t=>t.onclick=()=>{type=t.dataset.br;b.querySelectorAll('[data-br]').forEach(o=>o.classList.toggle('on',o===t));renderDesc();gen()});
+      b.querySelectorAll('[data-bl]').forEach(t=>t.onclick=()=>{lang=t.dataset.bl;b.querySelectorAll('[data-bl]').forEach(o=>o.classList.toggle('on',o===t));renderDesc();gen()});
       b.querySelectorAll('[data-bx]').forEach(i=>i.onchange=()=>{i.checked?excl.delete(i.dataset.bx):excl.add(i.dataset.bx);budExclSave(excl);cnt();gen()});
       $('#brAll',b).onclick=()=>{excl.clear();sync()};
       $('#brNone',b).onclick=()=>{accs.forEach(x=>excl.add(x.a.code));sync()};
