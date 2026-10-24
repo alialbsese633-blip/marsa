@@ -2437,15 +2437,22 @@ function budgetImportModal(){
         pv.innerHTML=P.accs.length?`<div class="grid g4" style="margin-top:8px">${kpi('الشهر',monthName(P.month))}${kpi('حسابات المصروفات',P.accs.length)}${kpi('الموازنة / الفعلي',money(tb)+' / '+money(ta))}${kpi('تجاوزت الموازنة',ov.length,'','c')}</div><div class="tw" style="max-height:260px;overflow:auto;margin-top:8px"><table><thead><tr><th>الحساب</th><th class="n">الموازنة</th><th class="n">الفعلي</th></tr></thead><tbody>${P.accs.map(a=>`<tr><td><span class="muted small" dir="ltr">${esc(a.code)}</span> ${esc(a.name)}</td><td class="n">${money(a.budget)}</td><td class="n" style="${P.act[a.code]>a.budget&&P.act[a.code]>0?'color:var(--critical);font-weight:700':''}">${money(P.act[a.code])}</td></tr>`).join('')}</tbody></table></div>`:'<div class="note c">لم يُعثر على حسابات مصروفات في الملف — تأكد أنه تقرير Budget vs. Actual</div>';
       }catch(e){pv.innerHTML='<div class="note c">تعذّر قراءة الملف — تأكد من الاتصال بالإنترنت وأن الملف Excel</div>'}}}});
 }
-/* ---- تنبيهات الموازنة: المتجاوزة والقريبة + نسخ التقرير كصورة للمشاركة في مجموعات الموظفين والإدارة ---- */
+/* ---- تقارير الموازنة: تنبيهات المتجاوزة والقريبة، حسب المجموعة، الأعلى إنفاقاً، كشف كامل — تُنسخ كصورة للمشاركة في مجموعات الموظفين والإدارة ---- */
 const BUD_NEAR=80;
-function budgetAlerts(M){
-  const rows=expAccounts().map(a=>({a,bi:budgetInfo(a.code,0,null,M)}));
+const LP=n=>'\u2066'+n+'%\u2069';
+function budExcl(){try{return new Set(JSON.parse(localStorage.getItem('budRepExcl')||'[]'))}catch(e){return new Set()}}
+function budExclSave(s){try{localStorage.setItem('budRepExcl',JSON.stringify([...s]))}catch(e){}}
+function budgetAlerts(M,excl){
+  excl=excl||new Set();
+  const rows=expAccounts().filter(a=>!excl.has(a.code)).map(a=>({a,bi:budgetInfo(a.code,0,null,M)})).filter(x=>x.bi.budget>0||x.bi.spent>0);
   const over=rows.filter(x=>x.bi.spent>x.bi.budget&&x.bi.spent>0).sort((x,y)=>(y.bi.spent-y.bi.budget)-(x.bi.spent-x.bi.budget));
   const near=rows.filter(x=>x.bi.budget>0&&x.bi.spent<=x.bi.budget&&x.bi.spent>0&&x.bi.pctBefore>=BUD_NEAR).sort((x,y)=>y.bi.pctBefore-x.bi.pctBefore);
   const okN=rows.filter(x=>x.bi.budget>0&&x.bi.pctBefore<BUD_NEAR).length;
   const T=rows.reduce((s,x)=>({b:s.b+x.bi.budget,sp:s.sp+x.bi.spent}),{b:0,sp:0});
-  return {M,rows,over,near,okN,T,overSum:r3(over.reduce((s,x)=>s+x.bi.spent-x.bi.budget,0))};
+  const gm={};rows.forEach(x=>{const k=x.a.group||'حسابات أخرى';const g=gm[k]||(gm[k]={name:k,b:0,sp:0,n:0,over:0});g.b+=x.bi.budget;g.sp+=x.bi.spent;g.n++;if(x.bi.spent>x.bi.budget&&x.bi.spent>0)g.over++});
+  const groups=Object.values(gm).sort((a,b)=>(b.b?b.sp/b.b:9)-(a.b?a.sp/a.b:9));
+  const top=rows.filter(x=>x.bi.spent>0).sort((x,y)=>y.bi.spent-x.bi.spent).slice(0,10);
+  return {M,rows,over,near,okN,T,groups,top,overSum:r3(over.reduce((s,x)=>s+x.bi.spent-x.bi.budget,0))};
 }
 function budgetAlertsHTML(M){
   const A=budgetAlerts(M);if(!A.rows.length)return '';
@@ -2456,66 +2463,117 @@ function budgetAlertsHTML(M){
   <div class="grid g4" style="margin-top:8px">${kpi('🔴 متجاوزة للموازنة',A.over.length,A.over.length?'إجمالي التجاوز '+omr(A.overSum):'لا يوجد',A.over.length?'c':'g')}${kpi('🟠 قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'',A.near.length?'w':'g')}${kpi('🟢 ضمن الموازنة',A.okN)}${kpi('الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',omr(A.T.sp)+' من '+omr(A.T.b))}</div>
   ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
 }
-async function budgetReportCanvas(M){
-  const A=budgetAlerts(M),imp=lastBudgetImport(),LIM=16;
-  const W=1080,P=40,RH=104,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
-  const over=A.over.slice(0,LIM),near=A.near.slice(0,LIM),hidO=A.over.length-over.length,hidN=A.near.length-near.length;
-  const secH=n=>n?84+n*RH:0,more=(h)=>h>0?50:0;
-  const H=250+190+secH(over.length)+more(hidO)+secH(near.length)+more(hidN)+((!A.over.length&&!A.near.length)?110:0)+130;
-  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  const RED='#C0392B',AMB='#D68910',GRN='#1E8449',TEAL='#1F5F5B',INK='#16302f',MUT='#607573';
-  const rr=(px,py,w,h,r,fill,stroke)=>{x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);if(fill){x.fillStyle=fill;x.fill()}if(stroke){x.strokeStyle=stroke;x.lineWidth=2;x.stroke()}};
-  const fit=(t,mw,font)=>{x.font=font;t=String(t);if(x.measureText(t).width<=mw)return t;while(t.length>2&&x.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…'};
-  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.direction='rtl';
-  /* الترويسة */
-  x.fillStyle=TEAL;x.fillRect(0,0,W,12);
-  try{const im=new Image();im.src='icons/marsa-lockup.png';await im.decode();const lh=84,lw=lh*im.width/im.height;x.drawImage(im,P,40,lw,lh)}catch(e){}
-  x.textAlign='right';x.fillStyle=INK;x.font='800 46px '+F;x.fillText('تنبيه الموازنة والمصروفات',W-P,84);
-  x.fillStyle=TEAL;x.font='700 34px '+F;x.fillText(monthName(M),W-P,134);
-  x.fillStyle=MUT;x.font='500 24px '+F;x.fillText('الإدارة المالية — نسائم صلالة'+(imp&&imp.month===M?' · الأرقام حتى '+fdate(String(imp.at).slice(0,10)):''),W-P,178);
-  x.fillStyle='#E3EAE9';x.fillRect(P,208,W-2*P,2);
-  /* المؤشرات */
-  const bw=(W-2*P-40)/3,by=240,bh=140;
-  [[ 'متجاوزة للموازنة',A.over.length,A.over.length?'التجاوز '+omr(A.overSum):'لا يوجد',RED,'#FBEDEB'],['قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'تحتاج انتباه',AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,A.T.b?'الاستهلاك الكلي \u2066'+Math.round(A.T.sp/A.T.b*100)+'%\u2069':'',GRN,'#E8F4EC']].forEach(([l,v,s,col,bg],i)=>{
-    const bx=W-P-(i+1)*bw-i*20;rr(bx,by,bw,bh,18,bg);x.fillStyle=col;x.fillRect(bx+bw-8,by+14,8,bh-28);
-    x.textAlign='center';x.fillStyle=col;x.font='800 58px '+F;x.fillText(String(v),bx+bw/2,by+66);
-    x.fillStyle=INK;x.font='700 24px '+F;x.fillText(fit(l,bw-30,'700 24px '+F),bx+bw/2,by+100);
-    x.fillStyle=MUT;x.font='500 20px '+F;x.fillText(fit(s,bw-30,'500 20px '+F),bx+bw/2,by+128)});
-  let y=by+bh+40;
-  const section=(title,L,hid,col,bg,kind)=>{if(!L.length)return;
-    x.textAlign='right';x.fillStyle=col;x.font='800 32px '+F;x.fillText(title+' ('+(L.length+hid)+')',W-P,y+34);y+=62;
-    L.forEach(({a,bi})=>{
-      rr(P,y,W-2*P,RH-12,16,bg);
-      x.textAlign='right';x.fillStyle=INK;x.font='700 27px '+F;x.fillText(fit(a.code+' — '+a.name,600,'700 27px '+F),W-P-20,y+36);
-      x.fillStyle=MUT;x.font='500 21px '+F;x.fillText('الموازنة '+money(bi.budget)+'  ·  الفعلي '+money(bi.spent),W-P-20,y+66);
-      const pct=bi.budget?bi.pctBefore:null;
-      x.textAlign='left';x.fillStyle=col;x.font='800 34px '+F;x.fillText(pct==null?'بدون موازنة':pct+'%',P+22,y+40);
-      x.font='700 21px '+F;x.fillText(kind==='c'?'تجاوز +'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining),P+22,y+68);
-      const bx0=P+250,bx1=W-P-20,bwid=bx1-bx0;rr(bx0,y+78,bwid,8,4,'#D9E2E1');
-      const f=Math.min(1,pct==null?1:pct/100);rr(bx1-bwid*f,y+78,Math.max(8,bwid*f),8,4,col);
-      y+=RH});
-    if(hid>0){x.textAlign='center';x.fillStyle=MUT;x.font='600 22px '+F;x.fillText('و '+hid+' حسابات أخرى — التفاصيل في مرسى',W/2,y+24);y+=50}
-    y+=22};
-  section('🔴 حسابات تجاوزت الموازنة',over,hidO,RED,'#FBEDEB','c');
-  section('🟠 حسابات قريبة من الحد',near,hidN,AMB,'#FDF3E1','w');
-  if(!A.over.length&&!A.near.length){x.textAlign='center';x.fillStyle=GRN;x.font='700 30px '+F;x.fillText('لا توجد حسابات متجاوزة أو قريبة من الحد 👌',W/2,y+50);y+=110}
-  /* التذييل */
-  x.fillStyle='#E3EAE9';x.fillRect(P,H-112,W-2*P,2);
-  x.textAlign='center';x.fillStyle=INK;x.font='700 26px '+F;x.fillText('نرجو الانتباه للمصاريف وترشيد الإنفاق في الحسابات أعلاه',W/2,H-66);
-  x.fillStyle=MUT;x.font='500 20px '+F;x.fillText('مرسى — الإدارة المالية · '+fdate(TODAY),W/2,H-30);
-  return c;
+const BUD_TITLES={alerts:'تنبيه المصاريف والموازنة',groups:'الموازنة حسب المجموعة',top:'أعلى الحسابات إنفاقاً',full:'كشف الموازنة والمصروفات'};
+async function budgetReportCanvas(M,type,excl){
+  type=type||'alerts';const A=budgetAlerts(M,excl),imp=lastBudgetImport();
+  const W=1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+  let logo=null;try{logo=new Image();logo.src='icons/logo-full.png';await logo.decode()}catch(e){logo=null}
+  const BR='#0F7C8F',DK='#0B4F5C',RED='#C0392B',AMB='#D68910',GRN='#1E8449',INK='#16302f',MUT='#607573',SOFT='#F1F7F8',LINE='#DCE8EA';
+  const stCol=p=>p>100?RED:p>=BUD_NEAR?AMB:GRN, stBg=p=>p>100?'#FBEDEB':p>=BUD_NEAR?'#FDF3E1':'#E8F4EC';
+  const draw=x=>{
+    x.direction='rtl';
+    const rr=(px,py,w,h,r,fill)=>{x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);if(fill){x.fillStyle=fill;x.fill()}};
+    const fit=(t,mw,font)=>{x.font=font;t=String(t);if(x.measureText(t).width<=mw)return t;while(t.length>2&&x.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…'};
+    const T=(t,px,py,font,col,al)=>{x.textAlign=al||'right';x.fillStyle=col;x.font=font;x.fillText(t,px,py)};
+    const bar=(x0,x1,py,h,f,col)=>{rr(x0,py,x1-x0,h,h/2,LINE);f=Math.max(0,Math.min(1,f));if(f>0)rr(x1-(x1-x0)*f,py,Math.max(h,(x1-x0)*f),h,h/2,col)};
+    x.fillStyle='#fff';x.fillRect(0,0,W,9000);
+    /* الترويسة */
+    const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,DK);g.addColorStop(1,BR);x.fillStyle=g;x.fillRect(0,0,W,16);
+    if(logo)x.drawImage(logo,P,38,128,128);
+    T(BUD_TITLES[type],W-P,92,'800 48px '+F,INK);
+    T(monthName(M),W-P,142,'700 34px '+F,BR);
+    T('نسائم صلالة للشقق المفروشة — الإدارة المالية'+(imp&&imp.month===M?' · الأرقام حتى '+fdate(String(imp.at).slice(0,10)):''),W-P,186,'500 23px '+F,MUT);
+    x.fillStyle=LINE;x.fillRect(P,208,W-2*P,2);
+    let y=236;
+    const chips=[['متجاوزة',A.over.length,RED,'#FBEDEB'],['قريبة من الحد',A.near.length,AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,GRN,'#E8F4EC'],['الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',BR,SOFT]];
+    const strip=()=>{const cw=(W-2*P-42)/4;chips.forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,108,18,bg);x.fillStyle=col;x.fillRect(bx+cw-7,y+16,7,76);T(String(v),bx+cw/2,y+60,'800 42px '+F,col,'center');T(l,bx+cw/2,y+92,'600 20px '+F,INK,'center')});y+=134};
+    const hero=()=>{const gw=268,gh=270,pct=A.T.b?A.T.sp/A.T.b:0,col=stCol(pct*100);
+      rr(P,y,gw,gh,24,SOFT);const cx=P+gw/2,cy=y+112,R=78;x.lineCap='round';x.lineWidth=24;x.strokeStyle=LINE;x.beginPath();x.arc(cx,cy,R,0,7);x.stroke();
+      if(pct>0){x.strokeStyle=col;x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+2*Math.PI*Math.min(1,pct));x.stroke()}
+      T(Math.round(pct*100)+'%',cx,cy+16,'800 46px '+F,col,'center');
+      T('الاستهلاك الكلي',cx,y+224,'700 22px '+F,INK,'center');T(fit(money(A.T.sp)+' من '+money(A.T.b),gw-24,'500 19px '+F),cx,y+254,'500 19px '+F,MUT,'center');
+      const ax=P+gw+18,cw=(W-P-ax-16)/2,rem=A.T.b-A.T.sp;
+      [['متجاوزة للموازنة',A.over.length,A.over.length?'التجاوز '+omr(A.overSum):'لا يوجد',RED,'#FBEDEB'],['قريبة من الحد (من '+LP(BUD_NEAR)+')',A.near.length,'تحتاج انتباه',AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,'حساب',GRN,'#E8F4EC'],['المتبقي من الموازنة',money(rem),'ريال عماني',rem<0?RED:BR,rem<0?'#FBEDEB':SOFT]].forEach(([l,v,s,c,bg],i)=>{
+        const bx=W-P-(i%2+1)*cw-(i%2)*16,by=y+(i>>1)*143;rr(bx,by,cw,127,20,bg);x.fillStyle=c;x.fillRect(bx+cw-8,by+18,8,91);
+        T(fit(l,cw-50,'700 22px '+F),bx+cw-26,by+36,'700 22px '+F,INK);T(String(v),bx+cw-26,by+86,'800 44px '+F,c);T(fit(s,cw-50,'500 19px '+F),bx+cw-26,by+114,'500 19px '+F,MUT)});
+      y+=gh+26};
+    const pace=()=>{if(M!==MONTH||!A.T.b)return;const d=new Date(),dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),el=d.getDate()/dim,sp=A.T.sp/A.T.b,df=sp-el;
+      const vt=df>.1?['أعلى من الوتيرة المتوقعة',RED]:df<-.1?['أقل من الوتيرة المتوقعة',BR]:['مطابقة للوتيرة المتوقعة',GRN];
+      rr(P,y,W-2*P,134,20,SOFT);T('⏱️ وتيرة الإنفاق مقابل أيام الشهر',W-P-24,y+38,'700 24px '+F,INK);T(vt[0],P+24,y+38,'800 22px '+F,vt[1],'left');
+      T('مضى من الشهر '+LP(Math.round(el*100)),W-P-24,y+80,'600 20px '+F,MUT);bar(P+24,W-P-300,y+66,14,el,'#8FB8BF');
+      T('استهلاك الموازنة '+LP(Math.round(sp*100)),W-P-24,y+112,'600 20px '+F,MUT);bar(P+24,W-P-300,y+98,14,sp,vt[1]);y+=160};
+    const list=(title,L,col,bg,kind)=>{if(!L.length)return;const LIM=14,S=L.slice(0,LIM),hid=L.length-S.length;
+      T(title+' ('+L.length+')',W-P,y+34,'800 32px '+F,col);y+=62;
+      S.forEach(({a,bi})=>{rr(P,y,W-2*P,92,16,bg);const pct=bi.budget?bi.pctBefore:null;
+        T(fit(a.code+' — '+a.name,620,'700 27px '+F),W-P-20,y+34,'700 27px '+F,INK);T('الموازنة '+money(bi.budget)+'  ·  الفعلي '+money(bi.spent),W-P-20,y+62,'500 21px '+F,MUT);
+        T(pct==null?'بدون موازنة':pct+'%',P+22,y+38,'800 34px '+F,col,'left');T(kind==='c'?'تجاوز +'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining),P+22,y+66,'700 21px '+F,col,'left');
+        bar(P+260,W-P-20,y+74,8,pct==null?1:pct/100,col);y+=104});
+      if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+22,'600 22px '+F,MUT,'center');y+=46}y+=20};
+    if(type==='alerts'){hero();pace();list('🔴 حسابات تجاوزت الموازنة',A.over,RED,'#FBEDEB','c');list('🟠 حسابات قريبة من الحد',A.near,AMB,'#FDF3E1','w');
+      if(!A.over.length&&!A.near.length){T('لا توجد حسابات متجاوزة أو قريبة من الحد 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}}
+    if(type==='groups'){hero();pace();T('الاستهلاك حسب مجموعة الحسابات',W-P,y+34,'800 32px '+F,DK);y+=62;
+      A.groups.forEach(gr=>{const pct=gr.b?Math.round(gr.sp/gr.b*100):(gr.sp>0?999:0),col=stCol(pct);rr(P,y,W-2*P,118,18,stBg(pct));x.fillStyle=col;x.fillRect(W-P-8,y+16,8,86);
+        T(fit(gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(gr.n+' حساب'+(gr.over?' · '+gr.over+' متجاوزة':''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
+        T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T('الموازنة '+money(gr.b)+'  ·  الفعلي '+money(gr.sp),W-P-28,y+98,'500 20px '+F,MUT);
+        bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
+    if(type==='top'){strip();T('أعلى '+A.top.length+' حسابات من حيث المصروف الفعلي',W-P,y+34,'800 32px '+F,DK);y+=62;const mx=Math.max(1,...A.top.map(t=>t.bi.spent));
+      A.top.forEach(({a,bi},i)=>{const pct=bi.budget?bi.pctBefore:null,col=pct==null?RED:stCol(pct),share=A.T.sp?bi.spent/A.T.sp:0;
+        rr(P,y,W-2*P,98,16,i%2?'#fff':SOFT);x.beginPath();x.arc(W-P-40,y+49,24,0,7);x.fillStyle=i<3?BR:'#A9C4C9';x.fill();T(String(i+1),W-P-40,y+58,'800 24px '+F,'#fff','center');
+        T(fit(a.code+' — '+a.name,560,'700 26px '+F),W-P-82,y+36,'700 26px '+F,INK);T('الفعلي '+money(bi.spent)+'  ·  حصته '+LP(Math.round(share*100))+' من المصروف',W-P-82,y+64,'500 20px '+F,MUT);
+        bar(P+250,W-P-82,y+76,8,bi.spent/mx,BR);T(pct==null?'بدون موازنة':pct+'%',P+24,y+44,'800 32px '+F,col,'left');T(pct==null?'':'من موازنته',P+24,y+72,'500 19px '+F,MUT,'left');y+=100});y+=14}
+    if(type==='full'){strip();const cn=W-P-16,c1=cn-340-64,c2=c1-128,c3=c2-138,c4=c3-150;
+      rr(P,y,W-2*P,56,14,BR);T('الحساب',cn,y+37,'700 22px '+F,'#fff');[['الموازنة',c1],['الفعلي',c2],['المتبقي / التجاوز',c3],['النسبة',c4]].forEach(([l,cx])=>T(l,cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
+      let cnt=0,gp='',hid=0;const LIM=34;
+      A.rows.forEach(({a,bi})=>{if(cnt>=LIM){hid++;return}
+        const gname=a.group||'حسابات أخرى';if(gname!==gp){gp=gname;rr(P,y,W-2*P,42,10,'#E1EEF0');T(fit(gp,800,'800 22px '+F),cn,y+29,'800 22px '+F,DK);y+=46}
+        const pct=bi.budget?bi.pctBefore:null,ov=bi.spent>bi.budget&&bi.spent>0,col=pct==null?RED:stCol(pct);
+        if(cnt%2===0)rr(P,y,W-2*P,54,10,'#F8FBFB');
+        T(fit(a.code+' — '+a.name,340,'600 21px '+F),cn,y+35,'600 21px '+F,INK);T(money(bi.budget),c1,y+35,'500 21px '+F,INK,'center');T(money(bi.spent),c2,y+35,'600 21px '+F,INK,'center');
+        T(ov?'+'+money(bi.spent-bi.budget):money(bi.remaining),c3,y+35,'700 21px '+F,ov?RED:INK,'center');
+        rr(c4-48,y+8,96,38,19,pct==null?'#FBEDEB':stBg(pct));T(pct==null?'بدون':pct+'%',c4,y+35,'800 20px '+F,col,'center');y+=56;cnt++});
+      if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+28,'600 22px '+F,MUT,'center');y+=50}
+      rr(P,y+8,W-2*P,60,14,SOFT);T('الإجمالي',cn,y+46,'800 24px '+F,DK);T(money(A.T.b),c1,y+46,'800 22px '+F,DK,'center');T(money(A.T.sp),c2,y+46,'800 22px '+F,DK,'center');T(money(A.T.b-A.T.sp),c3,y+46,'800 22px '+F,A.T.b-A.T.sp<0?RED:DK,'center');T(A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',c4,y+46,'800 22px '+F,DK,'center');y+=84}
+    /* التذييل */
+    y+=14;x.fillStyle=LINE;x.fillRect(P,y,W-2*P,2);
+    T('نرجو الانتباه للمصاريف وترشيد الإنفاق',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
+    x.fillStyle=g;x.fillRect(0,y+104,W,12);
+    return y+116;
+  };
+  const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
+  const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c;
 }
+const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['groups','🗂️ حسب المجموعة'],['top','🏆 الأعلى إنفاقاً'],['full','📄 كشف كامل']];
 async function budgetReportShow(M){
   M=M||(lastBudgetImport()||{}).month||MONTH;
   if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
-  let c,blob;try{c=await budgetReportCanvas(M);blob=await new Promise(r=>c.toBlob(r,'image/png'))}catch(e){toast('تعذّر إنشاء صورة التقرير');return}
-  const url=c.toDataURL('image/png'),name='تنبيه-الموازنة-'+M+'.png';
-  const dl=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()};
-  modal({title:'📋 تقرير الموازنة — '+monthName(M),sub:'صورة جاهزة للإرسال في مجموعة الموظفين والإدارة',wide:true,
-    body:`<img src="${url}" alt="" style="width:100%;max-width:460px;display:block;margin:0 auto;border:1px solid var(--border);border-radius:10px"><div class="small muted" style="text-align:center;margin-top:8px">اضغط «نسخ الصورة» ثم الصقها في واتساب. إن لم يدعم جهازك النسخ استخدم «مشاركة» أو «تنزيل».</div>`,
-    foot:[{t:'📋 نسخ الصورة',fn:()=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
-      {t:'📤 مشاركة',cls:'sec',fn:()=>{const f=new File([blob],name,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تنبيه الموازنة'}).catch(()=>{});else dl();return false}},
-      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}]});
+  const excl=budExcl();let type='alerts',busy=0;const cur={blob:null};
+  const accs=expAccounts().map(a=>({a,bi:budgetInfo(a.code,0,null,M)})).filter(x=>x.bi.budget>0||x.bi.spent>0);
+  accs.forEach(x=>{});
+  let g='';const lst=accs.map(({a,bi})=>{const head=a.group&&a.group!==g?(g=a.group,`<div class="small" style="font-weight:700;margin:10px 0 2px;color:var(--accent)">${esc(g)}</div>`):'';
+    return head+`<label style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" data-bx="${esc(a.code)}" ${excl.has(a.code)?'':'checked'}><span dir="ltr" class="muted">${esc(a.code)}</span><span>${esc(a.name)}</span><span class="muted small num" style="margin-inline-start:auto">${money(bi.spent)}</span></label>`}).join('');
+  const dl=()=>{if(!cur.blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(cur.blob);a.download='تقرير-الموازنة-'+type+'-'+M+'.png';document.body.appendChild(a);a.click();a.remove()};
+  modal({title:'📋 تقرير الموازنة — '+monthName(M),sub:'اختر التقرير، واحذف الحسابات التي لا تريد ظهورها، ثم انسخ الصورة وأرسلها في المجموعة',wide:true,
+    body:`<div class="toolbar" style="margin-bottom:10px"><div class="seg" id="brTabs">${BUD_REPS.map(([k,n])=>`<button data-br="${k}" class="${k===type?'on':''}">${n}</button>`).join('')}</div></div>
+    <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">🧹 الحسابات المشمولة في التقرير <span class="muted small" id="brCnt"></span></summary>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="brAll">تحديد الكل</button><button class="btn sm sec" id="brNone">إلغاء الكل</button><button class="btn sm sec" id="brZero">إخفاء الحسابات بدون مصروف</button></div>
+      <div id="brList" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div>
+      <div class="small muted" style="margin-top:6px">الأرقام والمؤشرات في الصورة تُحسب من الحسابات المحددة فقط.</div></details>
+    <div id="brBox" style="text-align:center;min-height:200px"><div class="muted" id="brLoad" style="padding:60px 0">جارٍ تجهيز الصورة…</div><img id="brImg" alt="" style="display:none;width:100%;max-width:480px;margin:0 auto;border:1px solid var(--border);border-radius:10px"></div>`,
+    foot:[{t:'📋 نسخ الصورة',fn:()=>{if(!cur.blob){toast('انتظر تجهيز الصورة');return false}try{navigator.clipboard.write([new ClipboardItem({'image/png':cur.blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
+      {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-الموازنة.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير الموازنة'}).catch(()=>{});else dl();return false}},
+      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
+    onMount:b=>{
+      const cnt=()=>{$('#brCnt',b).textContent='('+(accs.length-accs.filter(x=>excl.has(x.a.code)).length)+' من '+accs.length+')'};
+      const gen=async()=>{const my=++busy;$('#brLoad',b).style.display='';$('#brImg',b).style.opacity='.4';
+        try{const c=await budgetReportCanvas(M,type,excl);const bl=await new Promise(r=>c.toBlob(r,'image/png'));if(my!==busy)return;cur.blob=bl;const im=$('#brImg',b);im.src=c.toDataURL('image/png');im.style.display='block';im.style.opacity='1';$('#brLoad',b).style.display='none'}
+        catch(e){if(my===busy)$('#brLoad',b).textContent='تعذّر إنشاء صورة التقرير'}};
+      const sync=()=>{b.querySelectorAll('[data-bx]').forEach(i=>i.checked=!excl.has(i.dataset.bx));budExclSave(excl);cnt();gen()};
+      b.querySelectorAll('[data-br]').forEach(t=>t.onclick=()=>{type=t.dataset.br;b.querySelectorAll('[data-br]').forEach(o=>o.classList.toggle('on',o===t));gen()});
+      b.querySelectorAll('[data-bx]').forEach(i=>i.onchange=()=>{i.checked?excl.delete(i.dataset.bx):excl.add(i.dataset.bx);budExclSave(excl);cnt();gen()});
+      $('#brAll',b).onclick=()=>{excl.clear();sync()};
+      $('#brNone',b).onclick=()=>{accs.forEach(x=>excl.add(x.a.code));sync()};
+      $('#brZero',b).onclick=()=>{accs.forEach(x=>{x.bi.spent>0?excl.delete(x.a.code):excl.add(x.a.code)});sync()};
+      cnt();gen()}});
 }
 VIEWS.purreports=()=>{const per=V.sub.prp||'month';
   const inPer=p=>{const m=purMonthOf(p);return per==='month'?m===MONTH:per==='prev'?m===prevMonth(MONTH):per==='year'?m.slice(0,4)===MONTH.slice(0,4):true};
