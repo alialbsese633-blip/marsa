@@ -2485,23 +2485,8 @@ async function budgetReportCanvas(M,type,excl){
     T('نسائم صلالة للشقق المفروشة — الإدارة المالية'+(imp&&imp.month===M?' · الأرقام حتى '+fdate(String(imp.at).slice(0,10)):''),W-P,186,'500 23px '+F,MUT);
     x.fillStyle=LINE;x.fillRect(P,208,W-2*P,2);
     let y=236;
-    const chips=[['متجاوزة',A.over.length,RED,'#FBEDEB'],['قريبة من الحد',A.near.length,AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,GRN,'#E8F4EC'],['الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',BR,SOFT]];
-    const strip=()=>{const cw=(W-2*P-42)/4;chips.forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,108,18,bg);x.fillStyle=col;x.fillRect(bx+cw-7,y+16,7,76);T(String(v),bx+cw/2,y+60,'800 42px '+F,col,'center');T(l,bx+cw/2,y+92,'600 20px '+F,INK,'center')});y+=134};
-    const hero=()=>{const gw=268,gh=270,pct=A.T.b?A.T.sp/A.T.b:0,col=stCol(pct*100);
-      rr(P,y,gw,gh,24,SOFT);const cx=P+gw/2,cy=y+112,R=78;x.lineCap='round';x.lineWidth=24;x.strokeStyle=LINE;x.beginPath();x.arc(cx,cy,R,0,7);x.stroke();
-      if(pct>0){x.strokeStyle=col;x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+2*Math.PI*Math.min(1,pct));x.stroke()}
-      T(Math.round(pct*100)+'%',cx,cy+16,'800 46px '+F,col,'center');
-      T('الاستهلاك الكلي',cx,y+224,'700 22px '+F,INK,'center');T(fit(money(A.T.sp)+' من '+money(A.T.b),gw-24,'500 19px '+F),cx,y+254,'500 19px '+F,MUT,'center');
-      const ax=P+gw+18,cw=(W-P-ax-16)/2,rem=A.T.b-A.T.sp;
-      [['متجاوزة للموازنة',A.over.length,A.over.length?'التجاوز '+omr(A.overSum):'لا يوجد',RED,'#FBEDEB'],['قريبة من الحد (من '+LP(BUD_NEAR)+')',A.near.length,'تحتاج انتباه',AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,'حساب',GRN,'#E8F4EC'],['المتبقي من الموازنة',money(rem),'ريال عماني',rem<0?RED:BR,rem<0?'#FBEDEB':SOFT]].forEach(([l,v,s,c,bg],i)=>{
-        const bx=W-P-(i%2+1)*cw-(i%2)*16,by=y+(i>>1)*143;rr(bx,by,cw,127,20,bg);x.fillStyle=c;x.fillRect(bx+cw-8,by+18,8,91);
-        T(fit(l,cw-50,'700 22px '+F),bx+cw-26,by+36,'700 22px '+F,INK);T(String(v),bx+cw-26,by+86,'800 44px '+F,c);T(fit(s,cw-50,'500 19px '+F),bx+cw-26,by+114,'500 19px '+F,MUT)});
-      y+=gh+26};
-    const pace=()=>{if(M!==MONTH||!A.T.b)return;const d=new Date(),dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),el=d.getDate()/dim,sp=A.T.sp/A.T.b,df=sp-el;
-      const vt=df>.1?['أعلى من الوتيرة المتوقعة',RED]:df<-.1?['أقل من الوتيرة المتوقعة',BR]:['مطابقة للوتيرة المتوقعة',GRN];
-      rr(P,y,W-2*P,134,20,SOFT);T('⏱️ وتيرة الإنفاق مقابل أيام الشهر',W-P-24,y+38,'700 24px '+F,INK);T(vt[0],P+24,y+38,'800 22px '+F,vt[1],'left');
-      T('مضى من الشهر '+LP(Math.round(el*100)),W-P-24,y+80,'600 20px '+F,MUT);bar(P+24,W-P-300,y+66,14,el,'#8FB8BF');
-      T('استهلاك الموازنة '+LP(Math.round(sp*100)),W-P-24,y+112,'600 20px '+F,MUT);bar(P+24,W-P-300,y+98,14,sp,vt[1]);y+=160};
+    const chips=[['متجاوزة',A.over.length,RED,'#FBEDEB'],['قريبة من الحد',A.near.length,AMB,'#FDF3E1'],['ضمن الموازنة',A.okN,GRN,'#E8F4EC']];
+    const strip=(big)=>{const cw=(W-2*P-28)/3,h=big?150:108;chips.forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,h,20,bg);x.fillStyle=col;x.fillRect(bx+cw-8,y+18,8,h-36);T(String(v),bx+cw/2,y+(big?84:60),'800 '+(big?64:42)+'px '+F,col,'center');T(l,bx+cw/2,y+(big?124:92),'700 '+(big?24:20)+'px '+F,INK,'center')});y+=h+26};
     const list=(title,L,col,bg,kind)=>{if(!L.length)return;const LIM=14,S=L.slice(0,LIM),hid=L.length-S.length;
       T(title+' ('+L.length+')',W-P,y+34,'800 32px '+F,col);y+=62;
       S.forEach(({a,bi})=>{rr(P,y,W-2*P,92,16,bg);const pct=bi.budget?bi.pctBefore:null;
@@ -2509,9 +2494,9 @@ async function budgetReportCanvas(M,type,excl){
         T(pct==null?'بدون موازنة':pct+'%',P+22,y+38,'800 34px '+F,col,'left');T(kind==='c'?'تجاوز +'+money(bi.spent-bi.budget):'متبقي '+money(bi.remaining),P+22,y+66,'700 21px '+F,col,'left');
         bar(P+260,W-P-20,y+74,8,pct==null?1:pct/100,col);y+=104});
       if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+22,'600 22px '+F,MUT,'center');y+=46}y+=20};
-    if(type==='alerts'){hero();pace();list('🔴 حسابات تجاوزت الموازنة',A.over,RED,'#FBEDEB','c');list('🟠 حسابات قريبة من الحد',A.near,AMB,'#FDF3E1','w');
+    if(type==='alerts'){strip(true);list('🔴 حسابات تجاوزت الموازنة',A.over,RED,'#FBEDEB','c');list('🟠 حسابات قريبة من الحد',A.near,AMB,'#FDF3E1','w');
       if(!A.over.length&&!A.near.length){T('لا توجد حسابات متجاوزة أو قريبة من الحد 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}}
-    if(type==='groups'){hero();pace();T('الاستهلاك حسب مجموعة الحسابات',W-P,y+34,'800 32px '+F,DK);y+=62;
+    if(type==='groups'){strip(true);T('الاستهلاك حسب مجموعة الحسابات',W-P,y+34,'800 32px '+F,DK);y+=62;
       A.groups.forEach(gr=>{const pct=gr.b?Math.round(gr.sp/gr.b*100):(gr.sp>0?999:0),col=stCol(pct);rr(P,y,W-2*P,118,18,stBg(pct));x.fillStyle=col;x.fillRect(W-P-8,y+16,8,86);
         T(fit(gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(gr.n+' حساب'+(gr.over?' · '+gr.over+' متجاوزة':''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
         T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T('الموازنة '+money(gr.b)+'  ·  الفعلي '+money(gr.sp),W-P-28,y+98,'500 20px '+F,MUT);
@@ -2519,7 +2504,7 @@ async function budgetReportCanvas(M,type,excl){
     if(type==='top'){strip();T('أعلى '+A.top.length+' حسابات من حيث المصروف الفعلي',W-P,y+34,'800 32px '+F,DK);y+=62;const mx=Math.max(1,...A.top.map(t=>t.bi.spent));
       A.top.forEach(({a,bi},i)=>{const pct=bi.budget?bi.pctBefore:null,col=pct==null?RED:stCol(pct),share=A.T.sp?bi.spent/A.T.sp:0;
         rr(P,y,W-2*P,98,16,i%2?'#fff':SOFT);x.beginPath();x.arc(W-P-40,y+49,24,0,7);x.fillStyle=i<3?BR:'#A9C4C9';x.fill();T(String(i+1),W-P-40,y+58,'800 24px '+F,'#fff','center');
-        T(fit(a.code+' — '+a.name,560,'700 26px '+F),W-P-82,y+36,'700 26px '+F,INK);T('الفعلي '+money(bi.spent)+'  ·  حصته '+LP(Math.round(share*100))+' من المصروف',W-P-82,y+64,'500 20px '+F,MUT);
+        T(fit(a.code+' — '+a.name,560,'700 26px '+F),W-P-82,y+36,'700 26px '+F,INK);T('الفعلي '+money(bi.spent)+(bi.budget?'  ·  الموازنة '+money(bi.budget):''),W-P-82,y+64,'500 20px '+F,MUT);
         bar(P+250,W-P-82,y+76,8,bi.spent/mx,BR);T(pct==null?'بدون موازنة':pct+'%',P+24,y+44,'800 32px '+F,col,'left');T(pct==null?'':'من موازنته',P+24,y+72,'500 19px '+F,MUT,'left');y+=100});y+=14}
     if(type==='full'){strip();const cn=W-P-16,c1=cn-340-64,c2=c1-128,c3=c2-138,c4=c3-150;
       rr(P,y,W-2*P,56,14,BR);T('الحساب',cn,y+37,'700 22px '+F,'#fff');[['الموازنة',c1],['الفعلي',c2],['المتبقي / التجاوز',c3],['النسبة',c4]].forEach(([l,cx])=>T(l,cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
@@ -2532,7 +2517,7 @@ async function budgetReportCanvas(M,type,excl){
         T(ov?'+'+money(bi.spent-bi.budget):money(bi.remaining),c3,y+35,'700 21px '+F,ov?RED:INK,'center');
         rr(c4-48,y+8,96,38,19,pct==null?'#FBEDEB':stBg(pct));T(pct==null?'بدون':pct+'%',c4,y+35,'800 20px '+F,col,'center');y+=56;cnt++});
       if(hid>0){T('و '+hid+' حسابات أخرى',W/2,y+28,'600 22px '+F,MUT,'center');y+=50}
-      rr(P,y+8,W-2*P,60,14,SOFT);T('الإجمالي',cn,y+46,'800 24px '+F,DK);T(money(A.T.b),c1,y+46,'800 22px '+F,DK,'center');T(money(A.T.sp),c2,y+46,'800 22px '+F,DK,'center');T(money(A.T.b-A.T.sp),c3,y+46,'800 22px '+F,A.T.b-A.T.sp<0?RED:DK,'center');T(A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',c4,y+46,'800 22px '+F,DK,'center');y+=84}
+      y+=10}
     /* التذييل */
     y+=14;x.fillStyle=LINE;x.fillRect(P,y,W-2*P,2);
     T('نرجو الانتباه للمصاريف وترشيد الإنفاق',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
