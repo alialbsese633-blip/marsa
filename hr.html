@@ -2442,6 +2442,39 @@ const BUD_NEAR=80;
 const LP=n=>'\u2066'+n+'%\u2069';
 function budExcl(){try{return new Set(JSON.parse(localStorage.getItem('budRepExcl')||'[]'))}catch(e){return new Set()}}
 function budExclSave(s){try{localStorage.setItem('budRepExcl',JSON.stringify([...s]))}catch(e){}}
+/* ---- شرح الحسابات (للتقرير المرسل للموظفين): ماذا يدخل في كل حساب — يمكن تعديله وحفظه ---- */
+const BUD_DESC={
+ '9451':['الكهرباء',['فواتير الكهرباء للبنايات والشقق','إنارة المداخل والممرات والمواقف والمرافق المشتركة','شحن العدادات وتسوية الفواتير']],
+ '9654':['عدد وأدوات',['أدوات الصيانة اليدوية والكهربائية (مفكات، مثاقب، سلالم)','مستلزمات السباكة والكهرباء الصغيرة','معدات وأدوات التشغيل اليومية للبنايات']],
+ '9154':['الصيانة والإصلاح العمومية',['إصلاح التكييف والسباكة والكهرباء في الشقق','دهان وإصلاح الأثاث والأبواب والأقفال','قطع الغيار وأجور فنيي ومقاولي الصيانة']],
+ '9903':['الرسوم والمصاريف البنكية',['عمولات وتحويلات الحسابات البنكية','رسوم أجهزة وبوابات الدفع بالبطاقات','رسوم دفاتر الشيكات وخدمات البنك']],
+ '9046':['بدلات السفر وتذاكر الموظفين',['تذاكر سفر الموظفين (الإجازة السنوية والقدوم والمغادرة)','بدلات السفر المستحقة للموظفين']],
+ '9013':['الإكراميات',['إكراميات عمال التوصيل والخدمات','مكافآت رمزية للعاملين على الأعمال الإضافية','إكراميات الأعياد والمناسبات']],
+ '9064':['الوقود وزيوت المركبات',['وقود سيارات الشركة','زيوت وفلاتر وصيانة دورية للمركبات','غسيل المركبات ومستلزماتها']],
+ '9652':['مواد النظافة',['منظفات ومعقمات وملمّعات للشقق','أكياس النفايات وورق التواليت والمناديل','أدوات المسح والتنظيف والمستهلكات للنزلاء']],
+ '9011':['التأمينات الاجتماعية',['حصة الشركة من اشتراكات الموظفين العمانيين في الحماية الاجتماعية']],
+ '9682':['نفقات الحكومة',['رسوم التراخيص والسجل التجاري وتجديدها','رسوم العمل والإقامة وتصاريح الموظفين','رسوم البلدية والجهات الحكومية الأخرى']],
+ '9002':['الرواتب والأجور',['الرواتب الأساسية الشهرية للموظفين','الأجور والمستحقات الشهرية']],
+ '9003':['الحوافز والعمولات',['حوافز الموظفين','عمولات الحجوزات والإشغال']],
+ '9006':['بدل المظهر',['بدل المظهر وزي العمل للموظفين']],
+ '9012':['مكافآت نهاية الخدمة',['مستحقات نهاية الخدمة للموظفين المنتهية خدمتهم']],
+ '9015':['مصاريف تغذية الموظفين',['الشاي والقهوة والضيافة للموظفين','الوجبات والمستلزمات الغذائية للفرق']],
+ '9016':['علاج العمال',['الفحوصات والعلاج الطبي للعمال','الأدوية والمراجعات الطبية']]};
+const BUD_KW=[[/كهرب|electric/i,['الكهرباء',['فواتير الكهرباء للبنايات والشقق','إنارة المرافق المشتركة']]],[/مياه|ماء|water/i,['المياه',['فواتير المياه للبنايات والشقق','صيانة خطوط المياه والخزانات']]],
+ [/اتصال|انترنت|إنترنت|internet|phone|telecom/i,['الاتصالات والإنترنت',['اشتراكات الإنترنت للبنايات والشقق','خطوط الهاتف والاتصالات']]],[/نظاف|clean/i,['مواد النظافة',['منظفات ومعقمات للشقق','أكياس نفايات وورق ومناديل']]],
+ [/صيان|إصلاح|اصلاح|maint|repair/i,['الصيانة والإصلاح',['إصلاح التكييف والسباكة والكهرباء','قطع غيار وأجور فنيين']]],[/وقود|fuel|vehicle|مركب|سيار/i,['الوقود والمركبات',['وقود سيارات الشركة','صيانة المركبات وزيوتها']]],
+ [/ايجار|إيجار|rent/i,['الإيجارات',['إيجار المباني والمرافق']]],[/غسيل|مغسل|laundry/i,['غسيل المفروشات',['غسيل الأغطية والمناشف','مستلزمات المغسلة']]],
+ [/مفروشات|اثاث|أثاث|furnit|linen/i,['المفروشات والأثاث',['شراء وتبديل الأغطية والمناشف','قطع أثاث وتجهيزات الشقق']]],[/قرطاس|stationer|مكتب|office/i,['القرطاسية ومستلزمات المكاتب',['أوراق وأحبار وأدوات مكتبية']]],
+ [/تأمين|تامين|insur/i,['التأمين',['وثائق تأمين المباني والمركبات والموظفين']]],[/بنك|bank/i,['الرسوم البنكية',['عمولات وتحويلات','رسوم أجهزة الدفع']]],
+ [/سفر|تذاكر|travel/i,['السفر والتذاكر',['تذاكر سفر الموظفين','بدلات السفر']]],[/حكوم|govern|رسوم|licen/i,['الرسوم الحكومية',['رسوم التراخيص والتصاريح','رسوم الجهات الحكومية']]],
+ [/اكرام|إكرام|tips|gratu/i,['الإكراميات',['إكراميات العاملين والخدمات','مكافآت رمزية']]],[/اعلان|إعلان|تسويق|market|advert/i,['التسويق والإعلان',['إعلانات ومنصات الحجز','مواد دعائية وتصميم']]]];
+function budDescGet(a){const ov=(S.settings.expDesc||{})[a.code];
+  const d=BUD_DESC[a.code]||(BUD_KW.find(k=>k[0].test(a.name))||[0,null])[1];
+  const title=(ov&&ov.t)||(d&&d[0])||a.name;
+  const bullets=(ov&&Array.isArray(ov.b))?ov.b:(d?d[1]:[]);
+  return {t:title,b:bullets,def:d?d[1]:[],defT:d?d[0]:a.name}}
+function budDescSave(a,title,text){const b=String(text||'').split('\n').map(x=>x.replace(/^[•\-\s]+/,'').trim()).filter(Boolean);
+  S.settings.expDesc=S.settings.expDesc||{};S.settings.expDesc[a.code]={t:(title||'').trim()||a.name,b};try{save()}catch(e){}}
 function budgetAlerts(M,excl){
   excl=excl||new Set();
   const rows=expAccounts().filter(a=>!excl.has(a.code)).map(a=>({a,bi:budgetInfo(a.code,0,null,M)})).filter(x=>x.bi.budget>0||x.bi.spent>0);
@@ -2451,7 +2484,7 @@ function budgetAlerts(M,excl){
   const T=rows.reduce((s,x)=>({b:s.b+x.bi.budget,sp:s.sp+x.bi.spent}),{b:0,sp:0});
   const gm={};rows.forEach(x=>{const k=x.a.group||'حسابات أخرى';const g=gm[k]||(gm[k]={name:k,b:0,sp:0,n:0,over:0});g.b+=x.bi.budget;g.sp+=x.bi.spent;g.n++;if(x.bi.spent>x.bi.budget&&x.bi.spent>0)g.over++});
   const groups=Object.values(gm).sort((a,b)=>(b.b?b.sp/b.b:9)-(a.b?a.sp/a.b:9));
-  const top=rows.filter(x=>x.bi.spent>0).sort((x,y)=>y.bi.spent-x.bi.spent).slice(0,10);
+  const top=rows.filter(x=>x.bi.spent>0).sort((x,y)=>y.bi.spent-x.bi.spent).slice(0,15);
   return {M,rows,over,near,okN,T,groups,top,overSum:r3(over.reduce((s,x)=>s+x.bi.spent-x.bi.budget,0))};
 }
 function budgetAlertsHTML(M){
@@ -2463,7 +2496,7 @@ function budgetAlertsHTML(M){
   <div class="grid g4" style="margin-top:8px">${kpi('🔴 متجاوزة للموازنة',A.over.length,A.over.length?'إجمالي التجاوز '+omr(A.overSum):'لا يوجد',A.over.length?'c':'g')}${kpi('🟠 قريبة من الحد (من '+BUD_NEAR+'%)',A.near.length,'',A.near.length?'w':'g')}${kpi('🟢 ضمن الموازنة',A.okN)}${kpi('الاستهلاك الكلي',A.T.b?Math.round(A.T.sp/A.T.b*100)+'%':'—',omr(A.T.sp)+' من '+omr(A.T.b))}</div>
   ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
 }
-const BUD_TITLES={alerts:'تنبيه المصاريف والموازنة',groups:'الموازنة حسب المجموعة',top:'أعلى الحسابات إنفاقاً',full:'كشف الموازنة والمصروفات'};
+const BUD_TITLES={alerts:'تنبيه المصاريف والموازنة',groups:'الموازنة حسب المجموعة',top:'أكثر الحسابات إنفاقاً',full:'كشف الموازنة والمصروفات'};
 async function budgetReportCanvas(M,type,excl){
   type=type||'alerts';const A=budgetAlerts(M,excl),imp=lastBudgetImport();
   const W=1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
@@ -2501,11 +2534,15 @@ async function budgetReportCanvas(M,type,excl){
         T(fit(gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(gr.n+' حساب'+(gr.over?' · '+gr.over+' متجاوزة':''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
         T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T('الموازنة '+money(gr.b)+'  ·  الفعلي '+money(gr.sp),W-P-28,y+98,'500 20px '+F,MUT);
         bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
-    if(type==='top'){strip();T('أعلى '+A.top.length+' حسابات من حيث المصروف الفعلي',W-P,y+34,'800 32px '+F,DK);y+=62;const mx=Math.max(1,...A.top.map(t=>t.bi.spent));
-      A.top.forEach(({a,bi},i)=>{const pct=bi.budget?bi.pctBefore:null,col=pct==null?RED:stCol(pct),share=A.T.sp?bi.spent/A.T.sp:0;
-        rr(P,y,W-2*P,98,16,i%2?'#fff':SOFT);x.beginPath();x.arc(W-P-40,y+49,24,0,7);x.fillStyle=i<3?BR:'#A9C4C9';x.fill();T(String(i+1),W-P-40,y+58,'800 24px '+F,'#fff','center');
-        T(fit(a.code+' — '+a.name,560,'700 26px '+F),W-P-82,y+36,'700 26px '+F,INK);T('الفعلي '+money(bi.spent)+(bi.budget?'  ·  الموازنة '+money(bi.budget):''),W-P-82,y+64,'500 20px '+F,MUT);
-        bar(P+250,W-P-82,y+76,8,bi.spent/mx,BR);T(pct==null?'بدون موازنة':pct+'%',P+24,y+44,'800 32px '+F,col,'left');T(pct==null?'':'من موازنته',P+24,y+72,'500 19px '+F,MUT,'left');y+=100});y+=14}
+    if(type==='top'){
+      T('ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى',W-P,y+30,'700 25px '+F,MUT);y+=56;
+      const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
+      A.top.forEach(({a},i)=>{const d=budDescGet(a),BW=W-2*P-140,BF='500 22px '+F;const lines=d.b.map(b=>wrap(b,BW,BF));const nl=lines.reduce((n,l)=>n+l.length,0);
+        const h=78+(nl?nl*33+(lines.length-1)*6+14:0);rr(P,y,W-2*P,h,18,i%2?'#F8FBFB':SOFT);
+        x.fillStyle=i<3?BR:'#8DB3BA';x.beginPath();x.arc(W-P-44,y+42,26,0,7);x.fill();T(String(i+1),W-P-44,y+51,'800 26px '+F,'#fff','center');
+        T(fit(d.t,W-2*P-150,'800 30px '+F),W-P-92,y+50,'800 30px '+F,INK);
+        let ly=y+86;lines.forEach(L=>{L.forEach((ln,k)=>{if(k===0){x.fillStyle=BR;x.beginPath();x.arc(W-P-100,ly-8,4.5,0,7);x.fill()}T(ln,W-P-114,ly,BF,'#3C5553');ly+=33});ly+=6});
+        y+=h+12});y+=10}
     if(type==='full'){strip();const cn=W-P-16,c1=cn-340-64,c2=c1-128,c3=c2-138,c4=c3-150;
       rr(P,y,W-2*P,56,14,BR);T('الحساب',cn,y+37,'700 22px '+F,'#fff');[['الموازنة',c1],['الفعلي',c2],['المتبقي / التجاوز',c3],['النسبة',c4]].forEach(([l,cx])=>T(l,cx,y+37,'700 21px '+F,'#fff','center'));y+=62;
       let cnt=0,gp='',hid=0;const LIM=34;
@@ -2527,7 +2564,7 @@ async function budgetReportCanvas(M,type,excl){
   const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
   const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c;
 }
-const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['groups','🗂️ حسب المجموعة'],['top','🏆 الأعلى إنفاقاً'],['full','📄 كشف كامل']];
+const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['groups','🗂️ حسب المجموعة'],['top','🏆 أكثر الحسابات إنفاقاً'],['full','📄 كشف كامل']];
 async function budgetReportShow(M){
   M=M||(lastBudgetImport()||{}).month||MONTH;
   if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
@@ -2543,12 +2580,18 @@ async function budgetReportShow(M){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="brAll">تحديد الكل</button><button class="btn sm sec" id="brNone">إلغاء الكل</button><button class="btn sm sec" id="brZero">إخفاء الحسابات بدون مصروف</button></div>
       <div id="brList" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div>
       <div class="small muted" style="margin-top:6px">الأرقام والمؤشرات في الصورة تُحسب من الحسابات المحددة فقط.</div></details>
+    <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">✏️ شرح الحسابات <span class="muted small">(ما الذي يدخل في كل حساب — يظهر في تقرير «الأعلى إنفاقاً»)</span></summary>
+      <div id="brDesc" style="max-height:340px;overflow:auto;margin-top:8px"></div>
+      <div class="small muted" style="margin-top:6px">اكتب كل بند في سطر مستقل. يُحفظ الشرح ويظهر في كل التقارير القادمة.</div></details>
     <div id="brBox" style="text-align:center;min-height:200px"><div class="muted" id="brLoad" style="padding:60px 0">جارٍ تجهيز الصورة…</div><img id="brImg" alt="" style="display:none;width:100%;max-width:480px;margin:0 auto;border:1px solid var(--border);border-radius:10px"></div>`,
     foot:[{t:'📋 نسخ الصورة',fn:()=>{if(!cur.blob){toast('انتظر تجهيز الصورة');return false}try{navigator.clipboard.write([new ClipboardItem({'image/png':cur.blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
       {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-الموازنة.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير الموازنة'}).catch(()=>{});else dl();return false}},
       {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
     onMount:b=>{
-      const cnt=()=>{$('#brCnt',b).textContent='('+(accs.length-accs.filter(x=>excl.has(x.a.code)).length)+' من '+accs.length+')'};
+      const renderDesc=()=>{const box=$('#brDesc',b);box.innerHTML=budgetAlerts(M,excl).top.map(({a})=>{const d=budDescGet(a);return `<div class="card" style="padding:10px;margin-bottom:8px"><div class="small muted" dir="auto" style="margin-bottom:4px">${esc(a.code)} — ${esc(a.name)}</div><input data-dt="${esc(a.code)}" value="${esc(d.t)}" style="width:100%;margin-bottom:6px;font-weight:700"><textarea data-dd="${esc(a.code)}" rows="3" style="width:100%" placeholder="اكتب ما يدخل في هذا الحساب، كل بند في سطر">${esc(d.b.join('\n'))}</textarea></div>`}).join('')||'<div class="empty">لا توجد حسابات</div>';
+        const h=el=>{const c=el.dataset.dt||el.dataset.dd,a=expAcc(c);if(!a)return;const par=el.closest('.card');budDescSave(a,$('[data-dt]',par).value,$('[data-dd]',par).value);gen()};
+        box.querySelectorAll('[data-dt],[data-dd]').forEach(el=>el.onchange=()=>h(el))};
+      const cnt=()=>{$('#brCnt',b).textContent='('+(accs.length-accs.filter(x=>excl.has(x.a.code)).length)+' من '+accs.length+')';renderDesc()};
       const gen=async()=>{const my=++busy;$('#brLoad',b).style.display='';$('#brImg',b).style.opacity='.4';
         try{const c=await budgetReportCanvas(M,type,excl);const bl=await new Promise(r=>c.toBlob(r,'image/png'));if(my!==busy)return;cur.blob=bl;const im=$('#brImg',b);im.src=c.toDataURL('image/png');im.style.display='block';im.style.opacity='1';$('#brLoad',b).style.display='none'}
         catch(e){if(my===busy)$('#brLoad',b).textContent='تعذّر إنشاء صورة التقرير'}};
