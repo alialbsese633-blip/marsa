@@ -3318,9 +3318,9 @@ const REC_ROLES=[
  ['dr','مدين',['debit','debits','debit amount','amount debit','dr','dr amount','مدين','المدين','مبلغ مدين']],
  ['cr','دائن',['credit','credits','credit amount','amount credit','cr','cr amount','دائن','الدائن','مبلغ دائن']],
  ['amt','المبلغ (بإشارة)',['amount','amt','transaction amount','txn amount','net amount','amount (omr)','المبلغ','القيمة','مبلغ']],
- ['date','التاريخ',['transaction date','txn date','trans date','tran date','trn date','trans dt','txn dt','tran dt','trn dt','date/time','posting date','post date','booking date','entry date','date','التاريخ','تاريخ العملية','تاريخ الحركة','تاريخ القيد','تاريخ المعاملة','تاريخ']],
+ ['date','التاريخ',['transaction date','txn date','trans date','tran date','trn date','trans dt','txn dt','tran dt','trn dt','date/time','posting date','post date','booking date','entry date','date','التاريخ','تاريخ العملية','تاريخ المعاملة','تاريخ الحركة','تاريخ القيد','تاريخ']],
  ['ref','المرجع / رقم الشيك',['reference','reference no','reference number','ref','ref no','ref.','refno','cheque no','cheque number','chq no','cheque','check no','check number','check #','document number','document no','doc no','doc number','doc #','num','number','no.','transaction id','txn id','رقم المرجع','المرجع','مرجع','رقم الشيك','رقم المستند','رقم القيد','رقم العملية']],
- ['desc','البيان',['description','transaction description','narration','narrative','narr','narr.','particular','details','transaction details','particulars','memo','remarks','البيان','الوصف','التفاصيل','الشرح','بيان','تفاصيل العملية','ملاحظات']],
+ ['desc','البيان',['description','transaction description','narration','narrative','narr','narr.','particular','details','transaction details','particulars','memo','remarks','البيان','الوصف','وصف','التفاصيل','الشرح','بيان','تفاصيل العملية','ملاحظات']],
  ['name','الاسم',['name','payee','payer','customer','vendor','entity','beneficiary','الاسم','العميل','المستفيد','المورد']],
  ['type','نوع الحركة',['type','transaction type','tran type','txn type','النوع','نوع العملية','نوع الحركة']]
 ];
@@ -3476,8 +3476,8 @@ function recStmt(bal,open){
   const s=(f)=>open.filter(f).reduce((t,x)=>t+x.a,0);
   const dit=s(x=>x.s==='k'&&x.a>0),op=-s(x=>x.s==='k'&&x.a<0)||0,bc=s(x=>x.s==='b'&&x.a>0),bd=-s(x=>x.s==='b'&&x.a<0)||0;
   const bank=bal&&bal.bank!=null?bal.bank:null,book=bal&&bal.book!=null?bal.book:null;
-  const adjB=bank!=null?bank+dit-op:null,adjK=book!=null?book+bc-bd:null;
-  return {bank,book,dit,op,bc,bd,adjB,adjK,diff:adjB!=null&&adjK!=null?adjB-adjK:null}}
+  const late=bal&&bal.late||0,adjB=bank!=null?bank+dit-op:null,adjK=book!=null?book+bc-bd+late:null;
+  return {bank,book,dit,op,bc,bd,late,adjB,adjK,diff:adjB!=null&&adjK!=null?adjB-adjK:null}}
 /* تشخيص الفرق غير المفسَّر */
 function recDiag(st,open){const out=[];if(st.diff==null||st.diff===0)return out;const D=st.diff,A=Math.abs(D);
   const hit=open.filter(x=>Math.abs(x.a)===A);if(hit.length)out.push(`الفرق يساوي مبلغ بند معلّق (${hit.map(x=>bz(Math.abs(x.a))+' — '+recShort(x.d)).slice(0,3).join('، ')}) — ربما الحركة مسجلة مرتين أو ناقصة من أحد الملفين`);
@@ -3497,6 +3497,9 @@ const recLast=tid=>recRuns(tid)[0]||null;
 const recSeen=tid=>{const s=new Set();recRuns(tid).forEach(r=>(r.fps||[]).forEach(f=>s.add(f)));return s};
 const recCut=tid=>{const o=recRuns(tid).find(r=>r.mode==='open');return o?o.to:null};
 const recSum=(L,f)=>L.filter(f||(()=>1)).reduce((t,x)=>t+x.a,0);
+/* قيود في النظام بتاريخ بعد نهاية الفترة طوبقت مع حركات بنك داخل الفترة (المطابقة اليومية) — لا تدخل رصيد النظام في نهاية الفترة فتُضاف لتسويته */
+const recLateL=r=>[...(r.lkp||[]),...(r.mt||[]).flatMap(m=>m.k.filter(x=>!x.c).map(x=>({d:x.d,a:x.a})))].filter(x=>x.d>r.to);
+const recLate=r=>recLateL(r).reduce((t,x)=>t+x.a,0);
 const recItem=x=>{const o={fp:x.fp,s:x.s,d:x.d,a:x.a,ds:String(x.ds||'').slice(0,90),rf:String(x.rf||'').slice(0,30)};if(x.c)o.c=1;if(x.o)o.o=x.o;if(x.n)o.n=x.n;if(x.lt)o.lt=x.lt;if(x.mn)o.mn=1;return o};
 function recNoPeek(){const y=TODAY.slice(0,4),sq=S.seq.RECY===y?(S.seq.REC||0):0;return 'REC-'+y+'-'+String(sq+1).padStart(3,'0')}
 function recNoTake(){const no=recNoPeek();S.seq.REC=+no.split('-').pop();S.seq.RECY=TODAY.slice(0,4);return no}
@@ -3583,38 +3586,43 @@ const recColName=(F,c,j)=>{const h=c.hdr>=0?(F.rows[c.hdr]||[])[j]:null;return (
 
 /* ---- مطابقة جديدة ---- */
 function recRunModal(tid){const t=recTpl(tid);if(!t)return;const L=recLast(tid),cut=recCut(tid),seen=recSeen(tid);
-  const st={b:null,k:null,mode:'day',to:recAdd(TODAY,-1),toTouched:false,balB:null,balK:null,balBT:false,balKT:false};
+  const st={b:null,k:null,mode:'day',to:recAdd(TODAY,-1),toTouched:false,frTouched:false,balB:null,balK:null,balBT:false,balKT:false};
   const sideName={b:'كشف البنك',k:'حركات النظام (NetSuite)'};
   modal({title:'⬆️ مطابقة جديدة — '+esc(t.name),wide:true,body:`
     ${L?`<div class="note small">آخر مطابقة: ${sno(L.no)} حتى ${recDay(L.to)} — معلّق منها: ${(L.open||[]).filter(x=>x.s==='b').length} في البنك و${(L.open||[]).filter(x=>x.s==='k').length} في النظام، وستُرحَّل تلقائياً لهذه المطابقة.</div>`:`<div class="note small">هذه أول مطابقة لهذا القالب${cut?'':' — إن كانت لديك مطابقة يدوية سابقة فأدخل رصيدها الافتتاحي من ⚙️ أولاً'}.</div>`}
     <div class="frow" style="margin-top:10px"><div class="fld"><label>نوع المطابقة</label><div class="row" id="rr_md"><button type="button" class="btn sm" data-md="day">يومية</button><button type="button" class="btn sm sec" data-md="month">شهرية</button></div></div>
-      <div class="fld" id="rr_tw"><label>حتى تاريخ</label><input type="date" id="rr_to" value="${st.to}"></div><div class="fld" id="rr_mw" hidden><label>الشهر</label><input type="month" id="rr_mo" value="${TODAY.slice(0,7)}"></div></div>
+      <div class="fld" id="rr_mw" hidden><label>الشهر</label><input type="month" id="rr_mo" value="${TODAY.slice(0,7)}"></div></div>
+    <div class="frow" id="rr_dw"><div class="fld" id="rr_fw"><label>حركات البنك من يوم</label><input type="date" id="rr_fr" value="${st.to}"></div><div class="fld" id="rr_tw"><label>إلى يوم</label><input type="date" id="rr_to" value="${st.to}"></div></div>
     <div class="frow"><div class="fld"><label>📄 ${sideName.b} (Excel / CSV)</label><input type="file" id="rr_fb" accept=".xlsx,.xls,.csv,.xlsm,.txt,.htm,.html"></div><div class="fld"><label>📄 ${sideName.k} (Excel / CSV)</label><input type="file" id="rr_fk" accept=".xlsx,.xls,.csv,.xlsm,.txt,.htm,.html"></div></div>
-    <div class="grid g2" id="rr_sum"></div>
+    <div class="note small" id="rr_dn">المطابقة اليومية: تؤخذ حركات <b>البنك</b> في الأيام المحددة فقط، ويُبحث عنها في <b>كامل ملف النظام</b> (قبلها وبعدها). ما يُسجَّل في النظام في الأيام المحددة ولا يقابله شيء في البنك يبقى معلّقاً، وبقية قيود النظام تُترك لأيامها.</div><div class="grid g2" id="rr_sum"></div>
     <div class="frow" style="margin-top:10px"><div class="fld"><label>رصيد كشف البنك في نهاية الفترة (ر.ع)</label><input id="rr_bb" type="number" step="0.001" dir="ltr"><div class="small muted" id="rr_bbs"></div></div><div class="fld"><label>رصيد النظام في نهاية الفترة (ر.ع)</label><input id="rr_bk" type="number" step="0.001" dir="ltr"><div class="small muted" id="rr_bks"></div></div></div>`,
     onMount:b=>{
       const toVal=()=>st.mode==='month'?(()=>{const [y,m]=($('#rr_mo',b).value||TODAY.slice(0,7)).split('-');return recYmd(new Date(+y,+m,0))})():($('#rr_to',b).value||TODAY);
-      $$('[data-md]',b).forEach(x=>x.onclick=()=>{st.mode=x.dataset.md;$$('[data-md]',b).forEach(y=>y.className='btn sm '+(y===x?'':'sec'));$('#rr_tw',b).hidden=st.mode==='month';$('#rr_mw',b).hidden=st.mode!=='month';refresh()});
-      $('#rr_to',b).onchange=()=>{st.toTouched=true;refresh()};$('#rr_mo',b).onchange=()=>refresh();
+      const frVal=()=>{const t=toVal(),f=$('#rr_fr',b).value||t;return f>t?t:f};
+      $$('[data-md]',b).forEach(x=>x.onclick=()=>{st.mode=x.dataset.md;$$('[data-md]',b).forEach(y=>y.className='btn sm '+(y===x?'':'sec'));['#rr_dw','#rr_dn'].forEach(q=>$(q,b).hidden=st.mode==='month');$('#rr_mw',b).hidden=st.mode!=='month';refresh()});
+      $('#rr_to',b).onchange=()=>{st.toTouched=true;const t=$('#rr_to',b).value;if(t&&(!st.frTouched||$('#rr_fr',b).value>t))$('#rr_fr',b).value=t;refresh()};
+      $('#rr_fr',b).onchange=()=>{st.frTouched=true;const f=$('#rr_fr',b).value;if(f&&f>$('#rr_to',b).value){$('#rr_to',b).value=f;st.toTouched=true}refresh()};$('#rr_mo',b).onchange=()=>refresh();
       $('#rr_bb',b).oninput=()=>{st.balBT=true};$('#rr_bk',b).oninput=()=>{st.balKT=true};
       const load=side=>async ev=>{const f=ev.target.files[0];if(!f)return;const box=$('#rr_sum',b);
         try{toast('⏳ جارٍ قراءة '+sideName[side]+'…');const F=await recReadFile(f);const c=recCfgFor(side,F,t);st[side]={F,c,open:!recCfgOk(c)};parseSide(side);
-          if(!st.toTouched&&st.mode==='day'){const mx=['b','k'].map(s=>st[s]&&st[s].P&&st[s].P.tx.length?st[s].P.tx[st[s].P.tx.length-1].d:null).filter(Boolean);if(mx.length){const m=mx.sort()[0];$('#rr_to',b).value=m<recAdd(TODAY,-1)?m:recAdd(TODAY,-1)}}
+          if(!st.toTouched&&st.mode==='day'){const mx=['b','k'].map(s=>st[s]&&st[s].P&&st[s].P.tx.length?st[s].P.tx[st[s].P.tx.length-1].d:null).filter(Boolean);if(mx.length){const m=mx.sort()[0];$('#rr_to',b).value=m<recAdd(TODAY,-1)?m:recAdd(TODAY,-1);if(!st.frTouched)$('#rr_fr',b).value=$('#rr_to',b).value}}
           refresh()}catch(e){console.error(e);toast('تعذّر قراءة الملف — تأكد أنه Excel أو CSV');box.insertAdjacentHTML('beforeend','')}};
       $('#rr_fb',b).onchange=load('b');$('#rr_fk',b).onchange=load('k');
       const parseSide=side=>{const X=st[side];if(!X)return;X.P=recCfgOk(X.c)?recParse(X.F.rows,side,X.c):null;if(X.P)recPrint(side,X.P.tx)};
-      const prep=side=>{const X=st[side];if(!X||!X.P)return null;const to=toVal();const tx=X.P.tx;
+      const prep=side=>{const X=st[side];if(!X||!X.P)return null;const to=toVal(),day=st.mode==='day',fr=day?frVal():null;const tx=X.P.tx;
         const pre=cut?tx.filter(x=>x.d<=cut):[],rest=cut?tx.filter(x=>x.d>cut):tx;
-        const later=rest.filter(x=>x.d>to),inr=rest.filter(x=>x.d<=to),dup=inr.filter(x=>seen.has(x.fp)),nw=inr.filter(x=>!seen.has(x.fp));
-        const fileBal=recBalAt(X.P,to),exp=L&&L.bal&&L.bal[side==='b'?'bank':'book']!=null?L.bal[side==='b'?'bank':'book']+recSum(nw):null;
-        return {pre,later,dup,nw,fileBal,exp}};
+        /* اليومية: البنك = الأيام المحددة فقط، والنظام = كامل الملف (يُبحث فيه عن حركات البنك ولو سُجّلت قبلها أو بعدها) */
+        const wide=day&&side==='k',out=day&&side==='b'?rest.filter(x=>x.d<fr&&!seen.has(x.fp)):[];
+        const later=wide?[]:rest.filter(x=>x.d>to),inr=wide?rest:rest.filter(x=>x.d<=to&&(!day||side!=='b'||x.d>=fr)),dup=inr.filter(x=>seen.has(x.fp)),nw=inr.filter(x=>!seen.has(x.fp));
+        const fileBal=recBalAt(X.P,to),exp=!day&&L&&L.bal&&L.bal[side==='b'?'bank':'book']!=null?L.bal[side==='b'?'bank':'book']+recSum(nw):null;
+        return {pre,later,dup,nw,out,wide,fr,fileBal,exp}};
       const sideCard=side=>{const X=st[side];if(!X)return `<div class="card flat"><div class="b small">${sideName[side]}</div><div class="small muted" style="margin-top:6px">لم يُختر الملف بعد</div></div>`;
         const P=X.P,R=prep(side),c=X.c,F=X.F;
         let h=`<div class="card flat"><div class="row" style="justify-content:space-between"><div class="b small">${sideName[side]}</div><button type="button" class="btn sm ghost" data-map="${side}">⚙️ الأعمدة</button></div><div class="small muted" dir="ltr" style="text-align:right">${esc(F.name)}${F.sheet?' — '+esc(F.sheet):''}</div>`;
         if(!P)h+=`<div class="note c small" style="margin-top:6px">لم يُتعرف على أعمدة التاريخ والمبلغ — حددها من «⚙️ الأعمدة»</div>`;
         else{const tin=recSum(P.tx,x=>x.a>0),tout=-recSum(P.tx,x=>x.a<0);
           h+=`<div class="small" style="margin-top:6px;line-height:1.9">الحركات في الملف: <b>${P.tx.length}</b> (${P.tx.length?recShort(P.tx[0].d)+' → '+recShort(P.tx[P.tx.length-1].d):'—'})<br>الوارد: <b dir="ltr">${bz(tin)}</b> — الصادر: <b dir="ltr">${bz(tout)}</b>${c.saved?' — '+badge('تخطيط القالب ✓','g'):''}<br>
-            ستُعالج: <b>${R.nw.length}</b> حركة جديدة${R.dup.length?` — تُتجاهل <b>${R.dup.length}</b> سبقت مطابقتها`:''}${R.later.length?` — <b>${R.later.length}</b> بعد تاريخ النهاية تؤجَّل`:''}${R.pre.length?` — <b>${R.pre.length}</b> قبل الرصيد الافتتاحي`:''}<br>
+            ${R.wide?`يُبحث فيها: <b>${R.nw.length}</b> حركة (كل تواريخ الملف)`:`ستُعالج: <b>${R.nw.length}</b> حركة${R.fr?' بتاريخ '+(R.fr===toVal()?recShort(R.fr):recShort(R.fr)+' – '+recShort(toVal())):' جديدة'}`}${R.out&&R.out.length?` — <b>${R.out.length}</b> قبل اليوم المحدد لم تُطابق بعد ولا تدخل`:''}${R.dup.length?` — تُتجاهل <b>${R.dup.length}</b> سبقت مطابقتها`:''}${R.later.length?` — <b>${R.later.length}</b> بعد تاريخ النهاية تؤجَّل`:''}${R.pre.length?` — <b>${R.pre.length}</b> قبل الرصيد الافتتاحي`:''}<br>
             ${P.hasBal?(P.balOk==null||P.balOk>=0.97?'✓ الرصيد الجاري في الملف متسلسل وصحيح':`⚠️ الرصيد الجاري غير متسلسل في ${Math.round((1-P.balOk)*100)}% من الصفوف — تحقق من الأعمدة`):'لا يوجد عمود رصيد في الملف'}</div>`;
           const ce=recClosedEnd(tid),inC=ce?R.nw.filter(x=>x.d<=ce).length:0;if(inC)h+=`<div class="note w small">${inC} حركة جديدة بتاريخ داخل شهر مقفل (حتى ${recShort(ce)}) — ستُعالج في هذه المطابقة وتظهر في الشهر الحالي</div>`;
           if(P.warn.includes('flip'))h+=`<div class="note w small">يبدو أن اتجاه المبالغ معكوس — فعّل «عكس الاتجاه» من ⚙️ الأعمدة</div>`;
@@ -3642,14 +3650,17 @@ function recRunModal(tid){const t=recTpl(tid);if(!t)return;const L=recLast(tid),
           else if(L&&L.bal&&L.bal[bk]!=null&&!st[s]){src=''}
           if(!st[tk]){inp.value=v!=null?(v/1000).toFixed(3):'';lab.textContent=src||(R?'لا يوجد رصيد في الملف — أدخله يدوياً من الكشف':'')}
           else lab.textContent='أدخلته يدوياً'})};
-      b.__st=st;b.__prep=prep;b.__to=toVal;refresh()},
+      b.__st=st;b.__prep=prep;b.__to=toVal;b.__fr=frVal;refresh()},
     foot:[{t:'▶️ تنفيذ المطابقة',fn:b=>{const st=b.__st;if(!st.b||!st.b.P||!st.k||!st.k.P){toast('اختر الملفين وتأكد من الأعمدة');return false}
       const to=b.__to(),RB=b.__prep('b'),RK=b.__prep('k');
       const bal={bank:recNum($('#rr_bb',b).value),book:recNum($('#rr_bk',b).value)};
       bal.bankSrc=st.balBT?'يدوي':RB.fileBal!=null?'الملف':RB.exp!=null?'محسوب':'—';bal.bookSrc=st.balKT?'يدوي':RK.fileBal!=null?'الملف':RK.exp!=null?'محسوب':'—';
       bal.bankFile=RB.fileBal;bal.bankExp=RB.exp;bal.bookFile=RK.fileBal;bal.bookExp=RK.exp;
-      const run=recBuild(t,L,RB,RK,{to,mode:st.mode,files:{b:st.b.F.name,k:st.k.F.name},bal});
+      if(st.mode==='day'&&!RB.nw.length){toast('لا توجد حركات بنك جديدة في الأيام المحددة');return false}
+      const run=recBuild(t,L,RB,RK,{to,from:st.mode==='day'?b.__fr():null,mode:st.mode,files:{b:st.b.F.name,k:st.k.F.name},bal});
       run._maps={b:{sig:recSig(st.b.F.rows,st.b.c.hdr),roles:st.b.c.roles,inv:st.b.c.inv,order:st.b.c.order},k:{sig:recSig(st.k.F.rows,st.k.c.hdr),roles:st.k.c.roles,inv:st.k.c.inv,order:st.k.c.order}};
+      /* نحفظ تخطيط الأعمدة في القالب فوراً حتى لا يُعاد ضبطه في الرفع القادم */
+      t.map={...(t.map||{}),...run._maps};try{save()}catch(e){}
       recShow(run,true);return false}},{t:'إلغاء',cls:'sec'}]})}
 
 /* بناء المطابقة: الحركات الجديدة + البنود المعلّقة المرحّلة من آخر مطابقة */
@@ -3657,13 +3668,16 @@ function recBuild(t,L,RB,RK,o){
   const carry=(L?L.open||[]:[]).map(x=>({...x,c:1}));
   const B=RB.nw.map(x=>({...x,s:'b'})).concat(carry.filter(x=>x.s==='b')),K=RK.nw.map(x=>({...x,s:'k'})).concat(carry.filter(x=>x.s==='k'));
   const M=recEngine(B,K,recOpt(t));
-  const open=[...B,...K].filter(x=>!x.m).map(recItem);
+  /* اليومية: قيود النظام خارج الأيام المحددة التي لم تقابل حركة بنك لا تُعلَّق ولا تُعلَّم — تُترك لمطابقة أيامها */
+  const day=o.mode==='day'&&o.from,inK=x=>x.c||!day||(x.d>=o.from&&x.d<=o.to);
+  const Ku=K.filter(x=>!x.c&&(x.m||inK(x)));
+  const open=[...B.filter(x=>!x.m),...K.filter(x=>!x.m&&inK(x))].map(recItem);
   const allNew=[...RB.nw.map(x=>x.d),...RK.nw.map(x=>x.d)].sort();
-  const from=o.mode==='month'?o.to.slice(0,8)+'01':L&&L.to?recAdd(L.to,1):(allNew[0]||o.to);
+  const from=day?o.from:o.mode==='month'?o.to.slice(0,8)+'01':L&&L.to?recAdd(L.to,1):(allNew[0]||o.to);
   const run={id:'RCR'+uid(),kind:'run',tpl:t.id,no:'',mode:o.mode,from,to:o.to,at:nowTs(),by:me().name,files:o.files,bal:o.bal,
-    cnt:{b:RB.nw.length,k:RK.nw.length,db:RB.dup.length,dk:RK.dup.length,lb:RB.later.length,lk:RK.later.length,pb:RB.pre.length,pk:RK.pre.length,cb:carry.filter(x=>x.s==='b').length,ck:carry.filter(x=>x.s==='k').length},
-    open,mt:M.map(m=>({t:m.t,cf:m.cf,dd:m.dd,b:m.b.map(recItem),k:m.k.map(recItem)})),fps:[...RB.nw,...RK.nw].map(x=>x.fp),man:[]};
-  run.sg=recSuggest(run.open);return run}
+    cnt:{b:RB.nw.length,k:Ku.length,ks:day?RK.nw.length:undefined,ob:(RB.out||[]).length,db:RB.dup.length,dk:RK.dup.length,lb:RB.later.length,lk:RK.later.length,pb:RB.pre.length,pk:RK.pre.length,cb:carry.filter(x=>x.s==='b').length,ck:carry.filter(x=>x.s==='k').length},
+    open,mt:M.map(m=>({t:m.t,cf:m.cf,dd:m.dd,b:m.b.map(recItem),k:m.k.map(recItem)})),fps:[...RB.nw,...Ku].map(x=>x.fp),man:[]};
+  run.lkp=L?recLateL(L).filter(x=>x.d>o.to):[];run.bal=Object.assign({},o.bal||{});run.bal.late=recLate(run);run.sg=recSuggest(run.open);return run}
 /* إعدادات التعرف على حركات البطاقات (قابلة للتعديل من إعدادات القالب) */
 const REC_CARD_K='visa,card,master,mastercard,mada,pos,credit card,debit card,thawani,amwal,فيزا,بطاقة,بطاقات,شبكة,نقاط البيع,ماستر';
 const REC_CARD_B='pos,merchant,settlement,settl,card,visa,mpos,master,mastercard,thawani,amwal,omannet,نقاط البيع,بطاقات,تسوية';
@@ -3675,7 +3689,7 @@ const recMonEnd=mo=>{const [y,m]=mo.split('-');return recYmd(new Date(+y,+m,0))}
 const recClosed=tid=>((recTpl(tid)||{}).closed)||{};
 const recClosedEnd=tid=>{const ks=Object.keys(recClosed(tid)).sort();return ks.length?recMonEnd(ks[ks.length-1]):null};
 const recLocked=r=>{const e=recClosedEnd(r.tpl);return !!e&&r.to<=e};
-function recRestat(r){r.sg=recSuggest(r.open||[]);r.st=recStmt(r.bal,r.open||[])}
+function recRestat(r){if(r.bal)r.bal.late=recLate(r);r.sg=recSuggest(r.open||[]);r.st=recStmt(r.bal,r.open||[])}
 
 /* ---- عرض المطابقة (معاينة قبل الحفظ أو من السجل) ---- */
 function recShow(r,preview){const t=recTpl(r.tpl)||{name:'—'};let tab='sum';const can=recCan(),isLast=!preview&&recLast(r.tpl)===r,lk=!preview&&recLocked(r);
@@ -3686,7 +3700,7 @@ function recShow(r,preview){const t=recTpl(r.tpl)||{name:'—'};let tab='sum';co
   const M=modal({title:'⚖️ '+(r.no?r.no+' — ':'معاينة — ')+esc(t.name),sub:`${REC_MODE[r.mode]||''} · ${r.mode==='open'?'كما في '+recDay(r.to):'من '+recShort(r.from)+' حتى '+recDay(r.to)}`,wide:true,body:`<div id="rsB">${body()}</div>`,
     onMount:b=>{const draw=()=>{$('#rsB',b).innerHTML=body();tidyButtons(b);bind()};
       const bind=()=>{$$('[data-rt]',b).forEach(x=>x.onclick=()=>{tab=x.dataset.rt;draw()});
-        $$('[data-unm]',b).forEach(x=>x.onclick=()=>{const m=r.mt[+x.dataset.unm];r.mt.splice(+x.dataset.unm,1);[...m.b,...m.k].forEach(i=>r.open.push(i));recRestat(r);draw();toast('فُكّت المطابقة وعادت البنود للمعلّقة')});
+        $$('[data-unm]',b).forEach(x=>x.onclick=()=>{const m=r.mt[+x.dataset.unm];r.mt.splice(+x.dataset.unm,1);[...m.b,...m.k].forEach(i=>{if(r.mode==='day'&&i.s==='k'&&!i.c&&(i.d>r.to||i.d<r.from)){r.fps=(r.fps||[]).filter(f=>f!==i.fp);r.cnt&&r.cnt.k&&r.cnt.k--}else r.open.push(i)});recRestat(r);draw();toast('فُكّت المطابقة وعادت البنود للمعلّقة')});
         $$('[data-sga]',b).forEach(x=>x.onclick=()=>{const s=r.sg[+x.dataset.sga];const its=s.ids.map(f=>r.open.find(i=>i.fp===f)).filter(Boolean);if(its.length!==2)return;
           r.open=r.open.filter(i=>!s.ids.includes(i.fp));r.mt.push({t:s.ty==='rev'?'rev':'man',cf:'g',dd:Math.abs(recDD(its[0].d,its[1].d)),b:its.filter(i=>i.s==='b'),k:its.filter(i=>i.s==='k')});
           if(!preview){r.man=(r.man||[]).concat([{at:nowTs(),by:me().name,ty:'sg',ids:s.ids}]);recRestat(r);save()}else recRestat(r);draw();toast('تمت المطابقة')});
@@ -3721,6 +3735,7 @@ function recTab(r,tab,act){const op=r.open||[],stt=recStmt(r.bal,op),to=r.to;
       ${row('رصيد النظام (NetSuite) في '+recShort(to),bz(stt.book),B.bookSrc?'المصدر: '+B.bookSrc:'')}
       ${row('(+) مبالغ واردة في البنك غير مسجلة في النظام',bz(stt.bc),op.filter(x=>x.s==='b'&&x.a>0).length+' بند')}
       ${row('(−) رسوم ومسحوبات في البنك غير مسجلة في النظام',bz(stt.bd),op.filter(x=>x.s==='b'&&x.a<0).length+' بند')}
+      ${stt.late?row('(±) حركات بنك سُجّلت في النظام بتاريخ بعد '+recShort(to),bzs(stt.late),'مطابَقة — تظهر في رصيد النظام لاحقاً'):''}
       ${row('= رصيد النظام المعدَّل',bz(stt.adjK),null,1)}
       ${row('الفرق',stt.diff==null?'—':bzs(stt.diff),null,1)}</tbody></table></div>
       <div class="small muted" style="margin-top:8px;line-height:1.9">الملفات: ${esc((r.files||{}).b||'—')} / ${esc((r.files||{}).k||'—')}<br>${cn.db||cn.dk?`تُجوهلت ${cn.db||0} حركة بنك و${cn.dk||0} حركة نظام سبقت مطابقتها. `:''}${cn.lb||cn.lk?`أُجّلت ${cn.lb||0} حركة بنك و${cn.lk||0} حركة نظام بعد تاريخ النهاية. `:''}${cn.pb||cn.pk?`${(cn.pb||0)+(cn.pk||0)} حركة قبل الرصيد الافتتاحي لم تُعالج. `:''}${cn.cb||cn.ck?`رُحّل من المطابقة السابقة: ${cn.cb||0} بند بنك و${cn.ck||0} بند نظام.`:''}<br>${r.no?`أعدّها: ${esc(r.by||'')} — ${ftime(r.at)}`:''}</div>`}
@@ -3817,7 +3832,7 @@ function recDoc(r,brief,monthRuns){const t=recTpl(r.tpl)||{},op=r.open||[],st=re
    <tr><td ${td}><b>${monthRuns?'الشهر':'الفترة'}:</b> ${monthRuns?monthName(r.to.slice(0,7))+' — حتى '+recShort(r.to):(r.mode==='open'?'كما في '+recShort(r.to):recShort(r.from)+' → '+recShort(r.to))}</td><td ${td}><b>النوع:</b> ${monthRuns?(()=>{const C=recClosed(r.tpl)[r.to.slice(0,7)];return 'مطابقة شهرية'+(C&&C.run===r.id?' — مقفلة 🔒':' (غير مقفلة)')})()+' · '+monthRuns.length+' مطابقة يومية':REC_MODE[r.mode]} — <b>الحالة:</b> ${st.diff==null?'بدون أرصدة':st.diff===0?'متزنة ✓':'فرق '+bzs(st.diff)}</td></tr></tbody></table>
    ${h4('كشف المطابقة كما في '+recDay(r.to))}<table style="width:100%;border-collapse:collapse"><tbody>
    ${tr('رصيد كشف البنك',bz(st.bank))}${tr('(+) إيداعات بالطريق (مسجلة في النظام ولم تظهر في البنك)',bz(st.dit))}${tr('(−) شيكات ودفعات معلّقة (مسجلة في النظام ولم تُصرف)',bz(st.op))}${tr('رصيد البنك المعدَّل',bz(st.adjB),1)}
-   ${tr('رصيد النظام (الدفاتر)',bz(st.book))}${tr('(+) مبالغ واردة في البنك غير مسجلة في النظام',bz(st.bc))}${tr('(−) رسوم ومسحوبات في البنك غير مسجلة في النظام',bz(st.bd))}${tr('رصيد النظام المعدَّل',bz(st.adjK),1)}
+   ${tr('رصيد النظام (الدفاتر)',bz(st.book))}${tr('(+) مبالغ واردة في البنك غير مسجلة في النظام',bz(st.bc))}${tr('(−) رسوم ومسحوبات في البنك غير مسجلة في النظام',bz(st.bd))}${st.late?tr('(±) حركات بنك سُجّلت في النظام بتاريخ لاحق',bzs(st.late)):''}${tr('رصيد النظام المعدَّل',bz(st.adjK),1)}
    ${tr('الفرق',st.diff==null?'—':bzs(st.diff),1)}</tbody></table>
    ${monthRuns?h4('المطابقات خلال الشهر')+`<table style="width:100%;border-collapse:collapse"><thead><tr><th ${th}>اليوم</th><th ${th}>الرقم</th><th ${th}>حركات جديدة (بنك/نظام)</th><th ${th}>مطابَق</th><th ${th}>سُوّي من سابق</th><th ${th}>معلّق</th><th ${th}>الفرق</th></tr></thead><tbody>${monthRuns.map(x=>{const s=recStmt(x.bal,x.open||[]);return `<tr><td ${td}>${recShort(x.to)}</td><td ${td} dir="ltr">${esc(x.no)}</td><td ${td}>${(x.cnt||{}).b||0} / ${(x.cnt||{}).k||0}</td><td ${td}>${(x.mt||[]).length||x.mtN||0}</td><td ${td}>${(x.mt||[]).filter(m=>[...m.b,...m.k].some(i=>i.c)).length}</td><td ${td}>${(x.open||[]).length}</td><td ${td} dir="ltr">${s.diff==null?'—':bzs(s.diff)}</td></tr>`}).join('')}</tbody></table>`:''}
    ${h4('البنود المعلّقة ('+op.length+')')}${op.length?itemT(op.slice().sort((a,b)=>a.d.localeCompare(b.d)||a.s.localeCompare(b.s))):'<div style="font-size:12px">لا توجد بنود معلّقة ✓</div>'}
@@ -3831,7 +3846,7 @@ async function recExcel(r,monthRuns){try{await recXlsx()}catch(e){toast('تعذ�
   const t=recTpl(r.tpl)||{},op=r.open||[],st=recStmt(r.bal,op),n=v=>v==null?'':v/1000;
   const A=[['العالمية السعيدة المتحدة ش.م.م — مطابقة بنكية'],['الحساب',t.name||'','البنك',t.bank||'','رقم الحساب',t.acct||''],['الرقم',r.no||'','حتى تاريخ',recShort(r.to),'النوع',monthRuns?'تقرير شهري':REC_MODE[r.mode]],[],
     ['كشف المطابقة','المبلغ (ر.ع)'],['رصيد كشف البنك',n(st.bank)],['(+) إيداعات بالطريق',n(st.dit)],['(−) شيكات ودفعات معلّقة',n(st.op)],['رصيد البنك المعدَّل',n(st.adjB)],[],
-    ['رصيد النظام',n(st.book)],['(+) مبالغ واردة في البنك غير مسجلة',n(st.bc)],['(−) رسوم ومسحوبات في البنك غير مسجلة',n(st.bd)],['رصيد النظام المعدَّل',n(st.adjK)],[],['الفرق',n(st.diff)],[]];
+    ['رصيد النظام',n(st.book)],['(+) مبالغ واردة في البنك غير مسجلة',n(st.bc)],['(−) رسوم ومسحوبات في البنك غير مسجلة',n(st.bd)],...(st.late?[['(±) حركات بنك سُجّلت في النظام بتاريخ لاحق',n(st.late)]]:[]),['رصيد النظام المعدَّل',n(st.adjK)],[],['الفرق',n(st.diff)],[]];
   const sec=(title,L)=>{A.push([title+' ('+L.length+')']);A.push(['التاريخ','الجهة','البيان','المرجع','المبلغ','التصنيف','ظهر في','ملاحظة']);L.forEach(x=>A.push([recShort(x.d),x.s==='b'?'البنك':'النظام',x.ds,x.rf,x.a/1000,recCls(x).t,x.o||'',[x.n,x.lt].filter(Boolean).join(' — ')]));A.push([])};
   sec('مسجل في النظام ولم يظهر في البنك',op.filter(x=>x.s==='k').sort((a,b)=>a.d.localeCompare(b.d)));sec('في البنك وغير مسجل في النظام',op.filter(x=>x.s==='b').sort((a,b)=>a.d.localeCompare(b.d)));
   if(monthRuns){A.push(['المطابقات خلال الشهر']);A.push(['التاريخ','الرقم','حركات بنك','حركات نظام','مطابَق','سُوّي من سابق','معلّق','الفرق']);monthRuns.forEach(x=>{const s=recStmt(x.bal,x.open||[]);A.push([recShort(x.to),x.no,(x.cnt||{}).b||0,(x.cnt||{}).k||0,(x.mt||[]).length||x.mtN||0,(x.mt||[]).filter(m=>[...m.b,...m.k].some(i=>i.c)).length,(x.open||[]).length,n(s.diff)])});A.push([])}
