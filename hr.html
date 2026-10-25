@@ -3508,6 +3508,11 @@ const REC_MT={card:['تسوية بطاقات مجمّعة','a'],exact:['نفس �
 const recSideB=s=>s==='b'?badge('البنك','i'):badge('النظام','a');
 const recAmt=a=>`<b dir="ltr" style="color:${a<0?'var(--critical)':'var(--good)'}">${a<0?'−':'+'}${money(Math.abs(a)/1000)}</b>`;
 async function recXlsx(){if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}
+/* ملفات xls القديمة (BIFF) وملفات HTML/XML المسمّاة xls — كشوف بنك مسقط وغيره — لا تقرأها المكتبة الصغيرة: نحمّل المكتبة الكاملة (مدمجة محلياً) عند الحاجة */
+let recFull=null;
+function recXlsxFull(){if(window.XLSX&&window.XLSX.__full)return Promise.resolve();
+  return recFull||(recFull=new Promise((res,rej)=>{const s=document.createElement('script');s.src='vendor/xlsx.full.min.js';s.onload=()=>{window.XLSX.__full=1;res()};s.onerror=()=>{recFull=null;rej(new Error('load'))};document.head.appendChild(s)}))}
+const recNeedFull=(f,buf)=>{if(/\.(xls|htm|html|xml|mht)$/i.test(f.name))return true;const u=new Uint8Array(buf.slice(0,8));return (u[0]===0xD0&&u[1]===0xCF&&u[2]===0x11&&u[3]===0xE0)||(u[0]===0x3C)}
 
 /* ---- الصفحة الرئيسية ---- */
 VIEWS.recon=()=>{const T=recTpls(),can=recCan(),runs=recRuns().filter(r=>r.mode!=='open');
@@ -3576,7 +3581,7 @@ async function recReadFile(f){await recXlsx();const buf=await f.arrayBuffer();le
   /* ملفات CSV/النصية: نفك ترميزها بأنفسنا (UTF-8 ثم Windows-1256 للعربي) حتى لا تظهر العناوين العربية رموزاً */
   if(/\.(csv|txt)$/i.test(f.name)){let txt;try{txt=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){try{txt=new TextDecoder('windows-1256').decode(buf)}catch(_){txt=new TextDecoder('utf-8').decode(buf)}}
     wb=XLSX.read(txt.replace(/^\ufeff/,''),{type:'string',raw:true})}
-  else wb=XLSX.read(buf,{type:'array',raw:true});const pk=recPickSheet(wb);if(!pk)throw new Error('empty');return {name:f.name,sheet:pk.n,rows:pk.rows,hi:pk.hi}}
+  else{if(recNeedFull(f,buf))await recXlsxFull();try{wb=XLSX.read(buf,{type:'array',raw:true})}catch(e){if(window.XLSX.__full)throw e;await recXlsxFull();wb=XLSX.read(buf,{type:'array',raw:true})}}const pk=recPickSheet(wb);if(!pk)throw new Error('empty');return {name:f.name,sheet:pk.n,rows:pk.rows,hi:pk.hi}}
 const recSig=(rows,hi)=>hi<0?'':(rows[hi]||[]).map(recHS).join('|');
 function recCfgFor(side,F,tpl){const saved=tpl.map&&tpl.map[side];const sig=recSig(F.rows,F.hi);
   if(saved&&saved.sig&&saved.sig===sig)return {hdr:F.hi,roles:{...saved.roles},inv:!!saved.inv,order:saved.order||'auto',saved:1};
