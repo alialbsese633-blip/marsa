@@ -2779,6 +2779,7 @@ function custLimit(){const v=+((S.settings.custLimit??100));return isFinite(v)?v
 function custExcl(){try{return new Set(JSON.parse(localStorage.getItem('custRepExcl')||'[]'))}catch(e){return new Set()}}
 function custExclSave(s){try{localStorage.setItem('custRepExcl',JSON.stringify([...s]))}catch(e){}}
 const custKey=r=>r.code||r.name;
+const custOver=(r,L)=>r.st==='over'?true:r.st==='ok'?false:r.bal>(L??custLimit());
 function custHolder(name){return String(name||'').replace(/\b(petty\s*cash|custody|imprest)\b/ig,'').replace(/عهد[ةه]?|نثري[ةه]?|حساب/g,'').replace(/^[\s\-–:/|()]+|[\s\-–:/|()]+$/g,'').replace(/\s{2,}/g,' ').trim()||String(name||'').trim()}
 const custNum=v=>{if(typeof v==='number')return v;const s=String(v??'').replace(/[,\s]/g,'').replace(/^\((.*)\)$/,'-$1');return s!==''&&/^-?\d*\.?\d+$/.test(s)?+s:null};
 function custParse(wb,fileName){const out=[],seen=new Set();
@@ -2822,23 +2823,28 @@ function custImportModal(){
 VIEWS.custody=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R)||isAccounts(),D=custData(),L=custLimit();
   const btns=(D?`<button class="btn" id="cuRep">📋 تقرير العهد كصورة</button>`:'')+(canEdit?`<button class="btn ${D?'sec':''}" id="cuImp">⬆️ استيراد أرصدة العهد (Excel)</button>`+(D?`<button class="btn sec" id="cuAdd">➕ عهدة</button><button class="btn" id="cuSave">حفظ</button>`:''):'');
   if(!D)return ph('العهد','أرصدة العهد لدى الموظفين — ومنع الصرف لمن تجاوزت عهدته الحد حتى تتم تصفيتها',btns)+`<div class="card"><div class="empty" style="padding:30px 10px">لم تُستورد أرصدة العهد بعد.<br>اضغط «استيراد أرصدة العهد» واختر ملف الموازنة أو الأرصدة الذي فيه حسابات العهد.</div></div>`;
-  const rows=D.rows.slice().sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>r.bal>L),open=rows.filter(r=>Math.abs(r.bal)>=0.0005);
+  const rows=D.rows.slice().sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>custOver(r,L)),open=rows.filter(r=>Math.abs(r.bal)>=0.0005);
   return ph('العهد','أرصدة العهد لدى الموظفين — ومنع الصرف لمن تجاوزت عهدته الحد حتى تتم تصفيتها',btns)+
   `<div class="note small" style="margin-bottom:12px">مصدر الأرصدة: <b dir="ltr">${esc(D.src||'')}</b> — الأرصدة حتى ${fdate(D.asOf)} — استُورد ${ftime(D.at)} بواسطة ${esc(D.by||'')}.</div>
   <div class="grid g4">${kpi('حسابات العهد',rows.length)}${kpi('عهد غير مصفّاة',open.length)}${kpi('فوق الحد ('+L+' ر.ع)',over.length,over.length?'يُمنع الصرف لأصحابها حتى التصفية':'',over.length?'c':'g')}${kpi('إجمالي العهد القائمة',omr(open.reduce((s,r)=>s+r.bal,0)),'للإدارة فقط — لا يظهر في التقرير')}</div>
   ${canEdit?`<div class="card flat" style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b class="small">حد العهدة المسموح:</b><input id="cuLim" type="number" step="0.001" value="${L}" style="width:110px;text-align:center"><span class="small muted">ر.ع — أي عهدة رصيدها فوق هذا الحد يظهر عليها تحذير منع الصرف</span></div>`:''}
-  <div class="tw" style="margin-top:14px"><table><thead><tr><th>صاحب العهدة</th><th>الحساب</th><th class="n">الرصيد</th><th class="n">الحالة</th>${canEdit?'<th></th>':''}</tr></thead><tbody>${rows.map(r=>{const i=D.rows.indexOf(r),ov=r.bal>L;
-    return `<tr><td>${canEdit?`<input data-ch="${i}" value="${esc(r.holder)}" style="min-width:150px;width:90%">`:esc(r.holder)}</td><td class="small"><span class="muted" dir="ltr">${esc(r.code)}</span> ${esc(r.name)}</td><td class="n">${canEdit?`<input data-cb="${i}" type="number" step="0.001" value="${r.bal}" style="width:100px;text-align:center${ov?';color:var(--critical);font-weight:700':''}">`:`<span style="${ov?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span>`}</td><td class="n">${ov?badge('⛔ يُمنع الصرف حتى التصفية','c'):Math.abs(r.bal)<0.0005?badge('مصفّاة','g'):badge('ضمن الحد','g')}</td>${canEdit?`<td class="n"><button class="btn sm sec" data-cdel="${i}">حذف</button></td>`:''}</tr>`}).join('')}</tbody></table></div>
+  <div class="tw" style="margin-top:14px"><table><thead><tr><th>صاحب العهدة</th><th>الحساب</th><th class="n">الرصيد</th><th class="n">الحالة</th>${canEdit?'<th></th>':''}</tr></thead><tbody>${rows.map(r=>{const i=D.rows.indexOf(r),ov=custOver(r,L);
+    return `<tr><td>${canEdit?`<input data-ch="${i}" value="${esc(r.holder)}" style="min-width:150px;width:90%">`:esc(r.holder)}</td><td class="small"><span class="muted" dir="ltr">${esc(r.code)}</span> ${esc(r.name)}</td><td class="n">${canEdit?`<input data-cb="${i}" type="number" step="0.001" value="${r.bal}" style="width:100px;text-align:center${ov?';color:var(--critical);font-weight:700':''}">`:`<span style="${ov?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span>`}</td><td class="n">${canEdit?`<select data-cst="${i}" style="margin-inline-end:6px"><option value="">تلقائي</option><option value="over" ${r.st==='over'?'selected':''}>فوق الحد</option><option value="ok" ${r.st==='ok'?'selected':''}>ضمن الحد</option></select>`:''}${ov?badge('⛔ يُمنع الصرف حتى التصفية','c'):Math.abs(r.bal)<0.0005?badge('مصفّاة','g'):badge('ضمن الحد','g')}</td>${canEdit?`<td class="n"><button class="btn sm sec" data-cdel="${i}">حذف</button></td>`:''}</tr>`}).join('')}</tbody></table></div>
   <div class="note small" style="margin-top:10px">تُصفّى العهد بالفواتير الأصلية خلال 3 أيام من استلامها، ويُكتب بيان كل بند: «مقابل شراء ... بتاريخ ... فاتورة رقم ... لصالح بناية ...». لا تُصرف عهدة جديدة أو مبالغ لصاحب عهدة رصيدها فوق الحد حتى تتم تصفيتها.</div>`;
 };
-BIND.custody=()=>{$('#cuImp')&&($('#cuImp').onclick=custImportModal);$('#cuRep')&&($('#cuRep').onclick=()=>custReportShow());
+BIND.custody=()=>{$('#cuImp')&&($('#cuImp').onclick=custImportModal);
+  /* أي تعديل في الجدول يُحفظ فوراً — فيظهر في صورة التقرير دون الحاجة لزر «حفظ» */
+  const D0=custData();if(D0){$$('[data-ch]').forEach(e=>e.onchange=()=>{const r=D0.rows[+e.dataset.ch];r.holder=e.value.trim()||r.holder;save();toast('تم الحفظ')});
+    $$('[data-cb]').forEach(e=>e.onchange=()=>{const r=D0.rows[+e.dataset.cb];r.bal=r3(+e.value||0);log('تعديل رصيد عهدة '+r.holder);commit('تم الحفظ')});
+    $$('[data-cst]').forEach(e=>e.onchange=()=>{const r=D0.rows[+e.dataset.cst];if(e.value)r.st=e.value;else delete r.st;log('تعديل حالة عهدة '+r.holder);commit('تم الحفظ')});
+    $('#cuLim')&&($('#cuLim').onchange=()=>{S.settings.custLimit=r3(+$('#cuLim').value||0);commit('تم حفظ الحد')})}$('#cuRep')&&($('#cuRep').onclick=()=>custReportShow());
   $('#cuSave')&&($('#cuSave').onclick=()=>{const D=custData();D.rows=D.rows.map((r,i)=>({...r,holder:(($(`[data-ch="${i}"]`)||{}).value??r.holder).trim()||r.holder,bal:r3(+(($(`[data-cb="${i}"]`)||{}).value??r.bal)||0)}));const l=$('#cuLim');if(l)S.settings.custLimit=r3(+l.value||0);log('تعديل أرصدة العهد');commit('تم الحفظ')});
   $$('[data-cdel]').forEach(b=>b.onclick=()=>{const D=custData(),r=D.rows[+b.dataset.cdel];confirmBox('حذف عهدة '+r.holder+'؟',()=>{D.rows.splice(+b.dataset.cdel,1);log('حذف عهدة '+r.holder);commit('تم الحذف')})});
   $('#cuAdd')&&($('#cuAdd').onclick=()=>modal({title:'➕ عهدة',body:`<div class="fld"><label>صاحب العهدة</label><input id="ca_h"></div><div class="frow"><div class="fld"><label>رقم الحساب (اختياري)</label><input id="ca_c" dir="ltr"></div><div class="fld"><label>الرصيد (ر.ع)</label><input id="ca_b" type="number" step="0.001"></div></div>`,
     foot:[{t:'إضافة',fn:b=>{const h=fv(b,'ca_h');if(!h){toast('اكتب اسم صاحب العهدة');return false}custData().rows.push({code:fv(b,'ca_c'),name:'عهدة '+h,holder:h,bal:r3(+fv(b,'ca_b')||0)});log('إضافة عهدة '+h);commit('تمت الإضافة')}},{t:'إلغاء',cls:'sec'}]}));
 };
 async function custReportCanvas(excl){const D=custData(),Lm=custLimit();
-  const rows=D.rows.filter(r=>!excl.has(custKey(r))&&Math.abs(r.bal)>=0.0005).sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>r.bal>Lm),ok=rows.filter(r=>r.bal<=Lm);
+  const rows=D.rows.filter(r=>!excl.has(custKey(r))&&Math.abs(r.bal)>=0.0005).sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>custOver(r,Lm)),ok=rows.filter(r=>!custOver(r,Lm));
   const W=1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
   let logo=null;try{logo=new Image();logo.src='icons/logo-full.png';await logo.decode()}catch(e){logo=null}
   const BR='#0F7C8F',DK='#0B4F5C',RED='#C0392B',GRN='#1E8449',INK='#16302f',MUT='#607573',LINE='#DCE8EA';
@@ -2871,16 +2877,16 @@ async function custReportCanvas(excl){const D=custData(),Lm=custLimit();
   const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c}
 async function custReportShow(){const D=custData();if(!D||!D.rows.length){toast('استورد أرصدة العهد أولاً');return}
   const excl=custExcl(),Lm=custLimit(),cur={blob:null};let busy=0;
-  const lst=D.rows.slice().sort((a,b)=>b.bal-a.bal).map(r=>`<label style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" data-cx="${esc(custKey(r))}" ${excl.has(custKey(r))?'':'checked'}><span>${esc(r.holder)}</span><span dir="ltr" class="muted small">${esc(r.code)}</span><span class="num small" style="margin-inline-start:auto;${r.bal>Lm?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span></label>`).join('');
+  const lst=D.rows.slice().sort((a,b)=>b.bal-a.bal).map(r=>{const i=D.rows.indexOf(r);return `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;flex-wrap:wrap"><input type="checkbox" data-cx="${esc(custKey(r))}" ${excl.has(custKey(r))?'':'checked'}><span style="min-width:110px">${esc(r.holder)}</span><span dir="ltr" class="muted small">${esc(r.code)}</span><span style="margin-inline-start:auto;display:flex;gap:6px;align-items:center"><input data-xb="${i}" type="number" step="0.001" value="${r.bal}" style="width:96px;text-align:center"><select data-xs="${i}"><option value="">تلقائي</option><option value="over" ${r.st==='over'?'selected':''}>فوق الحد</option><option value="ok" ${r.st==='ok'?'selected':''}>ضمن الحد</option></select></span></div>`}).join('');
   const dl=()=>{if(!cur.blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(cur.blob);a.download='custody-'+D.asOf+'.png';document.body.appendChild(a);a.click();a.remove()};
   modal({title:'📋 تقرير العهد',sub:'احذف من لا تريد ظهوره في التقرير، ثم انسخ الصورة وأرسلها في المجموعة. العهد المصفّاة (صفر) لا تظهر تلقائياً.',wide:true,
     body:`<details style="margin-bottom:12px" open><summary style="cursor:pointer;font-weight:700">🧹 الحسابات المشمولة في التقرير <span class="muted small" id="cxCnt"></span></summary>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="cxAll">تحديد الكل</button><button class="btn sm sec" id="cxNone">إلغاء الكل</button><button class="btn sm sec" id="cxOver">فوق الحد فقط</button></div>
-      <div style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div></details>
+      <div style="max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div><div class="small muted" style="margin-top:6px">عدّل الرصيد أو اختر الحالة (تلقائي = حسب الحد ${Lm} ر.ع) — يتحدث التقرير فوراً ويُحفظ التعديل في صفحة العهد.</div></details>
     <div style="text-align:center;min-height:200px"><div class="muted" id="cxLoad" style="padding:60px 0">جارٍ تجهيز الصورة…</div><img id="cxImg" alt="" style="display:none;width:100%;max-width:480px;margin:0 auto;border:1px solid var(--border);border-radius:10px"></div>`,
     foot:[{t:'📋 نسخ الصورة',fn:()=>{if(!cur.blob){toast('انتظر تجهيز الصورة');return false}try{navigator.clipboard.write([new ClipboardItem({'image/png':cur.blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
       {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-العهد.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير العهد'}).catch(()=>{});else dl();return false}},
-      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
+      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec',fn:()=>{if(V.view==='custody')setTimeout(render,50)}}],
     onMount:b=>{
       const cnt=()=>{$('#cxCnt',b).textContent='('+D.rows.filter(r=>!excl.has(custKey(r))).length+' من '+D.rows.length+')'};
       const gen=async()=>{const my=++busy;$('#cxLoad',b).style.display='';$('#cxImg',b).style.opacity='.4';
@@ -2888,8 +2894,10 @@ async function custReportShow(){const D=custData();if(!D||!D.rows.length){toast(
         catch(e){if(my===busy)$('#cxLoad',b).textContent='تعذّر إنشاء صورة التقرير'}};
       const sync=()=>{b.querySelectorAll('[data-cx]').forEach(i=>i.checked=!excl.has(i.dataset.cx));custExclSave(excl);cnt();gen()};
       b.querySelectorAll('[data-cx]').forEach(i=>i.onchange=()=>{i.checked?excl.delete(i.dataset.cx):excl.add(i.dataset.cx);custExclSave(excl);cnt();gen()});
+      b.querySelectorAll('[data-xb]').forEach(e=>e.onchange=()=>{const r=D.rows[+e.dataset.xb];r.bal=r3(+e.value||0);log('تعديل رصيد عهدة '+r.holder);save();gen()});
+      b.querySelectorAll('[data-xs]').forEach(e=>e.onchange=()=>{const r=D.rows[+e.dataset.xs];if(e.value)r.st=e.value;else delete r.st;save();gen()});
       $('#cxAll',b).onclick=()=>{excl.clear();sync()};$('#cxNone',b).onclick=()=>{D.rows.forEach(r=>excl.add(custKey(r)));sync()};
-      $('#cxOver',b).onclick=()=>{D.rows.forEach(r=>r.bal>Lm?excl.delete(custKey(r)):excl.add(custKey(r)));sync()};
+      $('#cxOver',b).onclick=()=>{D.rows.forEach(r=>custOver(r,Lm)?excl.delete(custKey(r)):excl.add(custKey(r)));sync()};
       cnt();gen()}});
 }
 VIEWS.purreports=()=>{const per=V.sub.prp||'month';
