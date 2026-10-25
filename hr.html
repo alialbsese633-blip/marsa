@@ -2829,7 +2829,7 @@ VIEWS.custody=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R)||isAccou
   ${canEdit?`<div class="card flat" style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b class="small">حد العهدة المسموح:</b><input id="cuLim" type="number" step="0.001" value="${L}" style="width:110px;text-align:center"><span class="small muted">ر.ع — أي عهدة رصيدها فوق هذا الحد يظهر عليها تحذير منع الصرف</span></div>`:''}
   <div class="tw" style="margin-top:14px"><table><thead><tr><th>صاحب العهدة</th><th>الحساب</th><th class="n">الرصيد</th><th class="n">الحالة</th>${canEdit?'<th></th>':''}</tr></thead><tbody>${rows.map(r=>{const i=D.rows.indexOf(r),ov=r.bal>L;
     return `<tr><td>${canEdit?`<input data-ch="${i}" value="${esc(r.holder)}" style="min-width:150px;width:90%">`:esc(r.holder)}</td><td class="small"><span class="muted" dir="ltr">${esc(r.code)}</span> ${esc(r.name)}</td><td class="n">${canEdit?`<input data-cb="${i}" type="number" step="0.001" value="${r.bal}" style="width:100px;text-align:center${ov?';color:var(--critical);font-weight:700':''}">`:`<span style="${ov?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span>`}</td><td class="n">${ov?badge('⛔ يُمنع الصرف حتى التصفية','c'):Math.abs(r.bal)<0.0005?badge('مصفّاة','g'):badge('ضمن الحد','g')}</td>${canEdit?`<td class="n"><button class="btn sm sec" data-cdel="${i}">حذف</button></td>`:''}</tr>`}).join('')}</tbody></table></div>
-  <div class="note small" style="margin-top:10px">تُصفّى العهد بالفواتير الأصلية خلال 7 أيام من استلامها، ويُكتب بيان كل بند: «مقابل شراء ... بتاريخ ... فاتورة رقم ... لصالح بناية ...». لا تُصرف عهدة جديدة أو مبالغ لصاحب عهدة رصيدها فوق الحد حتى تتم تصفيتها.</div>`;
+  <div class="note small" style="margin-top:10px">تُصفّى العهد بالفواتير الأصلية خلال 3 أيام من استلامها، ويُكتب بيان كل بند: «مقابل شراء ... بتاريخ ... فاتورة رقم ... لصالح بناية ...». لا تُصرف عهدة جديدة أو مبالغ لصاحب عهدة رصيدها فوق الحد حتى تتم تصفيتها.</div>`;
 };
 BIND.custody=()=>{$('#cuImp')&&($('#cuImp').onclick=custImportModal);$('#cuRep')&&($('#cuRep').onclick=()=>custReportShow());
   $('#cuSave')&&($('#cuSave').onclick=()=>{const D=custData();D.rows=D.rows.map((r,i)=>({...r,holder:(($(`[data-ch="${i}"]`)||{}).value??r.holder).trim()||r.holder,bal:r3(+(($(`[data-cb="${i}"]`)||{}).value??r.bal)||0)}));const l=$('#cuLim');if(l)S.settings.custLimit=r3(+l.value||0);log('تعديل أرصدة العهد');commit('تم الحفظ')});
@@ -2865,7 +2865,7 @@ async function custReportCanvas(excl){const D=custData(),Lm=custLimit();
       ok.forEach((r,k)=>{if(k%2===0)rr(P,y,W-2*P,58,12,'#F3F9F5');T(fit(r.holder,600,'700 25px '+F),W-P-20,y+38,'700 25px '+F,INK);T(money(r.bal)+' ر.ع',P+20,y+38,'700 25px '+F,GRN,'left');y+=62});y+=14}
     if(!rows.length){T('لا توجد عهد معلّقة 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}
     y+=10;fR(P,y,W-2*P,2,LINE);
-    T('نرجو تصفية العهد بالفواتير الأصلية خلال 7 أيام من استلامها',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
+    T('نرجو تصفية العهد بالفواتير الأصلية خلال 3 أيام من استلامها',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
     x.fillStyle=g;x.fillRect(0,y+104,W,12);return y+116};
   const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
   const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c}
