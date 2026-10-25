@@ -3464,7 +3464,7 @@ function recSuggest(open){
   [[ob,'b'],[ok,'k']].forEach(([L,s])=>L.forEach((x,i)=>L.slice(i+1).forEach(y=>{if(x.a===-y.a&&Math.abs(recDD(x.d,y.d))<=10)add({ty:'rev',ids:[x.fp,y.fp],eq:1,t:(s==='b'?'في البنك':'في النظام')+': حركة وعكسها بنفس المبلغ — قد تكون إلغاءً'})})));
   return S}
 /* تصنيف البند المعلق: ماذا يعني وما المطلوب */
-const REC_KW={fee:/\b(CHG|CHGS|CHARGE|CHARGES|FEE|FEES|COMM|COMMISSION|VAT|SMS|SERVICE CHARGE|STMT|SWIFT CHG)\b|عمولة|عمولات|رسوم|ضريبة|خدمة/i,
+const REC_KW={fee:/\b(CHG|CHGS|CHARGE|CHARGES|FEE|FEES|COMM|COMMI|COMMISSION|VAT|VALUE ADDED TAX|SMS|SERVICE CHARGE|STMT|SWIFT CHG)\b|\bATM CASH WITHDRAWAL IN OM\b|عمولة|عمولات|رسوم|ضريبة|خدمة/i,
   int:/\b(INTEREST|PROFIT)\b|فائدة|فوائد|أرباح/i,pos:/\b(POS|MERCHANT|CARD|SETTLEMENT|SETTL|MPOS|VISA|MASTERCARD|THAWANI|AMWAL|OMANNET)\b|نقاط البيع|بطاقات/i,
   cash:/\b(CASH|CDM|CASH DEP)\b|نقد|نقدي|كاش/i,chq:/\b(CHQ|CHEQUE|CHECK|CLG|CLEARING)\b|شيك|مقاصة/i,trf:/\b(TRF|TRANSFER|IBFT|ACH|RTGS|SWIFT|INWARD|WPS|MOBILE)\b|تحويل|حوالة/i};
 function recCls(x){const s=x.ds+' '+x.rf;
