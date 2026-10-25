@@ -3337,6 +3337,8 @@ function recAutoRoles(hdr){
     if(idx<0)for(const k of kw){if(k.length<4)continue;const re=new RegExp('(^|[^a-z\u0600-\u06FF])'+k.replace(/[.*+?^${}()|[\]\\\/#]/g,'\\$&')+'($|[^a-z\u0600-\u06FF])');const i=hn.findIndex((h,j)=>!used.has(j)&&re.test(h));if(i>=0){idx=i;break}}
     if(idx>=0){roles[role]=idx;used.add(idx)}
   }
+  /* كشوف بنك مسقط بالعربية: عمود «دين» = المسحوبات، وعمود «مدين» = الإيداعات (تسمية البنك من وجهة نظره) — تحققنا منها بتسلسل الرصيد */
+  {const a=hs.indexOf('دين'),m=hs.indexOf('مدين');if(a>=0&&m>=0){delete roles.cr;delete roles.dr;roles.dr=a;roles.cr=m;used.add(a);used.add(m)}}
   /* أعمدة نصية إضافية (مثل Memo بجانب Description) تُضاف للبيان */
   const extra=[];hs.forEach((h,j)=>{if(!used.has(j)&&h&&(REC_ROLES.find(r=>r[0]==='desc')[2].includes(h)))extra.push(j)});if(extra.length)roles.xd=extra;
   return roles}
