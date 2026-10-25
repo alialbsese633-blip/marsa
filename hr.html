@@ -3353,11 +3353,17 @@ function recParse(rows,side,cfg){
   const hi=cfg.hdr,C=cfg.roles||{},out=[],warn=[];let opening=null,skipped=0,later=0;
   const get=(r,k)=>C[k]==null?null:r[C[k]];
   const order=cfg.order&&cfg.order!=='auto'?cfg.order:recOrderGuess(rows.slice(hi+1,hi+400).map(r=>get(r,'date')));
+  let lastRow=-9;
   for(let i=hi+1;i<rows.length;i++){const r=rows[i];if(!r||!r.some(c=>c!=null&&c!==''))continue;
     const descTxt=[get(r,'desc'),...(C.xd||[]).map(j=>r[j]),get(r,'name'),get(r,'type')].filter(x=>x!=null&&String(x).trim()!=='').map(x=>String(x).trim()).join(' — ');
     const d=recDate(get(r,'date'),order);
     const balV=recNum(get(r,'bal'));
-    if(!d){if(/opening|b\/f|brought forward|رصيد افتتاحي|الرصيد الافتتاحي|رصيد سابق|رصيد أول المدة/i.test(descTxt+' '+r.join(' '))&&balV!=null&&opening==null)opening=balV;else skipped++;continue}
+    if(!d){if(/opening|b\/f|brought forward|رصيد افتتاحي|الرصيد الافتتاحي|رصيد سابق|رصيد أول المدة/i.test(descTxt+' '+r.join(' '))&&balV!=null&&opening==null)opening=balV;
+      /* سطر تكميلي بلا تاريخ ولا مبالغ تحت الحركة مباشرة (NetSuite يضع النوع والحساب والملاحظة Memo في سطر ثانٍ) — نضيف الملاحظة لبيان الحركة */
+      else if(lastRow===i-1&&out.length&&!['amt','dr','cr','in','out','bal'].some(k=>C[k]!=null&&recNum(get(r,k))!=null)){
+        const tx=r.filter(c=>typeof c==='string'&&c.trim()&&!/^(cheque|check|payment|deposit|journal|transfer|customer deposit|bill payment|إيداع|دفعة|قيد)$/i.test(c.trim())&&!/^(NS-)?\d{3,5} - /.test(c.trim())).map(c=>c.trim());
+        if(tx.length){const m=tx.sort((a,b)=>b.length-a.length)[0];const o=out[out.length-1];if(!o.ds.includes(m))o.ds=(m+(o.ds?' — '+o.ds:'')).slice(0,200)}lastRow=i}
+      else skipped++;continue}
     if(/^(opening balance|closing balance|balance b\/f|balance c\/f|total|grand total|الإجمالي|المجموع|رصيد افتتاحي|الرصيد الافتتاحي|الرصيد الختامي)\b/i.test(descTxt)&&!(get(r,'amt')||get(r,'dr')||get(r,'cr')||get(r,'in')||get(r,'out'))){if(/opening|افتتاح/i.test(descTxt)&&balV!=null)opening=balV;skipped++;continue}
     let a=null;
     const iv=C.in!=null?recNum(get(r,'in')):null,ov=C.out!=null?recNum(get(r,'out')):null;
@@ -3369,7 +3375,7 @@ function recParse(rows,side,cfg){
         if(dc){const m=Math.abs(v);a=side==='b'?(dc==='c'?m:-m):(dc==='d'?m:-m)}else a=v}}
     if(a==null||a===0){skipped++;continue}
     if(cfg.inv)a=-a;
-    out.push({d,a,ds:descTxt.slice(0,160),rf:String(get(r,'ref')??'').trim().slice(0,40),bal:balV,row:i+1});
+    lastRow=i;out.push({d,a,ds:descTxt.slice(0,160),rf:String(get(r,'ref')??'').trim().slice(0,40),bal:balV,row:i+1});
   }
   /* الترتيب الزمني: بعض الكشوف تبدأ بالأحدث */
   if(out.length>1&&out[0].d>out[out.length-1].d)out.reverse();
@@ -3502,7 +3508,7 @@ const recSum=(L,f)=>L.filter(f||(()=>1)).reduce((t,x)=>t+x.a,0);
 /* قيود في النظام بتاريخ بعد نهاية الفترة طوبقت مع حركات بنك داخل الفترة (المطابقة اليومية) — لا تدخل رصيد النظام في نهاية الفترة فتُضاف لتسويته */
 const recLateL=r=>[...(r.lkp||[]),...(r.mt||[]).flatMap(m=>m.k.filter(x=>!x.c).map(x=>({d:x.d,a:x.a})))].filter(x=>x.d>r.to);
 const recLate=r=>recLateL(r).reduce((t,x)=>t+x.a,0);
-const recItem=x=>{const o={fp:x.fp,s:x.s,d:x.d,a:x.a,ds:String(x.ds||'').slice(0,90),rf:String(x.rf||'').slice(0,30)};if(x.c)o.c=1;if(x.o)o.o=x.o;if(x.n)o.n=x.n;if(x.lt)o.lt=x.lt;if(x.mn)o.mn=1;return o};
+const recItem=x=>{const o={fp:x.fp,s:x.s,d:x.d,a:x.a,ds:String(x.ds||'').slice(0,140),rf:String(x.rf||'').slice(0,30)};if(x.c)o.c=1;if(x.o)o.o=x.o;if(x.n)o.n=x.n;if(x.lt)o.lt=x.lt;if(x.mn)o.mn=1;return o};
 function recNoPeek(){const y=TODAY.slice(0,4),sq=S.seq.RECY===y?(S.seq.REC||0):0;return 'REC-'+y+'-'+String(sq+1).padStart(3,'0')}
 function recNoTake(){const no=recNoPeek();S.seq.REC=+no.split('-').pop();S.seq.RECY=TODAY.slice(0,4);return no}
 const REC_MODE={day:'يومية',month:'شهرية',open:'رصيد افتتاحي'};
@@ -3686,7 +3692,7 @@ function recBuild(t,L,RB,RK,o){
     open,mt:M.map(m=>({t:m.t,cf:m.cf,dd:m.dd,b:m.b.map(recItem),k:m.k.map(recItem)})),fps:[...RB.nw,...Ku].map(x=>x.fp),man:[]};
   run.lkp=L?recLateL(L).filter(x=>x.d>o.to):[];run.bal=Object.assign({},o.bal||{});run.bal.late=recLate(run);run.sg=recSuggest(run.open);return run}
 /* إعدادات التعرف على حركات البطاقات (قابلة للتعديل من إعدادات القالب) */
-const REC_CARD_K='visa,card,master,mastercard,mada,pos,credit card,debit card,thawani,amwal,فيزا,بطاقة,بطاقات,شبكة,نقاط البيع,ماستر';
+const REC_CARD_K='visa,card,master,mastercard,mada,pos,credit card,debit card,thawani,amwal,فيزا,فيزة,فيزه,بطاقة,بطاقات,شبكة,نقاط البيع,ماستر';
 const REC_CARD_B='pos,merchant,settlement,settl,card,visa,mpos,master,mastercard,thawani,amwal,omannet,نقاط البيع,بطاقات,تسوية';
 function recWordsRe(list){const w=String(list||'').split(/[,،\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);if(!w.length)return null;
   return new RegExp(w.map(x=>{const e=x.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');return /^[a-z0-9 ]+$/.test(x)?'(?:^|[^a-z0-9])'+e+'(?:$|[^a-z0-9])':e}).join('|'),'i')}
@@ -3788,7 +3794,7 @@ function recOpenModal(tid){const t=recTpl(tid),can=recCan();const sel=new Set();
     const selI=op.filter(x=>sel.has(x.fp)),sb=recSum(selI,x=>x.s==='b'),sk=recSum(selI,x=>x.s==='k');
     return `<div class="note small">حسب آخر مطابقة ${sno(L.no)} حتى ${recDay(L.to)} — الفرق: ${stt.diff==null?'—':stt.diff===0?'<b style="color:var(--good)">0.000 ✓</b>':'<b style="color:var(--critical)">'+bzs(stt.diff)+'</b>'}</div>
       ${can&&recLocked(L)?`<div class="note small" style="margin:10px 0">🔒 آخر مطابقة ضمن شهر مقفل (${monthName(L.to.slice(0,7))}) — المطابقة اليدوية تتم بعد أول مطابقة في الشهر الجديد. الملاحظات وخطابات البنك متاحة.</div>`:''}
-      ${can&&!recLocked(L)?`<div class="row" style="margin:10px 0;flex-wrap:wrap">${L.mode==='open'?`<button class="btn sm sec" id="roAdd">➕ إضافة بند افتتاحي</button>`:''}${sel.size?`<button class="btn sm" id="roMatch">🔗 مطابقة المحدد يدوياً</button><span class="small">المحدد: بنك ${bzs(sb)} · نظام ${bzs(sk)} ${sb===sk&&selI.some(x=>x.s==='b')&&selI.some(x=>x.s==='k')||(!selI.some(x=>x.s==='k')&&sb===0)||(!selI.some(x=>x.s==='b')&&sk===0)?badge('متساوٍ ✓','g'):badge('غير متساوٍ','c')}</span>`:'<span class="small muted">حدد بنوداً متساوية المجموع من البنك والنظام لمطابقتها يدوياً</span>'}</div>`:''}
+      ${can&&!recLocked(L)?`<div class="row" style="margin:10px 0;flex-wrap:wrap">${L.mode==='open'?`<button class="btn sm sec" id="roAdd">➕ إضافة بند افتتاحي</button><button class="btn sm sec" id="roPaste">📋 لصق عدة بنود</button>`:''}${sel.size?`<button class="btn sm" id="roMatch">🔗 مطابقة المحدد يدوياً</button><span class="small">المحدد: بنك ${bzs(sb)} · نظام ${bzs(sk)} ${sb===sk&&selI.some(x=>x.s==='b')&&selI.some(x=>x.s==='k')||(!selI.some(x=>x.s==='k')&&sb===0)||(!selI.some(x=>x.s==='b')&&sk===0)?badge('متساوٍ ✓','g'):badge('غير متساوٍ','c')}</span>`:'<span class="small muted">حدد بنوداً متساوية المجموع من البنك والنظام لمطابقتها يدوياً</span>'}</div>`:''}
       ${!op.length?'<div class="empty">✓ لا توجد بنود معلّقة</div>':days.map(d=>{const I=op.filter(x=>x.d===d);return `<div class="b" style="margin:12px 0 6px">📅 ${recDay(d)} <span class="small muted">— ${I.length} بند — منذ ${recDD(TODAY,d)} يوم</span></div><div class="tw"><table><tbody>${I.map(x=>{const c=recCls(x);return `<tr>${can&&!recLocked(L)?`<td style="width:28px"><input type="checkbox" data-sel="${x.fp}" ${sel.has(x.fp)?'checked':''}></td>`:''}<td>${recSideB(x.s)}</td><td class="n">${recAmt(x.a)}</td><td><div class="small">${esc(x.ds)||'—'}</div>${x.rf?`<div class="small muted" dir="ltr" style="text-align:right">${esc(x.rf)}</div>`:''}${x.n?`<div class="small" style="color:var(--info)">📝 ${esc(x.n)}</div>`:''}${x.lt?`<div class="small" style="color:var(--accent)">✉️ ${esc(x.lt)}</div>`:''}</td><td>${badge(c.t,c.tone)}<div class="small muted" style="margin-top:3px">${c.act}</div></td>${can?`<td style="white-space:nowrap">${c.unk?`<button class="btn sm sec" data-ltr="${x.fp}">✉️ خطاب للبنك</button>`:''}<button class="btn sm ghost" data-note="${x.fp}">📝 ملاحظة</button>${x.mn?`<button class="btn sm ghost" data-del="${x.fp}">🗑️ حذف</button>`:''}</td>`:''}</tr>`}).join('')}</tbody></table></div>`}).join('')}`};
   modal({title:'📌 البنود المعلّقة — '+esc(t.name),wide:true,body:`<div id="roB">${body()}</div>`,onMount:b=>{
     const draw=()=>{$('#roB',b).innerHTML=body();tidyButtons(b);bind()};
@@ -3803,6 +3809,18 @@ function recOpenModal(tid){const t=recTpl(tid),can=recCan();const sel=new Set();
         modal({title:'🔗 مطابقة يدوية',body:`<div class="small">${I.length} بند بمجموع ${bzs(sb||sk)}</div><div class="fld"><label>سبب / بيان المطابقة اليدوية</label><input id="mn" placeholder="مثال: إيداع مجمّع لعدة إيصالات"></div>`,foot:[{t:'مطابقة',fn:bx=>{
           L.open=L.open.filter(x=>!sel.has(x.fp));L.mt=(L.mt||[]).concat([{t:ik.length&&ib.length?'man':'rev',cf:'g',dd:0,b:ib,k:ik,n:fv(bx,'mn')}]);L.man=(L.man||[]).concat([{at:nowTs(),by:me().name,ty:'match',ids:I.map(x=>x.fp),n:fv(bx,'mn')}]);
           sel.clear();recRestat(L);log('مطابقة يدوية في '+L.no);save();draw();toast('تمت المطابقة اليدوية')}},{t:'إلغاء',cls:'sec'}]})});
+      $('#roPaste',b)&&($('#roPaste',b).onclick=()=>{
+        /* لصق بنود المطابقة السابقة دفعة واحدة: سطر لكل بند — النوع | التاريخ | المبلغ | البيان | المرجع */
+        const parse=txt=>{const out=[],err=[];String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach((l,i)=>{const c=l.split(/\s*[|\t]\s*/);
+            const ty=(c[0]||'').toLowerCase().replace(/\s/g,''),d=recDate(c[1],'dmy'),a=recNum(c[2]);
+            if(!/^[bk][+-]$/.test(ty)||!d||!a){err.push('السطر '+(i+1)+': '+l.slice(0,60));return}
+            out.push({s:ty[0],d,a:ty[1]==='-'?-Math.abs(a):Math.abs(a),ds:(c[3]||'').trim(),rf:(c[4]||'').trim()})});return {out,err}};
+        modal({title:'📋 لصق البنود المعلّقة',wide:true,body:`<div class="note small">سطر لكل بند بالشكل: <b dir="ltr">النوع | التاريخ | المبلغ | البيان | المرجع</b><br>النوع: <b>b+</b> وارد في البنك غير مسجل · <b>b-</b> رسوم/سحب في البنك غير مسجل · <b>k+</b> إيداع بالطريق في النظام · <b>k-</b> شيك/دفعة في النظام لم تُصرف — التاريخ يوم/شهر/سنة.</div><div class="fld"><textarea id="rp_t" rows="12" dir="ltr" style="font-family:monospace;font-size:12px"></textarea></div><div id="rp_p" class="small"></div>`,
+          onMount:bx=>{const pv=()=>{const P=parse($('#rp_t',bx).value),sb=P.out.filter(x=>x.s==='b').reduce((t,x)=>t+x.a,0),sk=P.out.filter(x=>x.s==='k').reduce((t,x)=>t+x.a,0);
+            $('#rp_p',bx).innerHTML=(P.out.length?`✓ ${P.out.length} بند — البنك: ${P.out.filter(x=>x.s==='b').length} (صافي ${bzs(sb)}) · النظام: ${P.out.filter(x=>x.s==='k').length} (صافي ${bzs(sk)})`:'')+(P.err.length?`<div style="color:var(--critical);margin-top:4px">أسطر غير مفهومة:<br>${P.err.map(esc).join('<br>')}</div>`:'')};$('#rp_t',bx).oninput=pv},
+          foot:[{t:'إضافة البنود',fn:bx=>{const P=parse($('#rp_t',bx).value);if(P.err.length){toast('صحّح الأسطر المظللة أولاً');return false}if(!P.out.length){toast('الصق البنود أولاً');return false}
+            const ids=[];P.out.forEach(x=>{const it={...x,o:L.no,mn:1};it.fp=recHash('man|'+uid()+'|'+ids.length);ids.push(it.fp);L.open.push(recItem(it))});
+            L.man=(L.man||[]).concat([{at:nowTs(),by:me().name,ty:'paste',ids}]);recRestat(L);save();draw();toast('أُضيف '+P.out.length+' بند')}},{t:'إلغاء',cls:'sec'}]})});
       $('#roAdd',b)&&($('#roAdd',b).onclick=()=>modal({title:'➕ إضافة بند معلّق',body:`<div class="fld"><label>نوع البند</label><select id="ai_t"><option value="k-">في النظام فقط: شيك / دفعة لم تُصرف من البنك</option><option value="k+">في النظام فقط: إيداع بالطريق</option><option value="b+">في البنك فقط: مبلغ وارد غير مسجل</option><option value="b-">في البنك فقط: رسوم / سحب غير مسجل</option></select></div><div class="frow"><div class="fld"><label>التاريخ</label><input type="date" id="ai_d" value="${L.to}"></div><div class="fld"><label>المبلغ (ر.ع)</label><input id="ai_a" type="number" step="0.001" min="0" dir="ltr"></div></div><div class="frow"><div class="fld"><label>البيان</label><input id="ai_s"></div><div class="fld"><label>المرجع / رقم الشيك</label><input id="ai_r" dir="ltr"></div></div>`,
         foot:[{t:'إضافة',fn:bx=>{const ty=fv(bx,'ai_t'),a=recNum(fv(bx,'ai_a')),d=fv(bx,'ai_d');if(!a||!d){toast('أكمل التاريخ والمبلغ');return false}
           const it={s:ty[0],d,a:ty[1]==='-'?-Math.abs(a):Math.abs(a),ds:fv(bx,'ai_s'),rf:fv(bx,'ai_r'),o:L.no,mn:1};it.fp=recHash('man|'+uid());L.open.push(recItem(it));L.man=(L.man||[]).concat([{at:nowTs(),by:me().name,ty:'add',ids:[it.fp]}]);recRestat(L);save();draw();toast('أُضيف البند')}},{t:'إلغاء',cls:'sec'}]}))};
