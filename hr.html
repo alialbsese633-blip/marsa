@@ -1180,7 +1180,7 @@ function printDocString(html,title,withBar){
 function whenImagesReady(d,cb){const imgs=[...d.images];let n=imgs.length+1,fired=false;const go=()=>{if(fired)return;fired=true;setTimeout(cb,200)};try{(d.fonts&&d.fonts.ready?d.fonts.ready:Promise.resolve()).then(()=>{if(--n<=0)go()})}catch(e){n--};imgs.forEach(im=>{if(im.complete)n--;else im.onload=im.onerror=()=>{if(--n<=0)go()}});if(n<=0)go();setTimeout(go,3500)}
 
 /* ---------- تصدير المستند كملف PDF أو صورة (يعمل على آيفون دون الحاجة لأمر الطباعة) ---------- */
-async function docCanvas(html){
+async function docCanvas(html,fit){
   await loadScriptOnce('vendor/html2canvas.min.js');
   const host=document.createElement('div');host.className='exp-host';
   host.style.cssText='position:fixed;left:-12000px;top:0;width:794px;background:#fff;color:#000;color-scheme:light;direction:rtl';
@@ -1188,6 +1188,10 @@ async function docCanvas(html){
   try{
     try{await (document.fonts&&document.fonts.ready)}catch(e){}
     await new Promise(r=>setTimeout(r,250));
+    /* PDF: تذييل الورق الرسمي ينزل لأسفل آخر صفحة بدل أن يظهر بعد النص مباشرة */
+    const doc=host.querySelector('.doc'),ft=doc&&doc.querySelector(':scope>.off-f');
+    if(fit&&ft){const PH=1122;doc.style.display='flex';doc.style.flexDirection='column';ft.style.marginTop='auto';ft.style.paddingBottom='14px';
+      const extra=host.scrollHeight-doc.offsetHeight,n=Math.max(1,Math.ceil((host.scrollHeight+28)/PH));doc.style.minHeight=(n*PH-extra)+'px';host.style.height=(n*PH)+'px';host.style.overflow='hidden'}
     return await html2canvas(host,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false,windowWidth:794})
   }finally{host.remove()}
 }
@@ -1224,7 +1228,7 @@ async function docExport(kind,html,title){
   const name=String(title||'مستند').replace(/[\\/:*?"<>|]+/g,'-').trim()||'document';
   toast(kind==='pdf'?'⏳ جارٍ تجهيز ملف PDF…':'⏳ جارٍ تجهيز الصورة…');
   let blob,fn;
-  try{const c=await docCanvas(html);
+  try{const c=await docCanvas(html,kind==='pdf');
     if(kind==='pdf'){blob=await canvasToPdf(c);fn=name+'.pdf'}else{blob=await canvasBlob(c,'image/png');fn=name+'.png'}
   }catch(e){toast('تعذّر التجهيز — تأكد من الاتصال وحاول مجدداً');return}
   const old=document.getElementById('exOv');if(old)old.remove();
