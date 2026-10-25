@@ -3414,7 +3414,7 @@ function recEngine(B,K,opt){
         نجمع عمليات البطاقات لكل يوم (أو يومين/ثلاثة متتالية عند تأخر التسوية) ونطابقها مع إيداع/إيداعات التسوية خلال 4 أيام.
         إن كان المودَع أقل من المجموع ضمن نسبة العمولة القصوى: تُطابق وتُضاف العمولة بنداً معلّقاً في البنك يحتاج قيداً في النظام */
   if(opt.cardK){const rate=opt.rate==null?0.03:opt.rate,sum=L=>L.reduce((t,x)=>t+x.a,0);
-    const isK=x=>!x.m&&x.a>0&&opt.cardK.test(x.ds+' '+x.rf),isB=x=>!x.m&&x.a>0&&opt.cardB.test(x.ds+' '+x.rf);
+    const isK=x=>!x.m&&x.a>0&&!/^JV/i.test(String(x.rf||'').trim())&&opt.cardK.test(x.ds+' '+x.rf),isB=x=>!x.m&&x.a>0&&opt.cardB.test(x.ds+' '+x.rf);
     const take=(G,Bs,E,fee)=>{G.forEach(x=>x.m=1);Bs.forEach(x=>x.m=1);M.push({t:'card',cf:fee?'g':'h',dd:Math.max(...G.map(x=>Math.abs(recDD(E,x.d)))),b:Bs,k:G,fee:fee||0});
       if(fee){const f={s:'b',d:E,a:-fee,ds:`عمولة بطاقات مخصومة من تسوية ${recShort(E)} (العمليات ${bz(sum(G))} — المودَع ${bz(sum(Bs))})`,rf:''};f.fp=recHash('cardfee|'+E+'|'+G.map(x=>x.fp).join(','));f.i=B.length;f.m=0;B.push(f)}};
     const days=[...new Set(K.filter(isK).map(x=>x.d))].sort();
@@ -3736,6 +3736,13 @@ function recPrune(tid){const lim=recAdd(TODAY,-183);recRuns(tid).forEach(r=>{if(
 
 /* مقارنة الحركات: كل حركة بنك في الفترة وما يقابلها في النظام (بدون أرصدة) */
 let REC_CMPF='all';
+/* الفيزا المعلّقة: عمليات النظام (فردية) مقابل تسويات البنك المجمّعة التي لم تتطابق يوماً بيوم — نعرض الفرق الإجمالي بدل ترك المستخدم يحسبه */
+function recCardPend(r){const t=recTpl(r.tpl)||{},o=recOpt(t);if(!o.cardK||!o.cardB)return null;
+  const K=(r.open||[]).filter(x=>x.s==='k'&&x.a>0&&!/^JV/i.test(String(x.rf||'').trim())&&o.cardK.test(x.ds+' '+x.rf)),
+        B=(r.open||[]).filter(x=>x.s==='b'&&x.a>0&&o.cardB.test(x.ds+' '+x.rf)&&!/commi|fee|vat|tax|ضريبة|عمولة/i.test(x.ds));
+  if(!K.length&&!B.length)return null;const sk=recSum(K),sb=recSum(B);
+  const days=[...new Set(K.map(x=>x.d))].sort().map(d=>{const L=K.filter(x=>x.d===d);return {d,n:L.length,a:recSum(L)}});
+  return {K,B,sk,sb,diff:sb-sk,days}}
 function recCmp(r){const rows=[];
   (r.mt||[]).forEach(m=>{const nb=m.b.filter(x=>!x.c);if(!nb.length)return;rows.push({d:nb[0].d,b:m.b,k:m.k,m})});
   (r.open||[]).filter(x=>x.s==='b'&&!x.c).forEach(x=>rows.push({d:x.d,b:[x],k:[],m:null}));
@@ -3757,6 +3764,10 @@ function recTab(r,tab,act){const op=r.open||[],stt=recStmt(r.bal,op),to=r.to;
     return (stt.diff===0?`<div class="note g">✓ المطابقة متزنة — رصيد البنك المعدَّل يساوي رصيد النظام المعدَّل.</div>`:stt.diff==null?`<div class="note w">لم يُدخل ${stt.bank==null?'رصيد البنك':''}${stt.bank==null&&stt.book==null?' و':''}${stt.book==null?'رصيد النظام':''} — البنود المعلّقة صحيحة، لكن لا يمكن حساب الفرق.</div>`:`<div class="note c"><b>فرق غير مفسَّر: ${bzs(stt.diff)} ر.ع</b><ul style="margin:6px 0 0;padding-inline-start:18px">${diag.map(x=>`<li>${x}</li>`).join('')}</ul></div>`)+
       (B.bankFile!=null&&B.bankExp!=null&&B.bankFile!==B.bankExp?`<div class="note w small" style="margin-top:8px">رصيد كشف البنك في الملف (${bz(B.bankFile)}) يختلف عن المتوقع من آخر مطابقة (${bz(B.bankExp)}) بفارق ${bzs(B.bankFile-B.bankExp)} — قد تكون حركات ناقصة في الملف.</div>`:'')+
       (B.bookFile!=null&&B.bookExp!=null&&B.bookFile!==B.bookExp?`<div class="note w small" style="margin-top:8px">رصيد النظام في الملف (${bz(B.bookFile)}) يختلف عن المتوقع (${bz(B.bookExp)}) بفارق ${bzs(B.bookFile-B.bookExp)} — ربما عُدّلت قيود سابقة أو تنقص الملف حركات.</div>`:'')+
+      (()=>{const C=recCardPend(r);if(!C)return '';return `<div class="card flat" style="margin-top:10px"><div class="b small">💳 الفيزا المعلّقة (لم تتطابق يوماً بيوم)</div>
+        <div class="small" style="line-height:1.9;margin-top:4px">عمليات في النظام لم تُسوَّ: <b>${C.K.length}</b> عملية — <b dir="ltr">${bz(C.sk)}</b><br>تسويات في البنك لم تُقابَل: <b>${C.B.length}</b> تسوية — <b dir="ltr">${bz(C.sb)}</b><br>الفرق الإجمالي (البنك − النظام): <b dir="ltr" style="color:${C.diff===0?'var(--good)':'var(--critical)'}">${bzs(C.diff)}</b></div>
+        ${C.days.length?`<div class="small muted" style="margin-top:6px">عمليات النظام حسب اليوم: ${C.days.map(x=>recShort(x.d).replace(/\/\d{4}$/,'')+' ← '+x.n+' ('+bz(x.a)+')').join(' · ')}</div>`:''}
+        <div class="small muted" style="margin-top:6px">البنك يودع الفيزا مجمّعة لعدة أيام، فقد لا يطابق مجموع يوم واحد تسوية بعينها. إذا كان الفرق الإجمالي صفراً أو صغيراً فالمبالغ سليمة والفرق في توقيت الإيداع فقط؛ وإن كان الفرق كبيراً فراجع قيود الفيزا الناقصة أو الزائدة في النظام.</div></div>`})()+
       `<div class="tw" style="margin-top:10px"><table><tbody>
       ${row('رصيد كشف البنك في '+recShort(to),bz(stt.bank),B.bankSrc?'المصدر: '+B.bankSrc:'')}
       ${row('(+) إيداعات بالطريق — مسجلة في النظام ولم تظهر في البنك',bz(stt.dit),op.filter(x=>x.s==='k'&&x.a>0).length+' بند')}
