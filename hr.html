@@ -1353,9 +1353,9 @@ const GS_NAV_FULL=[['gsdash','🏠','الرئيسية'],['gsprog','🗓️','خ�
 const GS_NAV={hr:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),gm:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),sup:GS_NAV_FULL.concat([['gseval','⭐','تقييمي']]),acc:[['gsno','🔒','الإشراف الداخلي']],emp:[['gsno','🔒','الإشراف الداخلي']]};
 const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV,rcp:RCP_NAV});
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
  sup:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
  emp:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
 };
@@ -1421,7 +1421,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',custody:'Custody balances',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -2770,6 +2770,126 @@ async function budgetReportShow(M){
       $('#brAll',b).onclick=()=>{excl.clear();sync()};
       $('#brNone',b).onclick=()=>{accs.forEach(x=>excl.add(x.a.code));sync()};
       $('#brZero',b).onclick=()=>{accs.forEach(x=>{x.bi.spent>0?excl.delete(x.a.code):excl.add(x.a.code)});sync()};
+      cnt();gen()}});
+}
+/* ---------- العهد: استيراد أرصدة العهد من ملف الموازنة/الأرصدة، وتقرير صورة بإطار نسائم صلالة مع منع الصرف لمن تجاوزت عهدته الحد ---------- */
+const CUST_KW=/عهد|custody|imprest|petty|نثري|نثريه|نثرية/i;
+function custData(){return S.settings.custody||null}
+function custLimit(){const v=+((S.settings.custLimit??100));return isFinite(v)?v:100}
+function custExcl(){try{return new Set(JSON.parse(localStorage.getItem('custRepExcl')||'[]'))}catch(e){return new Set()}}
+function custExclSave(s){try{localStorage.setItem('custRepExcl',JSON.stringify([...s]))}catch(e){}}
+const custKey=r=>r.code||r.name;
+function custHolder(name){return String(name||'').replace(/\b(petty\s*cash|custody|imprest)\b/ig,'').replace(/عهد[ةه]?|نثري[ةه]?|حساب/g,'').replace(/^[\s\-–:/|()]+|[\s\-–:/|()]+$/g,'').replace(/\s{2,}/g,' ').trim()||String(name||'').trim()}
+const custNum=v=>{if(typeof v==='number')return v;const s=String(v??'').replace(/[,\s]/g,'').replace(/^\((.*)\)$/,'-$1');return s!==''&&/^-?\d*\.?\d+$/.test(s)?+s:null};
+function custParse(wb,fileName){const out=[],seen=new Set();
+  for(const sn of wb.SheetNames){const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:true});let col={};
+    for(const r of rows){const cells=r.map(c=>String(c??'').trim());
+      /* سطر العناوين: نحدد أعمدة الرصيد أو المدين/الدائن */
+      const low=cells.map(c=>c.toLowerCase());const fi=re=>low.findIndex(c=>re.test(c));
+      const hb=fi(/^(balance|ending balance|closing balance|الرصيد|رصيد|الرصيد الختامي|amount|المبلغ|actual|الفعلي)$/),hd=fi(/^(debit|مدين)$/),hc=fi(/^(credit|دائن)$/);
+      if((hb>=0||(hd>=0&&hc>=0))&&!cells.some(c=>c!==''&&custNum(c)!==null)){col={b:hb,d:hd,c:hc};continue}
+      let li=-1,code='',name='';
+      for(let j=0;j<cells.length;j++){const c=cells[j];if(!c||custNum(c)!==null)continue;const m=c.match(/^([A-Za-z]*-?\d{3,7})\s*[-–:]\s*(.+)$/);if(m){li=j;code=m[1];name=m[2].trim();break}if(li<0){li=j;name=c}}
+      if(li<0||/^(total|الإجمالي|اجمالي|المجموع)\b/i.test(name))continue;
+      let bal=null;
+      if(col.d>=0&&col.c>=0&&(custNum(r[col.d])!==null||custNum(r[col.c])!==null))bal=(custNum(r[col.d])||0)-(custNum(r[col.c])||0);
+      else if(col.b>=0&&custNum(r[col.b])!==null)bal=custNum(r[col.b]);
+      else{for(let j=li+1;j<r.length;j++){const n=custNum(r[j]);if(n!==null&&String(r[j]).trim()!==''){bal=n;break}}}
+      if(bal===null)continue;
+      const k=(code||'')+'|'+name;if(seen.has(k))continue;seen.add(k);
+      out.push({code,name,holder:custHolder(name),bal:r3(bal),cust:CUST_KW.test(name)})}}
+  return {src:fileName,rows:out}}
+function custImportModal(){
+  modal({title:'⬆️ استيراد أرصدة العهد',wide:true,body:`<div class="note small">اختر ملف Excel الذي فيه أرصدة العهد (ملف الموازنة أو ميزان المراجعة أو كشف الأرصدة من NetSuite). يحدد البرنامج حسابات العهد تلقائياً (التي في اسمها «عهدة» أو «نثرية» أو Custody/Petty Cash)، ويمكنك تعديل الاختيار قبل الاعتماد.</div>
+    <div class="frow"><div class="fld"><label>ملف Excel</label><input type="file" id="ci_f" accept=".xlsx,.xls,.csv"></div><div class="fld"><label>الأرصدة حتى تاريخ</label><input type="date" id="ci_d" value="${TODAY}"></div></div><div id="ci_prev"></div>`,
+    foot:[{t:'اعتماد الاستيراد',fn:b=>{const P=b.__p;if(!P){toast('اختر الملف أولاً');return false}
+      const pick=P.rows.filter((x,i)=>{const c=b.querySelector(`[data-ci="${i}"]`);return c&&c.checked});if(!pick.length){toast('حدد حساب عهدة واحداً على الأقل');return false}
+      const old=custData(),oh={};((old&&old.rows)||[]).forEach(r=>{oh[custKey(r)]=r.holder});
+      S.settings.custody={at:nowTs(),by:me().name,src:P.src,asOf:fv(b,'ci_d')||TODAY,rows:pick.map(r=>({code:r.code,name:r.name,holder:oh[custKey(r)]||r.holder,bal:r.bal}))};
+      log(`استيراد أرصدة العهد (${pick.length} حساب)`);commit(`تم استيراد ${pick.length} عهدة`);setTimeout(()=>custReportShow(),400)}},{t:'إلغاء',cls:'sec'}],
+    onMount:b=>{$('#ci_f',b).onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const pv=$('#ci_prev',b);pv.textContent='جارٍ قراءة الملف…';
+      try{await recXlsx();const buf=await f.arrayBuffer();let wb;
+        if(/\.(csv|txt)$/i.test(f.name)){let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){t=new TextDecoder('windows-1256').decode(buf)}wb=XLSX.read(t.replace(/^﻿/,''),{type:'string',raw:true})}
+        else{if(recNeedFull(f,buf))await recXlsxFull();try{wb=XLSX.read(buf,{type:'array',raw:true})}catch(e){await recXlsxFull();wb=XLSX.read(buf,{type:'array',raw:true})}}
+        const P=custParse(wb,f.name);b.__p=P;const C=P.rows.filter(x=>x.cust),O=P.rows.filter(x=>!x.cust);
+        const li=x=>{const i=P.rows.indexOf(x);return `<label style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" data-ci="${i}" ${x.cust?'checked':''}><span dir="ltr" class="muted">${esc(x.code)}</span><span>${esc(x.name)}</span><span class="num small" style="margin-inline-start:auto;${x.bal>custLimit()?'color:var(--critical);font-weight:700':''}">${money(x.bal)}</span></label>`};
+        pv.innerHTML=P.rows.length?`<div class="grid g4" style="margin-top:8px">${kpi('حسابات العهد المكتشفة',C.length)}${kpi('فوق '+custLimit()+' ر.ع',C.filter(x=>x.bal>custLimit()).length,'','c')}</div>
+          <div class="small b" style="margin-top:10px">حسابات العهد</div><div style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${C.map(li).join('')||'<div class="muted small" style="padding:8px">لم يُعثر على حساب باسم «عهدة» — اختر حسابات العهد من القائمة أدناه</div>'}</div>
+          ${O.length?`<details style="margin-top:10px" ${C.length?'':'open'}><summary style="cursor:pointer" class="small b">بقية الحسابات في الملف (${O.length}) — حدد منها إن كانت عهدة</summary><div style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px;margin-top:6px">${O.map(li).join('')}</div></details>`:''}`
+          :'<div class="note c">لم يُعثر على حسابات وأرصدة في الملف</div>';
+      }catch(e){pv.innerHTML='<div class="note c">تعذّر قراءة الملف — تأكد أنه Excel</div>'}}}});
+}
+VIEWS.custody=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R)||isAccounts(),D=custData(),L=custLimit();
+  const btns=(D?`<button class="btn" id="cuRep">📋 تقرير العهد كصورة</button>`:'')+(canEdit?`<button class="btn ${D?'sec':''}" id="cuImp">⬆️ استيراد أرصدة العهد (Excel)</button>`+(D?`<button class="btn sec" id="cuAdd">➕ عهدة</button><button class="btn" id="cuSave">حفظ</button>`:''):'');
+  if(!D)return ph('العهد','أرصدة العهد لدى الموظفين — ومنع الصرف لمن تجاوزت عهدته الحد حتى تتم تصفيتها',btns)+`<div class="card"><div class="empty" style="padding:30px 10px">لم تُستورد أرصدة العهد بعد.<br>اضغط «استيراد أرصدة العهد» واختر ملف الموازنة أو الأرصدة الذي فيه حسابات العهد.</div></div>`;
+  const rows=D.rows.slice().sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>r.bal>L),open=rows.filter(r=>Math.abs(r.bal)>=0.0005);
+  return ph('العهد','أرصدة العهد لدى الموظفين — ومنع الصرف لمن تجاوزت عهدته الحد حتى تتم تصفيتها',btns)+
+  `<div class="note small" style="margin-bottom:12px">مصدر الأرصدة: <b dir="ltr">${esc(D.src||'')}</b> — الأرصدة حتى ${fdate(D.asOf)} — استُورد ${ftime(D.at)} بواسطة ${esc(D.by||'')}.</div>
+  <div class="grid g4">${kpi('حسابات العهد',rows.length)}${kpi('عهد غير مصفّاة',open.length)}${kpi('فوق الحد ('+L+' ر.ع)',over.length,over.length?'يُمنع الصرف لأصحابها حتى التصفية':'',over.length?'c':'g')}${kpi('إجمالي العهد القائمة',omr(open.reduce((s,r)=>s+r.bal,0)),'للإدارة فقط — لا يظهر في التقرير')}</div>
+  ${canEdit?`<div class="card flat" style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b class="small">حد العهدة المسموح:</b><input id="cuLim" type="number" step="0.001" value="${L}" style="width:110px;text-align:center"><span class="small muted">ر.ع — أي عهدة رصيدها فوق هذا الحد يظهر عليها تحذير منع الصرف</span></div>`:''}
+  <div class="tw" style="margin-top:14px"><table><thead><tr><th>صاحب العهدة</th><th>الحساب</th><th class="n">الرصيد</th><th class="n">الحالة</th>${canEdit?'<th></th>':''}</tr></thead><tbody>${rows.map(r=>{const i=D.rows.indexOf(r),ov=r.bal>L;
+    return `<tr><td>${canEdit?`<input data-ch="${i}" value="${esc(r.holder)}" style="min-width:150px;width:90%">`:esc(r.holder)}</td><td class="small"><span class="muted" dir="ltr">${esc(r.code)}</span> ${esc(r.name)}</td><td class="n">${canEdit?`<input data-cb="${i}" type="number" step="0.001" value="${r.bal}" style="width:100px;text-align:center${ov?';color:var(--critical);font-weight:700':''}">`:`<span style="${ov?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span>`}</td><td class="n">${ov?badge('⛔ يُمنع الصرف حتى التصفية','c'):Math.abs(r.bal)<0.0005?badge('مصفّاة','g'):badge('ضمن الحد','g')}</td>${canEdit?`<td class="n"><button class="btn sm sec" data-cdel="${i}">حذف</button></td>`:''}</tr>`}).join('')}</tbody></table></div>
+  <div class="note small" style="margin-top:10px">تُصفّى العهد بالفواتير الأصلية خلال 7 أيام من استلامها، ويُكتب بيان كل بند: «مقابل شراء ... بتاريخ ... فاتورة رقم ... لصالح بناية ...». لا تُصرف عهدة جديدة أو مبالغ لصاحب عهدة رصيدها فوق الحد حتى تتم تصفيتها.</div>`;
+};
+BIND.custody=()=>{$('#cuImp')&&($('#cuImp').onclick=custImportModal);$('#cuRep')&&($('#cuRep').onclick=()=>custReportShow());
+  $('#cuSave')&&($('#cuSave').onclick=()=>{const D=custData();D.rows=D.rows.map((r,i)=>({...r,holder:(($(`[data-ch="${i}"]`)||{}).value??r.holder).trim()||r.holder,bal:r3(+(($(`[data-cb="${i}"]`)||{}).value??r.bal)||0)}));const l=$('#cuLim');if(l)S.settings.custLimit=r3(+l.value||0);log('تعديل أرصدة العهد');commit('تم الحفظ')});
+  $$('[data-cdel]').forEach(b=>b.onclick=()=>{const D=custData(),r=D.rows[+b.dataset.cdel];confirmBox('حذف عهدة '+r.holder+'؟',()=>{D.rows.splice(+b.dataset.cdel,1);log('حذف عهدة '+r.holder);commit('تم الحذف')})});
+  $('#cuAdd')&&($('#cuAdd').onclick=()=>modal({title:'➕ عهدة',body:`<div class="fld"><label>صاحب العهدة</label><input id="ca_h"></div><div class="frow"><div class="fld"><label>رقم الحساب (اختياري)</label><input id="ca_c" dir="ltr"></div><div class="fld"><label>الرصيد (ر.ع)</label><input id="ca_b" type="number" step="0.001"></div></div>`,
+    foot:[{t:'إضافة',fn:b=>{const h=fv(b,'ca_h');if(!h){toast('اكتب اسم صاحب العهدة');return false}custData().rows.push({code:fv(b,'ca_c'),name:'عهدة '+h,holder:h,bal:r3(+fv(b,'ca_b')||0)});log('إضافة عهدة '+h);commit('تمت الإضافة')}},{t:'إلغاء',cls:'sec'}]}));
+};
+async function custReportCanvas(excl){const D=custData(),Lm=custLimit();
+  const rows=D.rows.filter(r=>!excl.has(custKey(r))&&Math.abs(r.bal)>=0.0005).sort((a,b)=>b.bal-a.bal),over=rows.filter(r=>r.bal>Lm),ok=rows.filter(r=>r.bal<=Lm);
+  const W=1080,P=40,F=(getComputedStyle(document.body).fontFamily||'Tahoma,sans-serif');
+  let logo=null;try{logo=new Image();logo.src='icons/logo-full.png';await logo.decode()}catch(e){logo=null}
+  const BR='#0F7C8F',DK='#0B4F5C',RED='#C0392B',GRN='#1E8449',INK='#16302f',MUT='#607573',LINE='#DCE8EA';
+  const draw=x=>{x.direction='rtl';
+    const rr=(px,py,w,h,r,fill)=>{x.beginPath();x.roundRect?x.roundRect(px,py,w,h,r):x.rect(px,py,w,h);x.fillStyle=fill;x.fill()};
+    const fR=(px,py,w,h,fill)=>{x.fillStyle=fill;x.fillRect(px,py,w,h)};
+    const fit=(t,mw,font)=>{x.font=font;t=String(t);if(x.measureText(t).width<=mw)return t;while(t.length>2&&x.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…'};
+    const T=(t,px,py,font,col,al)=>{x.textAlign=al||'right';x.fillStyle=col;x.font=font;x.fillText(t,px,py)};
+    x.fillStyle='#fff';x.fillRect(0,0,W,9000);
+    const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,DK);g.addColorStop(1,BR);x.fillStyle=g;x.fillRect(0,0,W,16);
+    if(logo)x.drawImage(logo,P,38,128,128);
+    T('أرصدة العهد المعلّقة',W-P,92,'800 48px '+F,INK);
+    T('الأرصدة حتى '+fdate(D.asOf),W-P,142,'700 32px '+F,BR);
+    T('نسائم صلالة للشقق المفروشة — الإدارة المالية',W-P,186,'500 23px '+F,MUT);
+    fR(P,208,W-2*P,2,LINE);let y=236;
+    const cw=(W-2*P-14)/2;[[`فوق الحد (${Lm} ر.ع) — يُمنع الصرف`,over.length,RED,'#FBEDEB'],['ضمن الحد',ok.length,GRN,'#E8F4EC']].forEach(([l,v,col,bg],i)=>{const bx=W-P-(i+1)*cw-i*14;rr(bx,y,cw,140,20,bg);fR(bx+cw-8,y+18,8,104,col);T(String(v),bx+cw/2,y+80,'800 60px '+F,col,'center');T(fit(l,cw-30,'700 23px '+F),bx+cw/2,y+118,'700 23px '+F,INK,'center')});y+=166;
+    if(over.length){T('⛔ عهد يجب تصفيتها ('+over.length+')',W-P,y+34,'800 32px '+F,RED);y+=62;
+      over.forEach(r=>{rr(P,y,W-2*P,138,16,'#FBEDEB');fR(W-P-8,y+16,8,106,RED);
+        T(fit(r.holder,640,'800 30px '+F),W-P-28,y+42,'800 30px '+F,INK);
+        T(fit((r.code?r.code+' — ':'')+r.name,640,'500 20px '+F),W-P-28,y+74,'500 20px '+F,MUT);
+        T(money(r.bal),P+24,y+50,'800 38px '+F,RED,'left');T('ر.ع',P+24,y+80,'600 20px '+F,RED,'left');
+        rr(P+16,y+94,W-2*P-48,32,10,'#fff');T('يُمنع الصرف لصاحب العهدة حتى تتم تصفيتها',W/2,y+117,'800 22px '+F,RED,'center');y+=150});y+=14}
+    if(ok.length){T('✅ عهد ضمن الحد ('+ok.length+')',W-P,y+34,'800 30px '+F,GRN);y+=58;
+      ok.forEach((r,k)=>{if(k%2===0)rr(P,y,W-2*P,58,12,'#F3F9F5');T(fit(r.holder,600,'700 25px '+F),W-P-20,y+38,'700 25px '+F,INK);T(money(r.bal)+' ر.ع',P+20,y+38,'700 25px '+F,GRN,'left');y+=62});y+=14}
+    if(!rows.length){T('لا توجد عهد معلّقة 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}
+    y+=10;fR(P,y,W-2*P,2,LINE);
+    T('نرجو تصفية العهد بالفواتير الأصلية خلال 7 أيام من استلامها',W/2,y+46,'700 25px '+F,INK,'center');T('نسائم صلالة — الإدارة المالية · '+fdate(TODAY),W/2,y+82,'500 20px '+F,MUT,'center');
+    x.fillStyle=g;x.fillRect(0,y+104,W,12);return y+116};
+  const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
+  const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c}
+async function custReportShow(){const D=custData();if(!D||!D.rows.length){toast('استورد أرصدة العهد أولاً');return}
+  const excl=custExcl(),Lm=custLimit(),cur={blob:null};let busy=0;
+  const lst=D.rows.slice().sort((a,b)=>b.bal-a.bal).map(r=>`<label style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" data-cx="${esc(custKey(r))}" ${excl.has(custKey(r))?'':'checked'}><span>${esc(r.holder)}</span><span dir="ltr" class="muted small">${esc(r.code)}</span><span class="num small" style="margin-inline-start:auto;${r.bal>Lm?'color:var(--critical);font-weight:700':''}">${money(r.bal)}</span></label>`).join('');
+  const dl=()=>{if(!cur.blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(cur.blob);a.download='custody-'+D.asOf+'.png';document.body.appendChild(a);a.click();a.remove()};
+  modal({title:'📋 تقرير العهد',sub:'احذف من لا تريد ظهوره في التقرير، ثم انسخ الصورة وأرسلها في المجموعة. العهد المصفّاة (صفر) لا تظهر تلقائياً.',wide:true,
+    body:`<details style="margin-bottom:12px" open><summary style="cursor:pointer;font-weight:700">🧹 الحسابات المشمولة في التقرير <span class="muted small" id="cxCnt"></span></summary>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="cxAll">تحديد الكل</button><button class="btn sm sec" id="cxNone">إلغاء الكل</button><button class="btn sm sec" id="cxOver">فوق الحد فقط</button></div>
+      <div style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div></details>
+    <div style="text-align:center;min-height:200px"><div class="muted" id="cxLoad" style="padding:60px 0">جارٍ تجهيز الصورة…</div><img id="cxImg" alt="" style="display:none;width:100%;max-width:480px;margin:0 auto;border:1px solid var(--border);border-radius:10px"></div>`,
+    foot:[{t:'📋 نسخ الصورة',fn:()=>{if(!cur.blob){toast('انتظر تجهيز الصورة');return false}try{navigator.clipboard.write([new ClipboardItem({'image/png':cur.blob})]).then(()=>toast('تم نسخ الصورة — الصقها في المجموعة'),()=>toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل'))}catch(e){toast('النسخ غير مدعوم هنا — استخدم مشاركة أو تنزيل')}return false}},
+      {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-العهد.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير العهد'}).catch(()=>{});else dl();return false}},
+      {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
+    onMount:b=>{
+      const cnt=()=>{$('#cxCnt',b).textContent='('+D.rows.filter(r=>!excl.has(custKey(r))).length+' من '+D.rows.length+')'};
+      const gen=async()=>{const my=++busy;$('#cxLoad',b).style.display='';$('#cxImg',b).style.opacity='.4';
+        try{const c=await custReportCanvas(excl);const bl=await new Promise(r=>c.toBlob(r,'image/png'));if(my!==busy)return;cur.blob=bl;const im=$('#cxImg',b);im.src=c.toDataURL('image/png');im.style.display='block';im.style.opacity='1';$('#cxLoad',b).style.display='none'}
+        catch(e){if(my===busy)$('#cxLoad',b).textContent='تعذّر إنشاء صورة التقرير'}};
+      const sync=()=>{b.querySelectorAll('[data-cx]').forEach(i=>i.checked=!excl.has(i.dataset.cx));custExclSave(excl);cnt();gen()};
+      b.querySelectorAll('[data-cx]').forEach(i=>i.onchange=()=>{i.checked?excl.delete(i.dataset.cx):excl.add(i.dataset.cx);custExclSave(excl);cnt();gen()});
+      $('#cxAll',b).onclick=()=>{excl.clear();sync()};$('#cxNone',b).onclick=()=>{D.rows.forEach(r=>excl.add(custKey(r)));sync()};
+      $('#cxOver',b).onclick=()=>{D.rows.forEach(r=>r.bal>Lm?excl.delete(custKey(r)):excl.add(custKey(r)));sync()};
       cnt();gen()}});
 }
 VIEWS.purreports=()=>{const per=V.sub.prp||'month';
