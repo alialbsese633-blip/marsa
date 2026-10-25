@@ -1171,7 +1171,7 @@ const APP_VER='v21';
 function printDocString(html,title,withBar){
   const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
   /* مستندات الليتر هيد الرسمي (الإدارة المالية) تُطبع بنفس خطوط التطبيق حتى يطابق المطبوع ما يظهر على الشاشة */
-  const brand=/class="off-h"/.test(html),dl=(html.match(/data-doclang="(en|bn)"/)||[])[1]||'',bn=dl==='bn';
+  const brand=/class="(off-h|lh-hd)"|class="[^"]*\blh-doc\b/.test(html),dl=(html.match(/data-doclang="(en|bn)"/)||[])[1]||'',bn=dl==='bn';
   const fontLink=brand||dl?'<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@500;600;700'+(bn?'&family=Noto+Sans+Bengali:wght@400;600;700':'')+'&display=swap" rel="stylesheet">':'';
   const fontVars=bn?':root{--font:"Noto Sans Bengali","IBM Plex Sans Arabic",Tahoma,sans-serif!important;--kufi:"Noto Sans Bengali","IBM Plex Sans Arabic",Tahoma,sans-serif!important}':brand||dl?':root{--font:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif!important;--kufi:"Noto Kufi Arabic","IBM Plex Sans Arabic",Tahoma,sans-serif!important}':':root{--font:Tahoma,"Segoe UI",Arial,sans-serif!important;--kufi:Tahoma,"Segoe UI",Arial,sans-serif!important}';
   const bar=withBar?`<div class="pbar"><b>مرسى ${APP_VER}</b><span>${esc(title)}</span><button type="button" onclick="window.print()">🖨️ طباعة / حفظ PDF</button><button type="button" class="g" onclick="window.close()">إغلاق</button></div>`:'';
