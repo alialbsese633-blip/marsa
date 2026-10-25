@@ -3713,6 +3713,7 @@ function recShow(r,preview){const t=recTpl(r.tpl)||{name:'—'};let tab=r.mode==
   const M=modal({title:'⚖️ '+(r.no?r.no+' — ':'معاينة — ')+esc(t.name),sub:`${REC_MODE[r.mode]||''} · ${r.mode==='open'?'كما في '+recDay(r.to):'من '+recShort(r.from)+' حتى '+recDay(r.to)}`,wide:true,body:`<div id="rsB">${body()}</div>`,
     onMount:b=>{const draw=()=>{$('#rsB',b).innerHTML=body();tidyButtons(b);bind()};
       const bind=()=>{$$('[data-rt]',b).forEach(x=>x.onclick=()=>{tab=x.dataset.rt;draw()});
+        $$('[data-cmpf]',b).forEach(x=>x.onclick=()=>{REC_CMPF=x.dataset.cmpf;draw()});
         $$('[data-unm]',b).forEach(x=>x.onclick=()=>{const m=r.mt[+x.dataset.unm];r.mt.splice(+x.dataset.unm,1);[...m.b,...m.k].forEach(i=>{if(r.mode==='day'&&i.s==='k'&&!i.c&&(i.d>r.to||i.d<r.from)){r.fps=(r.fps||[]).filter(f=>f!==i.fp);r.cnt&&r.cnt.k&&r.cnt.k--}else r.open.push(i)});recRestat(r);draw();toast('فُكّت المطابقة وعادت البنود للمعلّقة')});
         $$('[data-sga]',b).forEach(x=>x.onclick=()=>{const s=r.sg[+x.dataset.sga];const its=s.ids.map(f=>r.open.find(i=>i.fp===f)).filter(Boolean);if(its.length!==2)return;
           r.open=r.open.filter(i=>!s.ids.includes(i.fp));r.mt.push({t:s.ty==='rev'?'rev':'man',cf:'g',dd:Math.abs(recDD(its[0].d,its[1].d)),b:its.filter(i=>i.s==='b'),k:its.filter(i=>i.s==='k')});
@@ -3734,6 +3735,7 @@ function recSave(r){const t=recTpl(r.tpl);r.no=recNoTake();r.at=nowTs();(r.open|
 function recPrune(tid){const lim=recAdd(TODAY,-183);recRuns(tid).forEach(r=>{if(r.to<lim&&r.mt&&r.mt.length){r.mtN=r.mt.length;r.mt=[]}if(r.to<recAdd(TODAY,-400)&&r.fps&&r.fps.length)r.fps=[]})}
 
 /* مقارنة الحركات: كل حركة بنك في الفترة وما يقابلها في النظام (بدون أرصدة) */
+let REC_CMPF='all';
 function recCmp(r){const rows=[];
   (r.mt||[]).forEach(m=>{const nb=m.b.filter(x=>!x.c);if(!nb.length)return;rows.push({d:nb[0].d,b:m.b,k:m.k,m})});
   (r.open||[]).filter(x=>x.s==='b'&&!x.c).forEach(x=>rows.push({d:x.d,b:[x],k:[],m:null}));
@@ -3769,8 +3771,13 @@ function recTab(r,tab,act){const op=r.open||[],stt=recStmt(r.bal,op),to=r.to;
       <div class="small muted" style="margin-top:8px;line-height:1.9">الملفات: ${esc((r.files||{}).b||'—')} / ${esc((r.files||{}).k||'—')}<br>${cn.db||cn.dk?`تُجوهلت ${cn.db||0} حركة بنك و${cn.dk||0} حركة نظام سبقت مطابقتها. `:''}${cn.lb||cn.lk?`أُجّلت ${cn.lb||0} حركة بنك و${cn.lk||0} حركة نظام بعد تاريخ النهاية. `:''}${cn.pb||cn.pk?`${(cn.pb||0)+(cn.pk||0)} حركة قبل الرصيد الافتتاحي لم تُعالج. `:''}${cn.cb||cn.ck?`رُحّل من المطابقة السابقة: ${cn.cb||0} بند بنك و${cn.ck||0} بند نظام.`:''}<br>${r.no?`أعدّها: ${esc(r.by||'')} — ${ftime(r.at)}`:''}</div>`}
   if(tab==='cmp'){const C=recCmp(r);if(!C.rows.length&&!C.konly.length)return '<div class="empty">لا توجد حركات بنك في هذه الفترة</div>';
     const cell=(L,sideK)=>L.length?L.map(x=>`<div style="margin-bottom:4px"><div><span dir="ltr" class="small">${recShort(x.d)}</span> ${recAmt(x.a)}${x.c?' '+badge('من يوم سابق','w'):''}</div><div class="small">${esc(x.ds)||'—'}</div>${x.rf?`<div class="small muted" dir="ltr" style="text-align:right">${esc(x.rf)}</div>`:''}</div>`).join(''):`<div class="small" style="color:var(--critical);font-weight:700">— لا يوجد قيد مقابل —</div>`;
+    const grp={};C.rows.filter(x=>!x.m).forEach(x=>{const c=recCls(x.b[0]),g=grp[c.t]||(grp[c.t]={n:0,a:0,tone:c.tone});g.n++;g.a+=x.b[0].a});
+    const gl=Object.entries(grp).sort((a,b)=>b[1].n-a[1].n);
+    const vis=C.rows.map((x,i)=>({x,i})).filter(o=>REC_CMPF==='all'||!o.x.m);
     return `<div class="grid g3">${kpi('حركات البنك',C.rows.length,recShort(r.from)+(r.from!==r.to?' → '+recShort(r.to):''))}${kpi('موجودة في النظام',C.found,'',C.found?'g':'')}${kpi('غير موجودة في النظام',C.miss,C.miss?'تحتاج قيداً أو استفساراً':'✓ كلها مسجلة',C.miss?'c':'g')}</div>
-      <div class="tw" style="margin-top:10px"><table><thead><tr><th>#</th><th>حركة البنك</th><th>ما يقابلها في النظام</th><th>النتيجة</th>${act?'<th></th>':''}</tr></thead><tbody>${C.rows.map((x,i)=>{const S=recCmpSt(x);
+      ${gl.length?`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">تفصيل الحركات غير الموجودة في النظام</div>${gl.map(([t,g])=>`<div class="row small" style="justify-content:space-between;padding:3px 0;border-top:1px dashed var(--border)"><span>${badge(t,g.tone)} <b>${g.n}</b> حركة</span><b dir="ltr">${bzs(g.a)}</b></div>`).join('')}</div>`:''}
+      <div class="row" style="margin-top:10px"><button class="btn sm ${REC_CMPF==='all'?'':'sec'}" data-cmpf="all">كل الحركات (${C.rows.length})</button><button class="btn sm ${REC_CMPF==='miss'?'':'sec'}" data-cmpf="miss">غير الموجودة فقط (${C.miss})</button></div>
+      <div class="tw" style="margin-top:10px"><table><thead><tr><th>#</th><th>حركة البنك</th><th>ما يقابلها في النظام</th><th>النتيجة</th>${act?'<th></th>':''}</tr></thead><tbody>${vis.map(({x,i})=>{const S=recCmpSt(x);
         return `<tr style="${S.ok?'':'background:color-mix(in srgb,var(--critical) 7%,transparent)'}"><td class="n">${i+1}</td><td>${cell(x.b)}</td><td>${cell(x.k,1)}</td><td>${badge(S.t,S.ok?'g':'c')}${S.s?`<div class="small muted" style="margin-top:3px">${esc(S.s)}</div>`:''}</td>${act?`<td>${!x.m&&recCls(x.b[0]).unk?`<button class="btn sm sec" data-ltr="${x.b[0].fp}">✉️ خطاب للبنك</button>`:''}</td>`:''}</tr>`}).join('')}</tbody></table></div>
       ${C.konly.length?`<div class="b" style="margin:14px 0 6px">قيود في النظام في نفس الفترة لا يقابلها شيء في البنك (${C.konly.length})</div><div class="tw"><table><thead><tr><th>#</th><th>قيد النظام</th><th>النتيجة</th></tr></thead><tbody>${C.konly.map((x,i)=>`<tr><td class="n">${i+1}</td><td>${cell([x])}</td><td>${badge(recCls(x).t,recCls(x).tone)}<div class="small muted" style="margin-top:3px">${esc(recCls(x).act)}</div></td></tr>`).join('')}</tbody></table></div>`:''}`}
   if(tab==='open'){if(!op.length)return '<div class="empty">✓ لا توجد بنود معلّقة</div>';
