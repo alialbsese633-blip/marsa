@@ -3402,6 +3402,28 @@ const REC_REV=/\b(REV|REVERSAL|REVERSED|RETURN|RETURNED|REFUND|CANCEL|CANCELLED|
 function recEngine(B,K,opt){
   opt=opt||{};const W=opt.win||REC_WIN,RW=REC_REF_WIN,GW=REC_GRP_WIN,M=[];
   B.forEach((x,i)=>{x.i=i;x.m=0});K.forEach((x,i)=>{x.i=i;x.m=0});
+  /* 0) تسويات البطاقات (فيزا / نقاط البيع): النظام يسجل كل عملية منفردة، والبنك يودع مجموع اليوم — أو مجموع كل جهاز — في يوم لاحق، وأحياناً بعد خصم العمولة.
+        نجمع عمليات البطاقات لكل يوم (أو يومين/ثلاثة متتالية عند تأخر التسوية) ونطابقها مع إيداع/إيداعات التسوية خلال 4 أيام.
+        إن كان المودَع أقل من المجموع ضمن نسبة العمولة القصوى: تُطابق وتُضاف العمولة بنداً معلّقاً في البنك يحتاج قيداً في النظام */
+  if(opt.cardK){const rate=opt.rate==null?0.03:opt.rate,sum=L=>L.reduce((t,x)=>t+x.a,0);
+    const isK=x=>!x.m&&x.a>0&&opt.cardK.test(x.ds+' '+x.rf),isB=x=>!x.m&&x.a>0&&opt.cardB.test(x.ds+' '+x.rf);
+    const take=(G,Bs,E,fee)=>{G.forEach(x=>x.m=1);Bs.forEach(x=>x.m=1);M.push({t:'card',cf:fee?'g':'h',dd:Math.max(...G.map(x=>Math.abs(recDD(E,x.d)))),b:Bs,k:G,fee:fee||0});
+      if(fee){const f={s:'b',d:E,a:-fee,ds:`عمولة بطاقات مخصومة من تسوية ${recShort(E)} (العمليات ${bz(sum(G))} — المودَع ${bz(sum(Bs))})`,rf:''};f.fp=recHash('cardfee|'+E+'|'+G.map(x=>x.fp).join(','));f.i=B.length;f.m=0;B.push(f)}};
+    const days=[...new Set(K.filter(isK).map(x=>x.d))].sort();
+    for(const D of days){
+      for(const span of [[D],[recAdd(D,-1),D],[recAdd(D,-2),recAdd(D,-1),D]]){
+        const G=K.filter(x=>isK(x)&&span.includes(x.d));if(!G.length||(span.length>1&&!span.slice(0,-1).some(d=>G.some(x=>x.d===d))))continue;
+        const S=sum(G),allC=G.every(x=>x.c);let hit=null;
+        for(let e=0;e<=4&&!hit;e++){const E=recAdd(D,e),Ce=B.filter(x=>!x.m&&x.a>0&&x.d===E&&!(allC&&x.c)),Fe=Ce.filter(isB);
+          const one=Ce.find(x=>x.a===S&&(isB(x)||G.length>=3));if(one){hit=[[one],E,0];break}
+          if(Fe.length>=2&&sum(Fe)===S){hit=[Fe,E,0];break}
+          if(Fe.length>=2&&Fe.length<=12){const sub=recSubset(Fe,S,8,{d:E});if(sub){hit=[sub,E,0];break}}
+          const net=Fe.find(x=>x.a<S&&x.a>=Math.round(S*(1-rate)));if(net){hit=[[net],E,S-net.a];break}
+          if(Fe.length>=2){const fs=sum(Fe);if(fs<S&&fs>=Math.round(S*(1-rate))){hit=[Fe,E,S-fs];break}}}
+        if(hit){take(G,hit[0],hit[1],hit[2]);break}
+      }
+    }
+  }
   /* 1) واحد مقابل واحد: نفس المبلغ والاتجاه — الأولوية للمرجع/رقم الشيك ثم نفس اليوم ثم الأقرب تاريخاً ثم تشابه البيان */
   const byA=new Map();K.forEach(k=>{const l=byA.get(k.a);l?l.push(k):byA.set(k.a,[k])});
   const cand=[];
@@ -3479,7 +3501,7 @@ const recItem=x=>{const o={fp:x.fp,s:x.s,d:x.d,a:x.a,ds:String(x.ds||'').slice(0
 function recNoPeek(){const y=TODAY.slice(0,4),sq=S.seq.RECY===y?(S.seq.REC||0):0;return 'REC-'+y+'-'+String(sq+1).padStart(3,'0')}
 function recNoTake(){const no=recNoPeek();S.seq.REC=+no.split('-').pop();S.seq.RECY=TODAY.slice(0,4);return no}
 const REC_MODE={day:'يومية',month:'شهرية',open:'رصيد افتتاحي'};
-const REC_MT={exact:['نفس اليوم','g'],ref:['بالمرجع / رقم الشيك','g'],date:['تاريخ متقارب','i'],grp:['تجميع حركات','a'],rev:['قيد وعكسه','v'],man:['يدوية','w']};
+const REC_MT={card:['تسوية بطاقات مجمّعة','a'],exact:['نفس اليوم','g'],ref:['بالمرجع / رقم الشيك','g'],date:['تاريخ متقارب','i'],grp:['تجميع حركات','a'],rev:['قيد وعكسه','v'],man:['يدوية','w']};
 const recSideB=s=>s==='b'?badge('البنك','i'):badge('النظام','a');
 const recAmt=a=>`<b dir="ltr" style="color:${a<0?'var(--critical)':'var(--good)'}">${a<0?'−':'+'}${money(Math.abs(a)/1000)}</b>`;
 async function recXlsx(){if(!window.XLSX)await loadScriptOnce('vendor/xlsx.mini.min.js')}
@@ -3516,6 +3538,7 @@ function recHelp(){modal({title:'📖 طريقة عمل المطابقات',wide
   <b>2. الملفات:</b> كشف البنك كما تنزّله من الخدمات المصرفية (Excel أو CSV)، وحركات حساب البنك من NetSuite (تقرير السجل / Register أو بحث الحركات) بصيغة Excel.<br>
   <b>3. يومية أو شهرية:</b> اختر تاريخ النهاية. يعالج النظام كل حركة جديدة حتى هذا التاريخ، والحركات التي سبقت مطابقتها يتجاهلها تلقائياً — حتى لو رفعت كشفاً من بداية الشهر كل يوم. والقيود التي تُسجَّل في النظام بتاريخ سابق تدخل أيضاً.<br>
   <b>4. المطابقة الذكية:</b> نفس المبلغ والاتجاه مع أولوية رقم الشيك أو المرجع، ثم نفس اليوم، ثم أقرب تاريخ (حتى 7 أيام، وحتى 90 يوماً للشيكات برقمها)، ثم التجميع (إيداع واحد في البنك يقابل عدة قيود أو العكس)، ثم القيود العكسية.<br>
+  <b>💳 البطاقات (فيزا):</b> النظام يسجل كل عملية بطاقة منفردة، والبنك يودع مجموعها في اليوم التالي (أو مجموع كل جهاز). يجمع النظام عمليات كل يوم (أو يومين/ثلاثة عند تأخر التسوية في العطل) ويطابقها مع إيداع التسوية خلال 4 أيام. وإن خصم البنك العمولة من المبلغ، تُطابق التسوية وتظهر العمولة بنداً معلّقاً «رسوم بنكية غير مسجلة» حتى تُقيَّد في النظام.<br>
   <b>5. البنود المعلّقة تُرحَّل:</b> ما لا يُطابَق اليوم يبقى معلّقاً بتاريخه الأصلي، وفي المطابقة التالية يُطابَق مع الحركات الجديدة ويظهر لك: «هذا البند يخص يوم كذا وسُوّي يوم كذا».<br>
   <b>6. كشف المطابقة:</b> رصيد البنك ± البنود المعلّقة = رصيد النظام ± البنود المعلّقة. الفرق يجب أن يكون صفراً، وإن لم يكن يقترح النظام الأسباب المحتملة.<br>
   <b>7. المبالغ المجهولة:</b> أي مبلغ وارد في البنك غير مسجل يمكنك إرسال خطاب استفسار عنه للبنك بضغطة، وتُعبّأ بياناته تلقائياً.<br>
@@ -3525,13 +3548,16 @@ function recHelp(){modal({title:'📖 طريقة عمل المطابقات',wide
 function recTplForm(id){const t=id?recTpl(id):null,hasRuns=id&&recRuns(id).length;
   modal({title:t?'⚙️ إعدادات القالب':'➕ قالب مطابقة جديد',wide:true,body:`<div class="frow"><div class="fld"><label>اسم القالب</label><input id="rt_n" value="${esc(t?t.name:'بنك مسقط — الحساب الجاري')}"></div><div class="fld"><label>البنك</label><input id="rt_b" value="${esc(t?t.bank:'بنك مسقط')}"></div></div>
     <div class="frow"><div class="fld"><label>رقم الحساب</label><input id="rt_a" dir="ltr" value="${esc(t?t.acct||'':'')}"></div><div class="fld"><label>نافذة المطابقة بالتاريخ (أيام)</label><input id="rt_w" type="number" min="0" max="31" value="${t?t.win??REC_WIN:REC_WIN}"></div></div>
+    <div class="card flat" style="margin:6px 0"><div class="b small">💳 حركات البطاقات (فيزا / نقاط البيع)</div><div class="small muted" style="margin:4px 0 8px">النظام يسجل كل عملية بطاقة منفردة والبنك يودع مجموعها في اليوم التالي (وقد يخصم العمولة). هذه الكلمات تميّز تلك الحركات للمطابقة المجمّعة.</div>
+      <div class="frow"><div class="fld"><label>كلمات حركات البطاقات في النظام</label><input id="rt_ck" dir="auto" value="${esc(t&&t.cardK!=null?t.cardK:REC_CARD_K)}"></div><div class="fld"><label>كلمات إيداع التسوية في كشف البنك</label><input id="rt_cb" dir="auto" value="${esc(t&&t.cardB!=null?t.cardB:REC_CARD_B)}"></div></div>
+      <div class="fld" style="max-width:260px"><label>أقصى نسبة عمولة يخصمها البنك من التسوية (%)</label><input id="rt_cr" type="number" step="0.1" min="0" max="10" value="${t&&t.cardRate!=null?t.cardRate:3}"></div></div>
     <div class="fld"><label>ملاحظات</label><input id="rt_x" value="${esc(t?t.note||'':'')}" placeholder="مثال: الحساب في NetSuite: 1010 Bank Muscat"></div>
     ${t?`<div class="card flat" style="margin-top:8px"><div class="b small">تخطيط الأعمدة المحفوظ</div><div class="small muted" style="margin-top:4px">البنك: ${t.map&&t.map.b?'محفوظ ✓':'لم يُحفظ بعد'} — النظام: ${t.map&&t.map.k?'محفوظ ✓':'لم يُحفظ بعد'}</div>${t.map&&(t.map.b||t.map.k)?`<button class="btn sm sec" id="rt_rm" style="margin-top:6px">إعادة ضبط الأعمدة</button>`:''}</div>`:''}
     ${t&&!hasRuns?`<div class="card flat" style="margin-top:8px"><div class="b small">📥 الرصيد الافتتاحي (اختياري)</div><div class="small muted" style="margin:4px 0 8px">إن كانت لديك آخر مطابقة يدوية معتمدة، أدخل تاريخها ورصيدي البنك والنظام فيها، ثم أضف بنودها المعلّقة من «البنود المعلّقة». الحركات حتى هذا التاريخ تُعدّ مطابَقة ولا تُعالج.</div><button class="btn sm" id="rt_op">إعداد الرصيد الافتتاحي</button></div>`:''}`,
     onMount:b=>{$('#rt_rm',b)&&($('#rt_rm',b).onclick=()=>{t.map={};save();toast('سيُطلب ضبط الأعمدة عند الرفع القادم');$('#rt_rm',b).remove()});
       $('#rt_op',b)&&($('#rt_op',b).onclick=()=>recOpeningModal(t.id))},
     foot:[{t:t?'حفظ':'إنشاء القالب',fn:b=>{const n=fv(b,'rt_n');if(!n){toast('اكتب اسم القالب');return false}
-      const o=t||{id:'RCT'+uid(),kind:'tpl',at:nowTs(),by:me().name,map:{}};Object.assign(o,{name:n,bank:fv(b,'rt_b'),acct:fv(b,'rt_a'),win:Math.max(0,Math.min(31,+fv(b,'rt_w')||REC_WIN)),note:fv(b,'rt_x')});
+      const o=t||{id:'RCT'+uid(),kind:'tpl',at:nowTs(),by:me().name,map:{}};Object.assign(o,{name:n,bank:fv(b,'rt_b'),acct:fv(b,'rt_a'),win:Math.max(0,Math.min(31,+fv(b,'rt_w')||REC_WIN)),note:fv(b,'rt_x'),cardK:fv(b,'rt_ck'),cardB:fv(b,'rt_cb'),cardRate:Math.max(0,Math.min(10,+fv(b,'rt_cr')||0))});
       recAll()[o.id]=o;log((t?'تعديل':'إنشاء')+' قالب مطابقة '+n);commit(t?'تم الحفظ':'تم إنشاء القالب — ارفع الملفات الآن');if(!t)setTimeout(()=>recRunModal(o.id),300)}},
       ...(t&&!hasRuns?[{t:'حذف القالب',cls:'crit',fn:()=>{confirmBox('حذف القالب','سيُحذف القالب «'+esc(t.name)+'». لا توجد له مطابقات.','حذف','crit',()=>{delete recAll()[t.id];commit('تم الحذف')});return true}}]:[]),{t:'إلغاء',cls:'sec'}]})}
 function recOpeningModal(tid){const t=recTpl(tid);
@@ -3627,7 +3653,7 @@ function recRunModal(tid){const t=recTpl(tid);if(!t)return;const L=recLast(tid),
 function recBuild(t,L,RB,RK,o){
   const carry=(L?L.open||[]:[]).map(x=>({...x,c:1}));
   const B=RB.nw.map(x=>({...x,s:'b'})).concat(carry.filter(x=>x.s==='b')),K=RK.nw.map(x=>({...x,s:'k'})).concat(carry.filter(x=>x.s==='k'));
-  const M=recEngine(B,K,{win:t.win??REC_WIN});
+  const M=recEngine(B,K,recOpt(t));
   const open=[...B,...K].filter(x=>!x.m).map(recItem);
   const allNew=[...RB.nw.map(x=>x.d),...RK.nw.map(x=>x.d)].sort();
   const from=o.mode==='month'?o.to.slice(0,8)+'01':L&&L.to?recAdd(L.to,1):(allNew[0]||o.to);
@@ -3635,6 +3661,12 @@ function recBuild(t,L,RB,RK,o){
     cnt:{b:RB.nw.length,k:RK.nw.length,db:RB.dup.length,dk:RK.dup.length,lb:RB.later.length,lk:RK.later.length,pb:RB.pre.length,pk:RK.pre.length,cb:carry.filter(x=>x.s==='b').length,ck:carry.filter(x=>x.s==='k').length},
     open,mt:M.map(m=>({t:m.t,cf:m.cf,dd:m.dd,b:m.b.map(recItem),k:m.k.map(recItem)})),fps:[...RB.nw,...RK.nw].map(x=>x.fp),man:[]};
   run.sg=recSuggest(run.open);return run}
+/* إعدادات التعرف على حركات البطاقات (قابلة للتعديل من إعدادات القالب) */
+const REC_CARD_K='visa,card,master,mastercard,mada,pos,credit card,debit card,thawani,amwal,فيزا,بطاقة,بطاقات,شبكة,نقاط البيع,ماستر';
+const REC_CARD_B='pos,merchant,settlement,settl,card,visa,mpos,master,mastercard,thawani,amwal,omannet,نقاط البيع,بطاقات,تسوية';
+function recWordsRe(list){const w=String(list||'').split(/[,،\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);if(!w.length)return null;
+  return new RegExp(w.map(x=>{const e=x.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');return /^[a-z0-9 ]+$/.test(x)?'(?:^|[^a-z0-9])'+e+'(?:$|[^a-z0-9])':e}).join('|'),'i')}
+function recOpt(t){const k=recWordsRe(t.cardK??REC_CARD_K),b=recWordsRe(t.cardB??REC_CARD_B);return {win:t.win??REC_WIN,cardK:k&&b?k:null,cardB:b,rate:(t.cardRate??3)/100}}
 function recRestat(r){r.sg=recSuggest(r.open||[]);r.st=recStmt(r.bal,r.open||[])}
 
 /* ---- عرض المطابقة (معاينة قبل الحفظ أو من السجل) ---- */
@@ -3693,7 +3725,7 @@ function recTab(r,tab,act){const op=r.open||[],stt=recStmt(r.bal,op),to=r.to;
       return `<tr><td>${old.map(x=>`${recSideB(x.s)} <b>${recDay(x.d)}</b><div class="small muted">${esc(x.ds)}${x.o?' · '+esc(x.o):''}</div>`).join('<hr style="border:0;border-top:1px dashed var(--border);margin:4px 0">')}</td><td>${nw.map(x=>`${recSideB(x.s)} ${recShort(x.d)}<div class="small muted">${esc(x.ds)}</div>`).join('')}</td><td class="n">${recAmt(recSum(old))}</td><td class="small">${nw.length?Math.abs(recDD(nw[0].d,old[0].d))+' يوم':''}</td></tr>`}).join('')}</tbody></table></div>`}
   if(tab==='mt'){if(!(r.mt||[]).length)return `<div class="empty">${r.mtN?'تفاصيل المطابقات ('+r.mtN+') أُرشفت لقِدمها':'لا توجد مطابقات'}</div>`;
     const cell=L=>L.map(x=>`<div><span dir="ltr">${recShort(x.d)}</span> ${recAmt(x.a)}${x.c?' '+badge('مرحّل','w'):''}<div class="small muted">${esc(x.ds.slice(0,70))}${x.rf?' · <span dir="ltr">'+esc(x.rf)+'</span>':''}</div></div>`).join('')||'—';
-    return `<div class="tw"><table><thead><tr><th>النوع</th><th>كشف البنك</th><th>النظام</th>${act&&r.no===''?'<th></th>':''}</tr></thead><tbody>${r.mt.map((m,i)=>`<tr><td>${badge(REC_MT[m.t][0],REC_MT[m.t][1])}${m.cf==='g'&&m.dd>2?`<div class="small muted">فارق ${m.dd} يوم</div>`:''}</td><td>${cell(m.b)}</td><td>${cell(m.k)}</td>${act&&r.no===''?`<td><button class="btn sm ghost" data-unm="${i}" title="فك المطابقة">✕ فك</button></td>`:''}</tr>`).join('')}</tbody></table></div>`}
+    return `<div class="tw"><table><thead><tr><th>النوع</th><th>كشف البنك</th><th>النظام</th>${act&&r.no===''?'<th></th>':''}</tr></thead><tbody>${r.mt.map((m,i)=>`<tr><td>${badge(REC_MT[m.t][0],REC_MT[m.t][1])}${m.t==='card'?`<div class="small muted">${m.k.length} عملية ← ${m.b.length} إيداع${m.fee?' · عمولة '+bz(m.fee):''}</div>`:''}${m.cf==='g'&&m.dd>2?`<div class="small muted">فارق ${m.dd} يوم</div>`:''}</td><td>${cell(m.b)}</td><td>${cell(m.k)}</td>${act&&r.no===''?`<td><button class="btn sm ghost" data-unm="${i}" title="فك المطابقة">✕ فك</button></td>`:''}</tr>`).join('')}</tbody></table></div>`}
   if(tab==='sg'){const sg=r.sg||[];return `<div class="note small">اقتراحات للمراجعة — لا تُطابق تلقائياً. المبالغ المتساوية يمكن مطابقتها بضغطة، والمختلفة تحتاج تصحيح القيد في النظام.</div>`+sg.map((s,i)=>{const its=s.ids.map(f=>op.find(x=>x.fp===f)).filter(Boolean);
     return `<div class="card flat" style="margin-top:8px"><div class="b small">💡 ${s.t}</div>${its.map(x=>`<div class="small" style="margin-top:4px">${recSideB(x.s)} <span dir="ltr">${recShort(x.d)}</span> ${recAmt(x.a)} — ${esc(x.ds.slice(0,70))}</div>`).join('')}${act&&s.eq?`<button class="btn sm" data-sga="${i}" style="margin-top:6px">🔗 مطابقتهما</button>`:''}</div>`}).join('')}
   return ''}
