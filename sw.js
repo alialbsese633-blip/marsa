@@ -1,11 +1,12 @@
 /* Service Worker — يجعل التطبيق يفتح بسرعة وحتى بدون إنترنت.
    الصفحة نفسها: الشبكة أولاً (لتصلك آخر نسخة دائماً) ثم النسخة المحفوظة عند انقطاع الاتصال.
    طلبات قاعدة البيانات (Google) لا تمرّ من هنا أبداً. */
-const V = "ns-v63";
+const V = "ns-v64";
 const FONTS = 'td-fonts-v1';
-const SHELL = ['./', 'index.html', 'training.html', 'hr.html', 'ess.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
-  'icons/marsa-mark-white.png', 'icons/marsa-lockup.png', 'icons/marsa-lockup-white.png', 'marsa-training.css',
-  'icons/m3-192.png', 'icons/m3-512.png', 'icons/m3-apple-180.png', 'icons/logo-full.png', 'icons/parent-logo.png', 'ops.html', 'contract.html', 'vendor/jsQR.min.js', 'vendor/html2canvas.min.js', 'vendor/xlsx.mini.min.js', 'vendor/xlsx.full.min.js', 'vendor/qrcode.min.js'];
+/* نحفظ مسبقاً الواجهة الأساسية فقط؛ بقية الصفحات والمكتبات تُحفظ عند أول استخدام (حتى لا يُعاد تنزيل ميغابايتات مع كل تحديث) */
+const SHELL = ['./', 'index.html', 'hr.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
+  'icons/marsa-mark-white.png', 'icons/marsa-lockup.png', 'icons/marsa-lockup-white.png',
+  'icons/m3-192.png', 'icons/m3-512.png', 'icons/m3-apple-180.png', 'icons/logo-full.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -38,14 +39,27 @@ self.addEventListener('fetch', (e) => {
 
   if (url.origin !== location.origin) return;   // الخادم، يوتيوب…: مباشرة من الشبكة
 
-  e.respondWith(
-    fetch(req, { cache: 'no-cache' })   // تجاوز ذاكرة المتصفح: كل تحديث على GitHub يصل فوراً
-      .then((res) => {
+  const isDoc = req.mode === 'navigate' || /\.html?$|\/$|config\.js$|\.webmanifest$/.test(url.pathname);
+  if (isDoc) {
+    /* الصفحات: الشبكة أولاً لتصلك آخر نسخة، لكن إن تأخرت الشبكة أكثر من 3 ثوانٍ تُفتح النسخة المحفوظة فوراً */
+    e.respondWith(new Promise((resolve) => {
+      let done = false;
+      const fromCache = () => caches.match(req, { ignoreSearch: true }).then((r) => r || (req.mode === 'navigate' ? caches.match('hr.html') : r));
+      const net = fetch(req, { cache: 'no-cache' }).then((res) => {
         if (res && res.ok) { const copy = res.clone(); caches.open(V).then((c) => c.put(req, copy)); }
-        return res;
-      })
-      .catch(() => caches.match(req, { ignoreSearch: true }).then((r) => r || caches.match('index.html')))
-  );
+        if (!done) { done = true; resolve(res); }
+      }).catch(() => { if (!done) { fromCache().then((r) => { done = true; resolve(r || Response.error()); }); } });
+      setTimeout(() => { if (done) return; fromCache().then((r) => { if (r && !done) { done = true; resolve(r); } }); }, 3000);
+      e.waitUntil(net);
+    }));
+    return;
+  }
+  /* الصور والمكتبات: من الذاكرة فوراً، وتُحدَّث في الخلفية */
+  e.respondWith(caches.open(V).then((c) => c.match(req, { ignoreSearch: true }).then((hit) => {
+    const net = fetch(req).then((res) => { if (res && res.ok) c.put(req, res.clone()); return res; }).catch(() => hit);
+    if (hit) { e.waitUntil(net); return hit; }
+    return net;
+  })));
 });
 
 // النقر على إشعار الجهاز يفتح قسم التدريب (أو يعيد التطبيق للواجهة إن كان مفتوحاً)
