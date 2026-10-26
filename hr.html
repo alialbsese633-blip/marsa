@@ -3719,27 +3719,40 @@ function finIntro(k,d,lang){const acct=FIN_LETTERS[k].f.some(f=>f[0]==='acct'),A
   if(lang==='en')return `We, ${CO_EN}, hold Commercial Registration No. 1428061${acct?`, and maintain account no. ${A} with you`:''}.`;
   if(lang==='bn')return `আমরা ${CO_EN}, বাণিজ্যিক নিবন্ধন নম্বর 1428061${acct?`; আপনাদের ব্যাংকে আমাদের হিসাব নম্বর ${A}`:''}।`;
   return `نحن شركة العالمية السعيدة المتحدة، نحمل سجلاً تجارياً رقم: 1428061${acct?`، ولدينا حساب لديكم رقم: ${A}`:''}.`}
+/* خطابات البنوك: تذييل باسم مقدّم الطلب ورقم بطاقته (تطلبه البنوك) — يُحفظ في الإعدادات لا في الكود */
+const isBankLet=k=>FIN_LETTERS[k].f.some(f=>f[0]==='acct');
+const bankRep=()=>({name:'وضاح عبدالرقيب علي صالح',nameEn:'Wadah Abdulraqeeb Ali Saleh',idNo:'',exp:'',...(S.settings.bankRep||{})});
+function repLine(d,lang){if(!d||!d.rep)return '';const id=`<b dir="ltr">${esc(d.repId||'............')}</b>`;
+  const t=lang==='en'?`This request is submitted by Mr. <b>${esc(d.repEn||d.rep)}</b>, holder of ID card no. ${id}.`:lang==='bn'?`এই অনুরোধটি জমা দিয়েছেন জনাব <b>${esc(d.repEn||d.rep)}</b>, পরিচয়পত্র নম্বর ${id}।`:`تم تقديم هذا الطلب بواسطة الأخ / <b>${esc(d.rep)}</b>، يحمل بطاقة شخصية رقم: ${id}.`;
+  return `<div class="rep-line" style="margin-top:22px;padding:7px 12px;border:1px solid #9AA9C6;border-radius:6px;background:#F5F7FB;font-size:12.5px">${t}</div>`}
+function bankRepSave(d){if(!d.rep)return;const o=bankRep(),n={name:d.rep,nameEn:d.repEn||'',idNo:d.repId||'',exp:d.repExp||''};
+  if(o.name===n.name&&o.nameEn===n.nameEn&&o.idNo===n.idNo&&o.exp===n.exp&&S.settings.bankRep)return;S.settings.bankRep=n;
+  if(n.exp&&typeof ALR==='function'){const id='bankrepid';const x=ALR().find(y=>y.id===id);const due=addDays(n.exp,-30);
+    const a={id,kind:'rem',tpl:'lic',title:'تجديد بطاقة مقدّم الطلبات للبنوك — '+n.name,due,amount:'',party:'البنوك',bld:'',repeat:'none',lead:7,note:'البطاقة رقم '+(n.idNo||'')+' تنتهي '+fdate(n.exp)+' — حدّثها في خطابات البنوك بعد التجديد',status:'open',at:nowTs(),by:me().name};
+    if(x)Object.assign(x,a);else ALR().push(a)}}
 function finLetterDoc(k,d,no,lang){const L=FIN_LETTERS[k];
   if(lang&&lang!=='ar'&&FIN_LET_TR[k]){const F=FIN_LET_FRAME[lang],X=FIN_LET_TR[k][lang];return `<div class="doc">${offHead('','','')}<div class="flt"><div class="ref"><span>${F.date}: ${fdl(d.date||TODAY,lang)}</span><span>${F.ref}: <span dir="ltr">${esc(no||'—')}</span></span></div>
   <div class="to">${F.to(esc(bankEn(d.to)||'..........'))}</div><div>${F.greet}</div>
   <div class="subj">${F.subj}${esc(X.subj)}</div><div>${finIntro(k,d,lang)}</div><div>${X.body(d,lang)}</div>
   <div style="margin-top:18px;font-weight:700">${F.close}</div>
-  <div class="sign">${L.nosign?'':F.sign}<div style="font-weight:400;margin-top:4px">${CO_EN}</div></div></div>${offFoot()}</div>`}
+  <div class="sign">${L.nosign?'':F.sign}<div style="font-weight:400;margin-top:4px">${CO_EN}</div></div>${repLine(d,lang)}</div>${offFoot()}</div>`}
   return `<div class="doc">${offHead('','','')}<div class="flt"><div class="ref"><span>التاريخ: ${fdate(d.date||TODAY)}</span><span>المرجع: <span dir="ltr">${esc(no||'—')}</span></span></div>
   <div class="to">الأفاضل / ${esc(d.to||'..........')} المحترمين</div><div>تحية طيبة وبعد،</div>
   <div class="subj">الموضوع / ${esc(L.subj)}</div><div>${finIntro(k,d,'ar')}</div><div>${L.body(d)}</div>
   <div style="margin-top:18px;font-weight:700">شاكرين لكم حسن تعاونكم،،،</div>
-  <div class="sign">${L.nosign?'':'ختم وتوقيع المفوض'}<div style="font-weight:400;margin-top:4px">شركة العالمية السعيدة المتحدة ش.م.م</div></div></div>${offFoot()}</div>`}
+  <div class="sign">${L.nosign?'':'ختم وتوقيع المفوض'}<div style="font-weight:400;margin-top:4px">شركة العالمية السعيدة المتحدة ش.م.م</div></div>${repLine(d,'ar')}</div>${offFoot()}</div>`}
 VIEWS.finlet=()=>ph('المراسلات المالية','خطابات رسمية للبنوك والموردين على ورق الشركة المعتمد — عبّئ البيانات واطبع أو احفظ PDF')+
   `<div class="grid g3">${Object.entries(FIN_LETTERS).map(([k,L])=>`<button class="card kpi click" data-flt="${k}" style="text-align:right;cursor:pointer"><div style="font-size:24px">✉️</div><div class="b" style="margin-top:6px;font-size:15px">${L.n}</div><div class="s">${esc(L.subj)}</div></button>`).join('')}</div>
   <div class="note small" style="margin-top:12px">يُعطى كل خطاب رقماً مرجعياً تلقائياً (FIN-LTR) عند الطباعة. الخطاب يُوقَّع ويُختم من المفوّض بالتوقيع قبل الإرسال.</div>`;
 BIND.finlet=()=>$$('[data-flt]').forEach(b=>b.onclick=()=>finLetterOpen(b.dataset.flt));
 function finLetterOpen(k,pre,onIssued){const L=FIN_LETTERS[k];pre=pre||{};
   const fld=([id,lab,def0,type])=>{const def=pre[id]!=null&&pre[id]!==''?pre[id]:def0;return type===' area'?`<div class="fld"><label>${lab}</label><textarea id="fl_${id}" style="min-height:90px">${esc(def)}</textarea></div>`:`<div class="fld"><label>${lab}</label><input id="fl_${id}" ${type===' date'?'type="date"':''} value="${esc(def)}"></div>`};
-  const data=bx=>{const d={date:fv(bx,'fl_date')||TODAY};L.f.forEach(([id])=>d[id]=fv(bx,'fl_'+id));return d};
-  modal({title:'✉️ '+L.n,wide:true,body:`<div class="note small" style="margin-bottom:10px">سيصدر الخطاب برقم مرجعي ${sno(finLetterPeek())}</div>${L.nodate?'':`<div class="fld"><label>تاريخ الخطاب</label><input type="date" id="fl_date" value="${TODAY}"></div>`}${L.f.map(fld).join('')}<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:8px">معاينة</div><div id="flPrev"></div></div>`,
+  const BR_=isBankLet(k),R0=bankRep();
+  const data=bx=>{const d={date:fv(bx,'fl_date')||TODAY};L.f.forEach(([id])=>d[id]=fv(bx,'fl_'+id));if(BR_)['rep','repEn','repId','repExp'].forEach(id=>d[id]=fv(bx,'fl_'+id));return d};
+  const repBox=BR_?`<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:6px">مقدّم الطلب للبنك — يُكتب أسفل الخطاب (يُحفظ تلقائياً للخطابات القادمة)</div><div class="frow"><div class="fld"><label>الاسم</label><input id="fl_rep" value="${esc(pre.rep||R0.name)}"></div><div class="fld"><label>الاسم بالإنجليزي</label><input id="fl_repEn" dir="ltr" value="${esc(pre.repEn||R0.nameEn)}"></div></div><div class="frow"><div class="fld"><label>رقم البطاقة الشخصية</label><input id="fl_repId" dir="ltr" inputmode="numeric" value="${esc(pre.repId||R0.idNo)}"></div><div class="fld"><label>تاريخ انتهاء البطاقة</label><input id="fl_repExp" type="date" value="${esc(pre.repExp||R0.exp)}"></div></div>${R0.exp&&R0.exp<=addDays(TODAY,30)?`<div class="note small" style="margin-top:6px">⚠️ البطاقة تنتهي ${fdate(R0.exp)} — جدّدها قبل تقديم الطلبات للبنك</div>`:''}</div>`:'';
+  modal({title:'✉️ '+L.n,wide:true,body:`<div class="note small" style="margin-bottom:10px">سيصدر الخطاب برقم مرجعي ${sno(finLetterPeek())}</div>${L.nodate?'':`<div class="fld"><label>تاريخ الخطاب</label><input type="date" id="fl_date" value="${TODAY}"></div>`}${L.f.map(fld).join('')}${repBox}<div class="card flat" style="margin-top:10px"><div class="b small" style="margin-bottom:8px">معاينة</div><div id="flPrev"></div></div>`,
     onMount:bx=>{const up=()=>{$('#flPrev',bx).innerHTML=finLetterDoc(k,data(bx),finLetterPeek())};$$('input,textarea',bx).forEach(i=>i.oninput=up);up()},
-    foot:[{t:'🖨️ إصدار الخطاب (عربي / English / বাংলা)',fn:bx=>{const d=data(bx);if(!d.to){toast('اكتب الجهة المرسل إليها');return false}const no=finLetterNo();S.settings.finLetLog=[{no,k,n:L.n,to:d.to,date:d.date||TODAY,by:me().name,at:nowTs()}].concat(S.settings.finLetLog||[]).slice(0,500);docLangPrint(l=>finLetterDoc(k,d,no,l),no);log(`إصدار خطاب ${L.n} ${no}`);save();toast('صدر الخطاب برقم '+no);if(onIssued)onIssued(no);return false}},{t:'إغلاق',cls:'sec'}]});
+    foot:[{t:'🖨️ إصدار الخطاب (عربي / English / বাংলা)',fn:bx=>{const d=data(bx);if(!d.to){toast('اكتب الجهة المرسل إليها');return false}if(BR_){if(d.rep&&!d.repId){toast('اكتب رقم بطاقة مقدّم الطلب');return false}bankRepSave(d)}const no=finLetterNo();S.settings.finLetLog=[{no,k,n:L.n,to:d.to,date:d.date||TODAY,by:me().name,at:nowTs()}].concat(S.settings.finLetLog||[]).slice(0,500);docLangPrint(l=>finLetterDoc(k,d,no,l),no);log(`إصدار خطاب ${L.n} ${no}`);save();toast('صدر الخطاب برقم '+no);if(onIssued)onIssued(no);return false}},{t:'إغلاق',cls:'sec'}]});
 }
 
 /* ======================= المطابقات البنكية — المحرك ======================= */
