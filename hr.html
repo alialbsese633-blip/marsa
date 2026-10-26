@@ -548,7 +548,7 @@ const encK=k=>String(k).replace(/:/g,'.'),decK=k=>String(k).startsWith('u.')?'u:
 
 function emptyState(session){
   return {v:2,settings:{...DEFAULT_SETTINGS},matrix:JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
-    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],debts:[],dbrep:[],
+    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],debts:[],dbrep:[],alerts:[],
     payroll:{},recon:{},ledger:{},policies:[],policyVersion:1,policyAcks:{},policyPrints:{},policySigned:{},accrued:'',
     audit:[],seq:{REQ:0,VIO:0,CMP:0,ANN:0,ADV:0,AST:0,CSH:0,RWD:0,PUR:0},
     session:session||{role:'hr',empId:null,supId:null}};
@@ -592,6 +592,8 @@ function flat(){
     const n=Math.ceil(js.length/REC_PIECE);for(let i=0;i<n;i++)put('pay:'+r.id+'_p'+i,{id:r.id+'_p'+i,p:js.slice(i*REC_PIECE,(i+1)*REC_PIECE)});put('pay:'+r.id,{id:r.id,kind:r.kind,tpl:r.tpl,at:r.at,split:n})});
   /* يوميات الصندوق: مفاتيح pay:LD<التاريخ> (بنفس صلاحيات الرواتب) */
   Object.values(S.ledger||{}).forEach(r=>{if(r&&r.date)put('pay:LD'+r.date,{...r,id:'LD'+r.date})});
+  /* التنبيهات المالية والشيكات: مفاتيح pay:AL<id> */
+  (S.alerts||[]).forEach(r=>{if(r&&r.id)put('pay:AL'+r.id,r)});
   Object.keys(S.policyAcks||{}).forEach(k=>put('ack:'+encK(k),S.policyAcks[k]));
   Object.keys(S.policyPrints||{}).forEach(k=>put('prt:'+encK(k),S.policyPrints[k]));
   Object.keys(S.policySigned||{}).forEach(k=>{const g={...S.policySigned[k]};delete g.img;put('sig:'+encK(k),g)});
@@ -615,6 +617,7 @@ function buildFrom(docs,session){
     let o;
     if(k.startsWith('pay:LD')){o=parse(k);if(o&&o.date)st.ledger[o.date]=o}
     else if(k.startsWith('pay:RC')){o=parse(k);if(o)rc[k.slice(4)]=o}
+    else if(k.startsWith('pay:AL')){o=parse(k);if(o&&o.id)st.alerts.push(o)}
     else if(k.startsWith('pay:')){o=parse(k);if(o)st.payroll[k.slice(4)]=o}
     else if(k.startsWith('ack:')){o=parse(k);if(o)st.policyAcks[decK(k.slice(4))]=o}
     else if(k.startsWith('prt:')){o=parse(k);if(o)st.policyPrints[decK(k.slice(4))]=o}
@@ -1370,7 +1373,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={recon:'scale',dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',assign:'flag',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rdebt:'chart',fdebt:'chart',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
+const NAV_IC={recon:'scale',dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',assign:'flag',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',falerts:'alert',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rdebt:'chart',fdebt:'chart',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1388,9 +1391,9 @@ const GS_NAV_FULL=[['gsdash','🏠','الرئيسية'],['gsprog','🗓️','خ�
 const GS_NAV={hr:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),gm:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),sup:GS_NAV_FULL.concat([['gseval','⭐','تقييمي']]),acc:[['gsno','🔒','الإشراف الداخلي']],emp:[['gsno','🔒','الإشراف الداخلي']]};
 const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV,rcp:RCP_NAV});
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
  sup:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
  emp:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
 };
@@ -1430,6 +1433,7 @@ function renderNav(){
   $('#nav').innerHTML=`<div class="role-cap">${ROLES[R].label}</div>`+navFor(R).map(n=>{
     if(n[0]==='sep')return '<div class="sep"></div>';
     let pill='';if(n[0]==='approvals'&&cnt)pill=`<span class="pill">${cnt}</span>`;if(n[0]==='complaints'&&openC&&R==='hr')pill=`<span class="pill">${openC}</span>`;if(n[0]==='assign'&&typeof asgPending==='function'){const ac=asgPending();if(ac)pill=`<span class="pill">${ac}</span>`}
+    if(n[0]==='falerts'&&typeof alrDue==='function'){const ad=alrDue().length;if(ad)pill=`<span class="pill">${ad}</span>`}
     if(n[0]==='rret'&&typeof rcpRetQueue==='function'){const rq=rcpRetQueue().length;if(rq)pill=`<span class="pill">${rq}</span>`}
     if(n[0]==='rpay'&&typeof pyrQueue==='function'){const yq=pyrQueue().length+(typeof purchasesPendingForMe==='function'?purchasesPendingForMe().length:0);if(yq)pill=`<span class="pill">${yq}</span>`}
     if(n[0]==='rdebt'&&typeof debtRounds==='function'){const rid=debtRounds()[0];if(rid&&['open','overdue'].includes(debtState(rid,rcpBld()).k))pill='<span class="pill">!</span>'}
@@ -1459,7 +1463,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',custody:'Custody balances',ledger:'Fund ledger',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={falerts:'Alerts & cheques',recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',custody:'Custody balances',ledger:'Fund ledger',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -2520,6 +2524,145 @@ function openPurchase(id){
 }
 
 /* ---------- لوحة الإدارة المالية والتقارير والموازنات ---------- */
+/* ---------- التنبيهات المالية: شيكات بانتظار الإيداع + قوالب تنبيهات بمواعيدها ----------
+   تُحفظ بمفاتيح pay:AL<id> (بنفس صلاحيات الرواتب: الموارد البشرية والمدير العام والمحاسبة) */
+const ALR=()=>S.alerts||(S.alerts=[]);
+const ALR_CSS=`<style>.alr-tpl{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:14px}.alr-tpl button{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;display:block}.alr-tpl button:hover{border-color:var(--accent)}.alr-tpl b{display:block;font-size:14px;margin:4px 0 2px}.alr-tpl small{color:var(--muted);font-size:11.5px;line-height:1.5;display:block}.alr-tpl .ic{font-size:22px}
+.alr-r{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border)}.alr-r:last-child{border:0}.alr-ic{font-size:20px;text-align:center}.alr-m b{font-size:14px}.alr-a{text-align:left;display:flex;flex-direction:column;align-items:flex-end;gap:4px}.alr-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.alr-r.st-late{background:color-mix(in srgb,var(--critical) 7%,transparent);border-radius:10px}.alr-g{font-weight:700;color:var(--muted);font-size:12px;padding:12px 4px 4px}
+@media(max-width:700px){.alr-r{grid-template-columns:30px minmax(0,1fr) auto}.alr-b{grid-column:2/-1;justify-content:flex-start}}</style>`;
+const ALR_TPL={
+  chq:{ic:'🧾',n:'شيكات بانتظار الإيداع',d:'دفعة شيكات مؤجلة من مستأجر أو عميل — تنبيه قبل تاريخ كل شيك وحتى يُودَع'},
+  rent:{ic:'🏢',n:'إيجار مستحق',d:'دفعة إيجار على الشركة أو لها — تتكرر شهرياً أو سنوياً',rep:'monthly'},
+  lic:{ic:'📜',n:'تجديد سجل / ترخيص',d:'السجل التجاري، رخصة البلدية، غرفة التجارة، ترخيص السياحة',rep:'yearly'},
+  ins:{ic:'🛡️',n:'تجديد تأمين',d:'تأمين المباني أو المركبات أو الموظفين',rep:'yearly'},
+  bill:{ic:'💡',n:'فاتورة خدمات',d:'كهرباء، مياه، إنترنت، اتصالات',rep:'monthly'},
+  inst:{ic:'🏦',n:'قسط / التزام دوري',d:'قرض، تمويل، اشتراك، أو أي التزام بمبلغ ثابت',rep:'monthly'},
+  other:{ic:'🔔',n:'تنبيه عام',d:'أي موعد مالي آخر تريد التذكير به',rep:'none'}};
+const ALR_REP={none:'مرة واحدة',monthly:'شهرياً',quarterly:'كل 3 أشهر',yearly:'سنوياً'};
+const CHQ_ST={pending:['بانتظار الإيداع','w'],deposited:['أُودِع — بانتظار التحصيل','i'],cleared:['تم التحصيل','g'],bounced:['مرتجع','c'],cancelled:['ملغي','']};
+const CHQ_BANKS=['بنك ظفار','بنك مسقط','البنك الوطني العماني','بنك صحار الدولي','بنك نزوى','البنك الأهلي','بنك العز الإسلامي','بنك إتش إس بي سي عمان','بنك قطر الوطني','ميثاق'];
+const alrLead=()=>+(S.settings.alrLead??3);
+const addMonths=(s,n)=>{const [y,m,d]=s.split('-').map(Number);const t=new Date(y,m-1+n,1),last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();return iso(new Date(t.getFullYear(),t.getMonth(),Math.min(d,last)))};
+const alrOpen=x=>x.kind==='chq'?x.status==='pending':x.status!=='done';
+const alrLeadOf=x=>x.kind==='chq'?alrLead():(x.lead??alrLead());
+function alrState(x){if(!alrOpen(x))return 'done';const d=diffDays(TODAY,x.due);if(d<0)return 'late';if(d===0)return 'today';if(d<=alrLeadOf(x))return 'soon';return 'later'}
+const ALR_STB={late:['متأخر','c'],today:['اليوم','w'],soon:['قريباً','w'],later:['مجدول',''],done:['منتهي','g']};
+function alrWhen(x){const d=diffDays(TODAY,x.due);if(!alrOpen(x))return '';return d<0?`متأخر ${-d} يوم`:d===0?'اليوم':d===1?'غداً':`بعد ${d} يوم`}
+const alrTitle=x=>x.kind==='chq'?`شيك ${x.no||''} — ${x.drawer||''}`:(x.title||ALR_TPL[x.tpl||'other'].n);
+const alrDue=()=>ALR().filter(x=>['late','today','soon'].includes(alrState(x))).sort((a,b)=>a.due.localeCompare(b.due));
+const chqOurAcct=bank=>/مسقط|muscat/i.test(bank||'')?'NS-10701':'NS-10600';
+const chqExpiry=x=>addMonths(x.due,6);   // الشيك صالح للصرف 6 أشهر من تاريخه
+
+/* شيكات وصلت صورها — تُضاف مرة واحدة عند أول فتح بعد التحديث */
+function alrSeed(){
+  if(S.settings.alrSeed1||!['hr','gm','acc'].includes(role())||(DEMO&&!DEMO.sbx))return false;
+  const have=new Set(ALR().map(x=>x.id)),now=nowTs(),by=me().name;
+  const A=(no,due,amount,o)=>{const id='chq'+no;if(!have.has(id))ALR().push({id,kind:'chq',no:String(no),due,amount,status:'pending',at:now,by,...o})};
+  const st={drawer:'STYLE TRADING & CONTRACTING',bank:'بنك ظفار',acct:'01040170599001',payee:'AL ALAMIAH AL SAIDAH UNITED LLC',bld:'',holder:'',recvAt:'',batch:'STYLE-450',note:''};
+  [['81090832','2026-11-10'],['81090833','2026-12-10'],['81090834','2027-01-10'],['81090835','2027-02-10'],['81090836','2027-03-10'],['81090837','2027-04-10']].forEach(([n,d])=>A(n,d,450,st));
+  const bk={drawer:'BURJ ALKHALEEJ LLC',bank:'بنك مسقط',acct:'0464-05846255-001-5',payee:'AL ALAMIAH AL SAIDAH UNITED LLC',bld:'الحصيلة',holder:'عبدالسلام حامد (المشرف)',recvAt:'2026-10-05',batch:'BURJ-110',note:'سلّمها توصيف (استقبال الحصيلة) للمشرف عبدالسلام حامد بإقرار تسليم بتاريخ 5/10/2026'};
+  [['03348287','2026-10-20'],['03348288','2026-11-20'],['03348289','2026-12-20'],['03348290','2027-01-20'],['03348291','2027-02-20'],['03348292','2027-03-20']].forEach(([n,d])=>A(n,d,110,bk));
+  S.settings.alrSeed1=true;log('إضافة 12 شيكاً بانتظار الإيداع (Style Trading + Burj Alkhaleej)');return true}
+
+function alrWAText(){const L=alrDue();if(!L.length)return 'لا توجد تنبيهات مالية مستحقة اليوم ✅';
+  const g={late:'🔴 متأخرة',today:'🟠 اليوم',soon:'🟡 خلال الأيام القادمة'};let t=`*🔔 التنبيهات المالية — ${fdate(TODAY)}*\nنسائم صلالة — الإدارة المالية\n`;
+  ['late','today','soon'].forEach(k=>{const l=L.filter(x=>alrState(x)===k);if(!l.length)return;t+=`\n*${g[k]} (${l.length})*\n`;l.forEach(x=>{t+=`• ${alrTitle(x)}${x.amount?' — '+money(x.amount)+' ر.ع':''} — ${fdate(x.due)} (${alrWhen(x)})${x.kind==='chq'&&x.bank?' — '+x.bank:''}${x.holder?' — الأصل مع: '+x.holder:''}\n`})});
+  const pc=ALR().filter(x=>x.kind==='chq'&&x.status==='pending');t+=`\nإجمالي الشيكات بانتظار الإيداع: ${pc.length} شيك = ${money(pc.reduce((s,x)=>s+(+x.amount||0),0))} ر.ع`;return t}
+
+function alrRow(x){const st=alrState(x),b=ALR_STB[st];
+  return `<div class="alr-r st-${st}"><div class="alr-ic">${x.kind==='chq'?'🧾':ALR_TPL[x.tpl||'other'].ic}</div><div class="alr-m"><b>${esc(alrTitle(x))}</b><div class="small muted">${fdate(x.due)}${x.kind==='chq'?' · '+esc(x.bank||'')+(x.bld?' · '+esc(x.bld):''):(x.party?' · '+esc(x.party):'')+(x.repeat&&x.repeat!=='none'?' · 🔁 '+ALR_REP[x.repeat]:'')}${x.holder?' · الأصل مع: '+esc(x.holder):''}</div></div>
+  <div class="alr-a"><b class="num">${x.amount?money(x.amount):''}</b>${badge(st==='done'?(x.kind==='chq'?CHQ_ST[x.status][0]:'منتهي'):alrWhen(x),x.kind==='chq'&&st==='done'?CHQ_ST[x.status][1]:b[1])}</div>
+  <div class="alr-b">${alrOpen(x)?`<button class="btn sm" data-alok="${x.id}">${x.kind==='chq'?'🏦 تم الإيداع':'✓ تم'}</button>`:x.kind==='chq'&&x.status==='deposited'?`<button class="btn sm sec" data-alclr="${x.id}">✓ تم التحصيل</button><button class="btn sm sec" data-albnc="${x.id}">↩ مرتجع</button>`:''}<button class="btn sm sec" data-aled="${x.id}">تعديل</button></div></div>`}
+
+VIEWS.falerts=()=>{const R=role();if(!['hr','gm','acc'].includes(R)&&!isAccounts())return ph('التنبيهات المالية','')+'<div class="card"><div class="empty">هذا القسم للحسابات والإدارة</div></div>';
+  const tab=V.sub.at||'due',L=ALR(),due=alrDue(),C=L.filter(x=>x.kind==='chq'),pc=C.filter(x=>x.status==='pending');
+  const n=k=>L.filter(x=>alrState(x)===k).length,sum=a=>money(a.reduce((s,x)=>s+(+x.amount||0),0));
+  const within30=pc.filter(x=>diffDays(TODAY,x.due)<=30);
+  let list;
+  if(tab==='due')list=due;
+  else if(tab==='chq'){const f=V.sub.cf||'pending';list=C.filter(x=>f==='all'||x.status===f).sort((a,b)=>((a.drawer||'')+a.bank).localeCompare((b.drawer||'')+b.bank)||a.due.localeCompare(b.due))}
+  else if(tab==='rem')list=L.filter(x=>x.kind!=='chq'&&alrOpen(x)).sort((a,b)=>a.due.localeCompare(b.due));
+  else list=L.filter(x=>!alrOpen(x)).sort((a,b)=>b.due.localeCompare(a.due));
+  const T=[['due','🔔 المستحق الآن',due.length],['chq','🧾 الشيكات',pc.length],['rem','📅 التنبيهات الأخرى',L.filter(x=>x.kind!=='chq'&&alrOpen(x)).length],['done','✓ المنتهية','']];
+  let grp='';
+  return ph('التنبيهات المالية','شيكات بانتظار الإيداع ومواعيد الدفع والتجديد — تظهر قبل موعدها بـ '+alrLead()+' أيام وتبقى حتى تُنفَّذ',`<button class="btn" id="alNew">➕ تنبيه جديد</button><button class="btn sec" id="alWA">📋 نسخ للواتساب</button><button class="btn sec" id="alPr">🖨️ كشف الشيكات</button>`)+
+  ALR_CSS+`
+  <div class="grid g4">${kpi('متأخرة',n('late'),'تجاوزت موعدها ولم تُنفَّذ',n('late')?'c':'g')}${kpi('اليوم',n('today'),'',n('today')?'w':'')}${kpi('خلال '+alrLead()+' أيام',n('soon'),'',n('soon')?'w':'')}${kpi('شيكات بانتظار الإيداع',pc.length,sum(pc)+' ر.ع · خلال 30 يوماً: '+within30.length)}</div>
+  <h3 style="margin:16px 0 8px;font-size:14px">القوالب — اختر نوع التنبيه</h3>
+  <div class="alr-tpl">${Object.entries(ALR_TPL).map(([k,t])=>`<button data-altpl="${k}"><span class="ic">${t.ic}</span><b>${t.n}</b><small>${t.d}</small></button>`).join('')}</div>
+  <div class="card"><div class="seg" style="margin-bottom:10px;flex-wrap:wrap">${T.map(t=>`<button data-alt="${t[0]}" class="${tab===t[0]?'on':''}">${t[1]}${t[2]?` <span class="pill">${t[2]}</span>`:''}</button>`).join('')}</div>
+  ${tab==='chq'?`<div class="row" style="margin-bottom:8px;gap:6px;flex-wrap:wrap">${[['pending','بانتظار الإيداع'],['deposited','أُودِعت'],['cleared','حُصِّلت'],['bounced','مرتجعة'],['all','الكل']].map(([k,l])=>`<button class="btn sm ${(V.sub.cf||'pending')===k?'':'sec'}" data-alcf="${k}">${l}</button>`).join('')}</div>`:''}
+  ${list.length?list.map(x=>{let h='';if(tab==='chq'){const g=(x.drawer||'—')+' · '+(x.bank||'');if(g!==grp){grp=g;const gl=list.filter(y=>(y.drawer||'—')+' · '+(y.bank||'')===g);h=`<div class="alr-g">${esc(g)} — ${gl.length} شيك · ${sum(gl)} ر.ع</div>`}}return h+alrRow(x)}).join(''):`<div class="empty">${tab==='due'?'لا يوجد شيء مستحق الآن ✅':'لا توجد عناصر'}</div>`}</div>
+  <div class="card" style="margin-top:14px"><div class="row" style="align-items:end;gap:10px;flex-wrap:wrap"><div class="fld" style="margin:0"><label>التنبيه قبل الموعد بـ (أيام)</label><input id="alLead" type="number" min="0" max="60" value="${alrLead()}" style="width:110px"></div><button class="btn sec sm" id="alLeadS">حفظ</button><span class="small muted">يظهر العدد على زر «التنبيهات» في القائمة وعلى لوحة الإدارة المالية.</span></div></div>`};
+BIND.falerts=()=>{if(alrSeed()){commit('أُضيفت 12 شيكاً من الصور المرسلة');return}
+  $$('[data-alt]').forEach(b=>b.onclick=()=>{V.sub.at=b.dataset.alt;render()});$$('[data-alcf]').forEach(b=>b.onclick=()=>{V.sub.cf=b.dataset.alcf;render()});
+  $$('[data-altpl]').forEach(b=>b.onclick=()=>b.dataset.altpl==='chq'?chqBatchForm():alrForm(null,b.dataset.altpl));
+  $('#alNew').onclick=()=>modal({title:'➕ تنبيه جديد',sub:'اختر القالب',body:`<div class="alr-tpl">${Object.entries(ALR_TPL).map(([k,t])=>`<button data-altpl2="${k}"><span class="ic">${t.ic}</span><b>${t.n}</b><small>${t.d}</small></button>`).join('')}</div>`,onMount:(m,close)=>$$('[data-altpl2]',m).forEach(b=>b.onclick=()=>{close();b.dataset.altpl2==='chq'?chqBatchForm():alrForm(null,b.dataset.altpl2)})});
+  $('#alWA').onclick=()=>rcpCopyWA(alrWAText());$('#alPr').onclick=chqPrint;
+  $('#alLeadS').onclick=()=>{S.settings.alrLead=Math.max(0,Math.min(60,+$('#alLead').value||0));commit('تم الحفظ')};
+  alrBind(document)};
+function alrBind(root){
+  $$('#main [data-alok]').forEach(b=>b.onclick=()=>{const x=ALR().find(y=>y.id===b.dataset.alok);x.kind==='chq'?chqDeposit(x):alrDone(x)});
+  $$('#main [data-alclr]').forEach(b=>b.onclick=()=>{const x=ALR().find(y=>y.id===b.dataset.alclr);x.status='cleared';x.clrAt=TODAY;log('تحصيل الشيك '+x.no);commit('تم تسجيل التحصيل')});
+  $$('#main [data-albnc]').forEach(b=>b.onclick=()=>{const x=ALR().find(y=>y.id===b.dataset.albnc);confirmBox('شيك مرتجع','سيُسجَّل الشيك '+esc(x.no)+' كمرتجع ويُنشأ تنبيه لمتابعة الساحب.','تسجيل كمرتجع','danger',note=>{x.status='bounced';x.bncAt=TODAY;x.bncNote=note||'';
+    ALR().push({id:uid(),kind:'rem',tpl:'other',title:'متابعة شيك مرتجع '+x.no+' — '+x.drawer,due:addDays(TODAY,2),amount:x.amount,party:x.drawer,repeat:'none',status:'open',note:note||'',at:nowTs(),by:me().name});log('شيك مرتجع '+x.no);commit('سُجّل كمرتجع وأُنشئ تنبيه متابعة')},true,'سبب الارتجاع (اختياري)')});
+  $$('#main [data-aled]').forEach(b=>b.onclick=()=>{const x=ALR().find(y=>y.id===b.dataset.aled);x.kind==='chq'?chqEdit(x):alrForm(x)})}
+function alrDone(x){x.status='done';x.doneAt=nowTs();x.doneBy=me().name;
+  if(x.repeat&&x.repeat!=='none'){const nx={...x,id:uid(),due:addMonths(x.due,{monthly:1,quarterly:3,yearly:12}[x.repeat]),status:'open',doneAt:'',doneBy:'',at:nowTs()};ALR().push(nx);log('تنفيذ تنبيه: '+alrTitle(x));commit('تم ✓ — الموعد القادم '+fdate(nx.due));return}
+  log('تنفيذ تنبيه: '+alrTitle(x));commit('تم ✓')}
+function alrForm(x,tpl){const ed=!!x;tpl=ed?(x.tpl||'other'):tpl;const T=ALR_TPL[tpl];x=x||{tpl,title:tpl==='other'?'':T.n+' — ',due:addDays(TODAY,7),amount:'',party:'',bld:'',repeat:T.rep||'none',lead:alrLead(),note:''};
+  modal({title:T.ic+' '+(ed?'تعديل تنبيه':T.n),sub:T.d,body:`<div class="fld"><label>العنوان *</label><input id="aT" value="${esc(x.title)}"></div>
+  <div class="frow"><div class="fld"><label>الموعد *</label><input id="aD" type="date" value="${x.due}"></div><div class="fld"><label>المبلغ (ر.ع)</label><input id="aA" type="number" step="0.001" value="${x.amount||''}"></div></div>
+  <div class="frow"><div class="fld"><label>الجهة / الطرف</label><input id="aP" value="${esc(x.party||'')}"></div><div class="fld"><label>البناية</label><select id="aB"><option value="">— الإدارة العامة —</option>${RCP_BLD.map(b=>`<option ${b.n===x.bld?'selected':''}>${esc(b.n)}</option>`).join('')}</select></div></div>
+  <div class="frow"><div class="fld"><label>التكرار</label><select id="aR">${Object.entries(ALR_REP).map(([k,l])=>`<option value="${k}" ${x.repeat===k?'selected':''}>${l}</option>`).join('')}</select></div><div class="fld"><label>التنبيه قبل الموعد بـ (أيام)</label><input id="aL" type="number" min="0" value="${x.lead??alrLead()}"></div></div>
+  <div class="fld"><label>ملاحظة</label><textarea id="aN" rows="2">${esc(x.note||'')}</textarea></div>`,
+  foot:[{t:'حفظ',fn:m=>{const t=fv(m,'aT').replace(/\s*—\s*$/,''),d=fv(m,'aD');if(!t||!d){toast('اكتب العنوان والموعد');return false}
+    const o=ed?x:{id:uid(),kind:'rem',tpl,status:'open',at:nowTs(),by:me().name};Object.assign(o,{title:t,due:d,amount:r3(+fv(m,'aA')||0)||'',party:fv(m,'aP'),bld:fv(m,'aB'),repeat:fv(m,'aR'),lead:+fv(m,'aL')||0,note:fv(m,'aN')});
+    if(!ed)ALR().push(o);log((ed?'تعديل':'إضافة')+' تنبيه: '+t);commit('تم الحفظ')}},
+   ...(ed?[{t:'🗑 حذف',cls:'sec',fn:()=>{confirmBox('حذف التنبيه','حذف «'+esc(x.title)+'» نهائياً؟','حذف','danger',()=>{S.alerts=ALR().filter(y=>y.id!==x.id);commit('تم الحذف')});}}]:[]),{t:'إلغاء',cls:'sec'}]})}
+function chqBatchForm(){
+  modal({title:'🧾 شيكات بانتظار الإيداع',sub:'أدخل بيانات الدفعة مرة واحدة — تُنشأ الشيكات وتواريخها تلقائياً ويمكنك تعديل أي سطر',wide:true,body:`
+  <div class="frow"><div class="fld"><label>اسم الساحب (صاحب الشيك) *</label><input id="cDr" placeholder="مثال: BURJ ALKHALEEJ LLC"></div><div class="fld"><label>البنك المسحوب عليه *</label><input id="cBk" list="cBkL"><datalist id="cBkL">${CHQ_BANKS.map(b=>`<option>${b}</option>`).join('')}</datalist></div></div>
+  <div class="frow"><div class="fld"><label>رقم حساب الساحب</label><input id="cAc" dir="ltr"></div><div class="fld"><label>البناية</label><select id="cBl"><option value="">— الإدارة العامة —</option>${RCP_BLD.map(b=>`<option>${esc(b.n)}</option>`).join('')}</select></div></div>
+  <div class="frow"><div class="fld"><label>الأصل بحوزة</label><input id="cHo" placeholder="مثال: المشرف عبدالسلام حامد / الحسابات"></div><div class="fld"><label>تاريخ الاستلام</label><input id="cRv" type="date" value="${TODAY}"></div></div>
+  <div class="frow"><div class="fld"><label>رقم أول شيك *</label><input id="cN0" dir="ltr" inputmode="numeric"></div><div class="fld"><label>تاريخ أول شيك *</label><input id="cD0" type="date"></div><div class="fld"><label>عدد الشيكات</label><input id="cCt" type="number" min="1" max="60" value="1"></div><div class="fld"><label>مبلغ كل شيك (ر.ع) *</label><input id="cAm" type="number" step="0.001"></div><div class="fld"><label>كل</label><select id="cIv"><option value="1">شهر</option><option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option></select></div></div>
+  <div class="fld"><label>ملاحظة</label><input id="cNt" placeholder="مثال: إيجار محل رقم ... لعام 2027"></div>
+  <div class="fld"><label>صورة الشيكات (اختياري)</label>${rcpAttField('cPh')}</div>
+  <div id="cRows"></div>`,onMount:(m,close)=>{rcpAttBind(m,'cPh');let rows=[];
+    const gen=()=>{const n0=fv(m,'cN0'),d0=fv(m,'cD0'),ct=Math.max(1,Math.min(60,+fv(m,'cCt')||1)),am=+fv(m,'cAm')||0,iv=+fv(m,'cIv')||1;
+      if(!n0||!d0){$('#cRows',m).innerHTML='<div class="note small">اكتب رقم أول شيك وتاريخه — تظهر هنا قائمة الشيكات للمراجعة</div>';rows=[];return}
+      const w=n0.length,base=/^\d+$/.test(n0)?BigInt(n0):null;
+      rows=Array.from({length:ct},(_,i)=>({no:base!==null?String(base+BigInt(i)).padStart(w,'0'):(i?n0+'-'+(i+1):n0),due:addMonths(d0,i*iv),amount:am}));draw()};
+    const draw=()=>{const tot=rows.reduce((s,r)=>s+(+r.amount||0),0);$('#cRows',m).innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>رقم الشيك</th><th>التاريخ</th><th class="n">المبلغ</th><th></th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><input data-cr="${i}" data-k="no" value="${esc(r.no)}" dir="ltr" style="width:130px"></td><td><input data-cr="${i}" data-k="due" type="date" value="${r.due}"></td><td class="n"><input data-cr="${i}" data-k="amount" type="number" step="0.001" value="${r.amount}" style="width:100px"></td><td>${r.due<TODAY?badge('متأخر','c'):''}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3">الإجمالي — ${rows.length} شيك</td><td class="n">${money(tot)}</td><td></td></tr></tfoot></table></div>`;
+      $$('[data-cr]',m).forEach(inp=>inp.onchange=()=>{const r=rows[+inp.dataset.cr];r[inp.dataset.k]=inp.dataset.k==='amount'?+inp.value||0:inp.value;draw()})};
+    ['cN0','cD0','cCt','cAm','cIv'].forEach(id=>$('#'+id,m).addEventListener('input',gen));$('#cIv',m).addEventListener('change',gen);gen();
+    const ft=document.createElement('div');ft.className='mf';const ok=document.createElement('button');ok.className='btn';ok.textContent='✔ حفظ الشيكات';const cn=document.createElement('button');cn.className='btn sec';cn.textContent='إلغاء';cn.onclick=close;ft.append(ok,cn);$('.modal',m).appendChild(ft);
+    ok.onclick=async()=>{const dr=fv(m,'cDr'),bk=fv(m,'cBk');if(!dr||!bk||!rows.length||rows.some(r=>!r.no||!r.due||!(+r.amount>0))){toast('أكمل اسم الساحب والبنك وبيانات الشيكات');return}
+      const dup=rows.filter(r=>ALR().some(x=>x.kind==='chq'&&x.no===r.no&&x.drawer===dr));if(dup.length){toast('الشيك '+dup[0].no+' مسجّل مسبقاً');return}
+      ok.disabled=true;let photo=null;const a=m._att&&m._att.cPh;if(a){try{photo=await pyrUpload(a)}catch(e){toast('تعذّر رفع الصورة — حُفظت الشيكات بدونها')}}
+      const batch=uid(),o={drawer:dr,bank:bk,acct:fv(m,'cAc'),bld:fv(m,'cBl'),holder:fv(m,'cHo'),recvAt:fv(m,'cRv'),note:fv(m,'cNt'),batch,photo,payee:'AL ALAMIAH AL SAIDAH UNITED LLC'};
+      rows.forEach(r=>ALR().push({id:'chq'+r.no.replace(/[^A-Za-z0-9_-]/g,'')+(ALR().some(x=>x.id==='chq'+r.no)?'-'+batch.slice(0,4):''),kind:'chq',no:r.no,due:r.due,amount:r3(r.amount),status:'pending',at:nowTs(),by:me().name,...o}));
+      log(`إضافة ${rows.length} شيك من ${dr}`);close();V.sub.at='chq';commit(`تمت إضافة ${rows.length} شيك`)}}})}
+function chqDeposit(x){
+  modal({title:'🏦 إيداع الشيك '+esc(x.no),sub:esc(x.drawer)+' — '+omr(x.amount)+' — تاريخ الشيك '+fdate(x.due),body:`${x.due>TODAY?`<div class="note small" style="margin-bottom:10px">⚠️ تاريخ الشيك ${fdate(x.due)} لم يحن بعد — الشيك المؤجل لا يُصرف قبل تاريخه.</div>`:''}
+  <div class="frow"><div class="fld"><label>تاريخ الإيداع</label><input id="dD" type="date" value="${TODAY}"></div><div class="fld"><label>أُودِع في حساب</label><select id="dA">${rcpAcctOpts(chqOurAcct(x.bank))}</select></div></div>
+  <div class="fld"><label>رقم إيصال الإيداع / مرجع</label><input id="dR" dir="ltr"></div>`,
+  foot:[{t:'✔ تسجيل الإيداع',fn:m=>{x.status='deposited';x.depAt=fv(m,'dD')||TODAY;x.depAcct=fv(m,'dA');x.depRef=fv(m,'dR');x.depBy=me().name;log('إيداع الشيك '+x.no);commit('تم تسجيل الإيداع — يبقى في «أُودِعت» حتى تأكيد التحصيل')}},{t:'إلغاء',cls:'sec'}]})}
+function chqEdit(x){
+  modal({title:'✏️ الشيك '+esc(x.no),sub:esc(x.drawer),body:`<div class="frow"><div class="fld"><label>رقم الشيك</label><input id="eN" dir="ltr" value="${esc(x.no)}"></div><div class="fld"><label>التاريخ</label><input id="eD" type="date" value="${x.due}"></div><div class="fld"><label>المبلغ</label><input id="eA" type="number" step="0.001" value="${x.amount}"></div></div>
+  <div class="frow"><div class="fld"><label>الساحب</label><input id="eDr" value="${esc(x.drawer||'')}"></div><div class="fld"><label>البنك</label><input id="eBk" value="${esc(x.bank||'')}" list="eBkL"><datalist id="eBkL">${CHQ_BANKS.map(b=>`<option>${b}</option>`).join('')}</datalist></div></div>
+  <div class="frow"><div class="fld"><label>البناية</label><select id="eBl"><option value="">— الإدارة العامة —</option>${RCP_BLD.map(b=>`<option ${b.n===x.bld?'selected':''}>${esc(b.n)}</option>`).join('')}</select></div><div class="fld"><label>الأصل بحوزة</label><input id="eHo" value="${esc(x.holder||'')}"></div></div>
+  <div class="frow"><div class="fld"><label>الحالة</label><select id="eS">${Object.entries(CHQ_ST).map(([k,v])=>`<option value="${k}" ${x.status===k?'selected':''}>${v[0]}</option>`).join('')}</select></div><div class="fld"><label>صالح للصرف حتى</label><input disabled value="${fdate(chqExpiry(x))}"></div></div>
+  <div class="fld"><label>ملاحظة</label><textarea id="eNt" rows="2">${esc(x.note||'')}</textarea></div>
+  ${x.photo?`<button type="button" class="btn sm sec" id="ePh">🖼️ عرض صورة الشيكات</button>`:''}${x.depAt?`<div class="small muted" style="margin-top:8px">أُودِع ${fdate(x.depAt)} في ${esc(x.depAcct||'')} ${x.depRef?'— مرجع '+esc(x.depRef):''} — ${esc(x.depBy||'')}</div>`:''}`,
+  onMount:m=>{const p=$('#ePh',m);if(p)p.onclick=()=>pyrAttView(x.photo)},
+  foot:[{t:'حفظ',fn:m=>{Object.assign(x,{no:fv(m,'eN'),due:fv(m,'eD'),amount:r3(+fv(m,'eA')||0),drawer:fv(m,'eDr'),bank:fv(m,'eBk'),bld:fv(m,'eBl'),holder:fv(m,'eHo'),status:fv(m,'eS'),note:fv(m,'eNt')});log('تعديل الشيك '+x.no);commit('تم الحفظ')}},
+   {t:'🗑 حذف',cls:'sec',fn:()=>{confirmBox('حذف الشيك','حذف الشيك '+esc(x.no)+' نهائياً؟','حذف','danger',()=>{S.alerts=ALR().filter(y=>y.id!==x.id);commit('تم الحذف')})}},{t:'إغلاق',cls:'sec'}]})}
+function chqPrint(){const L=ALR().filter(x=>x.kind==='chq'&&['pending','deposited'].includes(x.status)).sort((a,b)=>a.due.localeCompare(b.due));
+  const tot=L.reduce((s,x)=>s+(+x.amount||0),0);
+  printHTML(`<div class="doc">${offHead('كشف الشيكات بانتظار الإيداع والتحصيل','Post-Dated Cheques Register',fdate(TODAY))}<table><tr><th>#</th><th>رقم الشيك<br><small>Cheque No.</small></th><th>التاريخ<br><small>Date</small></th><th>الساحب<br><small>Drawer</small></th><th>البنك<br><small>Bank</small></th><th>البناية<br><small>Building</small></th><th>المبلغ<br><small>Amount</small></th><th>الحالة<br><small>Status</small></th></tr>${L.map((x,i)=>`<tr><td>${i+1}</td><td dir="ltr">${esc(x.no)}</td><td>${fdate(x.due)}</td><td dir="ltr" style="text-align:right">${esc(x.drawer||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.bld||'—')}</td><td style="text-align:left">${money(x.amount)}</td><td>${CHQ_ST[x.status][0]}${x.status==='pending'&&x.due<TODAY?' — متأخر':''}</td></tr>`).join('')}<tr><td colspan="6"><b>الإجمالي / Total — ${L.length}</b></td><td style="text-align:left"><b>${money(tot)}</b></td><td></td></tr></table>${sigBlock(['أعدّه — الحسابات / Prepared','راجعه — رئيس الحسابات / Reviewed'])}${offFoot()}</div>`,'كشف الشيكات')}
+function alrDashCard(){const L=alrDue();if(!L.length)return '';return ALR_CSS+`<div class="card" style="margin-top:14px"><div class="between"><h2>🔔 تنبيهات مالية مستحقة <span class="pill">${L.length}</span></h2><button class="btn sm sec" data-go="falerts">عرض الكل</button></div>${L.slice(0,6).map(alrRow).join('')}</div>`}
+
 function payVoucherHTML(p){const y=p.payment,q=p.payreq;
   return `<div class="doc">${offHead('سند صرف','Payment Voucher',y.voucher)}<table>${BR('التاريخ','Date',fdate(y.at.slice(0,10)))}${BR('المستفيد','Payee',esc(q.payee))}${BR('المبلغ','Amount',omr(y.amount))}${BR('طريقة الصرف','Method',esc(y.method)+(y.ref?' — '+esc(y.ref):''))}${BR('البيان','Description',esc('مقابل شراء '+p.items.map(i=>i.desc).join('، ')+' بتاريخ '+fdate(((p.purchase&&p.purchase.at)||y.at).slice(0,10))+' فاتورة رقم '+(q.invoice||'—')+' لصالح بناية '+(p.building||'الإدارة العامة')))}${BR('طلب الشراء / طلب الصرف','PR / Payment Request',esc(p.no+' / '+q.no))}${BR('حساب المصروف (مدين)','Expense Account (Dr)',esc(p.account?p.account.code+' — '+p.account.name:'—'))}${BR('الحساب الدائن','Credit',esc(y.credit))}</table>
   ${sigBlock(['أعدّه — قسم الحسابات / Prepared','اعتمده / Approved','المستلم / Received by'])}${offFoot()}</div>`}
@@ -2540,10 +2683,11 @@ VIEWS.fdash=()=>{const R=role();
    <div class="card"><h2>${qt}</h2>${mine.length?`<div class="list">${mine.slice(0,8).map(purRow).join('')}</div>`:'<div class="empty">لا يوجد ما ينتظرك الآن</div>'}</div>
    ${money_?`<div class="card"><h2>استهلاك الموازنة — ${monthName(MONTH)}</h2>${accBars()}</div>`:''}
   </div>
+  ${money_?alrDashCard():''}
   ${money_&&recTpls().length?recDashCard():''}
   <div class="card" style="margin-top:14px"><h2>آخر الطلبات</h2>${vis.length?`<div class="list">${vis.slice(-6).reverse().map(purRow).join('')}</div>`:`<div class="empty">${isReception()?'لا توجد طلبات بعد. ابدأ من زر "طلب شراء جديد".':'لا توجد طلبات شراء بعد'}</div>`}</div>`;
 };
-BIND.fdash=()=>{$$('[data-pview]').forEach(b=>b.onclick=()=>openPurchase(b.dataset.pview));$('#nPur')&&($('#nPur').onclick=purchaseForm)};
+BIND.fdash=()=>{if(alrSeed()){commit('أُضيفت 12 شيكاً إلى التنبيهات');return}alrBind(document);$$('[data-pview]').forEach(b=>b.onclick=()=>openPurchase(b.dataset.pview));$('#nPur')&&($('#nPur').onclick=purchaseForm)};
 VIEWS.budgets=()=>{const R=role(),canEdit=['acc','gm','hr'].includes(R)||isAccounts();
   const accs=expAccounts(),imp=lastBudgetImport(),M=imp?imp.month:MONTH;
   if(!accs.length)return ph('الحسابات والموازنات','دليل حسابات المصروفات والموازنة الشهرية لكل حساب',canEdit?`<button class="btn" id="budImp">⬆️ استيراد كشف الموازنة (Excel)</button>`:'')+
