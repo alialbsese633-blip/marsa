@@ -6531,20 +6531,31 @@ function asgForm(){
   modal({title:'📌 تكليف جديد',sub:'سيصدر على نموذج العالمية السعيدة ويصل الموظف إشعاراً ليستلمه',wide:true,
     body:`<div class="note small" style="margin-bottom:10px">رقم التكليف التالي: <b dir="ltr">${asgPeek()}</b></div>
     <div class="fld"><label>نموذج جاهز (اختياري)</label><select id="as_tpl"><option value="">— اختر لتعبئة الحقول —</option>${ASG_TPL.map(t=>`<option value="${t.k}">${esc(t.n)}</option>`).join('')}</select></div>
-    <div class="fld"><label>الموظف المكلف</label><select id="as_e"><option value="">— اختر الموظف —</option>${E.map(e=>`<option value="${esc(e.id)}">${esc(e.name)}${e.job?' — '+esc(e.job):''}${e.building?' ('+esc(e.building)+')':''}</option>`).join('')}</select></div>
+    <div class="fld"><label>الموظف المكلف</label><select id="as_e"><option value="">— اختر الموظف —</option><option value="__multi">👥 عدة موظفين — موظفو الفروع (تكليف مستقل لكل موظف)</option>${E.map(e=>`<option value="${esc(e.id)}">${esc(e.name)}${e.job?' — '+esc(e.job):''}${e.building?' ('+esc(e.building)+')':''}</option>`).join('')}</select></div>
     <div class="frow"><div class="fld"><label>نوع التكليف</label><select id="as_t">${ASG_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div><div class="fld"><label>الأولوية</label><select id="as_p"><option>عادي</option><option>مهم</option><option>عاجل</option></select></div><div class="fld"><label>موعد التنفيذ</label><input type="date" id="as_d" min="${TODAY}"></div></div>
     <div class="fld"><label>الموضوع</label><input id="as_s" placeholder="مثال: تكليف بجرد عهد البناية"></div>
     <div class="fld"><label>نص التكليف</label><textarea id="as_b" style="min-height:80px"></textarea></div>
     <div class="fld"><label>المهام المطلوبة <span class="muted small">(كل مهمة في سطر مستقل — تظهر مرقّمة في النموذج)</span></label><textarea id="as_k" style="min-height:110px"></textarea></div>
     <div class="fld"><label>ملاحظات وصلاحيات (اختياري)</label><textarea id="as_n" style="min-height:70px"></textarea></div>`,
-    onMount:b=>{$('#as_tpl',b).onchange=ev=>{const t=ASG_TPL.find(x=>x.k===ev.target.value);if(!t)return;$('#as_t',b).value=t.type;$('#as_s',b).value=t.title;$('#as_b',b).value=t.body;$('#as_k',b).value=t.tasks.join('\n');$('#as_n',b).value=t.notes}},
+    onMount:b=>{const se=$('#as_e',b),fl=se.closest('.fld');fl.insertAdjacentHTML('afterend',`<div class="card flat" id="as_mw" hidden style="margin-bottom:10px"><div class="between" style="margin-bottom:6px"><b class="small">اختر الموظفين <span class="muted" id="as_mc"></span></b><span><button type="button" class="btn sm sec" id="as_ma">الكل</button> <button type="button" class="btn sm sec" id="as_mn">لا أحد</button></span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 12px;max-height:260px;overflow:auto">${E.map(e=>`<label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-asm="${esc(e.id)}" ${asgBranchEmp(e)?'checked':''}> ${esc(e.name)}${e.building?' <span class="muted">('+esc(e.building)+')</span>':''}</label>`).join('')}</div></div>`);
+      const cnt=()=>{$('#as_mc',b).textContent='('+$$('[data-asm]:checked',b).length+')'};$$('[data-asm]',b).forEach(x=>x.onchange=cnt);cnt();
+      $('#as_ma',b).onclick=()=>{$$('[data-asm]',b).forEach(x=>x.checked=true);cnt()};$('#as_mn',b).onclick=()=>{$$('[data-asm]',b).forEach(x=>x.checked=false);cnt()};
+      se.onchange=()=>{$('#as_mw',b).hidden=se.value!=='__multi'};
+      $('#as_tpl',b).onchange=ev=>{const t=ASG_TPL.find(x=>x.k===ev.target.value);if(!t)return;$('#as_t',b).value=t.type;$('#as_s',b).value=t.title;$('#as_b',b).value=t.body;$('#as_k',b).value=t.tasks.join('\n');$('#as_n',b).value=t.notes}},
     foot:[{t:'إصدار التكليف',fn:b=>asgIssue(b,false)},{t:'إصدار وطباعة',cls:'sec',fn:b=>asgIssue(b,true)},{t:'إلغاء',cls:'sec'}]})}
+const asgBranchEmp=e=>e&&e.building&&!/الإدارة العامة|الادارة العامة/.test(e.building);
 function asgIssue(b,print){
   const empId=fv(b,'as_e'),title=fv(b,'as_s'),body=fv(b,'as_b'),tasks=fv(b,'as_k').split('\n').map(x=>x.trim()).filter(Boolean),notes=fv(b,'as_n');
   if(!empId){toast('اختر الموظف المكلف');return false}
   if(!title){toast('اكتب موضوع التكليف');return false}
   if(!body&&!tasks.length){toast('اكتب نص التكليف أو المهام المطلوبة');return false}
   if(/\.{4,}/.test(title+body+tasks.join('')+notes)){toast('أكمل الأجزاء المنقطة (........) قبل الإصدار');return false}
+  const ids=empId==='__multi'?$$('[data-asm]:checked',b).map(x=>x.dataset.asm):[empId];
+  if(!ids.length){toast('اختر موظفاً واحداً على الأقل');return false}
+  if(ids.length>1){const out=ids.map(id=>{const a={id:uid(),cat:'assign',no:asgNo(),title,body,tasks,notes,type:fv(b,'as_t'),priority:fv(b,'as_p'),due:fv(b,'as_d'),empId:id,audience:'emp',requireAck:false,acks:{},status:'new',date:TODAY,by:asgWho(),byRole:role(),byEmp:S.session.empId||null,upd:[]};
+      S.announcements.unshift(a);notify('emp:'+id,'📌','تكليف جديد',a.title+(a.due?' — حتى '+fdate(a.due):''),{view:'assign'});return a});
+    log(`إصدار ${out.length} تكليف (${out[0].no} — ${out[out.length-1].no}): ${title}`);commit(`تم إصدار ${out.length} تكليف — ${out[0].no} إلى ${out[out.length-1].no}`);
+    if(print)setTimeout(()=>docLangPrint(out.map((a,i)=>`<div style="${i?'page-break-before:always':''}">${assignDoc(a)}</div>`).join(''),'تكليفات '+out[0].no+' — '+out[out.length-1].no),150);return}
   const a={id:uid(),cat:'assign',no:asgNo(),title,body,tasks,notes,type:fv(b,'as_t'),priority:fv(b,'as_p'),due:fv(b,'as_d'),empId,audience:'emp',requireAck:false,acks:{},status:'new',date:TODAY,by:asgWho(),byRole:role(),byEmp:S.session.empId||null,upd:[]};
   S.announcements.unshift(a);notify('emp:'+empId,'📌','تكليف جديد',a.title+(a.due?' — حتى '+fdate(a.due):''),{view:'assign'});
   log(`إصدار التكليف ${a.no} إلى ${empName(empId)}`);commit('تم إصدار التكليف '+a.no);if(print)setTimeout(()=>asgPrint(a),150)}
