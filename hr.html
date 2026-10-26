@@ -3722,9 +3722,9 @@ function finIntro(k,d,lang){const acct=FIN_LETTERS[k].f.some(f=>f[0]==='acct'),A
 /* خطابات البنوك: تذييل باسم مقدّم الطلب ورقم بطاقته (تطلبه البنوك) — يُحفظ في الإعدادات لا في الكود */
 const isBankLet=k=>FIN_LETTERS[k].f.some(f=>f[0]==='acct');
 const bankRep=()=>({name:'وضاح عبدالرقيب علي صالح',nameEn:'Wadah Abdulraqeeb Ali Saleh',idNo:'',exp:'',...(S.settings.bankRep||{})});
-function repLine(d,lang){if(!d||!d.rep)return '';const id=`<b dir="ltr">${esc(d.repId||'............')}</b>`;
-  const t=lang==='en'?`This request is submitted by Mr. <b>${esc(d.repEn||d.rep)}</b>, holder of ID card no. ${id}.`:lang==='bn'?`এই অনুরোধটি জমা দিয়েছেন জনাব <b>${esc(d.repEn||d.rep)}</b>, পরিচয়পত্র নম্বর ${id}।`:`تم تقديم هذا الطلب بواسطة الأخ / <b>${esc(d.rep)}</b>، يحمل بطاقة شخصية رقم: ${id}.`;
-  return `<div class="rep-line" style="margin-top:22px;padding:7px 12px;border:1px solid #9AA9C6;border-radius:6px;background:#F5F7FB;font-size:12.5px">${t}</div>`}
+function repLine(d,lang){if(!d||!d.rep)return '';const id=`<span dir="ltr">${esc(d.repId||'............')}</span>`;
+  const t=lang==='en'?`This request is submitted by Mr. ${esc(d.repEn||d.rep)}, holder of ID card no. ${id}.`:lang==='bn'?`এই অনুরোধটি জমা দিয়েছেন জনাব ${esc(d.repEn||d.rep)}, পরিচয়পত্র নম্বর ${id}।`:`تم تقديم هذا الطلب بواسطة الأخ / ${esc(d.rep)}، يحمل بطاقة شخصية رقم: ${id}.`;
+  return `<div class="rep-line">${t}</div>`}
 function bankRepSave(d){if(!d.rep)return;const o=bankRep(),n={name:d.rep,nameEn:d.repEn||'',idNo:d.repId||'',exp:d.repExp||''};
   if(o.name===n.name&&o.nameEn===n.nameEn&&o.idNo===n.idNo&&o.exp===n.exp&&S.settings.bankRep)return;S.settings.bankRep=n;
   if(n.exp&&typeof ALR==='function'){const id='bankrepid';const x=ALR().find(y=>y.id===id);const due=addDays(n.exp,-30);
@@ -3733,14 +3733,14 @@ function bankRepSave(d){if(!d.rep)return;const o=bankRep(),n={name:d.rep,nameEn:
 function finLetterDoc(k,d,no,lang){const L=FIN_LETTERS[k];
   if(lang&&lang!=='ar'&&FIN_LET_TR[k]){const F=FIN_LET_FRAME[lang],X=FIN_LET_TR[k][lang];return `<div class="doc">${offHead('','','')}<div class="flt"><div class="ref"><span>${F.date}: ${fdl(d.date||TODAY,lang)}</span><span>${F.ref}: <span dir="ltr">${esc(no||'—')}</span></span></div>
   <div class="to">${F.to(esc(bankEn(d.to)||'..........'))}</div><div>${F.greet}</div>
-  <div class="subj">${F.subj}${esc(X.subj)}</div><div>${finIntro(k,d,lang)}</div><div>${X.body(d,lang)}</div>
+  <div class="subj">${F.subj}${esc(X.subj)}</div><div>${finIntro(k,d,lang)}</div><div>${X.body(d,lang)}</div>${repLine(d,lang)}
   <div style="margin-top:18px;font-weight:700">${F.close}</div>
-  <div class="sign">${L.nosign?'':F.sign}<div style="font-weight:400;margin-top:4px">${CO_EN}</div></div>${repLine(d,lang)}</div>${offFoot()}</div>`}
+  <div class="sign">${L.nosign?'':F.sign}<div style="font-weight:400;margin-top:4px">${CO_EN}</div></div></div>${offFoot()}</div>`}
   return `<div class="doc">${offHead('','','')}<div class="flt"><div class="ref"><span>التاريخ: ${fdate(d.date||TODAY)}</span><span>المرجع: <span dir="ltr">${esc(no||'—')}</span></span></div>
   <div class="to">الأفاضل / ${esc(d.to||'..........')} المحترمين</div><div>تحية طيبة وبعد،</div>
-  <div class="subj">الموضوع / ${esc(L.subj)}</div><div>${finIntro(k,d,'ar')}</div><div>${L.body(d)}</div>
+  <div class="subj">الموضوع / ${esc(L.subj)}</div><div>${finIntro(k,d,'ar')}</div><div>${L.body(d)}</div>${repLine(d,'ar')}
   <div style="margin-top:18px;font-weight:700">شاكرين لكم حسن تعاونكم،،،</div>
-  <div class="sign">${L.nosign?'':'ختم وتوقيع المفوض'}<div style="font-weight:400;margin-top:4px">شركة العالمية السعيدة المتحدة ش.م.م</div></div>${repLine(d,'ar')}</div>${offFoot()}</div>`}
+  <div class="sign">${L.nosign?'':'ختم وتوقيع المفوض'}<div style="font-weight:400;margin-top:4px">شركة العالمية السعيدة المتحدة ش.م.م</div></div></div>${offFoot()}</div>`}
 VIEWS.finlet=()=>ph('المراسلات المالية','خطابات رسمية للبنوك والموردين على ورق الشركة المعتمد — عبّئ البيانات واطبع أو احفظ PDF')+
   `<div class="grid g3">${Object.entries(FIN_LETTERS).map(([k,L])=>`<button class="card kpi click" data-flt="${k}" style="text-align:right;cursor:pointer"><div style="font-size:24px">✉️</div><div class="b" style="margin-top:6px;font-size:15px">${L.n}</div><div class="s">${esc(L.subj)}</div></button>`).join('')}</div>
   <div class="note small" style="margin-top:12px">يُعطى كل خطاب رقماً مرجعياً تلقائياً (FIN-LTR) عند الطباعة. الخطاب يُوقَّع ويُختم من المفوّض بالتوقيع قبل الإرسال.</div>`;
