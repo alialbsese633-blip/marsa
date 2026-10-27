@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الكتالوج | مرسى</title>
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<script src="hr-config.js"></script>
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   الكتالوج — كتالوج فروع نسائم صلالة (تكليف ASG-012/2026)
+   الألوان من شعار نسائم صلالة: الفيروزي الغامق والفاتح، مع لون اللبان الذهبي للأسعار.
+   ===================================================================== */
+:root{color-scheme:light;
+  --lagoon:#00717F;--sky:#18A4B8;--deep:#0B3E45;--ink:#0F2A2E;--ink-2:#41595D;--mute:#677E81;
+  --paper:#F3F6F6;--card:#FFFFFF;--tint:#E6F0F0;--line:#D9E5E5;
+  --gold:#B08D57;--gold-ink:#86652F;--gold-soft:#F4EDE1;
+  --font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --display:"Noto Kufi Arabic","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --latin:"Inter","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html[lang=en]{--font:"Inter","IBM Plex Sans Arabic",-apple-system,"Segoe UI",sans-serif;--display:"Inter","IBM Plex Sans Arabic",sans-serif}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font:16px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[dir=ltr] .flip{transform:scaleX(-1)}
+.en{font-family:var(--latin)}
+.nw{white-space:nowrap}
+
+/* الشريط العلوي */
+.bar{position:sticky;top:0;z-index:30;background:rgba(243,246,246,.9);-webkit-backdrop-filter:saturate(1.3) blur(12px);backdrop-filter:saturate(1.3) blur(12px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1120px;margin:0 auto;padding:8px 20px;min-height:60px;display:flex;align-items:center;gap:10px}
+.home{display:flex;align-items:center;gap:8px;color:var(--deep);text-decoration:none;font-weight:700;font-size:15px;flex:none}
+.home svg{width:21px;height:24px}
+.crumb{display:flex;align-items:center;gap:6px;min-width:0;font-size:15px;color:var(--mute)}
+.crumb a{color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
+.crumb a:hover{color:var(--lagoon)}
+.crumb .cur{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb svg.i{width:16px;height:16px;color:#A3B5B7}
+.sp{flex:1}
+.lang{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 15px;font-weight:600;font-size:14px;cursor:pointer}
+.lang:hover{border-color:#BCD0D0}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 40px}
+html.novt .view{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- لوحة الفروع ---------- */
+.intro{display:flex;gap:22px;align-items:center;padding:40px 0 10px}
+.intro img{width:70px;height:auto;flex:none}
+.intro h1{margin:0;font:700 clamp(30px,5vw,46px)/1.25 var(--display);color:var(--deep)}
+.intro .en{margin-top:2px;color:var(--mute);font-size:15px;font-weight:500}
+.lead{margin:14px 0 0;max-width:64ch;color:var(--ink-2);font-size:15.5px;line-height:1.85}
+.gh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:34px 0 14px}
+.gh h2{margin:0;font:600 19px/1.4 var(--display);color:var(--deep)}
+.gh small{color:var(--mute);font-size:13.5px}
+.ready{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:20px;margin:0;padding:0;list-style:none}
+.bcard{display:flex;flex-direction:column;height:100%;background:var(--card);border:1px solid var(--line);border-radius:26px;overflow:hidden;color:inherit;text-decoration:none;box-shadow:0 1px 2px rgba(15,42,46,.04),0 24px 48px -36px rgba(11,62,69,.55);transition:transform .3s var(--ease),box-shadow .3s}
+.bcard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(15,42,46,.06),0 30px 56px -34px rgba(11,62,69,.6)}
+.bcard .ph{position:relative;aspect-ratio:1236/395;background:var(--deep);overflow:hidden}
+.bcard .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .9s ease}
+.bcard .ph .alt{opacity:0}
+@media (hover:hover){.bcard:hover .ph .alt{opacity:1}}
+.bcard .bd{display:grid;grid-template-columns:1fr auto;gap:4px 20px;align-items:end;padding:20px 24px 22px}
+.bcard h3{margin:0;font:700 clamp(22px,2.6vw,28px)/1.3 var(--display);color:var(--deep)}
+.bcard .en{color:var(--mute);font-size:14px}
+.bcard .types{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.bcard .types span{font-size:13px;font-weight:500;padding:4px 11px;border-radius:999px;background:var(--tint);color:var(--deep)}
+.from{text-align:end;grid-row:1;grid-column:2}
+.from small{display:block;font-size:12.5px;color:var(--mute)}
+.from b{font:600 32px/1.1 var(--latin);color:var(--gold-ink)}
+.from span{font-size:13px;color:var(--mute);margin-inline-start:4px}
+.pending{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:12px;margin:0;padding:0;list-style:none}
+.plate{position:relative;overflow:hidden;display:flex;flex-direction:column;height:100%;min-height:124px;padding:18px 20px 16px;border-radius:18px;background:var(--card);border:1px dashed #C6D7D7}
+.plate::after{content:"";position:absolute;inset-inline-end:-16px;bottom:-24px;width:92px;height:96px;background:url(icons/logo-mark.png) center/contain no-repeat;opacity:.08}
+.plate h3{margin:0;font:600 18px/1.45 var(--display);color:var(--ink)}
+.plate .en{color:var(--mute);font-size:13px}
+.plate .st{margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--gold-ink)}
+.plate .st i{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.pc{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mute)}
+.pc .m{flex:1;max-width:160px;height:5px;border-radius:5px;background:var(--tint);overflow:hidden}
+.pc .m i{display:block;height:100%;background:var(--lagoon);border-radius:5px}
+
+/* ---------- صفحة الفرع ---------- */
+.hero{position:relative;margin-top:20px;border-radius:28px;overflow:hidden;background:#0A1E2A;aspect-ratio:1236/395;view-transition-name:hero}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.4s ease}
+.hero .night{opacity:0}
+.hero[data-mode=night] .night{opacity:1}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:40%;background:linear-gradient(to top,rgba(6,24,30,.45),transparent);pointer-events:none}
+.dn{position:absolute;z-index:2;bottom:16px;inset-inline-end:16px;display:flex;padding:4px;border-radius:999px;background:rgba(8,28,36,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+.dn button{display:flex;align-items:center;gap:6px;border:0;background:none;color:#fff;font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:999px;cursor:pointer;opacity:.8;transition:background .4s,color .4s,opacity .4s}
+.dn button svg.i{width:17px;height:17px}
+.dn button[aria-pressed=true]{opacity:1;background:#fff;color:var(--deep)}
+.hero[data-mode=night] .dn button[aria-pressed=true]{background:var(--gold-soft);color:#5B4420}
+.bhead{display:grid;grid-template-columns:1fr auto;gap:16px 32px;align-items:end;padding:28px 4px 0}
+.bhead h1{margin:0;font:700 clamp(32px,5.6vw,54px)/1.2 var(--display);color:var(--deep)}
+.bhead .en{margin-top:4px;color:var(--mute);font-size:16px;font-weight:500}
+.price{text-align:end}
+.price small{display:block;color:var(--mute);font-size:13px}
+.price b{font:600 44px/1.05 var(--latin);color:var(--gold-ink)}
+.price span{font-size:14px;color:var(--mute);margin-inline-start:6px}
+.facts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.facts li{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:500;color:var(--ink-2)}
+.facts svg.i{width:17px;height:17px;color:var(--lagoon)}
+.enter .hero,.enter .bhead{animation:rise .7s var(--ease) both}.enter .bhead{animation-delay:.12s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.snav{position:sticky;top:61px;z-index:20;margin:30px -20px 0;padding:0 20px;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.snav div{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.snav div::-webkit-scrollbar{display:none}
+.snav button{flex:none;border:0;background:none;padding:14px 12px 11px;font-weight:600;font-size:14.5px;color:var(--mute);border-bottom:2.5px solid transparent;cursor:pointer;transition:color .2s,border-color .2s}
+.snav button:hover{color:var(--ink)}
+.snav button[aria-current=true]{color:var(--deep);border-color:var(--gold)}
+
+.sec{padding-top:44px;scroll-margin-top:120px}
+.sh{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px;margin-bottom:18px}
+.sh h2{margin:0;font:700 clamp(22px,3vw,28px)/1.35 var(--display);color:var(--deep)}
+.sh p{margin:4px 0 0;color:var(--mute);font-size:14px}
+.sub{margin:30px 0 12px;font:600 17px/1.4 var(--display);color:var(--deep)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid transparent;font-weight:600;font-size:14.5px;line-height:1.4;text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.btn:active{transform:scale(.97)}
+.btn svg.i{width:18px;height:18px}
+.btn.line{background:var(--card);color:var(--deep);border-color:var(--line)}
+.btn.line:hover{border-color:#B6CBCB}
+.btn.solid{background:var(--lagoon);color:#fff}
+.btn.solid:hover{background:#00626E}
+.btn.light{background:#fff;color:var(--deep)}
+.btn.ghost{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.28)}
+.btn.ghost:hover{background:rgba(255,255,255,.18)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* المعرض */
+.mosaic{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,clamp(150px,17vw,210px));gap:8px;border-radius:24px;overflow:hidden}
+.mosaic button{position:relative;padding:0;border:0;background:var(--tint);overflow:hidden;cursor:zoom-in}
+.mosaic button:first-child{grid-row:span 2}
+.mosaic button:nth-child(n+6){display:none}
+.mosaic img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
+@media (hover:hover){.mosaic button:hover img{transform:scale(1.035)}}
+.mosaic .more{position:absolute;inset:0;display:grid;place-items:center;background:rgba(11,62,69,.6);color:#fff;font-weight:600;font-size:17px}
+
+/* الموقع */
+.loc{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:stretch}
+.mapcard{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;min-height:250px;padding:28px;border-radius:24px;color:#fff;background:repeating-radial-gradient(circle at calc(100% - 52px) 52px,rgba(255,255,255,.075) 0 1px,transparent 1.5px 30px),linear-gradient(150deg,#0F5D67,#0B3E45 70%)}
+html[dir=ltr] .mapcard{background:repeating-radial-gradient(circle at 52px 52px,rgba(255,255,255,.075) 0 1px,transparent 1.5px 30px),linear-gradient(210deg,#0F5D67,#0B3E45 70%)}
+.mapcard .pin{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:#6E5126;box-shadow:0 0 0 8px rgba(244,237,225,.14)}
+.mapcard .pin svg.i{width:22px;height:22px}
+.mapcard h3{margin:22px 0 4px;font:600 21px/1.4 var(--display)}
+.mapcard p{margin:0 0 20px;max-width:34ch;opacity:.85;font-size:14.5px}
+.mapcard .btn{margin-top:auto}
+.near{margin:0;padding:6px 22px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:24px}
+.near li{display:grid;grid-template-columns:42px 1fr auto;gap:2px 14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.near li:last-child{border-bottom:0}
+.near .ic{grid-row:span 2;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--tint);color:var(--lagoon)}
+.near b{font-weight:600}
+.near .en{display:block;font-size:12.5px;color:var(--mute);font-weight:400}
+.near .t{font-weight:600;color:var(--deep);white-space:nowrap}
+.near .t small{display:block;font-weight:400;font-size:12px;color:var(--mute);text-align:end}
+.near .bar{grid-column:2/-1;height:4px;margin-top:8px;border-radius:4px;background:var(--tint);overflow:hidden}
+.near .bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--sky),var(--lagoon))}
+html[dir=rtl] .near .bar i{background:linear-gradient(270deg,var(--sky),var(--lagoon))}
+.note{margin:12px 4px 0;font-size:13px;color:var(--mute)}
+
+/* الوحدات */
+.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;margin:0;padding:0;list-style:none}
+.unit{padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.unit .ic{width:50px;height:50px;margin-bottom:16px;border-radius:15px;display:grid;place-items:center;background:var(--tint);color:var(--lagoon)}
+.unit .ic svg.i{width:26px;height:26px;stroke-width:1.6}
+.unit h3{margin:0;font:600 19px/1.45 var(--display);color:var(--ink)}
+.unit .en{color:var(--mute);font-size:13.5px}
+.unit .n{margin-top:12px;font-size:14px;font-weight:600;color:var(--deep)}
+.amen{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));column-gap:28px;margin:0;padding:0;list-style:none}
+.amen li{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);font-weight:500}
+.amen svg.i{color:var(--lagoon)}
+
+/* الأسعار والشروط */
+.fin{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:20px;align-items:start}
+.rate{padding:24px 26px 18px;border-radius:24px;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--gold)}
+.rate h3,.terms h3{margin:0 0 6px;font:600 17px/1.4 var(--display);color:var(--deep)}
+.rate ul,.terms ul{margin:0;padding:0;list-style:none}
+.rate li{display:flex;align-items:baseline;gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}
+.rate li:last-child{border-bottom:0}
+.rate .nm{font-weight:600}
+.rate .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute)}
+.rate .ld{flex:1;min-width:24px;border-bottom:1.5px dotted #BFD0D0;transform:translateY(-6px)}
+.rate .pr{white-space:nowrap;text-align:end}
+.rate .pr b{font:600 26px/1 var(--latin);color:var(--gold-ink)}
+.rate .pr span{font-size:13px;color:var(--mute);margin-inline-start:5px}
+.rate .pr small{display:block;font-size:12px;color:var(--mute);margin-top:4px}
+.rate .basis{margin:10px 0 0;font-size:13px;color:var(--mute)}
+.terms{padding:24px 24px 10px;border-radius:24px;background:var(--card);border:1px solid var(--line)}
+.terms li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.terms li:last-child{border-bottom:0}
+.terms li>svg.i{margin-top:3px;color:var(--lagoon)}
+.terms b{display:block;font-size:13px;font-weight:500;color:var(--mute)}
+.terms span{font-weight:600}
+
+/* التواصل */
+.ccard{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding:32px;border-radius:28px;color:#fff;background:linear-gradient(135deg,#0B3E45 10%,#00717F)}
+.ccard::after{content:"";position:absolute;z-index:-1;inset-inline-end:-30px;top:-36px;width:230px;height:240px;background:url(icons/logo-mark-white.png) center/contain no-repeat;opacity:.08}
+.ccard .who{font-size:15px;opacity:.85}
+.ccard .who small{display:block;font-size:13px;opacity:.8}
+.ccard .ph{display:inline-block;margin:10px 0 2px;color:#fff;text-decoration:none;font:600 clamp(28px,4.4vw,40px)/1.2 var(--latin);direction:ltr;unicode-bidi:isolate;text-align:start}
+.ccard .em{color:#fff;opacity:.85;font-size:15px;text-decoration:none;font-family:var(--latin);direction:ltr;unicode-bidi:isolate}
+.ccard .em:hover,.ccard .ph:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+.ccard .acts{display:grid;grid-template-columns:1fr 1fr;margin:0;min-width:min(100%,380px)}
+
+/* اكتمال مواد التكليف — للموارد البشرية والمدير العام فقط */
+.asg{margin-top:44px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.asg summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:16px 20px;cursor:pointer;list-style:none;font-weight:600}
+.asg summary::-webkit-details-marker{display:none}
+.asg summary .pc{margin-inline-start:auto}
+.asg summary .chev{transition:transform .2s;color:var(--mute)}
+.asg[open] summary .chev{transform:rotate(-90deg)}
+html[dir=ltr] .asg[open] summary .chev{transform:scaleX(-1) rotate(-90deg)}
+.asg ol{margin:0;padding:0 20px 10px;list-style:none}
+.asg li{display:grid;grid-template-columns:26px 24px 1fr auto;gap:12px;align-items:start;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.asg .no{color:var(--mute);font:500 13px/1.7 var(--latin);text-align:center}
+.asg .s{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.asg .s svg.i{width:14px;height:14px;stroke-width:2.6}
+.s.done{background:#E2F2EA;color:#1E7A55}.s.part{background:var(--gold-soft);color:var(--gold-ink)}.s.miss{background:#EEF2F2;color:#93A5A7}
+.asg li small{display:block;color:var(--mute);font-size:12.5px}
+.asg .lbl{font-size:12px;font-weight:600;white-space:nowrap}
+.lbl.done{color:#1E7A55}.lbl.part{color:var(--gold-ink)}.lbl.miss{color:#93A5A7}
+
+.empty{margin:60px auto;max-width:420px;text-align:center;color:var(--ink-2)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 22px;margin-top:56px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mute)}
+
+/* عارض الصور */
+.lb{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(5,20,24,.96);color:#fff;overflow:hidden}
+.lb::backdrop{background:transparent}
+.lb figure{position:absolute;inset:64px 76px 76px;margin:0;display:grid;place-items:center;touch-action:pan-y}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;user-select:none;-webkit-user-drag:none;transition:opacity .3s ease}
+.lb .cap{position:absolute;inset-inline:76px;bottom:22px;display:flex;justify-content:space-between;gap:16px;font-size:14.5px}
+.lb .cap span:last-child{font-family:var(--latin);opacity:.7}
+.lb .rb{position:absolute;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;cursor:pointer;transition:background .2s}
+.lb .rb:hover{background:rgba(255,255,255,.18)}
+.lb .x{top:12px;inset-inline-end:14px}
+.lb .pv,.lb .nx{top:50%;margin-top:-23px}
+.lb .pv{inset-inline-start:14px}.lb .nx{inset-inline-end:14px}
+
+.toast{position:fixed;z-index:80;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 32px);padding:11px 20px;border-radius:999px;background:var(--deep);color:#fff;font-size:14px;box-shadow:0 12px 30px -10px rgba(0,0,0,.35);opacity:0;transform:translate(-50%,16px);transition:opacity .25s,transform .25s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+::view-transition-old(hero),::view-transition-new(hero){height:100%;width:100%;object-fit:cover;overflow:clip}
+::view-transition-group(hero){animation-duration:.5s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
+
+@media (max-width:860px){
+  .loc,.fin{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px 32px}.bar-in{padding:8px 16px}
+  .home span{display:none}
+  .intro{padding-top:26px;gap:16px}.intro img{width:52px}
+  .bcard .ph{aspect-ratio:16/9}
+  .bcard .bd{grid-template-columns:1fr;padding:18px 18px 20px}
+  .from{grid-row:auto;grid-column:auto;text-align:start;margin-top:10px}
+  .hero{aspect-ratio:auto;height:300px;margin-top:14px;border-radius:22px}
+  .bhead{grid-template-columns:1fr;padding-top:22px}
+  .price{text-align:start}.price b{font-size:36px}
+  .acts{justify-content:flex-start}
+  .snav{margin:24px -16px 0;padding:0 16px}
+  .sec{padding-top:36px}
+  .mosaic{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 -16px;padding:0 16px;border-radius:0;scrollbar-width:none}
+  .mosaic::-webkit-scrollbar{display:none}
+  .mosaic button,.mosaic button:nth-child(n+6){display:block;flex:0 0 84%;aspect-ratio:4/3;border-radius:18px;scroll-snap-align:center}
+  .mosaic .more{display:none}
+  .mapcard{min-height:0}
+  .ccard{grid-template-columns:1fr;padding:26px 22px}
+  .ccard .acts{min-width:0}
+  .unit{display:flex;align-items:center;gap:16px;padding:16px 18px}.unit .ic{margin:0;flex:none}
+  .pending{grid-template-columns:1fr 1fr;gap:10px}.plate{min-height:0;padding:14px 14px 12px}.plate h3{font-size:16px}
+  .asg li{grid-template-columns:22px 24px 1fr}.asg .lbl{display:none}
+  .lb figure{inset:60px 8px 84px}
+  .lb .pv,.lb .nx{top:auto;bottom:14px;margin-top:0}
+  .lb .cap{inset-inline:74px;bottom:20px;flex-direction:column;align-items:center;gap:0;text-align:center;font-size:13.5px}
+}
+@media (prefers-reduced-motion:reduce){*,::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="home" href="./" id="homeA"><svg viewBox="0 0 520 584" fill="currentColor" aria-hidden="true"><path d="M0 70 215 0v480l-80 75V145l-63 20v265L0 375z"/><path fill-rule="evenodd" d="M250 0l250 80v330L250 560zM318 92v73l120 25v-58zm0 133v67l112-24v-61zm0 123v84l117-62v-62z"/></svg><span id="homeT">مرسى</span></a>
+  <nav class="crumb" id="crumb" aria-label="breadcrumb"></nav>
+  <span class="sp"></span>
+  <button class="lang" id="langBtn" type="button">English</button>
+</div></header>
+<div class="wrap"><main id="app"></main><footer class="foot"><span id="fco"></span><span id="fco2"></span></footer></div>
+<dialog class="lb" id="lb">
+  <figure id="lbFig"><img id="lbImg" alt=""></figure>
+  <div class="cap"><span id="lbCap"></span><span id="lbNum"></span></div>
+  <button class="rb x" id="lbX" type="button"></button>
+  <button class="rb pv" id="lbPv" type="button"></button>
+  <button class="rb nx" id="lbNx" type="button"></button>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+/* =====================================================================
+   البيانات — فرع واحد لكل عنصر. الصور في المجلد catalog/<id>/ بصيغة webp.
+   يظهر الفرع «جاهزاً للعرض» متى أُضيفت صورتا الواجهة (hero)، وإلا يبقى «قيد التجهيز».
+   photos: [اسم الملف، النوع، الوصف بالعربي، الوصف بالإنجليزي]
+     الأنواع: facade-day, facade-night, reception, bedroom, living, kitchen, bathroom, facility, view
+   الأسعار: daily و monthly لكل نوع وحدة؛ price عند عدم تحديد اليومي من الشهري.
+   null يعني أن المعلومة لم تصل بعد من الفرع (تظهر للإدارة في قائمة مواد التكليف).
+   ===================================================================== */
+var BRANCHES=[
+  {id:'saadah-nesto',ar:'السعادة - نستو',en:'Al Saadah - Nesto',
+    hero:{day:'facade-day-front',night:'facade-night-front'},
+    photos:[
+      ['bedroom-ornate-1','bedroom','غرفة نوم بسقف مزخرف وجلسة','Bedroom with a decorative ceiling and seating'],
+      ['facade-night-side','facade-night','المبنى ليلاً','The building at night'],
+      ['living-1','living','صالة ومطبخ مفتوح','Living room with open kitchen'],
+      ['kitchen-1','kitchen','المطبخ','Kitchen'],
+      ['room-marble-1','bedroom','غرفة نوم مع جلسة','Bedroom with seating'],
+      ['facade-day-side','facade-day','المبنى نهاراً','The building by day'],
+      ['bedroom-ornate-2','bedroom','غرفة نوم بسقف مزخرف','Bedroom with a decorative ceiling'],
+      ['bed-sitting-1','bedroom','غرفة نوم مع جلسة ومطبخ','Bedroom with seating and kitchen'],
+      ['living-3','living','صالة ومطبخ مفتوح','Living room with open kitchen'],
+      ['bedroom-1','bedroom','غرفة نوم','Bedroom'],
+      ['living-2','living','صالة الجلوس','Living room'],
+      ['bedroom-2','bedroom','غرفة نوم مع جلسة','Bedroom with seating'],
+      ['bedroom-3','bedroom','غرفة نوم','Bedroom'],
+      ['room-marble-2','bedroom','غرفة نوم','Bedroom'],
+      ['room-green-1','bedroom','غرفة بسريرين','Twin room'],
+      ['room-green-2','bedroom','غرفة نوم مع جلسة','Bedroom with seating'],
+      ['room-green-3','bedroom','غرفة نوم مع جلسة','Bedroom with seating'],
+      ['room-green-4','bedroom','غرفة نوم مع جلسة','Bedroom with seating'],
+      ['facade-day-front','facade-day','الواجهة الأمامية نهاراً','Front facade by day'],
+      ['facade-night-front','facade-night','الواجهة الأمامية ليلاً','Front facade at night']
+    ],
+    map:'https://www.google.com/travel/hotels/s/YFboJPF57qpCrPLu9',
+    near:[{ic:'cart',ar:'نستو هايبر ماركت',en:'Nesto Hypermarket',min:2}],
+    units:[
+      {ic:'apartment',ar:'شقة',en:'Apartment',price:140,count:null},
+      {ic:'studio',ar:'استوديو',en:'Studio',price:120,count:null},
+      {ic:'room',ar:'غرفة مع حمام ومطبخ',en:'Room with bathroom & kitchen',price:90,count:null}
+    ],
+    basis:{ar:'شهري / يومي',en:'Monthly / daily'},
+    amen:['wifi','ac','kitchen','parking','elevator','reception'],
+    utilities:true,
+    terms:{contract:{ar:'عقد شهري أو يومي',en:'Monthly or daily contract'},invoice:null,deposit:null,vat:null},
+    discount:null,
+    contact:{team:{ar:'قسم خدمة عملاء الفرع',en:'Branch customer service'},person:null,phone:'+968 9897 7430',wa:null,email:'saadahnisto@gmail.com'},
+    review:{std:true,files:true}
+  },
+  {id:'tijari',ar:'الحي التجاري',en:'Al Tijari District'},
+  {id:'awqad-north',ar:'عوقد الشمالية',en:'North Awqad'},
+  {id:'wadi',ar:'الوادي',en:'Al Wadi'},
+  {id:'moataza',ar:'المعتزة',en:'Al Moataza'},
+  {id:'haseela',ar:'الحصيلة',en:'Al Haseela'},
+  {id:'saadah-25',ar:'السعادة-25',en:'Al Saadah 25'},
+  {id:'awqad-villa',ar:'فيلا عوقد',en:'Awqad Villa'}
+];
+
+var AMEN={
+  wifi:['wifi','إنترنت عالي السرعة','High-speed internet'],ac:['snow','تكييف','Air conditioning'],kitchen:['pot','مطبخ مجهز','Equipped kitchen'],
+  parking:['park','مواقف سيارات','Parking'],elevator:['lift','مصعد','Elevator'],reception:['bell','استقبال 24 ساعة','24-hour reception'],
+  washer:['wash','غسالة ملابس','Washing machine'],cleaning:['spark','تنظيف دوري','Regular cleaning'],security:['shield','أمن وكاميرات مراقبة','Security and CCTV']
+};
+
+var I={
+  ar:{home:'مرسى',cat:'الكتالوج',lang:'English',h1:'كتالوج الفروع',h1alt:'Branch Catalog',
+    lead:'فروع نسائم صلالة للشقق المفروشة في مكان واحد. افتح الفرع لعرض صوره وموقعه ووحداته وأسعاره، وشارك بياناته مع العميل مباشرة.',
+    ready:'جاهزة للعرض',pending:'قيد التجهيز',branches:function(n){return n===1?'فرع واحد':n===2?'فرعان':n<=10?n+' فروع':n+' فرعاً'},
+    pendingS:'تظهر بيانات الفرع هنا عند تسليم مواد التكليف <span class="nw">ASG-012/2026</span>',prep:'قيد التجهيز',from:'تبدأ الأسعار من',
+    sections:'أقسام صفحة الفرع',nav:{gallery:'المعرض',loc:'الموقع',units:'الوحدات',fin:'الأسعار والشروط',contact:'التواصل'},
+    facade:'صورة الواجهة',day:'نهاراً',night:'ليلاً',
+    gallery:'المعرض',photos:function(n){return n+' صورة'},all:'عرض كل الصور',more:function(n){return '+'+n+' صورة'},view:'عرض الصورة: ',
+    loc:'الموقع والأماكن القريبة',mapT:'موقع الفرع',mapP:'افتح موقع الفرع على Google للاتجاهات وطريق الوصول.',mapB:'عرض الموقع على Google',
+    drive:'بالسيارة',nearNote:'الأوقات تقريبية بالسيارة من الفرع.',
+    units:'الوحدات والمزايا',unitsS:function(n){return n===1?'نوع واحد من الوحدات':n===2?'نوعان من الوحدات':n+' أنواع من الوحدات'},amen:'المزايا المتوفرة',count:function(n){return 'عدد الوحدات: '+n},
+    fin:'الأسعار والشروط',finS:'أسعار الوحدات والشروط المعمول بها في الفرع',rate:'أسعار الوحدات',terms:'الشروط',cur:'ر.ع.',daily:'يومي',monthly:'شهري',perMonth:'في الشهر',perDay:'في اليوم',
+    util:'الكهرباء والماء',utilY:'مشمولة في السعر',utilN:'غير مشمولة في السعر',contract:'نوع العقد',invoice:'الفوترة',deposit:'التأمين',vat:'ضريبة القيمة المضافة',discount:'خصم الشركات والعقود الطويلة',
+    contact:'التواصل مع الفرع',call:'اتصال',wa:'واتساب',mail:'إرسال بريد',copy:'نسخ الرقم',copied:'نُسخ الرقم',
+    share:'مشاركة بيانات الفرع',shared:'نُسخت بيانات الفرع، الصقها في المحادثة',copyFail:'تعذّر النسخ، انسخ البيانات يدوياً',
+    asg:'مواد التكليف ASG-012/2026',asgOf:function(a,b){return a+' من '+b+' مكتملة'},asgNote:'تظهر هذه القائمة للموارد البشرية والمدير العام فقط.',
+    st:{done:'مكتمل',part:'جزئي',miss:'لم يُسلَّم'},missing:function(l){return 'ينقص: '+l.join('، ')},
+    rooms:{bedroom:'غرفة النوم',living:'الصالة',kitchen:'المطبخ',bathroom:'الحمام'},
+    nearN:function(n){return n===1?'مكان واحد مسجّل، والمطلوب أهم الأماكن القريبة':n+' أماكن مسجّلة'},noCount:'ينقص عدد كل نوع',noSplit:'السعر مسجّل دون تحديد اليومي من الشهري',
+    person:'اسم الموظف',
+    asgItems:['صورة الواجهة نهاراً وليلاً','صور الاستقبال (2 إلى 3)','صور كل نوع شقة: غرفة النوم، الصالة، المطبخ، الحمام','صور المرافق: المصعد، المواقف، وأي مرفق مميز','صورة الإطلالة من الشرفة أو النافذة','معيار التصوير: بالعرض، إضاءة النهار، غرف مرتبة','الصور مرسلة كملفات أو رابط، لا كصور واتساب','رابط الموقع على Google Maps','أهم الأماكن القريبة مع الوقت بالسيارة','أنواع الشقق وعدد كل نوع','المزايا الموجودة فعلاً','الكهرباء والماء: مشمولة في السعر أم لا','الأسعار اليومية والشهرية','خصم الشركات أو العقود الطويلة','شروط الدفع: الفاتورة، التأمين، الضريبة','موظف الاستقبال أو المبيعات: الاسم، الهاتف، الواتساب'],
+    co:'نسائم صلالة للشقق المفروشة',co2:'العالمية السعيدة المتحدة ش.م.م',
+    close:'إغلاق',prev:'الصورة السابقة',next:'الصورة التالية',viewer:'عارض الصور',
+    shareHead:'نسائم صلالة للشقق المفروشة',branch:'فرع ',unitsPrices:'الوحدات والأسعار',location:'الموقع',contactL:'للتواصل',amenL:'المزايا'},
+  en:{home:'Marsa',cat:'Catalog',lang:'العربية',h1:'Branch Catalog',h1alt:'كتالوج الفروع',
+    lead:'Every Nassayem Salalah branch in one place. Open a branch to see its photos, location, units and prices, and share its details with a client.',
+    ready:'Ready to present',pending:'Being prepared',branches:function(n){return n===1?'1 branch':n+' branches'},
+    pendingS:'Branch details appear here once the <span class="nw">ASG-012/2026</span> materials are delivered',prep:'Being prepared',from:'Prices from',
+    sections:'Branch sections',nav:{gallery:'Gallery',loc:'Location',units:'Units',fin:'Prices & terms',contact:'Contact'},
+    facade:'Facade photo',day:'Day',night:'Night',
+    gallery:'Gallery',photos:function(n){return n+' photos'},all:'View all photos',more:function(n){return '+'+n+' photos'},view:'View photo: ',
+    loc:'Location and nearby places',mapT:'Branch location',mapP:'Open the branch location on Google for directions.',mapB:'View location on Google',
+    drive:'by car',nearNote:'Approximate drive times from the branch.',
+    units:'Units and amenities',unitsS:function(n){return n===1?'1 unit type':n+' unit types'},amen:'Amenities',count:function(n){return n+' units'},
+    fin:'Prices and terms',finS:'Unit prices and the terms that apply at this branch',rate:'Unit prices',terms:'Terms',cur:'OMR',daily:'Daily',monthly:'Monthly',perMonth:'per month',perDay:'per day',
+    util:'Electricity and water',utilY:'Included in the price',utilN:'Not included in the price',contract:'Contract',invoice:'Invoicing',deposit:'Deposit',vat:'VAT',discount:'Corporate and long-stay discount',
+    contact:'Contact the branch',call:'Call',wa:'WhatsApp',mail:'Send email',copy:'Copy number',copied:'Number copied',
+    share:'Share branch details',shared:'Branch details copied — paste them into the chat',copyFail:'Copy failed, copy the details manually',
+    asg:'ASG-012/2026 materials',asgOf:function(a,b){return a+' of '+b+' complete'},asgNote:'Only HR and the General Manager see this list.',
+    st:{done:'Complete',part:'Partial',miss:'Not delivered'},missing:function(l){return 'Missing: '+l.join(', ')},
+    rooms:{bedroom:'bedroom',living:'living room',kitchen:'kitchen',bathroom:'bathroom'},
+    nearN:function(n){return n===1?'One place recorded; the key nearby places are needed':n+' places recorded'},noCount:'Count per type missing',noSplit:'Price recorded without daily vs monthly',
+    person:'staff name',
+    asgItems:['Facade by day and at night','Reception photos (2 to 3)','Each unit type: bedroom, living room, kitchen, bathroom','Facilities: elevator, parking, anything special','View from a balcony or window','Photo standard: landscape, daylight, tidy rooms','Photos sent as files or a link, not WhatsApp photos','Google Maps link','Key nearby places with drive time','Unit types and how many of each','Amenities the branch actually has','Electricity and water: included or not','Daily and monthly prices','Corporate or long-stay discount','Payment terms: invoice, deposit, VAT','Reception or sales contact: name, phone, WhatsApp'],
+    co:'Nassayem Salalah Furnished Apartments',co2:'Al Alamiah Al Saidah United L.L.C.',
+    close:'Close',prev:'Previous photo',next:'Next photo',viewer:'Photo viewer',
+    shareHead:'Nassayem Salalah Furnished Apartments',branch:'',unitsPrices:'Units and prices',location:'Location',contactL:'Contact',amenL:'Amenities'}
+};
+
+var P={
+  chev:'<path d="m15 6-6 6 6 6"/>',back:'<path d="m9 6 6 6-6 6"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/>',
+  wa:'<path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3 3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.4-2-1-1 .8a4 4 0 0 1-2.1-2.1l.8-1-1-2z"/>',
+  share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',dash:'<path d="M7 12h10"/>',half:'<path d="M12 5a7 7 0 0 0 0 14z" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="7"/>',
+  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 16a5 5 0 0 1 6.4 0"/><path d="M12 19.5h.01" stroke-width="2.6"/>',
+  snow:'<path d="M12 2.5v19M3.8 7.25l16.4 9.5M20.2 7.25 3.8 16.75"/><path d="m9.5 4 2.5 2 2.5-2M9.5 20l2.5-2 2.5 2"/>',
+  pot:'<path d="M4 10h16v5.5a4.5 4.5 0 0 1-4.5 4.5h-7A4.5 4.5 0 0 1 4 15.5z"/><path d="M2 10h2M20 10h2M9.5 3.5c-.8.9-.8 1.9 0 3M14.5 3.5c-.8.9-.8 1.9 0 3"/>',
+  park:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M10 17V7.5h3a3 3 0 0 1 0 6h-3"/>',
+  lift:'<rect x="4.5" y="2.5" width="15" height="19" rx="2"/><path d="M12 2.5v19M6.8 10l1.7-2 1.7 2M13.8 8l1.7 2 1.7-2"/>',
+  bell:'<path d="M3 18h18M5 18a7 7 0 0 1 14 0M12 11V8.5M10 8.5h4"/>',
+  wash:'<rect x="4" y="2.5" width="16" height="19" rx="2"/><circle cx="12" cy="13.5" r="4.5"/><path d="M7.5 6h1M11 6h1"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
+  shield:'<path d="M12 3 5 6v5.5c0 4.5 3 8 7 9.5 4-1.5 7-5 7-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
+  bolt:'<path d="M13 2.5 5 13.5h6l-1 8 8-11h-6z"/>',doc:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
+  cash:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01" stroke-width="2.4"/>',
+  tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
+  cart:'<path d="M3 4h2.2l2.3 11h10.3L20 8H6.4"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>',
+  plane:'<path d="M2.5 13.5 21 7.5l-1-2-7 1.5-5-4-1.5.8 3 4.7-4.5 1.3-2.5-2-1.3.6 1.8 3.6z"/><path d="M3 20.5h18"/>',
+  hospital:'<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M12 8v7M8.5 11.5h7"/>',
+  uni:'<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c3 2 8 2 11 0v-5"/>',
+  mall:'<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  wave:'<path d="M2.5 16c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 3-1.5M2.5 11c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 3-1.5"/>',
+  gov:'<path d="M3 20.5h18M5 17.5h14M6 10v7.5M10 10v7.5M14 10v7.5M18 10v7.5M3.5 10 12 4l8.5 6z"/>',
+  factory:'<path d="M3 20.5V10l5 3V10l5 3V10l5 3V4h3v16.5z"/>',
+  studio:'<path d="M3 19v-6.5h10V19M3 15.5h10M3 12.5V9"/><path d="M16 6.5h5V19h-5zM16 11h5"/>',
+  room:'<path d="M6 21V3.5h11V21M3.5 21h17"/><path d="M14 12.5h.01" stroke-width="2.6"/>',
+  apartment:'<path d="M4 21V5.5L12 3v18M12 8h8v13M2.5 21h19M7 8.5h2M7 12.5h2M7 16.5h2M15 12.5h2M15 16.5h2"/>'
+};
+function ic(n,cls){return '<svg class="i'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||'')+'</svg>'}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function $(s){return document.querySelector(s)}
+
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}},del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
+var API=String((window.HR_CONFIG||{}).API_URL||'').trim(),TOKEN=store.get('marsa_token');
+if(!TOKEN){location.replace('./');return}
+var USER=null;try{USER=JSON.parse(store.get('marsa_user')||'null')}catch(e){}
+var LANG=store.get('marsa_lang')==='en'?'en':'ar';
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MODE=(function(h){return h>=18||h<6?'night':'day'})(new Date().getHours());
+var CUR=null,DASH_Y=0,SPY=null,FIRST=true;
+if(!document.startViewTransition)document.documentElement.classList.add('novt');
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+function L(){return I[LANG]}
+function t(o){return o?(o[LANG]||o.ar||''):''}
+function isAdmin(){return !!(USER&&(USER.role==='hr'||USER.role==='gm'))}
+function isReady(b){return !!b.hero}
+function img(b,f){return 'catalog/'+b.id+'/'+f+'.webp'}
+function money(n){return LANG==='ar'?'<b>'+n+'</b><span>'+L().cur+'</span>':'<span>'+L().cur+'</span> <b>'+n+'</b>'}
+function moneyTxt(n){return LANG==='ar'?n+' '+L().cur:L().cur+' '+n}
+function mins(n,gen){if(LANG==='en')return n+' min';return n===1?'دقيقة واحدة':n===2?(gen?'دقيقتين':'دقيقتان'):n<=10?n+' دقائق':n+' دقيقة'}
+function fromPrice(b){var v=(b.units||[]).map(function(u){return u.monthly||u.price}).filter(Boolean);return v.length?Math.min.apply(null,v):null}
+function telHref(p){return 'tel:'+String(p).replace(/[^\d+]/g,'')}
+function waHref(p){return 'https://wa.me/'+String(p).replace(/\D/g,'')}
+
+/* اكتمال مواد التكليف ASG-012/2026 — يُحسب من بيانات الفرع نفسها، بنفس ترتيب بنود التكليف الستة عشر */
+function asg(b){
+  var l=L(),ph=b.photos||[],U=b.units||[],T=b.terms||{},C=b.contact||{},N=b.near||[],R=b.review||{};
+  function n(tag){return ph.filter(function(p){return p[1]===tag}).length}
+  function s(done,part,note){return {s:done?'done':part?'part':'miss',note:done||!part?'':(note||'')}}
+  var rooms=['bedroom','living','kitchen','bathroom'],noRoom=rooms.filter(function(r){return !n(r)});
+  var termGap=[],contactGap=[];
+  if(T.deposit==null)termGap.push(l.deposit);if(T.vat==null)termGap.push(l.vat);if(!T.invoice&&!T.contract)termGap.push(l.invoice);
+  if(!C.person)contactGap.push(l.person);if(!C.phone)contactGap.push(l.call);if(!C.wa)contactGap.push(l.wa);
+  return [
+    s(n('facade-day')&&n('facade-night'),n('facade-day')||n('facade-night')),
+    s(n('reception')>=2,n('reception')),
+    s(!noRoom.length,noRoom.length<rooms.length,l.missing(noRoom.map(function(r){return l.rooms[r]}))),
+    s(n('facility')),
+    s(n('view')),
+    s(R.std),
+    s(R.files),
+    s(b.map),
+    s(N.length>=3,N.length,l.nearN(N.length)),
+    s(U.length&&U.every(function(u){return u.count}),U.length,l.noCount),
+    s((b.amen||[]).length),
+    s(typeof b.utilities==='boolean'),
+    s(U.length&&U.every(function(u){return u.daily&&u.monthly}),U.some(function(u){return u.price||u.daily||u.monthly}),l.noSplit),
+    s(b.discount!=null),
+    s(!termGap.length,termGap.length<3,l.missing(termGap)),
+    s(!contactGap.length,C.phone||C.wa,l.missing(contactGap))
+  ];
+}
+function asgDone(b){return asg(b).filter(function(x){return x.s==='done'}).length}
+function meter(b){var d=asgDone(b);return '<span class="pc"><span class="m"><i style="width:'+Math.round(d/16*100)+'%"></i></span>'+esc(L().asgOf(d,16))+'</span>'}
+
+/* ---------------- لوحة الفروع ---------------- */
+function dashHTML(){
+  var l=L(),R=BRANCHES.filter(isReady),W=BRANCHES.filter(function(b){return !isReady(b)}),alt=MODE==='day'?'night':'day';
+  var cards=R.map(function(b){var fp=fromPrice(b);
+    return '<li><a class="bcard" href="#'+esc(b.id)+'" data-id="'+esc(b.id)+'">'+
+      '<div class="ph"><img src="'+img(b,b.hero[MODE])+'" alt="'+esc(l.facade+' '+t(b))+'"><img class="alt" src="'+img(b,b.hero[alt])+'" alt="" loading="lazy"></div>'+
+      '<div class="bd"><div><h3>'+esc(t(b))+'</h3><div class="en">'+esc(LANG==='ar'?b.en:b.ar)+'</div></div>'+
+      (fp?'<div class="from"><small>'+l.from+'</small>'+money(fp)+'</div>':'')+
+      '<div class="types">'+(b.units||[]).map(function(u){return '<span>'+esc(t(u))+'</span>'}).join('')+'</div>'+
+      (isAdmin()?'<div class="pc-row" style="grid-column:1/-1;margin-top:12px">'+meter(b)+'</div>':'')+'</div></a></li>';
+  }).join('');
+  var plates=W.map(function(b){
+    return '<li><div class="plate"><h3>'+esc(t(b))+'</h3><div class="en">'+esc(LANG==='ar'?b.en:b.ar)+'</div>'+
+      '<div class="st"><i></i>'+l.prep+'</div>'+(isAdmin()?'<div style="margin-top:8px">'+meter(b)+'</div>':'')+'</div></li>';
+  }).join('');
+  return '<div class="view"><section class="intro"><img src="icons/logo-mark.png" alt="" width="160" height="167"><div><h1>'+l.h1+'</h1><div class="en">'+l.h1alt+'</div></div></section>'+
+    '<p class="lead">'+l.lead+'</p>'+
+    (R.length?'<div class="gh"><h2>'+l.ready+'</h2><small>'+l.branches(R.length)+'</small></div><ul class="ready">'+cards+'</ul>':'')+
+    (W.length?'<div class="gh"><h2>'+l.pending+'</h2><small>'+l.branches(W.length)+(LANG==='ar'?'، ':'. ')+l.pendingS+'</small></div><ul class="pending">'+plates+'</ul>':'')+'</div>';
+}
+
+/* ---------------- صفحة الفرع ---------------- */
+function branchHTML(b){
+  var l=L(),ph=b.photos||[],U=b.units||[],C=b.contact||{},T=b.terms||{},N=b.near||[],fp=fromPrice(b);
+  var facts=[];
+  if(U.length)facts.push(['apartment',l.unitsS(U.length)]);
+  if(b.utilities===true)facts.push(['bolt',l.util+' '+(LANG==='ar'?'مشمولة':'included')]);
+  if((b.amen||[]).indexOf('reception')>=0)facts.push(['bell',AMEN.reception[LANG==='ar'?1:2]]);
+  if(N[0])facts.push([N[0].ic||'pin',(LANG==='ar'?N[0].ar+' على بُعد '+mins(N[0].min,1):mins(N[0].min)+' to '+N[0].en)]);
+
+  var head='<div class="hero" data-mode="'+MODE+'">'+
+      '<img class="day" src="'+img(b,b.hero.day)+'" alt="'+esc(l.facade+' '+l.day)+'" fetchpriority="high">'+
+      '<img class="night" src="'+img(b,b.hero.night)+'" alt="'+esc(l.facade+' '+l.night)+'">'+
+      '<div class="dn" role="group" aria-label="'+esc(l.facade)+'">'+
+        '<button type="button" data-dn="day" aria-pressed="'+(MODE==='day')+'">'+ic('sun')+l.day+'</button>'+
+        '<button type="button" data-dn="night" aria-pressed="'+(MODE==='night')+'">'+ic('moon')+l.night+'</button></div></div>'+
+    '<div class="bhead"><div><h1>'+esc(t(b))+'</h1><div class="en">'+esc(LANG==='ar'?b.en:b.ar)+'</div></div>'+
+      '<div>'+(fp?'<div class="price"><small>'+l.from+'</small>'+money(fp)+'</div>':'')+
+      '<div class="acts">'+(C.phone?'<a class="btn solid" href="'+telHref(C.phone)+'">'+ic('phone')+l.call+'</a>':'')+
+      '<button class="btn line" type="button" data-share>'+ic('share')+l.share+'</button></div></div>'+
+      (facts.length?'<ul class="facts">'+facts.map(function(f){return '<li>'+ic(f[0])+esc(f[1])+'</li>'}).join('')+'</ul>':'')+'</div>';
+
+  var navs=['gallery','loc','units','fin','contact'];
+  var nav='<nav class="snav" aria-label="'+esc(l.sections)+'"><div>'+navs.map(function(k){return '<button type="button" data-go="'+k+'">'+l.nav[k]+'</button>'}).join('')+'</div></nav>';
+
+  var gallery=ph.length?'<section class="sec" id="gallery"><div class="sh"><div><h2>'+l.gallery+'</h2><p>'+l.photos(ph.length)+'</p></div>'+
+      '<button class="btn line" type="button" data-lb="0">'+l.all+'</button></div><div class="mosaic">'+
+      ph.map(function(p,i){return '<button type="button" data-lb="'+i+'" aria-label="'+esc(l.view+(LANG==='ar'?p[2]:p[3]))+'"><img src="'+img(b,p[0])+'" alt="" loading="lazy">'+
+        (i===4&&ph.length>5?'<span class="more">'+l.more(ph.length-5)+'</span>':'')+'</button>'}).join('')+'</div></section>':'';
+
+  var loc='<section class="sec" id="loc"><div class="sh"><h2>'+l.loc+'</h2></div><div class="loc">'+
+      '<div class="mapcard"><span class="pin">'+ic('pin')+'</span><h3>'+l.mapT+'</h3><p>'+l.mapP+'</p>'+
+        (b.map?'<a class="btn light" href="'+esc(b.map)+'" target="_blank" rel="noopener">'+ic('ext')+l.mapB+'</a>':'')+'</div>'+
+      (N.length?'<div><ul class="near">'+N.map(function(x){return '<li><span class="ic">'+ic(x.ic||'pin')+'</span>'+
+        '<span><b>'+esc(t(x))+'</b>'+(LANG==='ar'&&x.en?'<span class="en">'+esc(x.en)+'</span>':'')+'</span>'+
+        '<span class="t">'+esc(mins(x.min))+'<small>'+l.drive+'</small></span>'+
+        '<span class="bar"><i style="width:'+Math.max(6,Math.min(100,Math.round(x.min/30*100)))+'%"></i></span></li>'}).join('')+'</ul>'+
+        '<p class="note">'+l.nearNote+'</p></div>':'')+'</div></section>';
+
+  var units='<section class="sec" id="units"><div class="sh"><div><h2>'+l.units+'</h2>'+(U.length?'<p>'+l.unitsS(U.length)+'</p>':'')+'</div></div>'+
+      '<ul class="units">'+U.map(function(u){return '<li class="unit"><span class="ic">'+ic(u.ic||'apartment')+'</span><div><h3>'+esc(t(u))+'</h3>'+
+        '<div class="en">'+esc(LANG==='ar'?u.en:u.ar)+'</div>'+(u.count?'<div class="n">'+l.count(u.count)+'</div>':'')+'</div></li>'}).join('')+'</ul>'+
+      ((b.amen||[]).length?'<h3 class="sub">'+l.amen+'</h3><ul class="amen">'+b.amen.map(function(k){var a=AMEN[k]||['check',k,k];return '<li>'+ic(a[0])+esc(LANG==='ar'?a[1]:a[2])+'</li>'}).join('')+'</ul>':'')+'</section>';
+
+  function priceCell(u){
+    if(u.daily||u.monthly)return (u.monthly?'<div>'+money(u.monthly)+'<small>'+l.perMonth+'</small></div>':'')+(u.daily?'<div style="margin-top:8px">'+money(u.daily)+'<small>'+l.perDay+'</small></div>':'');
+    return money(u.price);
+  }
+  var termRows=[];
+  if(typeof b.utilities==='boolean')termRows.push(['bolt',l.util,b.utilities?l.utilY:l.utilN]);
+  if(T.contract)termRows.push(['doc',l.contract,t(T.contract)]);
+  if(T.invoice)termRows.push(['doc',l.invoice,t(T.invoice)]);
+  if(T.deposit)termRows.push(['cash',l.deposit,t(T.deposit)]);
+  if(T.vat)termRows.push(['cash',l.vat,t(T.vat)]);
+  if(b.discount)termRows.push(['tag',l.discount,t(b.discount)]);
+  var fin='<section class="sec" id="fin"><div class="sh"><div><h2>'+l.fin+'</h2><p>'+l.finS+'</p></div></div><div class="fin">'+
+      '<div class="rate"><h3>'+l.rate+'</h3><ul>'+U.map(function(u){return '<li><span class="nm">'+esc(t(u))+'<small class="en">'+esc(LANG==='ar'?u.en:u.ar)+'</small></span><span class="ld"></span><span class="pr">'+priceCell(u)+'</span></li>'}).join('')+'</ul>'+
+        (b.basis&&U.some(function(u){return u.price})?'<p class="basis">'+esc(t(b.basis))+'</p>':'')+'</div>'+
+      (termRows.length?'<div class="terms"><h3>'+l.terms+'</h3><ul>'+termRows.map(function(r){return '<li>'+ic(r[0])+'<div><b>'+esc(r[1])+'</b><span>'+esc(r[2])+'</span></div></li>'}).join('')+'</ul></div>':'')+'</div></section>';
+
+  var contact='<section class="sec" id="contact"><div class="sh"><h2>'+l.contact+'</h2></div><div class="ccard"><div>'+
+      '<div class="who">'+esc(C.person?t(C.person):t(C.team))+(C.person&&C.team?'<small>'+esc(t(C.team))+'</small>':'')+'</div>'+
+      (C.phone?'<div><a class="ph" href="'+telHref(C.phone)+'">'+esc(C.phone)+'</a></div>':'')+
+      (C.email?'<a class="em" href="mailto:'+esc(C.email)+'">'+esc(C.email)+'</a>':'')+'</div>'+
+      '<div class="acts">'+(C.phone?'<a class="btn light" href="'+telHref(C.phone)+'">'+ic('phone')+l.call+'</a>':'')+
+        (C.wa?'<a class="btn ghost" href="'+waHref(C.wa)+'" target="_blank" rel="noopener">'+ic('wa')+l.wa+'</a>':'')+
+        (C.email?'<a class="btn ghost" href="mailto:'+esc(C.email)+'">'+ic('mail')+l.mail+'</a>':'')+
+        (C.phone?'<button class="btn ghost" type="button" data-copy="'+esc(C.phone)+'">'+ic('copy')+l.copy+'</button>':'')+
+        '<button class="btn ghost" type="button" data-share>'+ic('share')+l.share+'</button></div></div></section>';
+
+  var checklist='';
+  if(isAdmin()){var A=asg(b),d=A.filter(function(x){return x.s==='done'}).length;
+    checklist='<details class="asg"><summary>'+ic('doc')+'<span>'+l.asg+'</span>'+meter(b)+ic('chev','chev flip')+'</summary><ol>'+
+      A.map(function(x,i){return '<li><span class="no">'+(i+1)+'</span><span class="s '+x.s+'">'+ic(x.s==='done'?'check':x.s==='part'?'half':'dash')+'</span>'+
+        '<span>'+esc(l.asgItems[i])+(x.note?'<small>'+esc(x.note)+'</small>':'')+'</span><span class="lbl '+x.s+'">'+l.st[x.s]+'</span></li>'}).join('')+
+      '</ol><p class="note" style="margin:0;padding:0 20px 16px">'+l.asgNote+'</p></details>';
+  }
+  return '<article class="view'+(FIRST?' enter':'')+'">'+head+nav+gallery+loc+units+fin+contact+checklist+'</article>';
+}
+
+/* ---------------- العرض والتنقل ---------------- */
+function routeId(){return decodeURIComponent(location.hash.slice(1))}
+function findReady(id){for(var i=0;i<BRANCHES.length;i++)if(BRANCHES[i].id===id&&isReady(BRANCHES[i]))return BRANCHES[i];return null}
+function chrome(b){
+  var l=L();document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  $('#homeT').textContent=l.home;$('#homeA').setAttribute('aria-label',l.home);$('#langBtn').textContent=l.lang;
+  $('#fco').textContent=l.co;$('#fco2').textContent=l.co2;
+  $('#crumb').innerHTML=ic('chev','flip')+(b?'<a href="#">'+l.cat+'</a>'+ic('chev','flip')+'<span class="cur">'+esc(t(b))+'</span>':'<span class="cur">'+l.cat+'</span>');
+  document.title=(b?t(b)+' | '+l.cat:l.cat)+' | '+(LANG==='ar'?'مرسى':'Marsa');
+  $('#lbX').innerHTML=ic('x');$('#lbX').setAttribute('aria-label',l.close);
+  $('#lbPv').innerHTML=ic('back','flip');$('#lbPv').setAttribute('aria-label',l.prev);
+  $('#lbNx').innerHTML=ic('chev','flip');$('#lbNx').setAttribute('aria-label',l.next);
+  $('#lb').setAttribute('aria-label',l.viewer);
+}
+function paint(){
+  var b=findReady(routeId());CUR=b?b.id:null;chrome(b);
+  $('#app').innerHTML=b?branchHTML(b):dashHTML();
+  if(b)spy();else if(SPY){SPY.disconnect();SPY=null}
+  FIRST=false;
+}
+function navigate(){
+  var next=findReady(routeId()),prevId=CUR;
+  if((next?next.id:null)===prevId)return;
+  if(!prevId)DASH_Y=window.scrollY;
+  function swap(){paint();window.scrollTo(0,next?0:DASH_Y);if(!next&&prevId)markCard(prevId)}
+  if(document.startViewTransition&&!RM){
+    if(next)markCard(next.id);
+    var vt=document.startViewTransition(swap);
+    vt.finished.then(clearMarks,clearMarks);
+  }else swap();
+}
+function markCard(id){var c=document.querySelector('.bcard[data-id="'+id+'"] .ph');if(c)c.style.viewTransitionName='hero'}
+function clearMarks(){Array.prototype.forEach.call(document.querySelectorAll('.bcard .ph'),function(e){e.style.viewTransitionName=''})}
+
+function spy(){
+  if(SPY)SPY.disconnect();if(!('IntersectionObserver' in window))return;
+  SPY=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+    Array.prototype.forEach.call(document.querySelectorAll('.snav button'),function(btn){btn.setAttribute('aria-current',btn.getAttribute('data-go')===e.target.id?'true':'false')});
+  }})},{rootMargin:'-130px 0px -60% 0px'});
+  Array.prototype.forEach.call(document.querySelectorAll('.sec'),function(s){SPY.observe(s)});
+}
+
+/* ---------------- عارض الصور ---------------- */
+var LB={b:null,i:0};
+function lbShow(){
+  var b=LB.b,p=b.photos[LB.i],im=$('#lbImg'),n=b.photos.length;
+  im.style.opacity=0;im.onload=function(){im.style.opacity=1};im.src=img(b,p[0]);im.alt=LANG==='ar'?p[2]:p[3];
+  $('#lbCap').textContent=LANG==='ar'?p[2]:p[3];$('#lbNum').textContent=(LB.i+1)+' / '+n;
+  new Image().src=img(b,b.photos[(LB.i+1)%n][0]);
+}
+function lbStep(d){var n=LB.b.photos.length;LB.i=(LB.i+d+n)%n;lbShow()}
+function lbOpen(b,i){LB.b=b;LB.i=i;lbShow();var d=$('#lb');if(d.showModal)d.showModal();else d.setAttribute('open','')}
+function lbClose(){var d=$('#lb');if(d.close)d.close();else d.removeAttribute('open')}
+(function(){
+  var d=$('#lb'),x0=null;
+  $('#lbX').onclick=lbClose;$('#lbPv').onclick=function(){lbStep(-1)};$('#lbNx').onclick=function(){lbStep(1)};
+  d.addEventListener('click',function(e){if(e.target===d||e.target.id==='lbFig')lbClose()});
+  d.addEventListener('keydown',function(e){
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();var fwd=(e.key==='ArrowLeft')===(LANG==='ar');lbStep(fwd?1:-1)}
+  });
+  var f=$('#lbFig');
+  f.addEventListener('pointerdown',function(e){x0=e.clientX});
+  f.addEventListener('pointerup',function(e){if(x0==null)return;var dx=e.clientX-x0;x0=null;if(Math.abs(dx)<45)return;lbStep((LANG==='ar'?dx>0:dx<0)?1:-1)});
+})();
+
+/* ---------------- المشاركة والنسخ ---------------- */
+function toast(msg){var el=$('#toast');el.textContent=msg;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on')},2600)}
+function copyText(s,ok){
+  function fallback(){var ta=document.createElement('textarea');ta.value=s;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    var done=false;try{done=document.execCommand('copy')}catch(e){}ta.remove();toast(done?ok:L().copyFail)}
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(s).then(function(){toast(ok)},fallback);else fallback();
+}
+function shareText(b){
+  var l=L(),U=b.units||[],C=b.contact||{},T=b.terms||{},out=[l.shareHead,l.branch+t(b),''];
+  if(U.length){out.push(l.unitsPrices+(b.basis&&U.some(function(u){return u.price})?' ('+t(b.basis)+')':'')+':');
+    U.forEach(function(u){var p=u.daily||u.monthly?[u.monthly?moneyTxt(u.monthly)+' '+l.perMonth:'',u.daily?moneyTxt(u.daily)+' '+l.perDay:''].filter(Boolean).join('، '):moneyTxt(u.price);out.push('- '+t(u)+': '+p)})}
+  if(typeof b.utilities==='boolean')out.push(l.util+': '+(b.utilities?l.utilY:l.utilN));
+  if(T.contract)out.push(t(T.contract));
+  if((b.amen||[]).length)out.push(l.amenL+': '+b.amen.map(function(k){return AMEN[k]?AMEN[k][LANG==='ar'?1:2]:k}).join(LANG==='ar'?'، ':', '));
+  if(b.map)out.push('',l.location+': '+b.map);
+  if(C.phone||C.email)out.push(l.contactL+': '+[C.phone,C.email].filter(Boolean).join(' | '));
+  return out.join('\n');
+}
+function share(b){
+  var txt=shareText(b);
+  if(navigator.share)navigator.share({title:L().shareHead+' | '+t(b),text:txt}).catch(function(e){if(e&&e.name!=='AbortError')copyText(txt,L().shared)});
+  else copyText(txt,L().shared);
+}
+
+/* ---------------- الأحداث ---------------- */
+document.addEventListener('click',function(e){
+  var el=e.target.closest&&e.target.closest('[data-dn],[data-go],[data-lb],[data-share],[data-copy]');if(!el)return;
+  var b=findReady(CUR);
+  if(el.hasAttribute('data-dn')){MODE=el.getAttribute('data-dn');var h=$('.hero');if(h)h.setAttribute('data-mode',MODE);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dn]'),function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-dn')===MODE))});return}
+  if(el.hasAttribute('data-go')){var s=document.getElementById(el.getAttribute('data-go'));if(s)s.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});return}
+  if(!b)return;
+  if(el.hasAttribute('data-lb'))lbOpen(b,+el.getAttribute('data-lb'));
+  else if(el.hasAttribute('data-share'))share(b);
+  else if(el.hasAttribute('data-copy'))copyText(el.getAttribute('data-copy'),L().copied);
+});
+$('#langBtn').onclick=function(){LANG=LANG==='ar'?'en':'ar';store.set('marsa_lang',LANG);var y=window.scrollY;paint();window.scrollTo(0,y)};
+window.addEventListener('hashchange',navigate);
+
+paint();
+if(location.hash&&!CUR)history.replaceState(null,'',location.pathname+location.search);
+
+/* التحقق من الجلسة في الخلفية: الصفحة تفتح فوراً (وحتى بدون إنترنت)، وتُغلق إن انتهت صلاحية الدخول */
+if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'me',t:TOKEN})})
+  .then(function(r){return r.json()}).then(function(r){
+    if(!r||!r.ok){store.del('marsa_token');store.del('marsa_user');location.replace('./');return}
+    if(r.user.must){location.replace('./');return}
+    var was=isAdmin();USER=r.user;store.set('marsa_user',JSON.stringify(r.user));
+    if(was!==isAdmin()){var y=window.scrollY;paint();window.scrollTo(0,y)}
+  }).catch(function(){});
+})();
+</script>
+<script>if("serviceWorker"in navigator&&/^https?:/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>
