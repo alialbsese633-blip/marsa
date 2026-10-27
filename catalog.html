@@ -199,7 +199,6 @@ html[dir=rtl] .near .bar i{background:linear-gradient(270deg,var(--sky),var(--la
 .rate .pr b{font:600 26px/1 var(--latin);color:var(--gold-ink)}
 .rate .pr span{font-size:13px;color:var(--mute);margin-inline-start:5px}
 .rate .pr small{display:block;font-size:12px;color:var(--mute);margin-top:4px}
-.rate .basis{margin:10px 0 0;font-size:13px;color:var(--mute)}
 .terms{padding:24px 24px 10px;border-radius:24px;background:var(--card);border:1px solid var(--line)}
 .terms li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
 .terms li:last-child{border-bottom:0}
@@ -216,6 +215,7 @@ html[dir=rtl] .near .bar i{background:linear-gradient(270deg,var(--sky),var(--la
 .ccard .em{color:#fff;opacity:.85;font-size:15px;text-decoration:none;font-family:var(--latin);direction:ltr;unicode-bidi:isolate}
 .ccard .em:hover,.ccard .ph:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
 .ccard .acts{display:grid;grid-template-columns:1fr 1fr;margin:0;min-width:min(100%,380px)}
+.ccard .acts [data-share]{grid-column:1/-1}
 
 /* اكتمال مواد التكليف — للموارد البشرية والمدير العام فقط */
 .asg{margin-top:44px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
@@ -315,7 +315,7 @@ html[dir=ltr] .asg[open] summary .chev{transform:scaleX(-1) rotate(-90deg)}
    يظهر الفرع «جاهزاً للعرض» متى أُضيفت صورتا الواجهة (hero)، وإلا يبقى «قيد التجهيز».
    photos: [اسم الملف، النوع، الوصف بالعربي، الوصف بالإنجليزي]
      الأنواع: facade-day, facade-night, reception, bedroom, living, kitchen, bathroom, facility, view
-   الأسعار: daily و monthly لكل نوع وحدة؛ price عند عدم تحديد اليومي من الشهري.
+   الأسعار: monthly (شهري) و daily (يومي) لكل نوع وحدة بالريال العماني.
    null يعني أن المعلومة لم تصل بعد من الفرع (تظهر للإدارة في قائمة مواد التكليف).
    ===================================================================== */
 var BRANCHES=[
@@ -346,16 +346,15 @@ var BRANCHES=[
     map:'https://www.google.com/travel/hotels/s/YFboJPF57qpCrPLu9',
     near:[{ic:'cart',ar:'نستو هايبر ماركت',en:'Nesto Hypermarket',min:2}],
     units:[
-      {ic:'apartment',ar:'شقة',en:'Apartment',price:140,count:null},
-      {ic:'studio',ar:'استوديو',en:'Studio',price:120,count:null},
-      {ic:'room',ar:'غرفة مع حمام ومطبخ',en:'Room with bathroom & kitchen',price:90,count:null}
+      {ic:'apartment',ar:'شقة',en:'Apartment',monthly:140,daily:null,count:null},
+      {ic:'studio',ar:'استوديو',en:'Studio',monthly:120,daily:null,count:null},
+      {ic:'room',ar:'غرفة مع حمام ومطبخ',en:'Room with bathroom & kitchen',monthly:90,daily:null,count:null}
     ],
-    basis:{ar:'شهري / يومي',en:'Monthly / daily'},
     amen:['wifi','ac','kitchen','parking','elevator','reception'],
     utilities:true,
     terms:{contract:{ar:'عقد شهري أو يومي',en:'Monthly or daily contract'},invoice:null,deposit:null,vat:null},
     discount:null,
-    contact:{team:{ar:'قسم خدمة عملاء الفرع',en:'Branch customer service'},person:null,phone:'+968 9897 7430',wa:null,email:'saadahnisto@gmail.com'},
+    contact:{team:{ar:'قسم خدمة عملاء الفرع',en:'Branch customer service'},person:null,phone:'+968 9897 7430',wa:'+968 9897 7430',email:'saadahnisto@gmail.com'},
     review:{std:true,files:true}
   },
   {id:'tijari',ar:'الحي التجاري',en:'Al Tijari District'},
@@ -391,7 +390,7 @@ var I={
     asg:'مواد التكليف ASG-012/2026',asgOf:function(a,b){return a+' من '+b+' مكتملة'},asgNote:'تظهر هذه القائمة للموارد البشرية والمدير العام فقط.',
     st:{done:'مكتمل',part:'جزئي',miss:'لم يُسلَّم'},missing:function(l){return 'ينقص: '+l.join('، ')},
     rooms:{bedroom:'غرفة النوم',living:'الصالة',kitchen:'المطبخ',bathroom:'الحمام'},
-    nearN:function(n){return n===1?'مكان واحد مسجّل، والمطلوب أهم الأماكن القريبة':n+' أماكن مسجّلة'},noCount:'ينقص عدد كل نوع',noSplit:'السعر مسجّل دون تحديد اليومي من الشهري',
+    nearN:function(n){return n===1?'مكان واحد مسجّل، والمطلوب أهم الأماكن القريبة':n+' أماكن مسجّلة'},noCount:'ينقص عدد كل نوع',dailyP:'الأسعار اليومية',monthlyP:'الأسعار الشهرية',rateM:'الأسعار الشهرية',rateD:'الأسعار اليومية',
     person:'اسم الموظف',
     asgItems:['صورة الواجهة نهاراً وليلاً','صور الاستقبال (2 إلى 3)','صور كل نوع شقة: غرفة النوم، الصالة، المطبخ، الحمام','صور المرافق: المصعد، المواقف، وأي مرفق مميز','صورة الإطلالة من الشرفة أو النافذة','معيار التصوير: بالعرض، إضاءة النهار، غرف مرتبة','الصور مرسلة كملفات أو رابط، لا كصور واتساب','رابط الموقع على Google Maps','أهم الأماكن القريبة مع الوقت بالسيارة','أنواع الشقق وعدد كل نوع','المزايا الموجودة فعلاً','الكهرباء والماء: مشمولة في السعر أم لا','الأسعار اليومية والشهرية','خصم الشركات أو العقود الطويلة','شروط الدفع: الفاتورة، التأمين، الضريبة','موظف الاستقبال أو المبيعات: الاسم، الهاتف، الواتساب'],
     co:'نسائم صلالة للشقق المفروشة',co2:'العالمية السعيدة المتحدة ش.م.م',
@@ -414,7 +413,7 @@ var I={
     asg:'ASG-012/2026 materials',asgOf:function(a,b){return a+' of '+b+' complete'},asgNote:'Only HR and the General Manager see this list.',
     st:{done:'Complete',part:'Partial',miss:'Not delivered'},missing:function(l){return 'Missing: '+l.join(', ')},
     rooms:{bedroom:'bedroom',living:'living room',kitchen:'kitchen',bathroom:'bathroom'},
-    nearN:function(n){return n===1?'One place recorded; the key nearby places are needed':n+' places recorded'},noCount:'Count per type missing',noSplit:'Price recorded without daily vs monthly',
+    nearN:function(n){return n===1?'One place recorded; the key nearby places are needed':n+' places recorded'},noCount:'Count per type missing',dailyP:'daily prices',monthlyP:'monthly prices',rateM:'Monthly rates',rateD:'Daily rates',
     person:'staff name',
     asgItems:['Facade by day and at night','Reception photos (2 to 3)','Each unit type: bedroom, living room, kitchen, bathroom','Facilities: elevator, parking, anything special','View from a balcony or window','Photo standard: landscape, daylight, tidy rooms','Photos sent as files or a link, not WhatsApp photos','Google Maps link','Key nearby places with drive time','Unit types and how many of each','Amenities the branch actually has','Electricity and water: included or not','Daily and monthly prices','Corporate or long-stay discount','Payment terms: invoice, deposit, VAT','Reception or sales contact: name, phone, WhatsApp'],
     co:'Nassayem Salalah Furnished Apartments',co2:'Al Alamiah Al Saidah United L.L.C.',
@@ -481,7 +480,8 @@ function img(b,f){return 'catalog/'+b.id+'/'+f+'.webp'}
 function money(n){return LANG==='ar'?'<b>'+n+'</b><span>'+L().cur+'</span>':'<span>'+L().cur+'</span> <b>'+n+'</b>'}
 function moneyTxt(n){return LANG==='ar'?n+' '+L().cur:L().cur+' '+n}
 function mins(n,gen){if(LANG==='en')return n+' min';return n===1?'دقيقة واحدة':n===2?(gen?'دقيقتين':'دقيقتان'):n<=10?n+' دقائق':n+' دقيقة'}
-function fromPrice(b){var v=(b.units||[]).map(function(u){return u.monthly||u.price}).filter(Boolean);return v.length?Math.min.apply(null,v):null}
+function fromPrice(b){var v=(b.units||[]).map(function(u){return u.monthly||u.daily}).filter(Boolean);return v.length?Math.min.apply(null,v):null}
+function fromPer(b){var U=b.units||[];return '<small>'+(U.some(function(u){return u.monthly})?L().perMonth:L().perDay)+'</small>'}
 function telHref(p){return 'tel:'+String(p).replace(/[^\d+]/g,'')}
 function waHref(p){return 'https://wa.me/'+String(p).replace(/\D/g,'')}
 
@@ -491,7 +491,8 @@ function asg(b){
   function n(tag){return ph.filter(function(p){return p[1]===tag}).length}
   function s(done,part,note){return {s:done?'done':part?'part':'miss',note:done||!part?'':(note||'')}}
   var rooms=['bedroom','living','kitchen','bathroom'],noRoom=rooms.filter(function(r){return !n(r)});
-  var termGap=[],contactGap=[];
+  var termGap=[],contactGap=[],priceGap=[];
+  if(!U.length||U.some(function(u){return !u.daily}))priceGap.push(l.dailyP);if(!U.length||U.some(function(u){return !u.monthly}))priceGap.push(l.monthlyP);
   if(T.deposit==null)termGap.push(l.deposit);if(T.vat==null)termGap.push(l.vat);if(!T.invoice&&!T.contract)termGap.push(l.invoice);
   if(!C.person)contactGap.push(l.person);if(!C.phone)contactGap.push(l.call);if(!C.wa)contactGap.push(l.wa);
   return [
@@ -507,7 +508,7 @@ function asg(b){
     s(U.length&&U.every(function(u){return u.count}),U.length,l.noCount),
     s((b.amen||[]).length),
     s(typeof b.utilities==='boolean'),
-    s(U.length&&U.every(function(u){return u.daily&&u.monthly}),U.some(function(u){return u.price||u.daily||u.monthly}),l.noSplit),
+    s(!priceGap.length,U.some(function(u){return u.daily||u.monthly}),l.missing(priceGap)),
     s(b.discount!=null),
     s(!termGap.length,termGap.length<3,l.missing(termGap)),
     s(!contactGap.length,C.phone||C.wa,l.missing(contactGap))
@@ -523,7 +524,7 @@ function dashHTML(){
     return '<li><a class="bcard" href="#'+esc(b.id)+'" data-id="'+esc(b.id)+'">'+
       '<div class="ph"><img src="'+img(b,b.hero[MODE])+'" alt="'+esc(l.facade+' '+t(b))+'"><img class="alt" src="'+img(b,b.hero[alt])+'" alt="" loading="lazy"></div>'+
       '<div class="bd"><div><h3>'+esc(t(b))+'</h3><div class="en">'+esc(LANG==='ar'?b.en:b.ar)+'</div></div>'+
-      (fp?'<div class="from"><small>'+l.from+'</small>'+money(fp)+'</div>':'')+
+      (fp?'<div class="from"><small>'+l.from+'</small>'+money(fp)+fromPer(b)+'</div>':'')+
       '<div class="types">'+(b.units||[]).map(function(u){return '<span>'+esc(t(u))+'</span>'}).join('')+'</div>'+
       (isAdmin()?'<div class="pc-row" style="grid-column:1/-1;margin-top:12px">'+meter(b)+'</div>':'')+'</div></a></li>';
   }).join('');
@@ -553,8 +554,9 @@ function branchHTML(b){
         '<button type="button" data-dn="day" aria-pressed="'+(MODE==='day')+'">'+ic('sun')+l.day+'</button>'+
         '<button type="button" data-dn="night" aria-pressed="'+(MODE==='night')+'">'+ic('moon')+l.night+'</button></div></div>'+
     '<div class="bhead"><div><h1>'+esc(t(b))+'</h1><div class="en">'+esc(LANG==='ar'?b.en:b.ar)+'</div></div>'+
-      '<div>'+(fp?'<div class="price"><small>'+l.from+'</small>'+money(fp)+'</div>':'')+
+      '<div>'+(fp?'<div class="price"><small>'+l.from+'</small>'+money(fp)+fromPer(b)+'</div>':'')+
       '<div class="acts">'+(C.phone?'<a class="btn solid" href="'+telHref(C.phone)+'">'+ic('phone')+l.call+'</a>':'')+
+      (C.wa?'<a class="btn line" href="'+waHref(C.wa)+'" target="_blank" rel="noopener">'+ic('wa')+l.wa+'</a>':'')+
       '<button class="btn line" type="button" data-share>'+ic('share')+l.share+'</button></div></div>'+
       (facts.length?'<ul class="facts">'+facts.map(function(f){return '<li>'+ic(f[0])+esc(f[1])+'</li>'}).join('')+'</ul>':'')+'</div>';
 
@@ -581,8 +583,7 @@ function branchHTML(b){
       ((b.amen||[]).length?'<h3 class="sub">'+l.amen+'</h3><ul class="amen">'+b.amen.map(function(k){var a=AMEN[k]||['check',k,k];return '<li>'+ic(a[0])+esc(LANG==='ar'?a[1]:a[2])+'</li>'}).join('')+'</ul>':'')+'</section>';
 
   function priceCell(u){
-    if(u.daily||u.monthly)return (u.monthly?'<div>'+money(u.monthly)+'<small>'+l.perMonth+'</small></div>':'')+(u.daily?'<div style="margin-top:8px">'+money(u.daily)+'<small>'+l.perDay+'</small></div>':'');
-    return money(u.price);
+    return (u.monthly?'<div>'+money(u.monthly)+'<small>'+l.perMonth+'</small></div>':'')+(u.daily?'<div style="margin-top:8px">'+money(u.daily)+'<small>'+l.perDay+'</small></div>':'');
   }
   var termRows=[];
   if(typeof b.utilities==='boolean')termRows.push(['bolt',l.util,b.utilities?l.utilY:l.utilN]);
@@ -592,8 +593,7 @@ function branchHTML(b){
   if(T.vat)termRows.push(['cash',l.vat,t(T.vat)]);
   if(b.discount)termRows.push(['tag',l.discount,t(b.discount)]);
   var fin='<section class="sec" id="fin"><div class="sh"><div><h2>'+l.fin+'</h2><p>'+l.finS+'</p></div></div><div class="fin">'+
-      '<div class="rate"><h3>'+l.rate+'</h3><ul>'+U.map(function(u){return '<li><span class="nm">'+esc(t(u))+'<small class="en">'+esc(LANG==='ar'?u.en:u.ar)+'</small></span><span class="ld"></span><span class="pr">'+priceCell(u)+'</span></li>'}).join('')+'</ul>'+
-        (b.basis&&U.some(function(u){return u.price})?'<p class="basis">'+esc(t(b.basis))+'</p>':'')+'</div>'+
+      '<div class="rate"><h3>'+(U.length&&U.every(function(u){return u.monthly&&!u.daily})?l.rateM:U.length&&U.every(function(u){return u.daily&&!u.monthly})?l.rateD:l.rate)+'</h3><ul>'+U.map(function(u){return '<li><span class="nm">'+esc(t(u))+'<small class="en">'+esc(LANG==='ar'?u.en:u.ar)+'</small></span><span class="ld"></span><span class="pr">'+priceCell(u)+'</span></li>'}).join('')+'</ul></div>'+
       (termRows.length?'<div class="terms"><h3>'+l.terms+'</h3><ul>'+termRows.map(function(r){return '<li>'+ic(r[0])+'<div><b>'+esc(r[1])+'</b><span>'+esc(r[2])+'</span></div></li>'}).join('')+'</ul></div>':'')+'</div></section>';
 
   var contact='<section class="sec" id="contact"><div class="sh"><h2>'+l.contact+'</h2></div><div class="ccard"><div>'+
@@ -690,13 +690,14 @@ function copyText(s,ok){
 }
 function shareText(b){
   var l=L(),U=b.units||[],C=b.contact||{},T=b.terms||{},out=[l.shareHead,l.branch+t(b),''];
-  if(U.length){out.push(l.unitsPrices+(b.basis&&U.some(function(u){return u.price})?' ('+t(b.basis)+')':'')+':');
-    U.forEach(function(u){var p=u.daily||u.monthly?[u.monthly?moneyTxt(u.monthly)+' '+l.perMonth:'',u.daily?moneyTxt(u.daily)+' '+l.perDay:''].filter(Boolean).join('، '):moneyTxt(u.price);out.push('- '+t(u)+': '+p)})}
+  if(U.length){out.push(l.unitsPrices+':');
+    U.forEach(function(u){out.push('- '+t(u)+': '+[u.monthly?moneyTxt(u.monthly)+' '+l.perMonth:'',u.daily?moneyTxt(u.daily)+' '+l.perDay:''].filter(Boolean).join(LANG==='ar'?'، ':', '))})}
   if(typeof b.utilities==='boolean')out.push(l.util+': '+(b.utilities?l.utilY:l.utilN));
   if(T.contract)out.push(t(T.contract));
   if((b.amen||[]).length)out.push(l.amenL+': '+b.amen.map(function(k){return AMEN[k]?AMEN[k][LANG==='ar'?1:2]:k}).join(LANG==='ar'?'، ':', '));
   if(b.map)out.push('',l.location+': '+b.map);
   if(C.phone||C.email)out.push(l.contactL+': '+[C.phone,C.email].filter(Boolean).join(' | '));
+  if(C.wa)out.push(l.wa+': '+waHref(C.wa));
   return out.join('\n');
 }
 function share(b){
