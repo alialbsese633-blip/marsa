@@ -1205,7 +1205,7 @@ function printInline(html,title){
   $('#prX',o).onclick=close;
 }
 /* الطباعة عبر إطار مستقل: مستند نظيف فيه النموذج فقط، فلا تظهر صفحة بيضاء في Edge/Chrome أو في وضع التطبيق المثبّت */
-const APP_VER='v23';
+const APP_VER='v24';
 function printDocString(html,title,withBar){
   const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
   /* مستندات الليتر هيد الرسمي (الإدارة المالية) تُطبع بنفس خطوط التطبيق حتى يطابق المطبوع ما يظهر على الشاشة */
@@ -2771,7 +2771,7 @@ const BUD_DESC={
  '9027':['مصاريف ترفيه ورحلات موظفين',['رحلات وفعاليات ترفيهية للموظفين','تكاليف النقل والضيافة في الرحلات','هدايا ومسابقات الموظفين']],
  '9092':['تنقلات وبدلات سفر خارجية',['تذاكر وتنقلات السفر خارج السلطنة','بدلات السفر والإقامة الخارجية','رسوم التأشيرات والنقل أثناء السفر']],
  '9657':['خدمات غسيل السجاد',['غسيل السجاد والموكيت في الشقق','أجور شركات غسيل السجاد','نقل السجاد وتجفيفه']]};
-const BUD_KW=[[/كهرب|electric/i,['الكهرباء',['فواتير الكهرباء للبنايات والشقق','إنارة المرافق المشتركة']]],[/مياه|ماء|water/i,['المياه',['فواتير المياه للبنايات والشقق','صيانة خطوط المياه والخزانات']]],
+const BUD_KW=[[/vehicle\s*wash|غسيل\s*(المركبات|السيارات|مركب|سيار)/i,['غسيل المركبات',['غسيل سيارات الشركة وتلميعها','مستلزمات ومواد غسيل المركبات','أجور خدمات الغسيل الخارجية']]],[/vehicle.*(repair|maint)|(صيان|اصلاح|إصلاح).*(مركب|سيار)|قطع\s*غيار/i,['صيانة وإصلاح المركبات',['إصلاح مركبات الشركة وقطع غيارها','أجور الورش والصيانة الدورية','البطاريات والإطارات']]],[/اثاث|أثاث|furnit/i,['صيانة الأثاث',['إصلاح وصيانة الأثاث والأبواب','قطع غيار وأجور النجارة','دهان وتجديد قطع الأثاث']]],[/كهرب|electric/i,['الكهرباء',['فواتير الكهرباء للبنايات والشقق','إنارة المرافق المشتركة']]],[/مياه|ماء|water/i,['المياه',['فواتير المياه للبنايات والشقق','صيانة خطوط المياه والخزانات']]],
  [/اتصال|انترنت|إنترنت|internet|phone|telecom/i,['الاتصالات والإنترنت',['اشتراكات الإنترنت للبنايات والشقق','خطوط الهاتف والاتصالات']]],[/نظاف|clean/i,['مواد النظافة',['منظفات ومعقمات للشقق','أكياس نفايات وورق ومناديل']]],
  [/صيان|إصلاح|اصلاح|maint|repair/i,['الصيانة والإصلاح',['إصلاح التكييف والسباكة والكهرباء','قطع غيار وأجور فنيين']]],[/وقود|fuel|vehicle|مركب|سيار/i,['الوقود والمركبات',['وقود سيارات الشركة','صيانة المركبات وزيوتها']]],
  [/ايجار|إيجار|rent/i,['الإيجارات',['إيجار المباني والمرافق']]],[/غسيل|مغسل|laundry/i,['غسيل المفروشات',['غسيل الأغطية والمناشف','مستلزمات المغسلة']]],
@@ -2820,6 +2820,9 @@ bn:{'9451':['বিদ্যুৎ',['ভবন ও অ্যাপার্ট�
  '9657':['কার্পেট ধোয়ার সেবা',['অ্যাপার্টমেন্টের কার্পেট ও রাগ ধোয়া','কার্পেট ধোয়ার কোম্পানির ফি','কার্পেট পরিবহন ও শুকানো']]}};
 /* ترجمة الكلمات المفتاحية — بنفس ترتيب BUD_KW */
 const BUD_KW_T=[
+ {en:['Vehicle Washing',['Washing and polishing company vehicles','Vehicle washing supplies and materials','External washing service fees']],bn:['গাড়ি ধোয়া',['কোম্পানির গাড়ি ধোয়া ও পলিশ','গাড়ি ধোয়ার সামগ্রী','বাইরের ধোয়া সেবার ফি']]},
+ {en:['Vehicle Repairs & Maintenance',['Repair of company vehicles and spare parts','Workshop fees and periodic servicing','Batteries and tyres']],bn:['গাড়ি মেরামত ও রক্ষণাবেক্ষণ',['কোম্পানির গাড়ি মেরামত ও যন্ত্রাংশ','ওয়ার্কশপ ফি ও নিয়মিত সার্ভিসিং','ব্যাটারি ও টায়ার']]},
+ {en:['Furniture Maintenance',['Repair and maintenance of furniture and doors','Spare parts and carpentry fees','Painting and refurbishing furniture']],bn:['আসবাব রক্ষণাবেক্ষণ',['আসবাব ও দরজা মেরামত ও রক্ষণাবেক্ষণ','যন্ত্রাংশ ও কাঠমিস্ত্রির মজুরি','আসবাব রং ও সংস্কার']]},
  {en:['Electricity',['Electricity bills for buildings and apartments','Lighting for shared areas']],bn:['বিদ্যুৎ',['ভবন ও অ্যাপার্টমেন্টের বিদ্যুৎ বিল','সাধারণ এলাকার আলো']]},
  {en:['Water',['Water bills for buildings and apartments','Maintenance of water lines and tanks']],bn:['পানি',['ভবন ও অ্যাপার্টমেন্টের পানির বিল','পানির লাইন ও ট্যাংক রক্ষণাবেক্ষণ']]},
  {en:['Telecom & Internet',['Internet subscriptions for buildings and apartments','Phone lines and communications']],bn:['টেলিযোগাযোগ ও ইন্টারনেট',['ভবন ও অ্যাপার্টমেন্টের ইন্টারনেট সাবস্ক্রিপশন','ফোন লাইন ও যোগাযোগ']]},
@@ -2836,14 +2839,16 @@ const BUD_KW_T=[
  {en:['Government Fees',['Licence and permit fees','Government authority fees']],bn:['সরকারি ফি',['লাইসেন্স ও পারমিট ফি','সরকারি দপ্তরের ফি']]},
  {en:['Gratuities',['Tips for staff and service workers','Small rewards']],bn:['বখশিশ',['কর্মী ও সেবাকর্মীদের বখশিশ','প্রতীকী পুরস্কার']]},
  {en:['Marketing & Advertising',['Ads and booking platforms','Promotional materials and design']],bn:['মার্কেটিং ও বিজ্ঞাপন',['বিজ্ঞাপন ও বুকিং প্ল্যাটফর্ম','প্রচার সামগ্রী ও ডিজাইন']]}];
-const BUD_WD={en:{'مصاريف':'Expenses','مصروفات':'Expenses','ترفيه':'Entertainment','رحلات':'Trips','رحله':'Trip','موظفين':'Employees','موظف':'Employee','تنقلات':'Transportation','بدلات':'Allowances','بدل':'Allowance','سفر':'Travel','خارجيه':'External','خدمات':'Services','خدمه':'Service','غسيل':'Washing','السجاد':'Carpets','سجاد':'Carpets','صيانه':'Maintenance','الاثاث':'Furniture','اثاث':'Furniture','ترويج':'Promotion','ترقيه':'Promotion','الرواتب':'Salaries','رواتب':'Salaries','والاجور':'and Wages','الاجور':'Wages','اجور':'Wages','وقود':'Fuel','وزيوت':'and Oil','زيوت':'Oil','المركبات':'Vehicles','مركبات':'Vehicles','سيارات':'Cars','كهرباء':'Electricity','الكهرباء':'Electricity','مياه':'Water','المياه':'Water','نظافه':'Cleaning','مواد':'Materials','النظافه':'Cleaning','اصلاح':'Repair','الاصلاح':'Repairs','والصيانه':'and Maintenance','مصاريف اداريه':'Administrative Expenses','اداريه':'Administrative','ادارية':'Administrative','اخري':'Other','اخرى':'Other','عامه':'General','العامه':'General','حكوميه':'Government','الحكومه':'Government','نفقات':'Expenses','رسوم':'Fees','بنكيه':'Bank','تامين':'Insurance','التامينات':'Insurance','الاجتماعيه':'Social','علاج':'Medical Treatment','العمال':'Workers','عمال':'Workers','الدعايه':'Advertising','دعايه':'Advertising','اعلان':'Advertising','اعلانات':'Advertising','تسويق':'Marketing','قرطاسيه':'Stationery','مكتبيه':'Office','ايجار':'Rent','ايجارات':'Rents','اتصالات':'Telecom','انترنت':'Internet','تذاكر':'Tickets','هدايا':'Gifts','ضيافه':'Hospitality','برامج':'Programs','تبرعات':'Donations','صدقات':'Charity','والمساعدات':'and Aid','مساعدات':'Aid','المحلات':'Shops','محلات':'Shops','وتجهيزات':'and Equipment','تجهيزات':'Equipment','و':'and'},
-bn:{'مصاريف':'ব্যয়','مصروفات':'ব্যয়','ترفيه':'বিনোদন','رحلات':'ভ্রমণ','رحله':'ভ্রমণ','موظفين':'কর্মীদের','موظف':'কর্মী','تنقلات':'যাতায়াত','بدلات':'ভাতা','بدل':'ভাতা','سفر':'ভ্রমণ','خارجيه':'বহিরাগত','خدمات':'সেবা','خدمه':'সেবা','غسيل':'ধোয়া','السجاد':'কার্পেট','سجاد':'কার্পেট','صيانه':'রক্ষণাবেক্ষণ','الاثاث':'আসবাব','اثاث':'আসবাব','ترويج':'প্রচার','ترقيه':'প্রচার','الرواتب':'বেতন','رواتب':'বেতন','والاجور':'ও মজুরি','الاجور':'মজুরি','اجور':'মজুরি','وقود':'জ্বালানি','وزيوت':'ও তেল','زيوت':'তেল','المركبات':'গাড়ি','مركبات':'গাড়ি','سيارات':'গাড়ি','كهرباء':'বিদ্যুৎ','الكهرباء':'বিদ্যুৎ','مياه':'পানি','المياه':'পানি','نظافه':'পরিচ্ছন্নতা','النظافه':'পরিচ্ছন্নতা','مواد':'সামগ্রী','اصلاح':'মেরামত','الاصلاح':'মেরামত','والصيانه':'ও রক্ষণাবেক্ষণ','اداريه':'প্রশাসনিক','اخري':'অন্যান্য','اخرى':'অন্যান্য','عامه':'সাধারণ','العامه':'সাধারণ','حكوميه':'সরকারি','الحكومه':'সরকারি','نفقات':'ব্যয়','رسوم':'ফি','بنكيه':'ব্যাংক','تامين':'বিমা','التامينات':'বিমা','الاجتماعيه':'সামাজিক','علاج':'চিকিৎসা','العمال':'শ্রমিকদের','عمال':'শ্রমিক','الدعايه':'বিজ্ঞাপন','دعايه':'বিজ্ঞাপন','اعلان':'বিজ্ঞাপন','اعلانات':'বিজ্ঞাপন','تسويق':'মার্কেটিং','قرطاسيه':'স্টেশনারি','مكتبيه':'অফিস','ايجار':'ভাড়া','ايجارات':'ভাড়া','اتصالات':'টেলিযোগাযোগ','انترنت':'ইন্টারনেট','تذاكر':'টিকিট','هدايا':'উপহার','ضيافه':'আপ্যায়ন','برامج':'প্রোগ্রাম','تبرعات':'অনুদান','صدقات':'দান','والمساعدات':'ও সহায়তা','مساعدات':'সহায়তা','المحلات':'দোকান','محلات':'দোকান','وتجهيزات':'ও সরঞ্জাম','تجهيزات':'সরঞ্জাম','و':'ও'}};
+const BUD_WD={en:{'مصاريف':'Expenses','مصروفات':'Expenses','ترفيه':'Entertainment','رحلات':'Trips','رحله':'Trip','موظفين':'Employees','موظف':'Employee','تنقلات':'Transportation','بدلات':'Allowances','بدل':'Allowance','سفر':'Travel','خارجيه':'External','خدمات':'Services','خدمه':'Service','غسيل':'Washing','السجاد':'Carpets','سجاد':'Carpets','صيانه':'Maintenance','الاثاث':'Furniture','اثاث':'Furniture','ترويج':'Promotion','ترقيه':'Promotion','الرواتب':'Salaries','رواتب':'Salaries','والاجور':'and Wages','الاجور':'Wages','اجور':'Wages','وقود':'Fuel','وزيوت':'and Oil','زيوت':'Oil','المركبات':'Vehicles','مركبات':'Vehicles','سيارات':'Cars','كهرباء':'Electricity','الكهرباء':'Electricity','مياه':'Water','المياه':'Water','نظافه':'Cleaning','مواد':'Materials','النظافه':'Cleaning','اصلاح':'Repair','الاصلاح':'Repairs','والصيانه':'and Maintenance','مصاريف اداريه':'Administrative Expenses','اداريه':'Administrative','ادارية':'Administrative','اخري':'Other','اخرى':'Other','عامه':'General','العامه':'General','حكوميه':'Government','الحكومه':'Government','نفقات':'Expenses','رسوم':'Fees','بنكيه':'Bank','تامين':'Insurance','التامينات':'Insurance','الاجتماعيه':'Social','علاج':'Medical Treatment','العمال':'Workers','عمال':'Workers','الدعايه':'Advertising','دعايه':'Advertising','اعلان':'Advertising','اعلانات':'Advertising','تسويق':'Marketing','قرطاسيه':'Stationery','مكتبيه':'Office','ايجار':'Rent','ايجارات':'Rents','اتصالات':'Telecom','انترنت':'Internet','تذاكر':'Tickets','هدايا':'Gifts','ضيافه':'Hospitality','برامج':'Programs','تبرعات':'Donations','صدقات':'Charity','والمساعدات':'and Aid','مساعدات':'Aid','المحلات':'Shops','محلات':'Shops','وتجهيزات':'and Equipment','تجهيزات':'Equipment','ذكاء':'Intelligence','صناعي':'Industrial','الكلاود':'Cloud','كلاود':'Cloud','قطع':'Parts','غيار':'Spare','و':'and'},
+bn:{'مصاريف':'ব্যয়','مصروفات':'ব্যয়','ترفيه':'বিনোদন','رحلات':'ভ্রমণ','رحله':'ভ্রমণ','موظفين':'কর্মীদের','موظف':'কর্মী','تنقلات':'যাতায়াত','بدلات':'ভাতা','بدل':'ভাতা','سفر':'ভ্রমণ','خارجيه':'বহিরাগত','خدمات':'সেবা','خدمه':'সেবা','غسيل':'ধোয়া','السجاد':'কার্পেট','سجاد':'কার্পেট','صيانه':'রক্ষণাবেক্ষণ','الاثاث':'আসবাব','اثاث':'আসবাব','ترويج':'প্রচার','ترقيه':'প্রচার','الرواتب':'বেতন','رواتب':'বেতন','والاجور':'ও মজুরি','الاجور':'মজুরি','اجور':'মজুরি','وقود':'জ্বালানি','وزيوت':'ও তেল','زيوت':'তেল','المركبات':'গাড়ি','مركبات':'গাড়ি','سيارات':'গাড়ি','كهرباء':'বিদ্যুৎ','الكهرباء':'বিদ্যুৎ','مياه':'পানি','المياه':'পানি','نظافه':'পরিচ্ছন্নতা','النظافه':'পরিচ্ছন্নতা','مواد':'সামগ্রী','اصلاح':'মেরামত','الاصلاح':'মেরামত','والصيانه':'ও রক্ষণাবেক্ষণ','اداريه':'প্রশাসনিক','اخري':'অন্যান্য','اخرى':'অন্যান্য','عامه':'সাধারণ','العامه':'সাধারণ','حكوميه':'সরকারি','الحكومه':'সরকারি','نفقات':'ব্যয়','رسوم':'ফি','بنكيه':'ব্যাংক','تامين':'বিমা','التامينات':'বিমা','الاجتماعيه':'সামাজিক','علاج':'চিকিৎসা','العمال':'শ্রমিকদের','عمال':'শ্রমিক','الدعايه':'বিজ্ঞাপন','دعايه':'বিজ্ঞাপন','اعلان':'বিজ্ঞাপন','اعلانات':'বিজ্ঞাপন','تسويق':'মার্কেটিং','قرطاسيه':'স্টেশনারি','مكتبيه':'অফিস','ايجار':'ভাড়া','ايجارات':'ভাড়া','اتصالات':'টেলিযোগাযোগ','انترنت':'ইন্টারনেট','تذاكر':'টিকিট','هدايا':'উপহার','ضيافه':'আপ্যায়ন','برامج':'প্রোগ্রাম','تبرعات':'অনুদান','صدقات':'দান','والمساعدات':'ও সহায়তা','مساعدات':'সহায়তা','المحلات':'দোকান','محلات':'দোকান','وتجهيزات':'ও সরঞ্জাম','تجهيزات':'সরঞ্জাম','ذكاء':'বুদ্ধিমত্তা','صناعي':'শিল্প','الكلاود':'ক্লাউড','كلاود':'ক্লাউড','قطع':'যন্ত্রাংশ','غيار':'খুচরা','و':'ও'}};
 const budNorm=w=>String(w).replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
 /* ترجمة اسم الحساب كلمة بكلمة؛ إن كانت كل الكلمات معروفة تُرجع الترجمة وإلا null */
+const BUD_PH={en:[['ذكاء صناعي','Artificial Intelligence'],['قطع غيار','Spare Parts'],['خدمات صيانة','Maintenance Services'],['ترفيه ورحلات','Entertainment and Trips']],bn:[['ذكاء صناعي','কৃত্রিম বুদ্ধিমত্তা'],['قطع غيار','খুচরা যন্ত্রাংশ'],['خدمات صيانة','রক্ষণাবেক্ষণ সেবা'],['ترفيه ورحلات','বিনোদন ও ভ্রমণ']]};
 function budTrName(name,lang){const D=BUD_WD[lang];if(!D)return null;
-  if(!/[؀-ۿ]/.test(name)){return String(name)}
+  const hasAr=/[\u0600-\u06FF]/.test(String(name));let ph={},nm0=String(name);(BUD_PH[lang]||[]).forEach(([k,v],i)=>{const re=new RegExp(budNorm(k).replace(/ /g,'\\s+'));const nn=budNorm(nm0);if(re.test(nn)){nm0=nn.replace(re,' @@'+i+'@@ ');ph['@@'+i+'@@']=v}});name=nm0;
+  if(!hasAr){return String(name)}
   const toks=String(name).replace(/[—–\-\/|()]+/g,' ').split(/\s+/).filter(Boolean),out=[];
-  for(const t of toks){let n=budNorm(t);if(/^[\x00-\x7F]+$/.test(t)){out.push(t);continue}
+  for(const t of toks){let n=budNorm(t);if(ph[t]){out.push(ph[t]);continue}if(/^[\x00-\x7F]+$/.test(t)){out.push(t);continue}
     let w=D[n];if(w===undefined&&n.startsWith('و')&&D[n.slice(1)]!==undefined)w=(lang==='en'?'and ':'ও ')+D[n.slice(1)];
     if(w===undefined&&n.startsWith('ال')&&D[n.slice(2)]!==undefined)w=D[n.slice(2)];
     if(w===undefined)return null;out.push(w)}
@@ -2880,7 +2885,7 @@ function budgetAlertsHTML(M){
   ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
 }
 const BUD_LANGS=[['ar','عربي'],['en','English'],['bn','বাংলা']];
-const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Expenses & Budget Alert','ব্যয় ও বাজেট সতর্কতা'],title_groups:['الموازنة حسب المجموعة','Budget by Account Group','অ্যাকাউন্ট গ্রুপ অনুযায়ী বাজেট'],title_over:['شرح الحسابات المتجاوزة للموازنة','Over-Budget Accounts Explained','বাজেট অতিক্রান্ত অ্যাকাউন্টের ব্যাখ্যা'],title_top:['أكثر الحسابات إنفاقاً','Highest-Spending Accounts','সর্বাধিক ব্যয়ের অ্যাকাউন্ট'],title_full:['كشف الموازنة والمصروفات','Budget & Expenses Statement','বাজেট ও ব্যয় বিবরণী'],
+const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Expenses & Budget Alert','ব্যয় ও বাজেট সতর্কতা'],title_groups:['الموازنة حسب المجموعة','Budget by Account Group','অ্যাকাউন্ট গ্রুপ অনুযায়ী বাজেট'],title_over:['شرح الحسابات المتجاوزة والقريبة من الحد','Over-Budget & Near-Limit Accounts Explained','বাজেট অতিক্রান্ত ও সীমার কাছাকাছি অ্যাকাউন্টের ব্যাখ্যা'],title_top:['أكثر الحسابات إنفاقاً','Highest-Spending Accounts','সর্বাধিক ব্যয়ের অ্যাকাউন্ট'],title_full:['كشف الموازنة والمصروفات','Budget & Expenses Statement','বাজেট ও ব্যয় বিবরণী'],
  org:['نسائم صلالة للشقق المفروشة — الإدارة المالية','Nassayem Salalah Furnished Apartments — Finance Department','নাসায়েম সালালাহ ফার্নিশড অ্যাপার্টমেন্টস — অর্থ বিভাগ'],asof:['الأرقام حتى','Figures as of','তথ্য হালনাগাদ'],
  over:['متجاوزة','Over budget','বাজেট অতিক্রান্ত'],near:['قريبة من الحد','Near the limit','সীমার কাছাকাছি'],ok:['ضمن الموازنة','Within budget','বাজেটের মধ্যে'],
  secOver:['حسابات تجاوزت الموازنة','Accounts over budget','বাজেট অতিক্রম করা অ্যাকাউন্ট'],secNear:['حسابات قريبة من الحد','Accounts near the limit','সীমার কাছাকাছি অ্যাকাউন্ট'],
@@ -2937,31 +2942,33 @@ async function budgetReportCanvas(M,type,excl,lang){
         T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T(fit(tr('budget')+' '+money(gr.b)+'  ·  '+tr('actual')+' '+money(gr.sp),600,'500 20px '+F),W-P-28,y+98,'500 20px '+F,MUT);
         bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
     if(type==='over'){
-      const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
-      if(!A.over.length){T(tr('noneOver')+' 👌',W/2,y+50,'700 32px '+F,GRN,'center');y+=110}
+      const wrap=(t,mw,font,mx)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);if(mx&&L.length>mx){L.length=mx;L[mx-1]=fit(L[mx-1]+'…',mw,font)}return L};
+      const COLS=3,GAP=22,cw=(W-2*P-GAP*(COLS-1))/COLS,PW=190,TW=cw-48-PW,BW=cw-76,BF='500 20px '+F,TF='800 25px '+F,LH=lang==='bn'?32:29,TL=lang==='bn'?34:30;
+      const section=(L,col,bg,kind,title)=>{if(!L.length)return;
+        T(title+' ('+L.length+')',W-P,y+34,'800 32px '+F,col);y+=60;
+        const cards=L.map(({a,bi})=>{const d=budDescGet(a,lang);const bl=d.b.length?d.b:[tr('generic',d.t)];
+          const tl=wrap(d.t,TW,TF,2),lines=bl.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);
+          return {a,bi,tl,lines,h:34+(tl.length-1)*TL+112+LH+nl*LH+(lines.length-1)*5+14}});
+        for(let r=0;r<cards.length;r+=COLS){const row=cards.slice(r,r+COLS),rh=Math.max(...row.map(c=>c.h));
+          row.forEach((c,ci)=>{const R=W-P-ci*(cw+GAP),{a,bi}=c,pct=bi.budget?bi.pctBefore:null,cy=y;
+            rr(R-cw,cy,cw,rh,16,bg);fR(R-8,cy+14,8,rh-28,col);
+            let hy=cy+36;c.tl.forEach((ln,q)=>{T(ln,R-24,hy,TF,INK);if(q<c.tl.length-1)hy+=TL});
+            T(a.code,R-24,hy+28,'600 19px '+F,MUT);
+            T(fit(tr('budget')+' '+money(bi.budget)+'  ·  '+tr('actual')+' '+money(bi.spent),cw-48,BF),R-24,hy+56,BF,MUT);
+            T(pct==null?tr('noBudget'):pct+'%',R-cw+24,cy+50,'800 '+(pct==null?24:38)+'px '+F,col,'left');
+            T(fit(kind==='c'?tr('overBy')+' +'+money(bi.spent-bi.budget):tr('rem')+' '+money(bi.remaining),PW-10,'700 20px '+F),R-cw+24,cy+80,'700 20px '+F,col,'left');
+            bar(R-cw+24,R-24,hy+72,8,pct==null?1:Math.min(1,pct/100),col);
+            let ly=hy+110;T(tr('includes'),R-24,ly,'700 20px '+F,DK);ly+=LH;
+            c.lines.forEach(Ls=>{Ls.forEach((ln,q)=>{if(q===0)circ(R-30,ly-7,4,BR);T(ln,R-44,ly,BF,'#3C5553');ly+=LH});ly+=5})});
+          y+=rh+12}
+        y+=18};
+      if(!A.over.length&&!A.near.length){T(tr('noneAll')+' 👌',W/2,y+50,'700 32px '+F,GRN,'center');y+=110}
       else{
-        rr(P,y,W-2*P,92,18,'#FBEDEB');fR(W-P-8,y+16,8,60,RED);
-        T(A.over.length+' '+tr('over'),W-P-30,y+40,'800 34px '+F,RED);
-        T(tr('overBy')+' +'+money(A.overSum),W-P-30,y+72,'700 22px '+F,MUT);y+=116;
-        const COLS=3,GAP=22,cw=(W-2*P-GAP*(COLS-1))/COLS,BW=cw-76,BF='500 20px '+F,LH=lang==='bn'?32:29;
-        const cards=A.over.map(({a,bi})=>{const d=budDescGet(a,lang);let bl=d.b.length?d.b:[tr('generic').replace('{n}',d.t)];
-          const lines=bl.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);return {a,bi,d,lines,h:176+nl*LH+(lines.length-1)*5+14}});
-        const colH=[0,0,0],colC=[[],[],[]];
-        cards.forEach(c=>{let k=0;for(let i=1;i<COLS;i++)if(colH[i]<colH[k])k=i;colC[k].push(c);colH[k]+=c.h+12});
-        let yEnd=y;
-        for(let ci=0;ci<COLS;ci++){const R=W-P-ci*(cw+GAP);let cy=y;
-          colC[ci].forEach(c=>{const {a,bi,d}=c,pct=bi.budget?bi.pctBefore:null;
-            rr(R-cw,cy,cw,c.h,16,'#FBEDEB');fR(R-8,cy+14,8,c.h-28,RED);
-            T(fit(d.t,cw-60,'800 26px '+F),R-24,cy+38,'800 26px '+F,INK);
-            T(a.code,R-24,cy+66,'600 19px '+F,MUT);
-            T(tr('budget')+' '+money(bi.budget)+'  ·  '+tr('actual')+' '+money(bi.spent),R-24,cy+96,'500 20px '+F,MUT);
-            T(pct==null?tr('noBudget'):pct+'%',R-cw+24,cy+66,'800 '+(pct==null?24:36)+'px '+F,RED,'left');
-            T(tr('overBy')+' +'+money(bi.spent-bi.budget),R-cw+24,cy+96,'700 20px '+F,RED,'left');
-            bar(R-cw+24,R-24,cy+110,8,pct==null?1:Math.min(1,pct/100),RED);
-            let ly=cy+150;T(tr('includes'),R-24,ly,'700 20px '+F,DK);ly+=LH;
-            c.lines.forEach(L=>{L.forEach((ln,q)=>{if(q===0)circ(R-30,ly-7,4,BR);T(ln,R-44,ly,BF,'#3C5553');ly+=LH});ly+=5});
-            cy+=c.h+12});yEnd=Math.max(yEnd,cy)}
-        y=yEnd+8}}
+        if(A.over.length){rr(P,y,W-2*P,92,18,'#FBEDEB');fR(W-P-8,y+16,8,60,RED);
+          T(A.over.length+' '+tr('over'),W-P-30,y+40,'800 34px '+F,RED);
+          T(tr('overBy')+' +'+money(A.overSum),W-P-30,y+72,'700 22px '+F,MUT);y+=116}
+        section(A.over,RED,'#FBEDEB','c','🔴 '+tr('secOver'));
+        section(A.near,AMB,'#FDF3E1','w','🟠 '+tr('secNear'))}}
     if(type==='top'){
       T(tr('topSub'),W-P,y+30,'700 26px '+F,MUT);y+=58;
       const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
@@ -2996,7 +3003,7 @@ async function budgetReportCanvas(M,type,excl,lang){
   const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
   const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c;
 }
-const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['over','🔴 شرح المتجاوزة'],['groups','🗂️ حسب المجموعة'],['top','🏆 أكثر الحسابات إنفاقاً'],['full','📄 كشف كامل']];
+const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['over','🔴 شرح المتجاوزة والقريبة'],['groups','🗂️ حسب المجموعة'],['top','🏆 أكثر الحسابات إنفاقاً'],['full','📄 كشف كامل']];
 async function budgetReportShow(M){
   M=M||(lastBudgetImport()||{}).month||MONTH;
   if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
@@ -3022,7 +3029,7 @@ async function budgetReportShow(M){
       {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-الموازنة.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير الموازنة'}).catch(()=>{});else dl();return false}},
       {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
     onMount:b=>{
-      const eset=()=>{const A=budgetAlerts(M,excl);return (type==='top'?A.top:type==='over'?A.over:type==='alerts'?[...A.over,...A.near]:type==='full'?A.rows:[]).slice(0,40)};
+      const eset=()=>{const A=budgetAlerts(M,excl);return (type==='top'?A.top:type==='over'?[...A.over,...A.near]:type==='alerts'?[...A.over,...A.near]:type==='full'?A.rows:[]).slice(0,40)};
       const noteTr=()=>{const n=$('#brTrNote',b);if(!n)return;const miss=lang==='ar'?[]:eset().filter(({a})=>budDescGet(a,lang).needsTr);
         if(miss.length){n.style.display='';n.textContent='⚠️ '+miss.length+' حساب لا توجد له ترجمة ('+miss.slice(0,4).map(x=>x.a.code).join('، ')+(miss.length>4?'…':'')+') — اكتب ترجمته من «✏️ شرح الحسابات» وستظهر في الصورة.'}else n.style.display='none'};
       const renderDesc=()=>{const box=$('#brDesc',b);box.dir=lang==='ar'?'rtl':'ltr';box.innerHTML=(type==='groups'?'<div class="empty">هذا التقرير لا يحتوي شروحات حسابات</div>':'')+eset().map(({a})=>{const d=budDescGet(a,lang);return `<div class="card" style="padding:10px;margin-bottom:8px"><div class="small muted" dir="auto" style="margin-bottom:4px">${esc(a.code)} — ${esc(a.name)}${d.needsTr?' <b style="color:var(--critical)">⚠️ بلا ترجمة</b>':''}</div><input data-dt="${esc(a.code)}" value="${esc(d.t)}" style="width:100%;margin-bottom:6px;font-weight:700"><textarea data-dd="${esc(a.code)}" rows="3" style="width:100%" placeholder="${lang==='ar'?'اكتب ما يدخل في هذا الحساب، كل بند في سطر':'Write what goes into this account, one item per line'}">${esc(d.b.join('\n'))}</textarea></div>`}).join('')||'<div class="empty">لا توجد حسابات</div>';
