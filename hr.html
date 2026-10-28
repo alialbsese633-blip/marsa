@@ -1205,7 +1205,7 @@ function printInline(html,title){
   $('#prX',o).onclick=close;
 }
 /* الطباعة عبر إطار مستقل: مستند نظيف فيه النموذج فقط، فلا تظهر صفحة بيضاء في Edge/Chrome أو في وضع التطبيق المثبّت */
-const APP_VER='v21';
+const APP_VER='v22';
 function printDocString(html,title,withBar){
   const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
   /* مستندات الليتر هيد الرسمي (الإدارة المالية) تُطبع بنفس خطوط التطبيق حتى يطابق المطبوع ما يظهر على الشاشة */
@@ -2858,7 +2858,7 @@ function budgetAlertsHTML(M){
   ${sec('حسابات تجاوزت الموازنة',A.over,'c')}${sec('حسابات قريبة من الحد',A.near,'w')}${(!A.over.length&&!A.near.length)?'<div class="empty">لا توجد حسابات متجاوزة أو قريبة من الحد 👌</div>':''}</div>`;
 }
 const BUD_LANGS=[['ar','عربي'],['en','English'],['bn','বাংলা']];
-const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Expenses & Budget Alert','ব্যয় ও বাজেট সতর্কতা'],title_groups:['الموازنة حسب المجموعة','Budget by Account Group','অ্যাকাউন্ট গ্রুপ অনুযায়ী বাজেট'],title_top:['أكثر الحسابات إنفاقاً','Highest-Spending Accounts','সর্বাধিক ব্যয়ের অ্যাকাউন্ট'],title_full:['كشف الموازنة والمصروفات','Budget & Expenses Statement','বাজেট ও ব্যয় বিবরণী'],
+const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Expenses & Budget Alert','ব্যয় ও বাজেট সতর্কতা'],title_groups:['الموازنة حسب المجموعة','Budget by Account Group','অ্যাকাউন্ট গ্রুপ অনুযায়ী বাজেট'],title_over:['شرح الحسابات المتجاوزة للموازنة','Over-Budget Accounts Explained','বাজেট অতিক্রান্ত অ্যাকাউন্টের ব্যাখ্যা'],title_top:['أكثر الحسابات إنفاقاً','Highest-Spending Accounts','সর্বাধিক ব্যয়ের অ্যাকাউন্ট'],title_full:['كشف الموازنة والمصروفات','Budget & Expenses Statement','বাজেট ও ব্যয় বিবরণী'],
  org:['نسائم صلالة للشقق المفروشة — الإدارة المالية','Nassayem Salalah Furnished Apartments — Finance Department','নাসায়েম সালালাহ ফার্নিশড অ্যাপার্টমেন্টস — অর্থ বিভাগ'],asof:['الأرقام حتى','Figures as of','তথ্য হালনাগাদ'],
  over:['متجاوزة','Over budget','বাজেট অতিক্রান্ত'],near:['قريبة من الحد','Near the limit','সীমার কাছাকাছি'],ok:['ضمن الموازنة','Within budget','বাজেটের মধ্যে'],
  secOver:['حسابات تجاوزت الموازنة','Accounts over budget','বাজেট অতিক্রম করা অ্যাকাউন্ট'],secNear:['حسابات قريبة من الحد','Accounts near the limit','সীমার কাছাকাছি অ্যাকাউন্ট'],
@@ -2867,7 +2867,7 @@ const BUD_I={title_alerts:['تنبيه المصاريف والموازنة','Exp
  grpTitle:['الاستهلاك حسب مجموعة الحسابات','Spending by account group','অ্যাকাউন্ট গ্রুপ অনুযায়ী ব্যয়'],otherGrp:['حسابات أخرى','Other accounts','অন্যান্য অ্যাকাউন্ট'],
  topSub:['ترتيب الحسابات الأعلى إنفاقاً هذا الشهر — من الأعلى إلى الأدنى','Highest-spending accounts this month — ranked from highest to lowest','এই মাসে সর্বোচ্চ ব্যয়ের অ্যাকাউন্ট — সর্বোচ্চ থেকে সর্বনিম্ন'],
  cAcc:['الحساب','Account','অ্যাকাউন্ট'],cRem:['المتبقي / التجاوز','Remaining / Over','অবশিষ্ট / অতিরিক্ত'],cPct:['النسبة','%','শতাংশ'],
- noneAll:['لا توجد حسابات متجاوزة أو قريبة من الحد','No accounts are over budget or near the limit','কোনো অ্যাকাউন্ট বাজেট অতিক্রম করেনি বা সীমার কাছাকাছি নয়'],
+ includes:['ما يتضمنه الحساب','What this account includes','এই অ্যাকাউন্টে যা অন্তর্ভুক্ত'],noDesc:['لم يُكتب شرح لهذا الحساب بعد','No description added yet','এখনো কোনো বিবরণ যোগ করা হয়নি'],noneOver:['لا توجد حسابات متجاوزة للموازنة هذا الشهر','No accounts are over budget this month','এই মাসে কোনো অ্যাকাউন্ট বাজেট অতিক্রম করেনি'],noneAll:['لا توجد حسابات متجاوزة أو قريبة من الحد','No accounts are over budget or near the limit','কোনো অ্যাকাউন্ট বাজেট অতিক্রম করেনি বা সীমার কাছাকাছি নয়'],
  foot1:['نرجو الانتباه للمصاريف وترشيد الإنفاق','Please keep an eye on expenses and control spending','অনুগ্রহ করে ব্যয়ের প্রতি নজর রাখুন এবং খরচ নিয়ন্ত্রণে রাখুন'],foot2:['نسائم صلالة — الإدارة المالية','Nassayem Salalah — Finance Department','নাসায়েম সালালাহ — অর্থ বিভাগ']};
 const BUD_MON={en:['January','February','March','April','May','June','July','August','September','October','November','December'],bn:['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর']};
 function budMonth(M,lang){if(lang==='ar')return monthName(M);const [y,m]=M.split('-');return BUD_MON[lang][+m-1]+' '+y}
@@ -2914,6 +2914,29 @@ async function budgetReportCanvas(M,type,excl,lang){
         T(fit(gr.name==='حسابات أخرى'?tr('otherGrp'):gr.name,560,'700 28px '+F),W-P-28,y+38,'700 28px '+F,INK);T(tr('accN',gr.n)+(gr.over?' · '+tr('overN',gr.over):''),W-P-28,y+68,'600 20px '+F,gr.over?RED:MUT);
         T(gr.b?pct+'%':'—',P+24,y+46,'800 40px '+F,col,'left');T(fit(tr('budget')+' '+money(gr.b)+'  ·  '+tr('actual')+' '+money(gr.sp),600,'500 20px '+F),W-P-28,y+98,'500 20px '+F,MUT);
         bar(P+24,P+300,y+62,10,gr.b?gr.sp/gr.b:1,col);y+=130});y+=10}
+    if(type==='over'){
+      const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
+      const BF='500 22px '+F,LH=lang==='bn'?35:31,BW=W-2*P-110;
+      if(!A.over.length){T(tr('noneOver')+' 👌',W/2,y+50,'700 30px '+F,GRN,'center');y+=110}
+      else{
+        rr(P,y,W-2*P,96,18,'#FBEDEB');fR(W-P-8,y+16,8,64,RED);
+        T(A.over.length+' '+tr('over'),W-P-30,y+42,'800 34px '+F,RED);
+        T(tr('overBy')+' +'+money(A.overSum),W-P-30,y+76,'700 22px '+F,MUT);y+=122;
+        A.over.forEach(({a,bi},i)=>{
+          const d=budDescGet(a,lang),pct=bi.budget?bi.pctBefore:null,lines=d.b.map(b=>wrap(b,BW,BF)),nl=lines.reduce((n,l)=>n+l.length,0);
+          const h=138+(nl?nl*LH+(lines.length-1)*6+44:44);
+          rr(P,y,W-2*P,h,18,'#FBEDEB');fR(W-P-8,y+16,8,h-32,RED);
+          T(fit(a.code+' — '+(lang==='ar'?d.t:nm(a)),W-2*P-300,'800 29px '+F),W-P-28,y+42,'800 29px '+F,INK);
+          T(fit(tr('budget')+' '+money(bi.budget)+'  ·  '+tr('actual')+' '+money(bi.spent),W-2*P-300,'500 21px '+F),W-P-28,y+74,'500 21px '+F,MUT);
+          T(pct==null?tr('noBudget'):pct+'%',P+26,y+46,'800 '+(pct==null?26:38)+'px '+F,RED,'left');
+          T(tr('overBy')+' +'+money(bi.spent-bi.budget),P+26,y+76,'700 21px '+F,RED,'left');
+          bar(P+26,W-P-28,y+94,8,pct==null?1:Math.min(1,pct/100),RED);
+          let ly=y+138;
+          T(tr('includes')+':',W-P-28,ly-12,'700 21px '+F,DK);ly+=18;
+          if(!nl){T(tr('noDesc'),W-P-28,ly+4,'500 21px '+F,MUT);}
+          lines.forEach(L=>{L.forEach((ln,q)=>{if(q===0)circ(W-P-40,ly-7,4.5,BR);T(ln,W-P-56,ly,BF,'#3C5553');ly+=LH});ly+=6});
+          y+=h+14});
+        y+=10}}
     if(type==='top'){
       T(tr('topSub'),W-P,y+30,'700 26px '+F,MUT);y+=58;
       const wrap=(t,mw,font)=>{x.font=font;const w=String(t).split(/\s+/),L=[];let cur='';w.forEach(k=>{const tt=cur?cur+' '+k:k;if(cur&&x.measureText(tt).width>mw){L.push(cur);cur=k}else cur=tt});if(cur)L.push(cur);return L};
@@ -2948,7 +2971,7 @@ async function budgetReportCanvas(M,type,excl,lang){
   const probe=document.createElement('canvas');probe.width=W;probe.height=9000;const H=Math.ceil(draw(probe.getContext('2d')));
   const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'));return c;
 }
-const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['groups','🗂️ حسب المجموعة'],['top','🏆 أكثر الحسابات إنفاقاً'],['full','📄 كشف كامل']];
+const BUD_REPS=[['alerts','🚦 تنبيه المصاريف'],['over','🔴 شرح المتجاوزة'],['groups','🗂️ حسب المجموعة'],['top','🏆 أكثر الحسابات إنفاقاً'],['full','📄 كشف كامل']];
 async function budgetReportShow(M){
   M=M||(lastBudgetImport()||{}).month||MONTH;
   if(!expAccounts().length){toast('استورد كشف الموازنة أولاً');return}
@@ -2966,7 +2989,7 @@ async function budgetReportShow(M){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn sm sec" id="brAll">تحديد الكل</button><button class="btn sm sec" id="brNone">إلغاء الكل</button><button class="btn sm sec" id="brZero">إخفاء الحسابات بدون مصروف</button></div>
       <div id="brList" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:6px 12px">${lst}</div>
       <div class="small muted" style="margin-top:6px">الأرقام والمؤشرات في الصورة تُحسب من الحسابات المحددة فقط.</div></details>
-    <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">✏️ شرح الحسابات <span class="muted small">(ما الذي يدخل في كل حساب — يظهر في تقرير «الأعلى إنفاقاً»)</span></summary>
+    <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">✏️ شرح الحسابات <span class="muted small">(ما الذي يدخل في كل حساب — يظهر في تقريري «شرح المتجاوزة» و«الأعلى إنفاقاً»)</span></summary>
       <div id="brDesc" style="max-height:340px;overflow:auto;margin-top:8px"></div>
       <div class="small muted" style="margin-top:6px">اكتب كل بند في سطر مستقل. يُحفظ الشرح ويظهر في كل التقارير القادمة.</div></details>
     <div id="brBox" style="text-align:center;min-height:200px"><div class="muted" id="brLoad" style="padding:60px 0">جارٍ تجهيز الصورة…</div><img id="brImg" alt="" style="display:none;width:100%;max-width:480px;margin:0 auto;border:1px solid var(--border);border-radius:10px"></div>`,
@@ -2974,7 +2997,7 @@ async function budgetReportShow(M){
       {t:'📤 مشاركة',cls:'sec',fn:()=>{if(!cur.blob)return false;const f=new File([cur.blob],'تقرير-الموازنة.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'تقرير الموازنة'}).catch(()=>{});else dl();return false}},
       {t:'⬇️ تنزيل',cls:'sec',fn:()=>{dl();return false}},{t:'إغلاق',cls:'sec'}],
     onMount:b=>{
-      const eset=()=>{const A=budgetAlerts(M,excl);return (type==='top'?A.top:type==='alerts'?[...A.over,...A.near]:type==='full'?A.rows:[]).slice(0,40)};
+      const eset=()=>{const A=budgetAlerts(M,excl);return (type==='top'?A.top:type==='over'?A.over:type==='alerts'?[...A.over,...A.near]:type==='full'?A.rows:[]).slice(0,40)};
       const noteTr=()=>{const n=$('#brTrNote',b);if(!n)return;const miss=lang==='ar'?[]:eset().filter(({a})=>budDescGet(a,lang).needsTr);
         if(miss.length){n.style.display='';n.textContent='⚠️ '+miss.length+' حساب لا توجد له ترجمة ('+miss.slice(0,4).map(x=>x.a.code).join('، ')+(miss.length>4?'…':'')+') — اكتب ترجمته من «✏️ شرح الحسابات» وستظهر في الصورة.'}else n.style.display='none'};
       const renderDesc=()=>{const box=$('#brDesc',b);box.dir=lang==='ar'?'rtl':'ltr';box.innerHTML=(type==='groups'?'<div class="empty">هذا التقرير لا يحتوي شروحات حسابات</div>':'')+eset().map(({a})=>{const d=budDescGet(a,lang);return `<div class="card" style="padding:10px;margin-bottom:8px"><div class="small muted" dir="auto" style="margin-bottom:4px">${esc(a.code)} — ${esc(a.name)}${d.needsTr?' <b style="color:var(--critical)">⚠️ بلا ترجمة</b>':''}</div><input data-dt="${esc(a.code)}" value="${esc(d.t)}" style="width:100%;margin-bottom:6px;font-weight:700"><textarea data-dd="${esc(a.code)}" rows="3" style="width:100%" placeholder="${lang==='ar'?'اكتب ما يدخل في هذا الحساب، كل بند في سطر':'Write what goes into this account, one item per line'}">${esc(d.b.join('\n'))}</textarea></div>`}).join('')||'<div class="empty">لا توجد حسابات</div>';
