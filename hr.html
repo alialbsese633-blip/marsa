@@ -3733,7 +3733,7 @@ function finCircNo(){const no=finCircPeek();S.seq.FCR=+no.match(/FIN-CIR-(\d+)/)
 function finCircLang(a){const can=['hr','acc','gm'].includes(role())||isAccounts();docLangPrint(finCircDoc(a),a.no,{saved:a.tr,save:can?(l,h)=>{a.tr={...(a.tr||{}),[l]:h};log(`حفظ ترجمة ${l} للتعميم ${a.no}`);save()}:null})}
 function finCircAud(a){return a.audience==='all'?activeEmps():activeEmps().filter(e=>e.building===a.audience)}
 function finCircDoc(a){return `<div class="doc lh-doc">${LH_WMI}${offHead('تعميم مالي','Financial Circular',a.no)}<table>${BR('رقم التعميم','Circular No.',`<b dir="ltr">${esc(a.no)}</b>`)}${BR('التاريخ','Date',fdate(a.date))}${BR('الموجه إليهم','Audience',a.audience==='all'?'جميع الموظفين':esc(a.audience))}</table>
-  <h4 style="margin:16px 0 8px;font-size:16px">${esc(a.title)}</h4><div style="white-space:pre-wrap;line-height:2;font-size:14px">${esc(a.body)}</div>${offFoot()}</div>`}
+  <h4 class="circ-subj" style="margin:22px 0 16px;font-size:17px;font-weight:800;text-align:center;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1.5px"><span>الموضوع</span>: <span>${esc(String(a.title||'').replace(/^\s*الموضوع\s*[:：]?\s*/,''))}</span></h4><div style="white-space:pre-wrap;line-height:2;font-size:14px;text-align:justify">${esc(a.body)}</div>${offFoot()}</div>`}
 VIEWS.fincirc=()=>{const R=role(),canPub=['hr','acc','gm'].includes(R);const me_=S.session.empId,eb=(emp(me_)||{}).building;
   const L=S.announcements.filter(isFinCirc).filter(a=>canPub||a.audience==='all'||a.audience===eb);
   return ph('التعاميم المالية','تعاميم الإدارة المالية الرسمية — تصل للموظفين للإقرار بالاطلاع، وتُطبع على ورق الشركة',canPub?`<button class="btn" id="nFc">📣 تعميم مالي جديد</button>`:'')+finLaunchBanner()+
@@ -5080,7 +5080,9 @@ const RCP_BOX={'الحي التجاري':'NS-10001','السعادة نستو':'N
 const rcpAcctDef=(bld,method)=>method==='cash'?(RCP_BOX[bld]||''):'NS-10600';
 const rcpAcctL=k=>{const a=RCP_ACCTS.find(x=>x[0]===k);return a?a[0]+' - '+a[1]:(k||'')};
 const rcpAcctOpts=sel=>`<option value="">— اختر الحساب —</option>`+[['الصناديق',a=>/صندوق الريال/.test(a[1])],['مواقع وتطبيقات الحجز',a=>/حجوزات/.test(a[1])],['البنوك',a=>/بنك/.test(a[1])]].map(([g,f])=>`<optgroup label="${g}">${RCP_ACCTS.filter(f).map(a=>`<option value="${a[0]}" ${a[0]===sel?'selected':''}>${a[0]} - ${esc(a[1])}</option>`).join('')}</optgroup>`).join('');
-const RCP_XCAT={exp:'مصروف',dep:'إيداع في البنك'};
+const RCP_XCAT={exp:'مصروف',bill:'فاتورة خدمات (كهرباء / مياه / إنترنت)',dep:'إيداع في البنك'};
+/* فواتير الخدمات الدورية معفاة من شرط طلب الشراء (تعميم FIN-CIR-002/2026) */
+const pyrNeedPur=l=>+l.amount>purMin()&&!l.util;
 const RCP_ST={ready:['فارغة — جاهزة','#1e8e5a'],cleaning:['تحت التنظيف','#0f8ea3'],maint:['تحت الصيانة','#d13b3b'],arr:['وصول اليوم','#c97c00'],occ:['مشغولة','#2f5fd0'],dep:['مغادرة اليوم','#7a4bc2']};
 const RCP_RTN={pending:['بانتظار موافقة المدير العام','w'],approved:['معتمد — بانتظار القيد في الحسابات','i'],posted:['تم القيد محاسبياً','g'],rejected:['مرفوض','c'],cancelled:['ملغي','']};
 const RCP_IN_TIME='1:00 مساءً',RCP_OUT_TIME='12:00 ظهراً',RCP_TEL='90960071',RCP_CS='99551237';
@@ -5502,7 +5504,7 @@ function pyrAttView(a){if(!a)return;
 function pyrForm(src){
   if(!rcpCan()){toast('هذا القسم للاستقبال والإدارة');return}
   const b0=src?src.bld:rcpBld();
-  const lines=src?src.lines.map(l=>({desc:l.desc,amount:l.amount,att:[],pur:''})):[{desc:'',amount:'',att:[],pur:''}];
+  const lines=src?src.lines.map(l=>({desc:l.desc,amount:l.amount,att:[],pur:'',util:!!l.util})):[{desc:'',amount:'',att:[],pur:''}];
   modal({title:'🧾 إنشاء طلب صرف',sub:'عدة بنود في طلب واحد — حتى '+PYR_MAX_ATT+' مرفقات',wide:true,body:`
    <div class="pyr-head"><div>${rcpMyBld()?`<span class="bd a">🏢 ${esc(b0)}</span><input type="hidden" id="yB" value="${esc(b0)}">`:`<span class="small muted">المبنى</span> <select id="yB" class="rb-sel">${RCP_BLD.map(x=>`<option ${x.n===b0?'selected':''}>${esc(x.n)}</option>`).join('')}</select>`}</div><div class="small muted">${fdate(TODAY)} — ${esc(me().name)}</div></div>
    <div id="yL"></div>
@@ -5511,7 +5513,7 @@ function pyrForm(src){
    <div class="fld"><label>ملاحظة للمدير العام (اختياري)</label><textarea id="yN" rows="2" placeholder="مثال: عاجل — الفنّي بانتظار المواد"></textarea></div>`,
   onMount:(m,close)=>{
    const attN=()=>lines.reduce((a,l)=>a+l.att.length,0);
-   const sync=()=>$$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;lines[i].desc=$('[data-k="d"]',el).value;lines[i].amount=$('[data-k="a"]',el).value;const pp=$('[data-k="p"]',el);if(pp)lines[i].pur=pp.value});
+   const sync=()=>$$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;lines[i].desc=$('[data-k="d"]',el).value;lines[i].amount=$('[data-k="a"]',el).value;const pp=$('[data-k="p"]',el);if(pp)lines[i].pur=pp.value;const uu=$('[data-k="u"]',el);if(uu)lines[i].util=uu.checked});
    const tot=()=>{const t=r3(lines.reduce((a,l)=>a+(+l.amount||0),0)),n=attN();
      $('#yT',m).innerHTML=`<div><span>البنود</span><b>${lines.length}</b></div><div><span>المرفقات</span><b class="${n>=PYR_MAX_ATT?'full':''}">${n} / ${PYR_MAX_ATT}</b></div><div class="t"><span>إجمالي الطلب</span><b>${omr(t)}</b>${t>0?`<small>${rcpWordsAr(t)}</small>`:''}</div>`};
    const draw=()=>{const n=attN();
@@ -5522,11 +5524,12 @@ function pyrForm(src){
         <div class="pyr-chips"><span class="small muted">بيان جاهز:</span>${PYR_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${q}</button>`).join('')}</div>
         <div class="pyr-att">${l.att.map((a,j)=>`<span class="pyr-f">${a.prev?`<img src="${a.prev}" alt="">`:'<i>PDF</i>'}<em>${esc(a.name)}</em><button type="button" data-rm="${j}" aria-label="حذف المرفق">×</button></span>`).join('')}
          <label class="pyr-up ${n>=PYR_MAX_ATT?'off':''}">📎 إرفاق فاتورة / صورة<input type="file" accept="image/*,application/pdf" multiple hidden ${n>=PYR_MAX_ATT?'disabled':''}></label></div>
-        <div class="pyr-pur" ${+l.amount>purMin()?'':'hidden'}><b>🛒 المبلغ أكثر من ${purMin()} ر.ع — يلزم طلب شراء معتمد</b>${purPickHTML(fv(m,'yB')||b0,l.pur,'data-k="p"')}<button type="button" class="btn sm sec" data-newpur>➕ طلب شراء جديد</button></div>
+        <label class="small" style="display:flex;gap:6px;align-items:center;margin:6px 0"><input type="checkbox" data-k="u" ${l.util?'checked':''} style="width:auto"> فاتورة خدمات دورية (كهرباء / مياه / إنترنت) — معفاة من طلب الشراء</label>
+        <div class="pyr-pur" ${pyrNeedPur(l)?'':'hidden'}><b>🛒 المبلغ أكثر من ${purMin()} ر.ع — يلزم طلب شراء معتمد</b>${purPickHTML(fv(m,'yB')||b0,l.pur,'data-k="p"')}<button type="button" class="btn sm sec" data-newpur>➕ طلب شراء جديد</button></div>
        </div>
        ${lines.length>1?`<button type="button" class="pyr-del" data-del title="حذف البند" aria-label="حذف البند">🗑️</button>`:''}</div>`).join('');
      $$('[data-yl]',m).forEach(el=>{const i=+el.dataset.yl;
-       $$('input[data-k]',el).forEach(x=>x.oninput=()=>{sync();tot();$('.pyr-pur',el).hidden=!(+lines[i].amount>purMin())});
+       $$('input[data-k]',el).forEach(x=>x.oninput=x.onchange=()=>{sync();tot();$('.pyr-pur',el).hidden=!pyrNeedPur(lines[i])});
        $('[data-newpur]',el).onclick=()=>purchaseForm();
        $$('[data-q]',el).forEach(x=>x.onclick=()=>{const d=$('[data-k="d"]',el),v=d.value.trim(),isTpl=!v||PYR_QUICK.includes(v)||Object.keys(PYR_TPL).some(k=>v.startsWith(PYR_TPL[k].split(' ......')[0]));
          d.value=isTpl?pyrTpl(x.dataset.q,fv(m,'yB')||b0):v+' — '+x.dataset.q;sync();if(!pyrGap(d))d.focus()});
@@ -5544,10 +5547,10 @@ function pyrForm(src){
      const L=lines.filter(l=>String(l.desc).trim()||+l.amount||l.att.length);
      if(!L.length){toast('أضف بنداً واحداً على الأقل');return}
      const bad=L.findIndex(l=>!String(l.desc).trim()||!(+l.amount>0));if(bad>=0){toast('البند '+(bad+1)+': اكتب البيان والمبلغ');return}
-     const np=L.findIndex(l=>+l.amount>purMin()&&!l.pur);if(np>=0){toast('البند '+(np+1)+': المبلغ أكثر من '+purMin()+' ر.ع — اختر طلب الشراء المعتمد أو أنشئ طلب شراء');return}
+     const np=L.findIndex(l=>pyrNeedPur(l)&&!l.pur);if(np>=0){toast('البند '+(np+1)+': المبلغ أكثر من '+purMin()+' ر.ع — اختر طلب الشراء المعتمد أو أنشئ طلب شراء');return}
      const gap=L.findIndex(l=>String(l.desc).includes(PYR_GAP));if(gap>=0){toast('البند '+(gap+1)+': أكمل الفراغات (......) في البيان');const ip=$$('[data-k="d"]',m)[lines.indexOf(L[gap])];if(ip)pyrGap(ip);return}
      sv.disabled=cn.disabled=true;const N=L.reduce((a,l)=>a+l.att.length,0);let done=0;const out=[];
-     try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att,pur:+l.amount>purMin()?l.pur:''})}}
+     try{for(const l of L){const att=[];for(const a of l.att){sv.textContent=`⏳ رفع المرفقات ${++done} / ${N}`;att.push(await pyrUpload(a))}out.push({desc:String(l.desc).trim(),amount:r3(+l.amount),att,pur:pyrNeedPur(l)?l.pur:'',util:!!l.util})}}
      catch(e){sv.disabled=cn.disabled=false;sv.textContent='📤 إرسال للمدير العام';toast(e&&e.message==='pdf'?'الخادم لا يقبل PDF بعد — حدّثه للإصدار 5.2، أو صوّر الفاتورة':'تعذّر رفع مرفق — تحقق من الاتصال وأعد المحاولة');return}
      sv.textContent='جارٍ الحفظ…';
      const id=await rcpNo('PR'),bld=fv(m,'yB')||b0;
@@ -5599,7 +5602,7 @@ function pyrListBind(){$('#yNew').onclick=()=>pyrForm();$$('#yF button').forEach
 const rpayTab=()=>role()==='sup'?'pur':(V.sub.pt||'pay');
 VIEWS.rpay=()=>{const t=rpayTab(),pq=typeof purchasesPendingForMe==='function'?purchasesPendingForMe().length:0,yq=pyrQueue().length;
   const tabs=role()==='sup'?'':`<div class="seg rpay-tabs" id="ptT"><button data-pt="pay" class="${t==='pay'?'on':''}">🧾 طلبات الصرف${yq?` <span class="pill">${yq}</span>`:''}</button><button data-pt="pur" class="${t==='pur'?'on':''}">🛒 طلبات الشراء${pq?` <span class="pill">${pq}</span>`:''}</button></div>
-   <div class="note small" style="margin-top:8px">📌 أي مصروف أو بند صرف <b>أكثر من ${purMin()} ر.ع</b> يلزمه <b>طلب شراء معتمد</b> قبل الشراء. ما دون ذلك يُصرف بطلب صرف أو من الصندوق مباشرة.</div>`;
+   <div class="note small" style="margin-top:8px">📌 أي مصروف أو بند صرف <b>أكثر من ${purMin()} ر.ع</b> يلزمه <b>طلب شراء معتمد</b> قبل الشراء. ما دون ذلك يُصرف بطلب صرف أو من الصندوق مباشرة، وتُستثنى فواتير الخدمات الدورية (الكهرباء والمياه والإنترنت).</div>`;
   return tabs+(t==='pur'?VIEWS.procurement():pyrListHTML())};
 BIND.rpay=()=>{$$('#ptT button').forEach(b=>b.onclick=()=>{V.sub.pt=b.dataset.pt;render()});if(rpayTab()==='pur')BIND.procurement();else pyrListBind()};
 
