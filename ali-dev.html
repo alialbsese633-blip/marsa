@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<title>تطوير علي | Marsa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="ali-dev-data.js"></script>
+<style>
+:root{color-scheme:light;--teal:#287070;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;--bad:#A3261F;--gold:#B8892B;
+  --en:#3B5B8C;--ai:#287070;--inv:#8A6A1E;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 500px at 90% -10%,#E2EFEF 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.75 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+.bar-in{max-width:880px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:58px}
+.bar img{height:40px}.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn.pri{background:var(--teal);color:#fff;border-color:var(--teal)}.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.wrap{max-width:880px;margin:0 auto;padding:16px 16px 60px}
+h1{font-size:clamp(24px,5vw,34px);line-height:1.25;margin:10px 0 4px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--sh);margin:14px 0}
+.hero{background:linear-gradient(135deg,var(--deep),var(--teal));color:#fff;border:0}
+.hero .mute{color:rgba(255,255,255,.8)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat{background:rgba(255,255,255,.12);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px}.stat small{font-size:12px;opacity:.85}
+.prog{height:10px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:12px}.prog i{display:block;height:100%;background:#F2C14E;border-radius:99px}
+.split{display:flex;gap:6px;margin-top:10px}.split div{flex:var(--f);border-radius:12px;padding:8px 10px;color:#fff;font-size:13px;font-weight:600;background:var(--c);position:relative;overflow:hidden}
+.split div i{position:absolute;inset:0;background:rgba(255,255,255,.28);transform-origin:right;transform:scaleX(var(--p,0))}
+.split div span{position:relative}
+.timer{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.timer .t{font:700 34px "Inter";letter-spacing:1px;min-width:120px}
+.week{border:1px solid var(--line);border-radius:18px;background:#fff;margin:10px 0;overflow:hidden}
+.week>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.week>summary::-webkit-details-marker{display:none}
+.wn{width:44px;height:44px;border-radius:13px;background:#EAF3F3;color:var(--deep);display:grid;place-items:center;font:700 17px "Inter";flex:none}
+.week.lock .wn{background:#EEF0F0;color:#9AA}
+.week b{display:block}.week small{color:var(--mute);font-size:12.5px;line-height:1.5;display:block}
+.pill{margin-inline-start:auto;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#EEF4F4;color:var(--mute);flex:none}
+.pill.ok{background:#E3F3EA;color:var(--ok)}.pill.cur{background:#FFF3D6;color:#7A5426}
+.days{border-top:1px solid var(--line)}
+.day{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.day:last-child{border-bottom:0}.day:hover{background:#F7FAFA}
+.day .dn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 14px "Inter";background:#EEF4F4;flex:none}
+.day.ok .dn{background:var(--ok);color:#fff}.day.off{opacity:.45;pointer-events:none}
+.day span.tt{font-size:14.5px;line-height:1.5}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0;position:sticky;top:58px;background:var(--paper);z-index:5}
+.tab{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);cursor:pointer;color:var(--ink)}
+.tab.on{background:var(--c,var(--teal));color:#fff;border-color:transparent}
+.sec h2{margin:0 0 6px;font-size:21px}.sec .tag{display:inline-block;font-size:12px;font-weight:700;color:#fff;background:var(--c);border-radius:99px;padding:2px 10px;margin-bottom:6px}
+.sec table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14.5px;display:block;overflow-x:auto}
+.sec th,.sec td{border:1px solid var(--line);padding:7px 9px;text-align:start;vertical-align:top}
+.sec th{background:#F2F7F7}
+.sec td,.sec th,.sec li,.tip,.task{unicode-bidi:plaintext}
+.sec code{background:#F2F5F5;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font:13px/1.8 ui-monospace,Menlo,monospace;direction:ltr;unicode-bidi:embed;word-break:break-word}
+.tip{background:#FFF8E6;border-inline-start:4px solid #E3B341;padding:10px 12px;border-radius:10px;font-size:14.5px}
+.task{background:#EEF6F6;border-radius:14px;padding:12px 14px;margin-top:12px;font-size:15px}
+.vocab{display:grid;gap:8px;margin:10px 0}
+.vw{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+.vw .w{font:700 16px "Inter";direction:ltr;color:var(--en)}.vw .m{font-size:14px}.vw .ex{font:13.5px "Inter";color:var(--mute);direction:ltr;text-align:left}
+.say{border:0;background:#EAF0F8;color:var(--en);border-radius:50%;width:34px;height:34px;flex:none;cursor:pointer;font-size:15px}
+.read{direction:ltr;text-align:left;font:15.5px/1.85 "Inter";background:#F8FAFC;border:1px solid var(--line);border-radius:12px;padding:12px;white-space:pre-line}
+textarea{width:100%;min-height:110px;border:1.5px solid #CFDDDD;border-radius:12px;padding:10px;font:15px var(--font);background:#FBFDFD;resize:vertical}
+textarea.ltr{direction:ltr;text-align:left;font-family:"Inter"}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.vids a{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:6px 0;color:var(--ink);text-decoration:none;font-size:14.5px}
+.vids a::before{content:"▶";width:30px;height:30px;border-radius:50%;background:#C4302B;color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+.q{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q label{display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin:5px 0;cursor:pointer;font-size:15px}
+.q label:has(input:checked){border-color:var(--teal);background:#EEF6F6}
+.q.done label{pointer-events:none}.q label.right{border-color:var(--ok);background:#E3F3EA}.q label.wrong{border-color:var(--bad);background:#FBE9E7}
+.q .x{font-size:13.5px;color:var(--mute);margin-top:6px;display:none}.q.done .x{display:block}
+.score{text-align:center;padding:18px}.score b{font:700 44px "Inter"}
+.score.ok b{color:var(--ok)}.score.no b{color:var(--bad)}
+.certs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cert{border:1.5px solid var(--line);border-radius:16px;padding:14px;background:#fff;text-align:center}
+.cert.on{border-color:var(--gold);background:linear-gradient(#FFFCF3,#fff)}
+.cert .ci{font-size:30px}.cert.off{opacity:.55}
+.back{color:var(--teal);text-decoration:none;font-weight:600;font-size:14px}
+.deny{text-align:center;padding:50px 20px}
+.foot{margin-top:30px;font-size:12.5px;color:var(--mute);text-align:center}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.certs{grid-template-columns:1fr}}
+/* الشهادة للطباعة */
+#printArea{display:none}
+@media print{
+  @page{size:A4 landscape;margin:0}
+  body{background:#fff}.bar,.wrap{display:none!important}#printArea{display:block}
+}
+.cp{width:297mm;height:210mm;padding:14mm;position:relative;background:#fff;font-family:var(--font)}
+.cp .fr{position:absolute;inset:8mm;border:3px solid #B8892B;border-radius:6mm}
+.cp .fr2{position:absolute;inset:11mm;border:1px solid #D9C28A;border-radius:4mm}
+.cp .in{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 22mm}
+.cp img.lg{height:22mm;margin-bottom:4mm}
+.cp .t1{font-size:40px;font-weight:700;color:#8A6A1E;margin:0}.cp .t2{font:600 16px "Inter";color:#8A6A1E;letter-spacing:3px;margin:2px 0 10mm}
+.cp .nm{font-size:36px;font-weight:700;color:#16474A;margin:2mm 0}.cp .nme{font:600 18px "Inter";color:#5E7475}
+.cp .tx{font-size:18px;margin-top:7mm;max-width:210mm;line-height:1.9}
+.cp .meta{display:flex;justify-content:space-between;width:100%;margin-top:12mm;font-size:13px;color:#5E7475}
+.cp .meta b{display:block;color:#10292B;font-size:15px}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
+<a class="btn" href="#home">🏠 البرنامج</a><a class="btn" href="#certs">🏅 الشهادات</a></div></header>
+<div class="wrap" id="app"></div>
+<div id="printArea"></div>
+<script>
+(function(){
+var D=window.ALIDEV, KEY='alidev_v1', app=document.getElementById('app');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+var S=load(); S.quiz=S.quiz||{}; S.exam=S.exam||{}; S.notes=S.notes||{}; S.log=S.log||{}; S.start=S.start||new Date().toISOString();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+save();
+
+/* ===== الصلاحية: القسم خاص بعلي (حساب الموارد البشرية) ===== */
+var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
+var allowed=U&&(U.role==='hr'||/علي|Ali/i.test(U.name||''));
+if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">🔒</div><h2>هذا القسم خاص</h2><p class="mute">سجّل الدخول من الصفحة الرئيسية لمرسى بحسابك.</p><a class="btn pri" href="./">الصفحة الرئيسية</a></div>';return}
+
+/* ===== منطق الفتح المتسلسل ===== */
+function wk(w){for(var i=0;i<D.WEEKS.length;i++)if(D.WEEKS[i].w===w)return D.WEEKS[i];return null}
+function qBest(w,d){var r=S.quiz[w+'-'+d];return r?r.best:-1}
+function xBest(w){var r=S.exam[w];return r?r.best:-1}
+function dayPassed(w,d){return qBest(w,d)>=D.pass}
+function weekPassed(w){return xBest(w)>=D.pass}
+function dayOpen(w,d){if(d===1)return w===1||weekPassed(w-1);return dayPassed(w,d-1)}
+function examOpen(w){var x=wk(w);if(!x)return false;for(var i=1;i<=x.days.length;i++)if(!dayPassed(w,i))return false;return true}
+function current(){for(var i=0;i<D.WEEKS.length;i++){var x=D.WEEKS[i];for(var d=1;d<=x.days.length;d++)if(!dayPassed(x.w,d))return dayOpen(x.w,d)?{w:x.w,d:d}:null;if(!weekPassed(x.w))return {w:x.w,exam:true}}return null}
+function totalUnits(){return 12*6}
+function doneUnits(){var n=0;D.WEEKS.forEach(function(x){x.days.forEach(function(dd){if(dayPassed(x.w,dd.d))n++});if(weekPassed(x.w))n++});return n}
+function avg(){var a=[];for(var k in S.quiz)a.push(S.quiz[k].best);for(var j in S.exam)a.push(S.exam[j].best);if(!a.length)return 0;return Math.round(a.reduce(function(s,v){return s+v},0)/a.length)}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function streak(){var n=0,d=new Date();for(;;){var k=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);if((S.log[k]||0)>=10){n++;d.setDate(d.getDate()-1)}else{if(n===0&&k===today()){d.setDate(d.getDate()-1);continue}break}}return n}
+function totalMin(){var t=0;for(var k in S.log)t+=S.log[k];return Math.round(t)}
+
+/* ===== مؤقت الدراسة 40/30/20 ===== */
+var T={seg:0,left:D.split[0].min*60,run:false,iv:null};
+function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=.15;o.start();setTimeout(function(){o.stop();c.close()},600)}catch(e){}if(navigator.vibrate)navigator.vibrate([200,100,200])}
+function tick(){if(!T.run)return;T.left--;var k=today();S.log[k]=(S.log[k]||0)+1/60;if(T.left%30===0)save();
+  if(T.left<=0){beep();T.seg++;if(T.seg>=D.split.length){T.run=false;clearInterval(T.iv);T.seg=0;T.left=D.split[0].min*60;save();alert('أحسنت! أنهيت 90 دقيقة اليوم 🎉')}else{T.left=D.split[T.seg].min*60;alert('انتهى وقت '+D.split[T.seg-1].ar+' — ابدأ '+D.split[T.seg].ar)}}
+  drawTimer()}
+function drawTimer(){var el=document.getElementById('tm');if(!el)return;var m=Math.floor(T.left/60),s=T.left%60;el.textContent=('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+  document.getElementById('tmSeg').textContent=D.split[T.seg].ic+' الآن: '+D.split[T.seg].ar;document.getElementById('tmBtn').textContent=T.run?'⏸ إيقاف':'▶ ابدأ';
+  D.split.forEach(function(p,i){var b=document.getElementById('sp'+i);if(b)b.style.setProperty('--p',i<T.seg?1:i===T.seg?1-T.left/(p.min*60):0)})}
+window.tmToggle=function(){T.run=!T.run;if(T.run){T.iv=setInterval(tick,1000)}else{clearInterval(T.iv);save()}drawTimer()};
+window.tmSkip=function(){T.seg=(T.seg+1)%D.split.length;T.left=D.split[T.seg].min*60;drawTimer()};
+
+/* ===== الصفحة الرئيسية ===== */
+function home(){
+  var cur=current(),pct=Math.round(doneUnits()/totalUnits()*100);
+  var curLink=cur?(cur.exam?'#w'+cur.w+'x':'#w'+cur.w+'d'+cur.d):'#certs';
+  var curTxt=cur?(cur.exam?'الاختبار الشامل — الأسبوع '+cur.w:'الأسبوع '+cur.w+' · الدرس '+cur.d):'أنهيت المحتوى المتاح 🎉';
+  var h='<h1>🎓 '+esc(D.title)+'</h1><p class="mute">برنامج 12 أسبوعاً: الإنجليزي + الذكاء الاصطناعي + الاستثمار — 90 دقيقة يومياً، من إعداد Claude.</p>';
+  h+='<div class="card hero"><div class="mute">درسك الحالي</div><div style="font-size:20px;font-weight:700;margin:2px 0 10px">'+curTxt+'</div><a class="btn" href="'+curLink+'" style="color:var(--deep)">متابعة ←</a>'+
+    '<div class="prog"><i style="width:'+pct+'%"></i></div><div class="stats">'+
+    '<div class="stat"><b>'+pct+'%</b><small>إنجاز البرنامج</small></div><div class="stat"><b>'+avg()+'%</b><small>متوسط الدرجات</small></div>'+
+    '<div class="stat"><b>'+streak()+'</b><small>أيام متتالية 🔥</small></div><div class="stat"><b>'+Math.round(totalMin()/60*10)/10+'</b><small>ساعات دراسة</small></div></div></div>';
+  h+='<div class="card"><b>⏱️ مؤقت اليوم (90 دقيقة)</b><div class="split">'+D.split.map(function(p,i){return '<div id="sp'+i+'" style="--f:'+p.min+';--c:'+p.c+'"><i></i><span>'+p.ic+' '+p.ar+' '+p.min+'د</span></div>'}).join('')+'</div>'+
+    '<div class="timer" style="margin-top:12px"><span class="t" id="tm">40:00</span><span class="mute" id="tmSeg"></span><span class="sp"></span><button class="btn pri" id="tmBtn" onclick="tmToggle()">▶ ابدأ</button><button class="btn" onclick="tmSkip()">التالي ⏭</button></div></div>';
+  h+='<div class="card" style="padding:14px 16px"><b>📅 نظام الأسبوع</b><div class="mute" style="margin-top:4px">السبت–الأربعاء: درس يومي + اختبار قصير (النجاح '+D.pass+'% يفتح الدرس التالي) · الخميس: اختبار شامل + شهادة الأسبوع · الجمعة: راحة أو مراجعة.</div></div>';
+  D.phases.forEach(function(ph){
+    h+='<h3 style="margin:22px 0 6px">'+esc(ph.ar)+'</h3>';
+    ph.weeks.forEach(function(w){var x=wk(w),o=D.outline[w-1];
+      if(!x){h+='<details class="week lock"><summary><span class="wn">'+w+'</span><span><b>الأسبوع '+w+'</b><small>🇬🇧 '+esc(o.en)+'<br>🤖 '+esc(o.ai)+'<br>📈 '+esc(o.inv)+'</small></span><span class="pill">يُضاف عند وصولك</span></summary></details>';return}
+      var st=weekPassed(w)?'<span class="pill ok">✓ مكتمل '+xBest(w)+'%</span>':(dayOpen(w,1)?'<span class="pill cur">جارٍ</span>':'<span class="pill">🔒</span>');
+      h+='<details class="week'+(dayOpen(w,1)?'':' lock')+'"'+(cur&&cur.w===w?' open':'')+'><summary><span class="wn">'+w+'</span><span><b>الأسبوع '+w+': '+esc(x.title)+'</b><small>🇬🇧 '+esc(o.en)+' · 🤖 '+esc(o.ai)+' · 📈 '+esc(o.inv)+'</small></span>'+st+'</summary><div class="days">';
+      var names=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء'];
+      x.days.forEach(function(dd){var ok=dayPassed(w,dd.d),op=dayOpen(w,dd.d);
+        h+='<a class="day'+(ok?' ok':'')+(op?'':' off')+'" href="#w'+w+'d'+dd.d+'"><span class="dn">'+(ok?'✓':dd.d)+'</span><span class="tt"><b style="font-size:13px;color:var(--mute)">'+names[dd.d-1]+'</b><br>'+esc(dd.title)+'</span>'+(ok?'<span class="pill ok">'+qBest(w,dd.d)+'%</span>':op?'':'<span class="pill">🔒</span>')+'</a>'});
+      var eo=examOpen(w);
+      h+='<a class="day'+(weekPassed(w)?' ok':'')+(eo?'':' off')+'" href="#w'+w+'x"><span class="dn">📝</span><span class="tt"><b style="font-size:13px;color:var(--mute)">الخميس</b><br>الاختبار الشامل ('+x.exam.length+' سؤالاً) + شهادة الأسبوع</span>'+(weekPassed(w)?'<span class="pill ok">'+xBest(w)+'%</span>':eo?'':'<span class="pill">🔒</span>')+'</a></div></details>'});
+  });
+  h+='<div class="card"><b>💾 نسخة احتياطية</b><p class="mute" style="margin:4px 0 0">تقدمك محفوظ على هذا الجهاز. انسخه احتياطياً أو انقله لجهاز آخر.</p><div class="row"><button class="btn" onclick="exp()">⬇️ تصدير التقدم</button><label class="btn">⬆️ استيراد<input type="file" accept=".json" hidden onchange="imp(this)"></label><button class="btn" onclick="toClaude()">📋 تقرير لـ Claude</button></div></div>';
+  h+='<div class="foot">إعداد المحتوى: Claude · منصة مرسى · صُمّم وأُدير بواسطة علي البسيسي</div>';
+  app.innerHTML=h;drawTimer();
+}
+
+/* ===== الدرس ===== */
+function videos(v){return '<div class="vids">'+v.map(function(x){return '<a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(x[1])+'">'+esc(x[0])+'</a>'}).join('')+'</div><p class="mute" style="font-size:12.5px">الروابط تفتح نتائج يوتيوب للموضوع — اختر فيديو 5–10 دقائق.</p>'}
+function noteBox(id,ph,ltr,claude){var v=S.notes[id]||'';return '<textarea'+(ltr?' class="ltr"':'')+' id="n_'+id+'" placeholder="'+esc(ph)+'" oninput="saveNote(\''+id+'\',this.value)">'+esc(v)+'</textarea>'+(claude?'<div class="row"><button class="btn" onclick="askFix(\''+id+'\')">📋 انسخ للتصحيح عند Claude</button></div>':'')}
+window.saveNote=function(id,v){S.notes[id]=v;save()};
+window.askFix=function(id){var v=S.notes[id]||'';if(!v.trim()){alert('اكتب أولاً');return}copy('صحح كتابتي بالإنجليزي، واشرح كل خطأ بالعربي البسيط، ثم أعطني النسخة الصحيحة وتقييماً من 10:\n\n'+v)};
+window.say=function(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}catch(e){}};
+function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){alert('تم النسخ ✅ — الصقه في محادثة Claude')}).catch(function(){prompt('انسخ النص:',t)})}
+var TAB={};
+function lesson(w,d){
+  var x=wk(w);if(!x||!x.days[d-1]||!dayOpen(w,d)){location.hash='#home';return}
+  var L=x.days[d-1],t=TAB[w+'-'+d]||'en',id=w+'-'+d;
+  var tabs=[['en','🇬🇧 الإنجليزي','var(--en)'],['ai','🤖 الذكاء الاصطناعي','var(--ai)'],['inv','📈 الاستثمار','var(--inv)'],['quiz','📝 الاختبار','var(--deep)']];
+  var h='<a class="back" href="#home">→ البرنامج</a><h1 style="font-size:22px">الأسبوع '+w+' · الدرس '+d+'</h1><p class="mute">'+esc(L.title)+'</p>';
+  h+='<div class="tabs">'+tabs.map(function(b){return '<button class="tab'+(t===b[0]?' on':'')+'" style="--c:'+b[2]+'" onclick="setTab(\''+id+'\',\''+b[0]+'\')">'+b[1]+'</button>'}).join('')+'</div>';
+  if(t==='en'){var E=L.en;
+    h+='<div class="card sec" style="--c:var(--en)"><span class="tag">40 دقيقة</span><h2>'+esc(E.topic)+'</h2>'+E.body+'</div>';
+    h+='<div class="card sec" style="--c:var(--en)"><h2>📚 مفردات اليوم</h2><div class="vocab">'+E.vocab.map(function(v){return '<div class="vw"><button class="say" data-t="'+esc(v[0]+'. '+v[2])+'" onclick="say(this.dataset.t)">🔊</button><div style="flex:1"><div class="w">'+esc(v[0])+'</div><div class="m">'+esc(v[1])+'</div><div class="ex">'+esc(v[2])+'</div></div></div>'}).join('')+'</div></div>';
+    h+='<div class="card sec" style="--c:var(--en)"><h2>📖 قراءة <button class="say" onclick="say(document.getElementById(\'rd\').textContent)">🔊</button></h2><div class="read" id="rd">'+esc(E.reading)+'</div><p><b>السؤال:</b> '+esc(E.readingQ)+'</p>'+noteBox(id+'-rq','إجابتك...',true)+'</div>';
+    h+='<div class="card sec" style="--c:var(--en)"><h2>✍️ كتابة</h2><p style="direction:ltr;text-align:left;font-family:Inter">'+esc(E.writing)+'</p>'+noteBox(id+'-wr','Write here...',true,true)+'</div>';
+  }else if(t==='ai'||t==='inv'){var A=L[t],c=t==='ai'?'var(--ai)':'var(--inv)';
+    h+='<div class="card sec" style="--c:'+c+'"><span class="tag">'+(t==='ai'?'30':'20')+' دقيقة</span><h2>'+esc(A.topic)+'</h2>'+A.body+'<div class="task">🛠️ '+A.task+'</div></div>';
+    h+='<div class="card sec"><h2>📝 ملاحظاتك</h2>'+noteBox(id+'-'+t,'اكتب نتيجة التطبيق وملاحظاتك...')+'</div>';
+  }else{h+=quizHTML(L.quiz,'q'+id,qBest(w,d))}
+  if(t!=='quiz')h+='<div class="card sec"><h2>🎬 فيديوهات مساعدة</h2>'+videos(L.video)+'</div><div class="row" style="justify-content:center">'+(t!=='inv'?'<button class="btn pri" onclick="nextTab(\''+id+'\',\''+t+'\')">التالي ←</button>':'<button class="btn pri" onclick="setTab(\''+id+'\',\'quiz\')">📝 ابدأ الاختبار</button>')+'</div>';
+  app.innerHTML=h;window.scrollTo(0,0);
+  if(t==='quiz')bindQuiz(L.quiz,'q'+id,function(p){var k=w+'-'+d,o=S.quiz[k];S.quiz[k]={best:Math.max(p,o?o.best:0),last:p,at:new Date().toISOString(),tries:(o?o.tries:0)+1};save()},
+    function(p){return p>=D.pass?(d<x.days.length?'<a class="btn pri" href="#w'+w+'d'+(d+1)+'">الدرس التالي ←</a>':'<a class="btn gold" href="#w'+w+'x">📝 الاختبار الشامل</a>'):'<button class="btn" onclick="route()">🔁 أعد المحاولة</button>'});
+}
+window.setTab=function(id,t){TAB[id]=t;route()};
+window.nextTab=function(id,t){TAB[id]=t==='en'?'ai':'inv';route()};
+
+/* ===== الاختبارات ===== */
+function quizHTML(Q,key,best){return '<div class="card"><b>📝 '+Q.length+' أسئلة</b> <span class="mute">— النجاح '+D.pass+'%'+(best>=0?' · أفضل درجة: '+best+'%':'')+'</span><form id="'+key+'">'+Q.map(function(q,i){return '<div class="q" id="'+key+'_'+i+'"><p>'+(i+1)+'. '+esc(q.q)+'</p>'+q.o.map(function(o,j){return '<label><input type="radio" name="a'+i+'" value="'+j+'"> '+esc(o)+'</label>'}).join('')+'<div class="x">💡 '+esc(q.x)+'</div></div>'}).join('')+'<div id="'+key+'_r"></div><div class="row" style="justify-content:center"><button class="btn pri" type="submit">تصحيح</button></div></form></div>'}
+function bindQuiz(Q,key,onDone,next){var f=document.getElementById(key);f.onsubmit=function(e){e.preventDefault();var ok=0,miss=0;
+  Q.forEach(function(q,i){if(!f.querySelector('input[name=a'+i+']:checked'))miss++});if(miss&&!confirm('بقي '+miss+' سؤال بدون إجابة. تصحيح الآن؟'))return;
+  Q.forEach(function(q,i){var box=document.getElementById(key+'_'+i),c=f.querySelector('input[name=a'+i+']:checked'),v=c?+c.value:-1;box.classList.add('done');
+    box.querySelectorAll('label').forEach(function(l,j){if(j===q.a)l.classList.add('right');else if(j===v)l.classList.add('wrong')});if(v===q.a)ok++});
+  var p=Math.round(ok/Q.length*100);onDone(p);f.querySelector('button[type=submit]').style.display='none';
+  var r=document.getElementById(key+'_r');r.innerHTML='<div class="score '+(p>=D.pass?'ok':'no')+'"><b>'+p+'%</b><div>'+ok+' من '+Q.length+' — '+(p>=D.pass?'ناجح ✅':'تحتاج '+D.pass+'% — راجع الشرح وأعد')+'</div><div class="row" style="justify-content:center">'+next(p)+'</div></div>';r.scrollIntoView({behavior:'smooth',block:'center'})}}
+function exam(w){var x=wk(w);if(!x||!examOpen(w)){location.hash='#home';return}
+  app.innerHTML='<a class="back" href="#home">→ البرنامج</a><h1 style="font-size:22px">📝 الاختبار الشامل — الأسبوع '+w+'</h1><p class="mute">إنجليزي + ذكاء اصطناعي + استثمار. خذ وقتك ولا تستخدم المساعدة.</p>'+quizHTML(x.exam,'x'+w,xBest(w));
+  window.scrollTo(0,0);
+  bindQuiz(x.exam,'x'+w,function(p){var o=S.exam[w];S.exam[w]={best:Math.max(p,o?o.best:0),last:p,at:(o&&o.best>=D.pass)?o.at:new Date().toISOString(),tries:(o?o.tries:0)+1};save()},
+    function(p){return p>=D.pass?'<button class="btn gold" onclick="printCert(\'w\','+w+')">🏅 اطبع شهادة الأسبوع</button><a class="btn pri" href="#home">البرنامج</a>':'<button class="btn" onclick="route()">🔁 أعد الاختبار</button>'})}
+
+/* ===== الشهادات ===== */
+function certs(){var h='<a class="back" href="#home">→ البرنامج</a><h1>🏅 الشهادات</h1><p class="mute">شهادة لكل أسبوع تنجح في اختباره الشامل، وشهادة لكل مرحلة، وشهادة إتمام البرنامج النهائية.</p>';
+  h+='<h3>شهادات المراحل والبرنامج</h3><div class="certs">';
+  D.phases.forEach(function(ph){var on=ph.weeks.every(weekPassed);h+='<div class="cert '+(on?'on':'off')+'"><div class="ci">'+(on?'🏆':'🔒')+'</div><b>'+esc(ph.ar)+'</b><div class="mute">الأسابيع '+ph.weeks[0]+'–'+ph.weeks[3]+'</div>'+(on?'<button class="btn gold" onclick="printCert(\'p\','+ph.n+')">طباعة</button>':'')+'</div>'});
+  var all=[1,2,3,4,5,6,7,8,9,10,11,12].every(weekPassed);
+  h+='<div class="cert '+(all?'on':'off')+'"><div class="ci">'+(all?'🎓':'🔒')+'</div><b>شهادة إتمام البرنامج</b><div class="mute">12 أسبوعاً + مشروع التخرج</div>'+(all?'<button class="btn gold" onclick="printCert(\'f\',0)">طباعة</button>':'')+'</div></div>';
+  h+='<h3 style="margin-top:20px">شهادات الأسابيع</h3><div class="certs">';
+  for(var w=1;w<=12;w++){var on=weekPassed(w);h+='<div class="cert '+(on?'on':'off')+'"><div class="ci">'+(on?'🥇':'🔒')+'</div><b>الأسبوع '+w+'</b><div class="mute">'+(on?'الدرجة: '+xBest(w)+'%':'لم يكتمل بعد')+'</div>'+(on?'<button class="btn gold" onclick="printCert(\'w\','+w+')">طباعة</button>':'')+'</div>'}
+  app.innerHTML=h+'</div>';window.scrollTo(0,0)}
+function fmtDate(iso){var d=iso?new Date(iso):new Date(),m=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear()}
+window.printCert=function(kind,n){var title,body,score,date,code;
+  if(kind==='w'){var r=S.exam[n];title='شهادة إتمام أسبوع';body='أتمّ بنجاح <b>الأسبوع '+n+'</b> من برنامج «تطوير علي» في اللغة الإنجليزية والذكاء الاصطناعي والاستثمار، واجتاز الاختبار الشامل.';score=r.best+'%';date=r.at;code='AD-W'+('0'+n).slice(-2)}
+  else if(kind==='p'){var ph=D.phases[n-1],sc=Math.round(ph.weeks.reduce(function(s,w){return s+xBest(w)},0)/4);title='شهادة إتمام مرحلة';body='أتمّ بنجاح <b>'+ph.ar+'</b> (الأسابيع '+ph.weeks[0]+'–'+ph.weeks[3]+') من برنامج «تطوير علي» في اللغة الإنجليزية والذكاء الاصطناعي والاستثمار.';score=sc+'%';date=S.exam[ph.weeks[3]].at;code='AD-P'+n}
+  else{var s2=0;for(var w=1;w<=12;w++)s2+=xBest(w);title='شهادة إتمام البرنامج';body='أتمّ بنجاح برنامج «تطوير علي» الكامل (12 أسبوعاً) في <b>اللغة الإنجليزية والذكاء الاصطناعي والاستثمار</b>، بما في ذلك الاختبارات الأسبوعية ومشروع التخرج.';score=Math.round(s2/12)+'%';date=S.exam[12].at;code='AD-FINAL'}
+  document.getElementById('printArea').innerHTML='<div class="cp"><div class="fr"></div><div class="fr2"></div><div class="in"><img class="lg" src="icons/marsa-lockup.png" alt="Marsa"><p class="t1">'+title+'</p><p class="t2">CERTIFICATE OF COMPLETION</p><div>تشهد منصة مرسى بأن</div><div class="nm">'+esc(D.student.ar)+'</div><div class="nme">'+esc(D.student.en)+'</div><div class="tx">'+body+'</div><div class="meta"><span>التاريخ<b>'+fmtDate(date)+'</b></span><span>الدرجة<b>'+score+'</b></span><span>رقم الشهادة<b style="font-family:Inter">'+code+'-'+new Date(date||Date.now()).getFullYear()+'</b></span><span>إعداد المحتوى<b>Claude · منصة مرسى</b></span></div></div></div>';
+  var img=document.querySelector('#printArea img');function go(){setTimeout(function(){window.print()},150)}if(img.complete)go();else{img.onload=go;img.onerror=go}};
+
+/* ===== نسخ احتياطي وتقرير ===== */
+window.exp=function(){var b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tatweer-ali-'+today()+'.json';a.click()};
+window.imp=function(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o.quiz)throw 0;if(confirm('سيستبدل التقدم الحالي. متأكد؟')){S=o;save();route()}}catch(e){alert('ملف غير صالح')}};r.readAsText(f)};
+window.toClaude=function(){var t='تقرير تقدمي في برنامج تطوير علي ('+today()+'):\n- الإنجاز: '+Math.round(doneUnits()/totalUnits()*100)+'%\n- متوسط الدرجات: '+avg()+'%\n- ساعات الدراسة: '+Math.round(totalMin()/60*10)/10+'\n- الدروس:\n';
+  Object.keys(S.quiz).sort().forEach(function(k){var p=k.split('-');t+='  الأسبوع '+p[0]+' الدرس '+p[1]+': '+S.quiz[k].best+'% (محاولات: '+S.quiz[k].tries+')\n'});
+  Object.keys(S.exam).forEach(function(k){t+='  الاختبار الشامل الأسبوع '+k+': '+S.exam[k].best+'%\n'});
+  t+='\nراجع نقاط ضعفي، وجهّز لي محتوى الأسبوع التالي في مرسى.';copy(t)};
+
+/* ===== التوجيه ===== */
+window.route=function(){var h=location.hash||'#home',m;
+  if((m=h.match(/^#w(\d+)d(\d+)$/)))lesson(+m[1],+m[2]);else if((m=h.match(/^#w(\d+)x$/)))exam(+m[1]);else if(h==='#certs')certs();else home()};
+window.addEventListener('hashchange',route);route();
+})();
+</script>
+</body>
+</html>
