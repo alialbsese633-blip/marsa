@@ -167,6 +167,11 @@ function home(){
     '<div class="stat"><b>'+streak()+'</b><small>أيام متتالية 🔥</small></div><div class="stat"><b>'+Math.round(totalMin()/60*10)/10+'</b><small>ساعات دراسة</small></div></div></div>';
   h+='<div class="card"><b>⏱️ مؤقت اليوم (90 دقيقة)</b><div class="split">'+D.split.map(function(p,i){return '<div id="sp'+i+'" style="--f:'+p.min+';--c:'+p.c+'"><i></i><span>'+p.ic+' '+p.ar+' '+p.min+'د</span></div>'}).join('')+'</div>'+
     '<div class="timer" style="margin-top:12px"><span class="t" id="tm">40:00</span><span class="mute" id="tmSeg"></span><span class="sp"></span><button class="btn pri" id="tmBtn" onclick="tmToggle()">▶ ابدأ</button><button class="btn" onclick="tmSkip()">التالي ⏭</button></div></div>';
+  if(D.placement){var P=D.placement;
+    h+='<details class="card"><summary style="cursor:pointer;list-style:none"><b>🎯 مستواك في الإنجليزي: '+esc(P.level)+'</b> <span class="mute">— '+esc(P.levelAr)+'</span><div class="mute" style="font-size:13px">الهدف: '+esc(P.target)+' · اضغط لعرض نقاط التقوية</div></summary>'+
+      '<div class="row" style="margin:10px 0">'+P.scores.map(function(x){return '<span class="pill'+(x[1]>=70?' ok':'')+'">'+esc(x[0])+' '+x[1]+'%</span>'}).join('')+'</div>'+
+      P.weak.map(function(x){return '<div style="border-top:1px solid var(--line);padding:9px 0"><b>'+esc(x[0])+'</b><div style="font-size:14px;direction:ltr;text-align:left;font-family:Inter;unicode-bidi:plaintext">'+esc(x[1])+'</div><div class="mute" style="font-size:12.5px">📍 '+esc(x[2])+'</div></div>'}).join('')+
+      '<div class="mute" style="font-size:12.5px">اختبار تحديد المستوى: '+esc(P.date)+' · الاختبار التالي نهاية الأسبوع 4</div></details>'}
   h+='<div class="card" style="padding:14px 16px"><b>📅 نظام الأسبوع</b><div class="mute" style="margin-top:4px">السبت–الأربعاء: درس يومي + اختبار قصير (النجاح '+D.pass+'% يفتح الدرس التالي) · الخميس: اختبار شامل + شهادة الأسبوع · الجمعة: راحة أو مراجعة.</div></div>';
   D.phases.forEach(function(ph){
     h+='<h3 style="margin:22px 0 6px">'+esc(ph.ar)+'</h3>';

@@ -16,12 +16,12 @@ window.ALIDEV = {
     { n: 3, ar: "المرحلة الثالثة: المشروع والمحفظة", weeks: [9, 10, 11, 12] }
   ],
   outline: [
-    { w: 1, en: "الأزمنة الأساسية + مفردات AI والمال", ai: "ما هو الذكاء الاصطناعي وكتابة الأوامر", inv: "الدخل والميزانية والفائدة المركبة" },
-    { w: 2, en: "المقارنة، الشرط، المبني للمجهول، الإيميل", ai: "كيف تتدرب النماذج وتقنيات الأوامر", inv: "الأهداف، البنوك، الديون، الأسهم" },
-    { w: 3, en: "مفردات الاجتماعات والتقارير", ai: "الذكاء الاصطناعي في Excel وتحليل الجداول", inv: "قراءة القوائم المالية للشركات" },
-    { w: 4, en: "مراجعة + محادثة قصيرة", ai: "مشروع صغير: مكتبة أوامر لعملك", inv: "الصناديق والصكوك والذهب" },
-    { w: 5, en: "إيميلات العمل المتقدمة", ai: "أتمتة المهام: Apps Script بمساعدة AI", inv: "سوق مسقط: كيف تفتح حساباً وتشتري" },
-    { w: 6, en: "التفاوض والطلبات الرسمية", ai: "تحليل البيانات بالذكاء الاصطناعي", inv: "التحليل الأساسي: الربحية والتوزيعات" },
+    { w: 1, en: "الأزمنة الأساسية + الماضي المستمر + mustn't", ai: "ما هو الذكاء الاصطناعي وكتابة الأوامر", inv: "الدخل والميزانية والفائدة المركبة" },
+    { w: 2, en: "الفعل + ing، الشرط، الماضي التام، فهم القراءة، الإيميل", ai: "كيف تتدرب النماذج وتقنيات الأوامر", inv: "الأهداف، البنوك، الديون، الأسهم" },
+    { w: 3, en: "المضارع التام المستمر + مفردات العمل اليومية", ai: "الذكاء الاصطناعي في Excel وتحليل الجداول", inv: "قراءة القوائم المالية للشركات" },
+    { w: 4, en: "مراجعة الأزمنة + اختبار تحديد مستوى ثانٍ", ai: "مشروع صغير: مكتبة أوامر لعملك", inv: "الصناديق والصكوك والذهب" },
+    { w: 5, en: "الشرط الثاني + wish + إيميلات العمل", ai: "أتمتة المهام: Apps Script بمساعدة AI", inv: "سوق مسقط: كيف تفتح حساباً وتشتري" },
+    { w: 6, en: "الكلام المنقول + قراءة تقارير قصيرة (هدف B1)", ai: "تحليل البيانات بالذكاء الاصطناعي", inv: "التحليل الأساسي: الربحية والتوزيعات" },
     { w: 7, en: "كتابة التقارير", ai: "بناء أدوات صغيرة (صفحات ويب) بالـ AI", inv: "إدارة المخاطر والتنويع" },
     { w: 8, en: "مراجعة المرحلة الثانية", ai: "وكلاء الذكاء الاصطناعي (Agents)", inv: "بناء خطة ادخار واستثمار شهرية" },
     { w: 9, en: "العروض التقديمية", ai: "اختيار فكرة مشروع التخرج", inv: "محفظة تجريبية: الاختيار" },
@@ -29,6 +29,19 @@ window.ALIDEV = {
     { w: 11, en: "النقاش وإبداء الرأي", ai: "تنفيذ المشروع (2)", inv: "تقييم الأداء والقرارات" },
     { w: 12, en: "العرض النهائي بالإنجليزي", ai: "تسليم مشروع التخرج", inv: "تقرير المحفظة النهائي" }
   ],
+  placement: {
+    date: "2026-10-31", level: "A2+", levelAr: "أساسي متقدم — على أبواب B1", target: "B1 بنهاية الأسبوع 6، و B1+ بنهاية الأسبوع 12",
+    scores: [["A2", 88], ["B1", 25], ["B2", 13], ["C1", 13], ["القراءة", 25]],
+    weak: [
+      ["الماضي المستمر", "I was watching TV when you called. (حدث مستمر قطعه حدث)", "الأسبوع 1 · الدرس 2"],
+      ["for / since", "for + مدة (for 3 years) · since + بداية (since 2024)", "الأسبوع 1 · الدرس 4"],
+      ["mustn't / don't have to", "mustn't = ممنوع · don't have to = غير ضروري", "الأسبوع 1 · الدرس 5"],
+      ["الفعل بعد حروف معينة (-ing)", "looking forward to meeting · used to working · deny taking", "الأسبوع 2 · الدرس 1"],
+      ["الماضي التام والكلام المنقول", "the meeting had finished · She said she was tired", "الأسبوع 2 · الدرس 3"],
+      ["فهم القراءة (Although / unless)", "although = رغم أن (عكس ما قبلها) · unless = إلا إذا", "الأسبوع 2 · الدرس 4"],
+      ["الكتابة والإملاء", "intelligence, artificial — والكتابة بجمل كاملة 5–7 جمل", "كل درس: قسم الكتابة"]
+    ]
+  },
   WEEKS: []
 };
 
@@ -97,14 +110,19 @@ ALIDEV.WEEKS.push({
   /* ---------- اليوم 2 ---------- */
   { d: 2, title: "الماضي البسيط + هيكل الأمر الممتاز + الميزانية",
     en: {
-      topic: "Past Simple",
-      body: `<p>للحديث عن شيء حدث وانتهى في الماضي.</p>
+      topic: "Past Simple + Past Continuous",
+      body: `<p><b>الماضي البسيط:</b> شيء حدث وانتهى في الماضي.</p>
 <table><tr><th>النوع</th><th>القاعدة</th><th>مثال</th></tr>
 <tr><td>منتظم</td><td>+ ed</td><td>I <b>checked</b> the invoices yesterday.</td></tr>
 <tr><td>شاذ</td><td>يُحفظ</td><td>go→went, send→sent, buy→bought, pay→paid, make→made</td></tr>
 <tr><td>نفي</td><td>didn't + الفعل الأصلي</td><td>I <b>didn't send</b> the report.</td></tr>
 <tr><td>سؤال</td><td>Did + الفعل الأصلي</td><td><b>Did</b> you <b>pay</b> the bill?</td></tr></table>
-<p class="tip">⚠️ خطأ شائع: I didn't sent. ✗ — الصحيح: I didn't send. ✓</p>`,
+<p><b>الماضي المستمر (was/were + ing):</b> شيء كان مستمراً في لحظة بالماضي، وغالباً يقطعه حدث قصير.</p>
+<table><tr><th>الجملة</th><th>الشرح</th></tr>
+<tr><td>I <b>was watching</b> TV when you <b>called</b>.</td><td>المشاهدة مستمرة (was watching) ← قطعها الاتصال (called)</td></tr>
+<tr><td>They <b>were working</b> at 9 pm yesterday.</td><td>مستمر في وقت محدد بالماضي</td></tr>
+<tr><td><b>While</b> I <b>was checking</b> the invoices, the phone <b>rang</b>.</td><td>while + مستمر، when + بسيط</td></tr></table>
+<p class="tip">⚠️ في اختبارك اخترت am watching ← هذا حاضر. مع when you called (ماضٍ) نستخدم <b>was watching</b>.<br>⚠️ خطأ شائع: I didn't sent ✗ ← I didn't send ✓ · I have went ✗ ← I went ✓</p>`,
       vocab: [
         ["income", "دخل", "My monthly income is fixed."],
         ["expense", "مصروف", "Rent is my biggest expense."],
@@ -117,7 +135,7 @@ ALIDEV.WEEKS.push({
       ],
       reading: `Last month, Ali made his first personal budget. He wrote down his income and every expense. He found that he spent too much on food delivery. He decided to save 20% of his salary. At the end of the month, he moved the money to a savings account.`,
       readingQ: "استخرج من القطعة كل الأفعال الماضية، واكتب أصل كل فعل (مثال: made ← make).",
-      writing: "Write 5 sentences about what you did yesterday at work. Use at least 3 irregular verbs."
+      writing: "Write 5 sentences about yesterday. Use 3 irregular verbs and 2 sentences with was/were + ing. Start with: Yesterday I... / While I was..."
     },
     ai: {
       topic: "هيكل الأمر الممتاز (Prompt)",
@@ -147,7 +165,7 @@ ALIDEV.WEEKS.push({
     ],
     quiz: [
       { q: "Yesterday I ___ the report to the manager.", o: ["send", "sent", "sended", "sending"], a: 1, x: "send فعل شاذ ← sent." },
-      { q: "النفي الصحيح:", o: ["He didn't paid", "He not paid", "He didn't pay", "He don't paid"], a: 2, x: "بعد didn't يرجع الفعل لأصله." },
+      { q: "I ___ dinner when the manager called.", o: ["had", "was having", "am having", "have"], a: 1, x: "حدث مستمر (was having) قطعه اتصال (called)." },
       { q: "في هيكل د.م.س.ش، حرف (ش) يعني:", o: ["شرط", "شكل النتيجة", "شرح", "شخص"], a: 1, x: "ش = شكل النتيجة (جدول، نقاط، إيميل...)." },
       { q: "مصروفاتك الضرورية 200 ر.ع، أقل صندوق طوارئ مناسب:", o: ["200", "400", "600", "2000"], a: 2, x: "3 أشهر × 200 = 600." },
       { q: "معنى expense:", o: ["دخل", "مصروف", "أصل", "فائدة"], a: 1, x: "expense = مصروف." }
@@ -277,7 +295,10 @@ ALIDEV.WEEKS.push({
 <tr><td>must</td><td>إلزام قوي</td><td>All invoices <b>must</b> be approved.</td></tr>
 <tr><td>should</td><td>نصيحة</td><td>You <b>should</b> save 20% of your salary.</td></tr>
 <tr><td>could</td><td>طلب مهذب / احتمال</td><td><b>Could</b> you send me the file?</td></tr>
-<tr><td>might</td><td>احتمال ضعيف</td><td>The price <b>might</b> go down.</td></tr></table>
+<tr><td>might</td><td>احتمال ضعيف</td><td>The price <b>might</b> go down.</td></tr>
+<tr><td>mustn't</td><td><b>ممنوع</b></td><td>You <b>mustn't</b> smoke here.</td></tr>
+<tr><td>don't have to</td><td><b>غير ضروري</b> (لك الخيار)</td><td>You <b>don't have to</b> come on Friday.</td></tr></table>
+<p class="tip">⚠️ هذا كان من أخطاء اختبارك: mustn't = ممنوع، أما don't have to = لا يلزمك.</p>
 <p>بعد الفعل الناقص يأتي الفعل <b>بدون to وبدون s</b>: He should <b>go</b> ✓ (لا: He should goes ✗)</p>
 <p><b>جمل جاهزة للإيميلات:</b> Could you please... / I would appreciate it if... / Please let me know if...</p>`,
       vocab: [
@@ -327,7 +348,7 @@ ALIDEV.WEEKS.push({
       { q: "الطلب الأكثر تهذيباً:", o: ["Send me the file.", "Could you please send me the file?", "You must send the file.", "Send file now."], a: 1, x: "Could you please... أسلوب مهذب للعمل." },
       { q: "تقسيم مهمة كبيرة لأوامر متتالية يسمى:", o: ["سلسلة الأوامر", "الهلوسة", "التدريب", "التضخم"], a: 0, x: "Prompt chaining = سلسلة الأوامر." },
       { q: "الأصل الأعلى مخاطرة وعائداً على المدى الطويل غالباً:", o: ["حساب التوفير", "الودائع", "الأسهم", "الكاش"], a: 2, x: "الأسهم أعلى مخاطرة وأعلى عائداً متوقعاً على المدى الطويل." },
-      { q: "معنى diversify:", o: ["يبيع", "ينوّع", "يقترض", "يدخر"], a: 1, x: "diversify = ينوّع." }
+      { q: "Friday is a holiday. You ___ come to the office.", o: ["mustn't", "don't have to", "must", "should to"], a: 1, x: "غير ضروري (لك الخيار) ← don't have to." }
     ]
   }],
   exam: [
@@ -355,14 +376,16 @@ ALIDEV.WEEKS.push({
   days: [
   { d: 1, title: "المقارنة + كيف تتدرب النماذج + الأهداف المالية",
     en: {
-      topic: "Comparatives & Superlatives",
-      body: `<table><tr><th>الصفة</th><th>مقارنة</th><th>تفضيل</th></tr>
-<tr><td>cheap</td><td>cheap<b>er</b> than</td><td>the cheap<b>est</b></td></tr>
-<tr><td>big</td><td>bigg<b>er</b></td><td>the bigg<b>est</b></td></tr>
-<tr><td>expensive</td><td><b>more</b> expensive</td><td>the <b>most</b> expensive</td></tr>
-<tr><td>good / bad</td><td>better / worse</td><td>the best / the worst</td></tr></table>
-<p>المساواة: Stocks are <b>not as safe as</b> deposits.</p>
-<p class="tip">💡 صفة من مقطع واحد ← er/est. صفة طويلة ← more/most.</p>`,
+      topic: "Verb + ing or Verb + to",
+      body: `<p>بعض الأفعال والعبارات يأتي بعدها الفعل مع <b>ing</b>، وبعضها مع <b>to</b>. هذه تُحفظ كمجموعات:</p>
+<table><tr><th>بعدها ing</th><th>بعدها to + فعل</th></tr>
+<tr><td>enjoy, finish, avoid, deny, suggest, keep</td><td>want, need, decide, plan, hope, agree</td></tr>
+<tr><td>He <b>denied taking</b> the money.</td><td>I <b>decided to save</b> 20%.</td></tr></table>
+<p><b>قاعدة مهمة:</b> إذا جاء بعد حرف جر (to, for, about, of, at) فعل ← يأخذ <b>ing</b>:</p>
+<ul><li>I'm looking forward <b>to meeting</b> you. (لا: to meet)</li>
+<li>She is used <b>to working</b> long hours. = متعودة</li>
+<li>Thank you <b>for helping</b> me.</li></ul>
+<p class="tip">⚠️ في سؤال 37 كتبت: for open ✗ ← الصحيح: <b>to open</b> a new account ✓ (للهدف نستخدم to + فعل)</p>`,
       vocab: [
         ["goal", "هدف", "My goal is to save 1,000 OMR."],
         ["long-term", "طويل المدى", "Stocks are a long-term investment."],
@@ -373,9 +396,9 @@ ALIDEV.WEEKS.push({
         ["afford", "يقدر على تكلفة", "I can't afford it now."],
         ["compare", "يقارن", "Compare the two offers."]
       ],
-      reading: `Claude is newer than many older chatbots, and it is better at long documents. However, the most important skill is not choosing the best tool; it is writing clearer prompts. A simple tool with a clear prompt is often more useful than a powerful tool with a bad prompt.`,
-      readingQ: "استخرج كل صيغ المقارنة والتفضيل من القطعة.",
-      writing: "Compare two places you have lived (Yemen/Oman or two cities). Write 5 sentences using comparatives and one superlative."
+      reading: `Ali enjoys learning new things. He decided to study AI because he wants to build better systems at work. He is used to working long hours, but he keeps practicing English every day. He is looking forward to starting university.`,
+      readingQ: "استخرج من القطعة كل فعل جاء بعده ing وكل فعل جاء بعده to.",
+      writing: "Write 5 sentences about your goals. Use: I want to... / I decided to... / I enjoy ...ing / I'm looking forward to ...ing / I'm used to ...ing"
     },
     ai: {
       topic: "كيف تتدرب النماذج اللغوية؟",
@@ -404,8 +427,8 @@ ALIDEV.WEEKS.push({
       ["SMART financial goals", "SMART financial goals"]
     ],
     quiz: [
-      { q: "Gold is ___ than silver.", o: ["expensiver", "more expensive", "most expensive", "expensive"], a: 1, x: "صفة طويلة ← more." },
-      { q: "This is the ___ report I have ever read.", o: ["good", "better", "best", "goodest"], a: 2, x: "good ← the best." },
+      { q: "I'm looking forward to ___ you.", o: ["meet", "meeting", "met", "be meet"], a: 1, x: "بعد حرف الجر to ← ing." },
+      { q: "She decided ___ a new account.", o: ["opening", "to open", "open", "opened"], a: 1, x: "decide + to + فعل." },
       { q: "نافذة السياق (Context window) تعني:", o: ["شاشة البرنامج", "كم نصاً يقرؤه النموذج في المحادثة", "سرعة الإنترنت", "عدد المستخدمين"], a: 1, x: "حد النص الذي يستوعبه النموذج دفعة واحدة." },
       { q: "هدف بعد سنة واحدة، الأنسب له:", o: ["أسهم عالية المخاطرة", "حساب توفير أو وديعة", "عملات رقمية", "لا شيء"], a: 1, x: "الأفق القصير يحتاج أماناً." },
       { q: "تريد 900 ر.ع خلال 18 شهراً، كم شهرياً؟", o: ["40", "50", "60", "90"], a: 1, x: "900 ÷ 18 = 50." }
@@ -468,8 +491,15 @@ ALIDEV.WEEKS.push({
   },
   { d: 3, title: "المبني للمجهول + الذكاء الاصطناعي في Excel + الديون",
     en: {
-      topic: "Passive Voice (لغة التقارير)",
-      body: `<p><b>be + التصريف الثالث</b> — نستخدمه عندما يكون الفعل أهم من الفاعل، وهو شائع جداً في التقارير الرسمية.</p>
+      topic: "Past Perfect + Reported Speech + Passive",
+      body: `<p><b>1) الماضي التام (had + التصريف الثالث):</b> الحدث الأقدم من حدثين في الماضي.</p>
+<p>By the time I arrived, the meeting <b>had finished</b>. ← انتهى الاجتماع أولاً، ثم وصلت.</p>
+<p><b>2) الكلام المنقول:</b> عندما تنقل كلام شخص، يرجع الفعل خطوة للماضي:</p>
+<table><tr><th>قال</th><th>ننقله</th></tr>
+<tr><td>"I <b>am</b> tired."</td><td>She said (that) she <b>was</b> tired.</td></tr>
+<tr><td>"I <b>work</b> here."</td><td>He told me he <b>worked</b> there.</td></tr>
+<tr><td>"I <b>will</b> send it."</td><td>He said he <b>would</b> send it.</td></tr></table>
+<p><b>3) مراجعة المبني للمجهول</b> (أجبته صحيحاً في الاختبار 👍): <b>be + التصريف الثالث</b> — شائع في التقارير.</p>
 <table><tr><th>معلوم</th><th>مجهول</th></tr>
 <tr><td>The GM approved the request.</td><td>The request <b>was approved</b>.</td></tr>
 <tr><td>We pay salaries monthly.</td><td>Salaries <b>are paid</b> monthly.</td></tr>
@@ -485,8 +515,8 @@ ALIDEV.WEEKS.push({
         ["row", "صف", "Delete the empty rows."],
         ["report", "تقرير", "The report was sent on time."]
       ],
-      reading: `The monthly report was prepared by the accounts team. All invoices were checked and the custody was settled. Two errors were found and corrected. The final report will be sent to the general manager on Sunday.`,
-      readingQ: "حوّل 3 جمل من القطعة إلى المبني للمعلوم (اخترع الفاعل).",
+      reading: `When Ali reached the office, the accountant had already left. The manager told him that the report was late. Ali said he would finish it the same day. Two errors were found and corrected before the report was sent.`,
+      readingQ: "ما الذي حدث أولاً: وصول علي أم مغادرة المحاسب؟ ولماذا استُخدم had left؟ ثم انقل جملة: The manager said, \"I need the report.\"",
       writing: "Write a short work report (5 sentences) about last week using the passive voice. Example: Ten requests were received..."
     },
     ai: {
@@ -517,8 +547,8 @@ ALIDEV.WEEKS.push({
       ["Debt avalanche vs snowball", "debt avalanche vs snowball"]
     ],
     quiz: [
-      { q: "The invoices ___ yesterday.", o: ["checked", "were checked", "are check", "was check"], a: 1, x: "ماضٍ مجهول مع جمع ← were + checked." },
-      { q: "The system ___ next week.", o: ["will install", "will be installed", "is install", "installed"], a: 1, x: "مستقبل مجهول ← will be + V3." },
+      { q: "When I arrived, the bus ___.", o: ["left", "has left", "had left", "leaves"], a: 2, x: "الحدث الأقدم ← had left." },
+      { q: "\"I am busy.\" ← He said he ___ busy.", o: ["is", "was", "be", "been"], a: 1, x: "في الكلام المنقول am ← was." },
       { q: "لجمع مصروفات بناية معينة في شهر معين نستخدم:", o: ["SUMIFS", "VLOOKUP فقط", "COUNT", "LEN"], a: 0, x: "SUMIFS للجمع بأكثر من شرط." },
       { q: "طريقة سداد الدين الأعلى تكلفة أولاً:", o: ["Snowball", "Avalanche", "Few-shot", "Budget"], a: 1, x: "Avalanche = الأعلى تكلفة أولاً." },
       { q: "معنى installment:", o: ["رصيد", "قسط", "عمود", "رسوم"], a: 1, x: "installment = قسط." }
@@ -532,7 +562,12 @@ ALIDEV.WEEKS.push({
 <tr><td>تناقض</td><td>however, although, but</td><td>The plan is good. <b>However</b>, it is expensive.</td></tr>
 <tr><td>نتيجة</td><td>therefore, so, as a result</td><td>Sales dropped; <b>therefore</b>, we cut costs.</td></tr>
 <tr><td>سبب</td><td>because, because of, due to</td><td>The delay was <b>due to</b> the holiday.</td></tr></table>
-<p class="tip">💡 because + جملة (because it rained) — because of / due to + اسم (due to the rain).</p>`,
+<p class="tip">💡 because + جملة (because it rained) — because of / due to + اسم (due to the rain).</p>
+<p><b>🔎 مهارة القراءة (كانت ضعيفة في اختبارك):</b> كلمات الربط تخبرك باتجاه المعنى.</p>
+<ul><li><b>Although / However / but</b> ← ما بعدها <b>عكس</b> ما قبلها. "Although revenue <u>rose</u>, profit <u>declined</u>" = الإيراد زاد لكن الربح <b>نقص</b>.</li>
+<li><b>owing to / due to / because</b> ← بعدها <b>السبب</b>.</li>
+<li><b>unless</b> = إلا إذا ← بعدها <b>الشرط</b>.</li></ul>
+<p>طريقة الحل: اقرأ السؤال أولاً ← ابحث عن الكلمة المفتاحية في النص ← انتبه لكلمة الربط قبلها.</p>`,
       vocab: [
         ["share", "سهم", "Each share costs 0.200 OMR."],
         ["shareholder", "مساهم", "Shareholders own the company."],
@@ -591,7 +626,8 @@ ALIDEV.WEEKS.push({
 <tr><td>الطلب</td><td>Could you please... by [date]?</td></tr>
 <tr><td>الختام</td><td>Please let me know if you have any questions. / Thank you for your support.</td></tr>
 <tr><td>التوقيع</td><td>Best regards, Ali Al Busaisi</td></tr></table>
-<p class="tip">💡 سطر الموضوع (Subject) قصير وواضح: "Approval Request – October Bank Reconciliation"</p>`,
+<p class="tip">💡 سطر الموضوع (Subject) قصير وواضح: "Approval Request – October Bank Reconciliation"</p>
+<p><b>✏️ إملاء كلماتك:</b> artificial · intelligence · career · improve · necessary · business · receive · separate · management · approval</p>`,
       vocab: [
         ["regarding", "بخصوص", "I'm writing regarding the invoice."],
         ["as discussed", "كما تم النقاش", "As discussed, here is the plan."],
