@@ -371,7 +371,7 @@ function pushInit(){
   window.OneSignalDeferred.push(function(OneSignal){
     PUSH.os = OneSignal;
     const base = new URL('push/onesignal/', location.href).pathname;
-    return Promise.resolve(OneSignal.init({ appId: OS_APP_ID, serviceWorkerPath:'push/onesignal/OneSignalSDKWorker.js', serviceWorkerParam:{ scope: base } }))
+    return Promise.resolve(OneSignal.init({ appId: OS_APP_ID, serviceWorkerPath: base + 'OneSignalSDKWorker.js', serviceWorkerParam:{ scope: base } }))
       .then(function(){
         PUSH.st = 'ready'; pushRefresh(); pushLogin();
         try{ OneSignal.User.PushSubscription.addEventListener('change', function(){ pushRefresh(); if (S.tab==='me') go('me'); }); }catch(e){}
