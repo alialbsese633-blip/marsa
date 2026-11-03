@@ -353,7 +353,7 @@ async function api(action, payload){
 
 
 /* ================= PUSH (OneSignal) ================= */
-const PUSH = { st:'off', os:null, opted:false, denied:false, login:null };
+const PUSH = { st:'off', os:null, opted:false, denied:false, login:null, err:'' };
 function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
 function isStandalone(){ return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
 function pushRefresh(){
@@ -374,11 +374,12 @@ function pushInit(){
         PUSH.st = 'ready'; pushRefresh(); pushLogin();
         try{ OneSignal.User.PushSubscription.addEventListener('change', function(){ pushRefresh(); if (S.tab==='me') go('me'); }); }catch(e){}
         if (S.tab==='me') go('me');
-      }).catch(function(){ PUSH.st = 'failed'; });
+      }).catch(function(e){ PUSH.st = 'failed'; PUSH.err = 'init: ' + String((e && e.message) || e).slice(0,300); if (S.tab==='me') go('me'); });
   });
   const sc = document.createElement('script');
   sc.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; sc.defer = true;
-  sc.onerror = function(){ PUSH.st = 'failed'; };
+  sc.onerror = function(){ PUSH.st = 'failed'; PUSH.err = 'script: تعذّر تحميل مكتبة OneSignal (قد تحجبها الشبكة)'; if (S.tab==='me') go('me'); };
+  setTimeout(function(){ if (PUSH.st === 'loading'){ PUSH.st = 'failed'; PUSH.err = 'timeout: انتهت مهلة التحميل (15 ثانية)'; if (S.tab==='me') go('me'); } }, 15000);
   document.head.appendChild(sc);
 }
 /* نربط الجهاز بحساب العائلة (fam-U01 ...) حتى تصل الإشعارات للشخص الصحيح فقط */
@@ -406,6 +407,12 @@ function pushToggle(){
       ['اضغط زر المشاركة ⬆️ في Safari','اختر "إضافة إلى الشاشة الرئيسية"','افتح التطبيق من الأيقونة الجديدة','ادخل إلى حسابي ← الإشعارات ← اضغط للتفعيل']
       .map(function(t,i){ return '<div class="guide-step"><div class="n">'+(i+1)+'</div><div><b>'+t+'</b></div></div>'; }).join('') +
       '<button class="btn-navy" data-close>فهمت</button>');
+    return;
+  }
+  if (PUSH.st === 'failed'){
+    openSheet(sheetHead('تعذّر تحميل الإشعارات','أرسل لعلي صورة هذه الشاشة') +
+      '<div class="card" style="direction:ltr;text-align:left;font-size:13px;word-break:break-word;margin-bottom:14px">'+(PUSH.err||'unknown')+'<br><br>'+location.origin+location.pathname+'<br>standalone='+isStandalone()+' · ios='+isIOS()+' · notif='+(('Notification' in window)?Notification.permission:'none')+'</div>' +
+      '<button class="btn-navy" onclick="location.reload()">إعادة المحاولة</button><button class="btn-ghost" data-close>إغلاق</button>');
     return;
   }
   if (PUSH.st !== 'ready'){ toast('جارٍ التحميل، حاول بعد ثوانٍ'); return; }
