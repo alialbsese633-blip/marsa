@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Marsa Family">
-<title>Marsa Family</title>
+<meta name="apple-mobile-web-app-title" content="Al Busaisi">
+<title>Al Busaisi Family · عائلة البسيسي</title>
 <link rel="apple-touch-icon" id="touchIcon" href="">
 <link rel="icon" id="favIcon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,7 +49,13 @@ button{cursor:pointer;border:0;background:none}
 .emblem svg{width:46px;height:46px}
 .brand h1{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;letter-spacing:.5px;color:#fff;line-height:1}
 .brand h1 span{color:var(--gold)}
-.brand p{color:rgba(255,255,255,.6);margin-top:10px;font-size:15px}
+.brand p{color:rgba(255,255,255,.5);margin-top:14px;font-size:14px}
+.brand-ar{color:var(--gold-soft);font-size:18px;font-weight:700;margin-top:10px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:10px}
+.brand-ar::before,.brand-ar::after{content:"";width:26px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.brand-ar::after{transform:scaleX(-1)}
+.tb-brand{display:flex;align-items:center;justify-content:space-between;margin-top:18px;position:relative;z-index:1}
+.tb-brand .wm{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--gold-soft);letter-spacing:.6px}
+.ph .wm{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold-soft);letter-spacing:.6px;opacity:.85}
 .login-card{width:100%;max-width:400px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:28px;padding:28px 22px;position:relative;animation:rise .9s .12s var(--ease) both}
 .field{position:relative;margin-bottom:16px}
@@ -244,8 +250,9 @@ textarea.inp{height:88px;padding:14px 16px;resize:none}
 <section id="login" class="hidden">
   <div class="brand">
     <div class="emblem" data-emblem></div>
-    <h1>Marsa <span>Family</span></h1>
-    <p>ميزانية العائلة في مكان واحد</p>
+    <h1>Al Busaisi <span>Family</span></h1>
+    <div class="brand-ar">عائلة البسيسي</div>
+    <p>ميزانيتنا، ديوننا، وادخارنا في مكان واحد</p>
   </div>
   <form class="login-card" id="loginForm" autocomplete="on">
     <div class="field">
@@ -320,7 +327,7 @@ function ic(name, size, stroke){
 function paintIcons(root){
   (root||document).querySelectorAll('[data-i]').forEach(function(el){ el.outerHTML = ic(el.dataset.i, Number(el.dataset.s)||22); });
 }
-const EMBLEM = '<svg viewBox="0 0 48 48" fill="none"><path d="M24 6 8 18v22h32V18z" stroke="#C9A227" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 40V28a9 9 0 0 1 18 0v12" stroke="#E3C766" stroke-width="2.4"/><circle cx="24" cy="21" r="3" fill="#C9A227"/><path d="M4 44c5-3 10-3 15 0s10 3 15 0 9-3 10-1" stroke="#C9A227" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>';
+const EMBLEM = '<svg viewBox="0 0 48 48" fill="none"><path d="M24 4 40 10v13c0 10-7 17-16 21C15 40 8 33 8 23V10z" stroke="#C9A227" stroke-width="2" stroke-linejoin="round"/><path d="M24 8.5 36.5 13v10c0 7.6-5.2 13.2-12.5 16.6C16.7 36.2 11.5 30.6 11.5 23V13z" stroke="#C9A227" stroke-width=".8" opacity=".5"/><text x="24" y="31" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="21" font-weight="700" fill="#E3C766">B</text><path d="M18 15.5h12" stroke="#C9A227" stroke-width="1.2" stroke-linecap="round" opacity=".8"/></svg>';
 
 /* ================= STATE ================= */
 const S = { token:null, profile:null, expires:null, tab:'home', bal:{shown:true} };
@@ -347,6 +354,7 @@ document.getElementById('splashEmblem').innerHTML = EMBLEM;
 document.querySelectorAll('[data-emblem]').forEach(function(e){ e.innerHTML = EMBLEM; });
 paintIcons();
 makeAppIcon();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(makeAppIcon);
 
 (async function boot(){
   const saved = store(true);
@@ -435,7 +443,7 @@ function viewHome(){
       '<div class="avatar">'+initial(p.name)+'</div>' +
       '<div class="hello"><small>'+greet()+'</small><b>'+first(p.name)+'</b></div>' +
       '<button class="icon-btn" data-act="notifs" aria-label="الإشعارات"><i data-i="bell"></i>'+(p.canApprove?'<span class="dot hidden" id="bellDot"></span>':'')+'</button>' +
-    '</div><div class="tb-date">'+today()+'</div></header>';
+    '</div><div class="tb-brand"><span class="tb-date" style="margin:0">'+today()+'</span><span class="wm">Al Busaisi Family</span></div></header>';
 
   const hero = p.canSeeAll
     ? '<section class="hero">' +
@@ -446,7 +454,7 @@ function viewHome(){
         '<div class="hero-split">' +
           '<div class="hs d"><span>الديون</span><b class="num">—</b></div>' +
           '<div class="hs s"><span>الادخار</span><b class="num">—</b></div>' +
-          '<div class="hs e"><span>مصروف الشهر</span><b class="num">—</b></div>' +
+          '<div class="hs e"><span>صرف الشهر</span><b class="num">—</b></div>' +
         '</div></section>'
     : '<section class="hero">' +
         '<div class="hero-lbl"><i data-i="wallet" data-s="18"></i> مصاريفي هذا الشهر</div>' +
@@ -486,7 +494,7 @@ function viewHome(){
 function viewActivity(){
   const p = S.profile;
   const chips = ['الكل','المصاريف','الدخل'].concat(p.canSeeAll?['البيت الأول','البيت الثاني','الأفراد']:[]);
-  return '<div class="view"><div class="ph"><h2>الحركات</h2><p>'+(p.canSeeAll?'كل مصاريف ودخل العائلة':'مصاريفك ودخلك')+'</p></div><div class="wrap">' +
+  return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>الحركات</h2><p>'+(p.canSeeAll?'كل مصاريف ودخل العائلة':'مصاريفك ودخلك')+'</p></div><div class="wrap">' +
     '<div class="chips">'+chips.map(function(c,i){ return '<button class="chip'+(i?'':' on')+'" data-chip>'+c+'</button>'; }).join('')+'</div>' +
     '<div class="list"><div class="empty"><div class="ic">'+ic('list',28)+'</div><b>السجل فارغ</b>كل ما تسجله سيظهر هنا مرتباً بالتاريخ</div></div></div></div>';
 }
@@ -494,7 +502,7 @@ function viewActivity(){
 /* ---------- REQUESTS ---------- */
 function viewRequests(){
   const p = S.profile;
-  const head = '<div class="ph"><h2>الطلبات</h2><p>'+(p.canApprove?'طلبات زيادة المخصص بانتظار موافقتك':'طلباتك لزيادة المخصص')+'</p></div>';
+  const head = '<div class="ph"><div class="wm">Al Busaisi Family</div><h2>الطلبات</h2><p>'+(p.canApprove?'طلبات زيادة المخصص بانتظار موافقتك':'طلباتك لزيادة المخصص')+'</p></div>';
   const btn = p.canApprove ? '' : '<button class="btn-navy" data-act="request" style="margin-bottom:18px">'+ic('plus',20)+' طلب زيادة مخصص</button>';
   const chips = '<div class="chips"><button class="chip on" data-chip>بانتظار الموافقة</button><button class="chip" data-chip>معتمدة</button><button class="chip" data-chip>مرفوضة</button></div>';
   return '<div class="view">'+head+'<div class="wrap">'+btn+chips+
@@ -506,7 +514,7 @@ function viewMe(){
   const p = S.profile;
   const role = p.isAdmin ? 'مدير' : 'فرد عائلة';
   const exp = S.expires ? new Intl.DateTimeFormat('ar-u-nu-latn',{day:'numeric',month:'long'}).format(new Date(S.expires)) : '';
-  return '<div class="view"><div class="ph"><h2>حسابي</h2><p>الإعدادات والمساعدة</p></div><div class="wrap">' +
+  return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>حسابي</h2><p>الإعدادات والمساعدة</p></div><div class="wrap">' +
     '<div class="card profile-card"><div class="avatar">'+initial(p.name)+'</div><div><b style="font-size:18px">'+p.name+'</b><div style="color:var(--muted);font-size:13.5px;direction:ltr;text-align:right">'+p.username+'</div><span class="tag">'+role+' · '+p.house+'</span></div></div>' +
     '<div class="sec-h"><h3>الإعدادات</h3></div><div class="list">' +
       '<button class="set-row" data-act="guide"><div class="ic">'+ic('help',20)+'</div><span>دليل الاستخدام</span></button>' +
@@ -514,7 +522,7 @@ function viewMe(){
       '<button class="set-row" data-act="password"><div class="ic">'+ic('key',20)+'</div><span>تغيير كلمة السر</span></button>' +
       '<button class="set-row danger" data-act="logout"><div class="ic">'+ic('out',20)+'</div><span>تسجيل الخروج</span></button>' +
     '</div>' +
-    '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:22px">الدخول محفوظ على هذا الجهاز حتى '+exp+'<br>صُمّم وأُدير بواسطة علي البسيسي</p></div></div>';
+    '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:22px">الدخول محفوظ على هذا الجهاز حتى '+exp+'<br>عائلة البسيسي · صُمّم وأُدير بواسطة علي البسيسي</p></div></div>';
 }
 
 /* ================= BINDINGS ================= */
@@ -698,10 +706,10 @@ function makeAppIcon(){
     const x = c.getContext('2d');
     const g = x.createLinearGradient(0,0,180,180); g.addColorStop(0,'#1F3858'); g.addColorStop(1,'#0A1422');
     x.fillStyle = g; x.fillRect(0,0,180,180);
-    x.strokeStyle = '#C9A227'; x.lineWidth = 8; x.lineJoin = 'round';
-    x.beginPath(); x.moveTo(90,32); x.lineTo(38,72); x.lineTo(38,142); x.lineTo(142,142); x.lineTo(142,72); x.closePath(); x.stroke();
-    x.strokeStyle = '#E3C766'; x.beginPath(); x.moveTo(66,142); x.lineTo(66,104); x.arc(90,104,24,Math.PI,0); x.lineTo(114,142); x.stroke();
-    x.fillStyle = '#C9A227'; x.beginPath(); x.arc(90,78,9,0,Math.PI*2); x.fill();
+    x.strokeStyle = '#C9A227'; x.lineWidth = 7; x.lineJoin = 'round';
+    x.beginPath(); x.moveTo(90,22); x.lineTo(148,44); x.lineTo(148,88); x.bezierCurveTo(148,124,124,148,90,162); x.bezierCurveTo(56,148,32,124,32,88); x.lineTo(32,44); x.closePath(); x.stroke();
+    x.fillStyle = '#E3C766'; x.font = '700 80px "Cormorant Garamond", Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('B', 90, 100);
     const url = c.toDataURL('image/png');
     document.getElementById('touchIcon').href = url;
     document.getElementById('favIcon').href = url;
