@@ -358,7 +358,9 @@ function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
 function isStandalone(){ return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
 function pushRefresh(){
   try{
-    PUSH.opted = !!(PUSH.os.User && PUSH.os.User.PushSubscription && PUSH.os.User.PushSubscription.optedIn);
+    const ps = PUSH.os.User && PUSH.os.User.PushSubscription;
+    PUSH.opted = !!(ps && ps.optedIn && ps.token);
+    PUSH.noToken = !!(ps && ps.optedIn && !ps.token);
     PUSH.denied = ('Notification' in window) && Notification.permission === 'denied';
   }catch(e){}
 }
@@ -397,8 +399,30 @@ function pushStatusText(){
   if (PUSH.st === 'failed') return ['تعذّر التحميل','warn'];
   if (PUSH.st !== 'ready') return ['جارٍ التحميل…','muted'];
   if (PUSH.opted) return ['مفعّلة ✓','ok'];
+  if (PUSH.noToken) return ['لم يكتمل التسجيل، اضغط','warn'];
   if (PUSH.denied) return ['محظورة من إعدادات الجوال','warn'];
   return ['اضغط للتفعيل','gold'];
+}
+function pushDetails(){
+  let ps = {}, u = {};
+  try{ ps = PUSH.os.User.PushSubscription; u = PUSH.os.User; }catch(e){}
+  const row = function(k,v){ return k+': '+v; };
+  openSheet(sheetHead('حالة الإشعارات','تفاصيل تقنية لتشخيص المشكلة') +
+    '<div class="card" style="direction:ltr;text-align:left;font-size:13px;word-break:break-all;margin-bottom:14px;line-height:1.9">' +
+    [row('optedIn', ps.optedIn), row('token', ps.token ? ps.token.slice(0,24)+'…' : 'NONE'), row('subscriptionId', ps.id || 'NONE'),
+     row('externalId', u.externalId || 'NONE'), row('permission', ('Notification' in window)?Notification.permission:'none'), row('standalone', isStandalone())].join('<br>') + '</div>' +
+    '<button class="btn-navy" id="pushRetry">إعادة تسجيل الإشعارات</button><button class="btn-ghost" data-close>إغلاق</button>');
+  document.getElementById('pushRetry').onclick = async function(){
+    this.disabled = true; this.textContent = 'جارٍ إعادة التسجيل…';
+    try{
+      await PUSH.os.User.PushSubscription.optOut();
+      await new Promise(function(r){ setTimeout(r, 1200); });
+      await PUSH.os.Notifications.requestPermission();
+      await PUSH.os.User.PushSubscription.optIn();
+      await new Promise(function(r){ setTimeout(r, 2500); });
+    }catch(e){ toast('خطأ: '+String((e&&e.message)||e).slice(0,80)); }
+    pushRefresh(); closeSheet(); setTimeout(pushDetails, 400);
+  };
 }
 function pushToggle(){
   if (!OS_APP_ID){ toast('إشعارات الجوال تُفعَّل قريباً'); return; }
@@ -417,7 +441,7 @@ function pushToggle(){
   }
   if (PUSH.st !== 'ready'){ toast('جارٍ التحميل، حاول بعد ثوانٍ'); return; }
   if (PUSH.denied){ toast('الإشعارات محظورة: فعّلها من إعدادات الجوال ← Al Busaisi'); return; }
-  if (PUSH.opted){ toast('الإشعارات مفعّلة على هذا الجهاز ✓'); return; }
+  if (PUSH.opted || PUSH.noToken){ pushDetails(); return; }
   try{ PUSH.os.Notifications.requestPermission().then(function(){ pushRefresh(); go('me'); }); }catch(e){ toast('تعذّر التفعيل'); }
 }
 
