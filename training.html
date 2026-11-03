@@ -551,8 +551,9 @@ html,body{margin:0;background:#F3F6F6}
       PUSH.denied = ('Notification' in window) && Notification.permission === 'denied';
     } catch (e) {}
   }
+  var PUSH_DISABLED = true; /* أُوقفت إشعارات OneSignal هنا: صارت لتطبيق العائلة فقط. غيّرها إلى false لإعادتها */
   function pushInit() {
-    if (PUSH.st !== 'off' || !T.pushAppId) return;
+    if (PUSH_DISABLED || PUSH.st !== 'off' || !T.pushAppId) return;
     PUSH.st = 'loading';
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(function (OneSignal) {
@@ -794,7 +795,7 @@ html,body{margin:0;background:#F3F6F6}
     if (!els.panel || panelKind !== 'emp' || !T.emp) return;
     var st = stateNow(), c = compute(T.emp.id, st); curCalc = c;
     var perm = ('Notification' in window) ? Notification.permission : 'unsupported';
-    var usePush = !!T.pushAppId;
+    var usePush = !!T.pushAppId && !PUSH_DISABLED;
     var h = '<div class="tdx-sheet" role="dialog" aria-modal="true"><div class="tdx-head"><h3>🔔 ' + esc(t('notifTitle')) + '</h3><button class="tdx-x" data-act="close" aria-label="' + esc(t('close')) + '" type="button">✕</button></div><div class="tdx-body">';
     if (c.cert) {
       h += '<div class="tdx-card tdx-cert"><div class="tdx-row"><div class="tdx-ic">🎓</div><div style="flex:1"><div class="tdx-t">' + esc(t('certTitle')) + '</div><div class="tdx-s">' + esc(t('certSub')) + '</div><div style="margin-top:8px"><button class="tdx-btn sm" data-act="cert" type="button">' + esc(t('certBtn')) + '</button></div></div></div></div>';

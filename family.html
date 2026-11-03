@@ -10,7 +10,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Al Busaisi">
 <title>Al Busaisi Family · عائلة البسيسي</title>
-<link rel="apple-touch-icon" id="touchIcon" href="">
+<link rel="manifest" href="family.webmanifest">
+<link rel="apple-touch-icon" href="icons/family-180.png">
 <link rel="icon" id="favIcon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -294,6 +295,7 @@ const API = 'https://script.google.com/macros/s/AKfycbxAoYMr6OpEw5zBPTkzaIdFMcTt
 const STORE_KEY = 'mf_session_v1';
 const GUIDE_KEY = 'mf_guide_seen_';
 const CURRENCIES = [['YER','ر.ي'],['SAR','ر.س'],['USD','$'],['OMR','ر.ع']];
+const OS_APP_ID = "";  /* يُعبَّأ بعد ربط OneSignal */
 const BIG_TEXT_USERS = ['mohsen.a','nihaya.a'];
 
 /* ================= ICONS ================= */
@@ -347,6 +349,69 @@ async function api(action, payload){
   const body = Object.assign({ action: action, token: S.token }, payload || {});
   const res = await fetch(API, { method:'POST', body: JSON.stringify(body), redirect:'follow' });
   return res.json();
+}
+
+
+/* ================= PUSH (OneSignal) ================= */
+const PUSH = { st:'off', os:null, opted:false, denied:false, login:null };
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+function isStandalone(){ return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+function pushRefresh(){
+  try{
+    PUSH.opted = !!(PUSH.os.User && PUSH.os.User.PushSubscription && PUSH.os.User.PushSubscription.optedIn);
+    PUSH.denied = ('Notification' in window) && Notification.permission === 'denied';
+  }catch(e){}
+}
+function pushInit(){
+  if (!OS_APP_ID || PUSH.st !== 'off') return;
+  PUSH.st = 'loading';
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(function(OneSignal){
+    PUSH.os = OneSignal;
+    const base = new URL('push/onesignal/', location.href).pathname;
+    return Promise.resolve(OneSignal.init({ appId: OS_APP_ID, serviceWorkerPath:'push/onesignal/OneSignalSDKWorker.js', serviceWorkerParam:{ scope: base } }))
+      .then(function(){
+        PUSH.st = 'ready'; pushRefresh(); pushLogin();
+        try{ OneSignal.User.PushSubscription.addEventListener('change', function(){ pushRefresh(); if (S.tab==='me') go('me'); }); }catch(e){}
+        if (S.tab==='me') go('me');
+      }).catch(function(){ PUSH.st = 'failed'; });
+  });
+  const sc = document.createElement('script');
+  sc.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; sc.defer = true;
+  sc.onerror = function(){ PUSH.st = 'failed'; };
+  document.head.appendChild(sc);
+}
+/* نربط الجهاز بحساب العائلة (fam-U01 ...) حتى تصل الإشعارات للشخص الصحيح فقط */
+function pushLogin(){
+  if (PUSH.st !== 'ready' || !S.profile) return;
+  const want = 'fam-' + S.profile.id;
+  if (PUSH.login === want) return;
+  PUSH.login = want;
+  try{ PUSH.os.login(want); }catch(e){}
+}
+function pushLogout(){ try{ if (PUSH.os) PUSH.os.logout(); }catch(e){} }
+function pushStatusText(){
+  if (!OS_APP_ID) return ['قريباً','muted'];
+  if (isIOS() && !isStandalone()) return ['يتطلب فتح التطبيق من الشاشة الرئيسية','warn'];
+  if (PUSH.st === 'failed') return ['تعذّر التحميل','warn'];
+  if (PUSH.st !== 'ready') return ['جارٍ التحميل…','muted'];
+  if (PUSH.opted) return ['مفعّلة ✓','ok'];
+  if (PUSH.denied) return ['محظورة من إعدادات الجوال','warn'];
+  return ['اضغط للتفعيل','gold'];
+}
+function pushToggle(){
+  if (!OS_APP_ID){ toast('إشعارات الجوال تُفعَّل قريباً'); return; }
+  if (isIOS() && !isStandalone()){
+    openSheet(sheetHead('فعّل الإشعارات على الآيفون','تعمل الإشعارات فقط من التطبيق المثبّت') +
+      ['اضغط زر المشاركة ⬆️ في Safari','اختر "إضافة إلى الشاشة الرئيسية"','افتح التطبيق من الأيقونة الجديدة','ادخل إلى حسابي ← الإشعارات ← اضغط للتفعيل']
+      .map(function(t,i){ return '<div class="guide-step"><div class="n">'+(i+1)+'</div><div><b>'+t+'</b></div></div>'; }).join('') +
+      '<button class="btn-navy" data-close>فهمت</button>');
+    return;
+  }
+  if (PUSH.st !== 'ready'){ toast('جارٍ التحميل، حاول بعد ثوانٍ'); return; }
+  if (PUSH.denied){ toast('الإشعارات محظورة: فعّلها من إعدادات الجوال ← Al Busaisi'); return; }
+  if (PUSH.opted){ toast('الإشعارات مفعّلة على هذا الجهاز ✓'); return; }
+  try{ PUSH.os.Notifications.requestPermission().then(function(){ pushRefresh(); go('me'); }); }catch(e){ toast('تعذّر التفعيل'); }
 }
 
 /* ================= BOOT ================= */
@@ -412,6 +477,7 @@ function enterApp(){
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('nav').classList.remove('hidden');
   go('home');
+  pushInit(); pushLogin();
   if (!flag(GUIDE_KEY + S.profile.username)) setTimeout(openGuide, 700);
 }
 
@@ -517,6 +583,7 @@ function viewMe(){
   return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>حسابي</h2><p>الإعدادات والمساعدة</p></div><div class="wrap">' +
     '<div class="card profile-card"><div class="avatar">'+initial(p.name)+'</div><div><b style="font-size:18px">'+p.name+'</b><div style="color:var(--muted);font-size:13.5px;direction:ltr;text-align:right">'+p.username+'</div><span class="tag">'+role+' · '+p.house+'</span></div></div>' +
     '<div class="sec-h"><h3>الإعدادات</h3></div><div class="list">' +
+      '<button class="set-row" data-act="push"><div class="ic">'+ic('bell',20)+'</div><span>إشعارات الجوال</span><b style="color:var(--gold);font-size:13px">'+pushStatusText()[0]+'</b></button>' +
       '<button class="set-row" data-act="guide"><div class="ic">'+ic('help',20)+'</div><span>دليل الاستخدام</span></button>' +
       '<button class="set-row" data-act="bigtext"><div class="ic">'+ic('text',20)+'</div><span>خط كبير</span><b style="color:var(--gold)">'+(document.body.classList.contains('big')?'مفعّل':'متوقف')+'</b></button>' +
       '<button class="set-row" data-act="password"><div class="ic">'+ic('key',20)+'</div><span>تغيير كلمة السر</span></button>' +
@@ -541,7 +608,7 @@ function act(a){
     savings:function(){ infoSheet('صندوق الادخار','الرصيد، الإيداعات التلقائية، والسحب بموافقة مدير.','save'); },
     notifs:function(){ infoSheet('الإشعارات','ستظهر هنا الطلبات الجديدة وتذكير سعر الصرف.','bell'); },
     toggleBal:function(){ S.bal.shown = !S.bal.shown; go('home'); },
-    guide:openGuide, password:formPassword, logout:logout,
+    push:pushToggle, guide:openGuide, password:formPassword, logout:logout,
     bigtext:function(){ document.body.classList.toggle('big'); go('me'); }
   };
   if (map[a]) map[a]();
@@ -687,7 +754,7 @@ function openGuide(){
 /* ---------- logout ---------- */
 async function logout(){
   try{ await api('logout'); }catch(e){}
-  store(false, null); S.token = null; S.profile = null;
+  pushLogout(); store(false, null); S.token = null; S.profile = null;
   location.reload();
 }
 
@@ -711,7 +778,6 @@ function makeAppIcon(){
     x.fillStyle = '#E3C766'; x.font = '700 80px "Cormorant Garamond", Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
     x.fillText('B', 90, 100);
     const url = c.toDataURL('image/png');
-    document.getElementById('touchIcon').href = url;
     document.getElementById('favIcon').href = url;
   }catch(e){}
 }
