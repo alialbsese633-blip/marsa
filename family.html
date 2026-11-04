@@ -240,6 +240,16 @@ textarea.inp{height:88px;padding:14px 16px;resize:none}
 .stagger>*:nth-child(4){animation-delay:.18s}.stagger>*:nth-child(5){animation-delay:.24s}
 .stagger>*:nth-child(6){animation-delay:.3s}.stagger>*:nth-child(7){animation-delay:.36s}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;margin-inline-start:6px;vertical-align:middle}
+.pill.r{background:#FDECEA;color:var(--red)}.pill.a{background:#FBF2DA;color:#8A5D0B}.pill.g{background:#E3F4EC;color:var(--green)}.pill.m{background:#EEF1EC;color:var(--muted)}
+.row .v small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);text-align:left}
+.plan{margin-top:14px}
+.plan .pl{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed #E3E9E0;font-size:14.5px}
+.plan .pl:last-child{border-bottom:0}
+.plan .pl b{font-weight:800}
+.plan .pl.net{font-size:16px}.plan .pl.net b{color:var(--green)}.plan .pl.net.neg b{color:var(--red)}
+.note-s{color:var(--muted);font-size:12.5px;margin-top:8px;line-height:1.6}
+.loading-dots{color:var(--muted);font-size:13px;text-align:center;padding:14px}
 </style>
 </head>
 <body>
@@ -332,7 +342,7 @@ function paintIcons(root){
 const EMBLEM = '<svg viewBox="0 0 48 48" fill="none"><path d="M24 4 40 10v13c0 10-7 17-16 21C15 40 8 33 8 23V10z" stroke="#C9A227" stroke-width="2" stroke-linejoin="round"/><path d="M24 8.5 36.5 13v10c0 7.6-5.2 13.2-12.5 16.6C16.7 36.2 11.5 30.6 11.5 23V13z" stroke="#C9A227" stroke-width=".8" opacity=".5"/><text x="24" y="31" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="21" font-weight="700" fill="#E3C766">B</text><path d="M18 15.5h12" stroke="#C9A227" stroke-width="1.2" stroke-linecap="round" opacity=".8"/></svg>';
 
 /* ================= STATE ================= */
-const S = { token:null, profile:null, expires:null, tab:'home', bal:{shown:true} };
+const S = { token:null, profile:null, expires:null, tab:'home', bal:{shown:true}, data:null, loading:false, f:'الكل', lastLoad:0 };
 
 function store(get, val){
   try{
@@ -508,6 +518,7 @@ function enterApp(){
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('nav').classList.remove('hidden');
   go('home');
+  loadData();
   pushInit(); pushLogin();
   if (!flag(GUIDE_KEY + S.profile.username)) setTimeout(openGuide, 700);
 }
@@ -515,14 +526,14 @@ function enterApp(){
 document.querySelectorAll('.nb').forEach(function(b){ b.onclick = function(){ go(b.dataset.tab); }; });
 document.getElementById('fab').onclick = openActions;
 
-function go(tab){
+function go(tab, keep){
   S.tab = tab;
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === tab); });
   const app = document.getElementById('app');
   app.innerHTML = ({ home:viewHome, activity:viewActivity, requests:viewRequests, me:viewMe })[tab]();
   paintIcons(app);
   bindView(app);
-  window.scrollTo({ top:0 });
+  if (!keep) window.scrollTo({ top:0 });
   requestAnimationFrame(function(){ app.querySelectorAll('.bar i[data-w]').forEach(function(b){ b.style.width = b.dataset.w + '%'; }); });
 }
 
@@ -531,10 +542,43 @@ function today(){ try{ return new Intl.DateTimeFormat('ar-u-nu-latn',{ weekday:'
 function first(n){ return String(n||'').split(' ')[0]; }
 function initial(n){ return String(n||'؟').trim().charAt(0); }
 function fmt(n){ return n === null || n === undefined ? '—' : Number(n).toLocaleString('en-US'); }
+function esc(s){ return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+const CUR_AR = { YER:'ر.ي', SAR:'ر.س', USD:'$', OMR:'ر.ع' };
+function dTxt(iso){ if (!iso) return ''; const d = new Date(iso + 'T12:00:00'); if (isNaN(d)) return esc(iso); try{ return new Intl.DateTimeFormat('ar-u-nu-latn',{ day:'numeric', month:'long' }).format(d); }catch(e){ return iso; } }
+function daysTo(iso){ if (!iso) return null; const a = new Date(); a.setHours(0,0,0,0); const b = new Date(iso + 'T00:00:00'); return Math.round((b - a) / 86400000); }
+/* المبلغ: بالريال اليمني، أو بعملته الأصلية + التحويل إن وُجد سعر الصرف */
+function amtHtml(x){
+  if (x.cur === 'YER' || !x.cur) return fmt(x.amount) + ' <small style="display:inline">ر.ي</small>';
+  return fmt(x.amount) + ' ' + (CUR_AR[x.cur] || x.cur) + (x.yer !== null && x.yer !== undefined ? '<small>≈ ' + fmt(x.yer) + ' ر.ي</small>' : '<small>بانتظار سعر الصرف</small>');
+}
+async function loadData(silent){
+  if (!S.token || S.loading) return;
+  S.loading = true;
+  try{
+    const r = await api('summary');
+    if (r.ok){ S.data = r; S.lastLoad = Date.now(); }
+    else if (r.error === 'AUTH'){ store(false, null); location.reload(); return; }
+    else if (!silent) toast(r.error || 'تعذّر تحميل البيانات');
+  }catch(e){ if (!silent) toast('تعذّر الاتصال، تأكد من الإنترنت'); }
+  finally{
+    S.loading = false;
+    if (!document.getElementById('sheet').classList.contains('on')) go(S.tab, true);
+  }
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && S.token && Date.now() - S.lastLoad > 60000) loadData(true); });
+function actRow(x){
+  const inc = x.kind === 'income';
+  const sub = [x.who && (inc && x.to ? esc(x.who) + ' ← ' + esc(x.to) : esc(x.who)), x.house && x.house !== x.who ? esc(x.house) : '', dTxt(x.date)].filter(String).join(' · ');
+  return '<div class="row"><div class="ic '+(inc?'ic-inc':'ic-exp')+'">'+ic(inc?'up':'minus',20)+'</div>' +
+    '<div class="t"><b>'+esc(x.title)+'</b><small>'+sub+'</small></div>' +
+    '<div class="v '+(inc?'plus':'minus')+' num">'+(inc?'+':'−')+amtHtml(x)+'</div></div>';
+}
+function emptyList(icon, t, s){ return '<div class="list"><div class="empty"><div class="ic">'+ic(icon,28)+'</div><b>'+t+'</b>'+s+'</div></div>'; }
 
 /* ---------- HOME ---------- */
 function viewHome(){
-  const p = S.profile;
+  const p = S.profile, D = S.data;
+  function hv(v){ return !S.bal.shown ? '••••' : (v === null || v === undefined ? '—' : fmt(v)); }
   const top =
     '<header class="topbar"><div class="tb-row">' +
       '<div class="avatar">'+initial(p.name)+'</div>' +
@@ -549,13 +593,13 @@ function viewHome(){
         '<div class="hero-amt num">'+(S.bal.shown?'—':'••••••')+'<small>ر.ي</small></div>' +
         '<div class="hero-sub">يظهر الرصيد بعد إدخال الأرصدة الافتتاحية</div>' +
         '<div class="hero-split">' +
-          '<div class="hs d"><span>الديون</span><b class="num">—</b></div>' +
-          '<div class="hs s"><span>الادخار</span><b class="num">—</b></div>' +
-          '<div class="hs e"><span>صرف الشهر</span><b class="num">—</b></div>' +
+          '<div class="hs d"><span>الديون</span><b class="num">'+hv(D && D.debtTotals ? D.debtTotals.remaining : null)+'</b></div>' +
+          '<div class="hs s"><span>الادخار</span><b class="num">'+hv(D ? D.savings : null)+'</b></div>' +
+          '<div class="hs e"><span>صرف الشهر</span><b class="num">'+hv(D ? D.month.spent : null)+'</b></div>' +
         '</div></section>'
     : '<section class="hero">' +
         '<div class="hero-lbl"><i data-i="wallet" data-s="18"></i> مصاريفي هذا الشهر</div>' +
-        '<div class="hero-amt num">—<small>ر.ي</small></div>' +
+        '<div class="hero-amt num">'+(D ? fmt(D.month.spent) : '—')+'<small>ر.ي</small></div>' +
         '<div class="hero-sub">'+(p.dependents.length?'تشمل: '+p.dependents.join(' و '):'رصيدك ومصاريفك الشخصية')+'</div>' +
         '<div class="hero-split" style="grid-template-columns:1fr 1fr">' +
           '<div class="hs e"><span>المخصص</span><b class="num">—</b></div>' +
@@ -576,15 +620,63 @@ function viewHome(){
 
   const adminCards = p.canSeeAll
     ? '<div class="sec-h"><h3>نظرة عامة</h3></div><div class="cards2 stagger">' +
-        '<div class="card tap" data-act="debts"><div class="mini-lbl"><span style="color:var(--red)">'+ic('debt',16)+'</span> خطة الديون</div><div class="mini-amt num">— <small>ر.ي</small></div><div class="bar r"><i data-w="0"></i></div><small style="color:var(--muted);font-size:12px">نسبة السداد</small></div>' +
-        '<div class="card tap" data-act="savings"><div class="mini-lbl"><span style="color:var(--green)">'+ic('save',16)+'</span> صندوق الادخار</div><div class="mini-amt num">— <small>ر.ي</small></div><div class="bar g"><i data-w="0"></i></div><small style="color:var(--muted);font-size:12px">من الهدف</small></div>' +
-      '</div>'
+        '<div class="card tap" data-act="debts"><div class="mini-lbl"><span style="color:var(--red)">'+ic('debt',16)+'</span> خطة الديون</div><div class="mini-amt num">'+(D&&D.debtTotals?fmt(D.debtTotals.remaining):'—')+' <small>ر.ي</small></div><div class="bar r"><i data-w="'+(D&&D.debtTotals?D.debtTotals.paidPct:0)+'"></i></div><small style="color:var(--muted);font-size:12px">'+(D&&D.debtTotals?D.debtTotals.count+' ديون · مسدد '+D.debtTotals.paidPct+'%':'نسبة السداد')+'</small></div>' +
+        '<div class="card tap" data-act="savings"><div class="mini-lbl"><span style="color:var(--green)">'+ic('save',16)+'</span> صندوق الادخار</div><div class="mini-amt num">'+(D?fmt(D.savings):'—')+' <small>ر.ي</small></div><div class="bar g"><i data-w="0"></i></div><small style="color:var(--muted);font-size:12px">من الهدف</small></div>' +
+      '</div>' + planCard(D)
     : '';
 
   const recent = '<div class="sec-h"><h3>آخر الحركات</h3><button data-tab-go="activity">الكل</button></div>' +
-    '<div class="list"><div class="empty"><div class="ic">'+ic('list',28)+'</div><b>لا توجد حركات بعد</b>ابدأ بتسجيل أول مصروف أو دخل</div></div>';
+    (!D ? '<div class="list"><div class="loading-dots">جارٍ تحميل البيانات…</div></div>'
+        : D.activity.length ? '<div class="list">'+D.activity.slice(0,5).map(actRow).join('')+'</div>'
+        : emptyList('list','لا توجد حركات بعد','ابدأ بتسجيل أول مصروف أو دخل'));
 
   return '<div class="view">'+top+'<div class="wrap">'+hero+quick+adminCards+recent+'<div style="height:12px"></div></div></div>';
+}
+
+function planCard(D){
+  if (!D || !D.plan) return '';
+  const P = D.plan, d = daysTo(P.date);
+  return '<div class="sec-h"><h3>خطة الدخل القادم</h3></div><div class="card tap plan" data-act="debts" style="margin-top:0">' +
+    '<div class="mini-lbl">'+ic('up',16)+' '+esc(P.label)+' · '+dTxt(P.date)+(d!==null&&d>=0?' (بعد '+d+' يوم)':'')+'</div>' +
+    '<div class="pl"><span>الدخل المتوقع</span><b class="num">'+fmt(P.income)+' ر.ي</b></div>' +
+    '<div class="pl"><span>الديون القائمة</span><b class="num" style="color:var(--red)">− '+fmt(P.debts)+' ر.ي</b></div>' +
+    '<div class="pl net'+(P.net<0?' neg':'')+'"><span>المتبقي بعد السداد</span><b class="num">'+fmt(P.net)+' ر.ي</b></div>' +
+    (P.pendingRate ? '<div class="note-s">⚠️ '+P.pendingRate+' دين بعملة أجنبية غير محسوب، بانتظار سعر الصرف</div>' : '') +
+  '</div>';
+}
+
+/* ---------- DEBTS (sheet) ---------- */
+function debtsSheet(){
+  const D = S.data;
+  if (!D || !D.debts){ toast(D ? 'غير متاح لحسابك' : 'جارٍ التحميل…'); return; }
+  const T = D.debtTotals;
+  const rows = D.debts.map(function(x){
+    const d = daysTo(x.due), paid = x.status === 'مسدد';
+    const when = paid ? '<span class="pill g">مسدد</span>' : (x.due ? (d < 0 ? '<span class="pill r">متأخر '+(-d)+' يوم</span>' : '<span class="pill '+(d<=7?'r':'a')+'">'+(d===0?'اليوم':'بعد '+d+' يوم')+'</span>') : '');
+    const type = x.type ? '<span class="pill '+(x.type==='عاجل'?'r':'m')+'">'+esc(x.type)+'</span>' : '';
+    const amt = x.cur === 'YER' ? fmt(paid ? x.yer : x.remaining) + ' <small style="display:inline">ر.ي</small>'
+      : fmt(x.amount) + ' ' + (CUR_AR[x.cur]||x.cur) + (x.remaining !== null ? '<small>≈ '+fmt(x.remaining)+' ر.ي</small>' : '<small>بانتظار سعر الصرف</small>');
+    return '<div class="row"><div class="ic ic-exp" style="font-weight:800">'+(paid?'✓':x.priority)+'</div>' +
+      '<div class="t"><b style="white-space:normal">'+esc(x.creditor)+'</b><small>'+(x.due?'الموعد '+dTxt(x.due):'بدون موعد')+' '+type+when+'</small></div>' +
+      '<div class="v num'+(paid?' plus':' minus')+'">'+amt+'</div></div>';
+  }).join('');
+  openSheet(sheetHead('خطة سداد الديون','مرتبة حسب الأولوية ثم الموعد') +
+    '<div class="card" style="margin-bottom:14px;box-shadow:none"><div class="mini-lbl">إجمالي المتبقي</div><div class="mini-amt num">'+fmt(T.remaining)+' <small>ر.ي</small></div>' +
+      '<div class="bar r"><i style="width:'+T.paidPct+'%"></i></div><small style="color:var(--muted);font-size:12px">'+T.count+' ديون قائمة · مسدد '+T.paidPct+'%'+(T.pendingRate?' · '+T.pendingRate+' بانتظار سعر الصرف':'')+'</small></div>' +
+    (rows ? '<div class="list">'+rows+'</div>' : emptyList('debt','لا توجد ديون','')) +
+    (D.expected && D.expected.length ? '<div class="sec-h"><h3>الدخل المتوقع</h3></div><div class="list">' + D.expected.map(function(x){
+        return '<div class="row"><div class="ic ic-inc">'+ic('up',20)+'</div><div class="t"><b>'+esc(x.note || x.who)+'</b><small>'+esc(x.who)+' · '+dTxt(x.date)+'</small></div><div class="v plus num">'+amtHtml(x)+'</div></div>';
+      }).join('') + '</div>' : '') +
+    '<button class="btn-ghost" data-close style="margin-top:14px">إغلاق</button>');
+}
+
+function notifSheet(){
+  const N = (S.data && S.data.notifications) || [];
+  openSheet(sheetHead('الإشعارات','آخر ما وصلك') + (N.length ? '<div class="list">' + N.map(function(n){
+      const t = n.time ? new Date(n.time) : null;
+      const when = t ? new Intl.DateTimeFormat('ar-u-nu-latn',{ day:'numeric', month:'short', hour:'numeric', minute:'2-digit' }).format(t) : '';
+      return '<div class="row"><div class="ic ic-rate">'+ic('bell',20)+'</div><div class="t"><b style="white-space:normal">'+esc(n.title)+'</b><small style="display:block">'+esc(n.text)+'</small><small>'+when+'</small></div></div>';
+    }).join('') + '</div>' : emptyList('bell','لا توجد إشعارات','')) + '<button class="btn-ghost" data-close style="margin-top:14px">إغلاق</button>');
 }
 
 /* ---------- ACTIVITY ---------- */
@@ -592,8 +684,22 @@ function viewActivity(){
   const p = S.profile;
   const chips = ['الكل','المصاريف','الدخل'].concat(p.canSeeAll?['البيت الأول','البيت الثاني','الأفراد']:[]);
   return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>الحركات</h2><p>'+(p.canSeeAll?'كل مصاريف ودخل العائلة':'مصاريفك ودخلك')+'</p></div><div class="wrap">' +
-    '<div class="chips">'+chips.map(function(c,i){ return '<button class="chip'+(i?'':' on')+'" data-chip>'+c+'</button>'; }).join('')+'</div>' +
-    '<div class="list"><div class="empty"><div class="ic">'+ic('list',28)+'</div><b>السجل فارغ</b>كل ما تسجله سيظهر هنا مرتباً بالتاريخ</div></div></div></div>';
+    '<div class="chips">'+chips.map(function(c){ return '<button class="chip'+(c===S.f?' on':'')+'" data-chip data-f="'+c+'">'+c+'</button>'; }).join('')+'</div>' +
+    actList() + '</div></div>';
+}
+
+function actList(){
+  const D = S.data;
+  if (!D) return '<div class="list"><div class="loading-dots">جارٍ تحميل البيانات…</div></div>';
+  const f = S.f;
+  const L = D.activity.filter(function(x){
+    if (f === 'المصاريف') return x.kind === 'expense';
+    if (f === 'الدخل') return x.kind === 'income';
+    if (f === 'البيت الأول' || f === 'البيت الثاني') return x.house === f;
+    if (f === 'الأفراد') return x.kind === 'expense' && x.house && x.house !== 'البيت الأول' && x.house !== 'البيت الثاني';
+    return true;
+  });
+  return L.length ? '<div class="list">'+L.map(actRow).join('')+'</div>' : emptyList('list','السجل فارغ','كل ما تسجله سيظهر هنا مرتباً بالتاريخ');
 }
 
 /* ---------- REQUESTS ---------- */
@@ -628,16 +734,16 @@ function bindView(root){
   root.querySelectorAll('[data-act]').forEach(function(el){ el.onclick = function(){ act(el.dataset.act); }; });
   root.querySelectorAll('[data-tab-go]').forEach(function(el){ el.onclick = function(){ go(el.dataset.tabGo); }; });
   root.querySelectorAll('.chips').forEach(function(g){
-    g.querySelectorAll('[data-chip]').forEach(function(c){ c.onclick = function(){ g.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); }); c.classList.add('on'); }; });
+    g.querySelectorAll('[data-chip]').forEach(function(c){ c.onclick = function(){ g.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); }); c.classList.add('on'); if (c.dataset.f){ S.f = c.dataset.f; go(S.tab, true); } }; });
   });
 }
 
 function act(a){
   const map = {
     expense:formExpense, income:formIncome, surprise:formSurprise, support:formSupport, request:formRequest, rates:formRates,
-    debts:function(){ infoSheet('خطة سداد الديون','جدول الديون والاقتطاع التلقائي من كل دخل.','debt'); },
+    debts:debtsSheet,
     savings:function(){ infoSheet('صندوق الادخار','الرصيد، الإيداعات التلقائية، والسحب بموافقة مدير.','save'); },
-    notifs:function(){ infoSheet('الإشعارات','ستظهر هنا الطلبات الجديدة وتذكير سعر الصرف.','bell'); },
+    notifs:notifSheet,
     toggleBal:function(){ S.bal.shown = !S.bal.shown; go('home'); },
     push:pushToggle, guide:openGuide, password:formPassword, logout:logout,
     bigtext:function(){ document.body.classList.toggle('big'); go('me'); }
