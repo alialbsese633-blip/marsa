@@ -741,7 +741,7 @@ function viewHome(){
       '<div class="hero-lbl">'+ic('wallet',18)+' النقد المتاح للعائلة' +
         '<button data-act="toggleBal" style="margin-right:auto;color:rgba(255,255,255,.6)">'+ic(hide?'eyeOff':'eye',18)+'</button></div>' +
       '<div class="hero-amt num">'+(D ? hv(D.cash) : '—')+'<small>ر.ي</small></div>' +
-      '<div class="hero-sub">مجموع الصناديق الثلاثة'+(D&&D.ratesUpdated?' · الصرف محدّث '+dTxt(D.ratesUpdated):'')+'</div>' +
+      '<div class="hero-sub">مجموع الصناديق'+(D&&D.ratesUpdated?' · الصرف محدّث '+dTxt(D.ratesUpdated):'')+'</div>' +
       '<div class="hero-split">' +
         '<button class="hs d" data-act="debts"><span>الديون</span><b class="num">'+hv(D && D.debtTotals ? D.debtTotals.remaining : null)+'</b></button>' +
         '<button class="hs s" data-act="funds"><span>الادخار</span><b class="num">'+hv(D ? D.savings : null)+'</b></button>' +
@@ -768,6 +768,7 @@ function viewHome(){
   if (p.canAddSurpriseIncome) actions.push(['surprise','spark','g-blue','دخل مفاجئ']);
   if (p.isRateManager || p.isAdmin) actions.push(['rates','rate','g-teal','سعر الصرف']);
   if (p.isAdmin) actions.push(['funds','vault','g-amber','الصناديق']);
+  if (S.data && S.data.isOwner) actions.push(['wallets','wallet','g-navy','المحافظ']);
   if (!p.isAdmin) actions.push(['request','req','g-amber','طلب زيادة']);
   const quick = '<div class="sec-h"><h3>إجراءات سريعة</h3></div><div class="quick stagger">' +
     actions.slice(0, document.body.classList.contains('big') ? 4 : 8).map(function(a){
@@ -776,7 +777,7 @@ function viewHome(){
 
   let body = '';
   if (p.canSeeAll){
-    body += deficitCard(D) + advisorCard(D, false) + fundsRow(D) + topCard(D);
+    body += deficitCard(D) + advisorCard(D, false) + fundsRow(D) + walletsCard(D) + topCard(D);
     body += '<div class="sec-h"><h3>الديون</h3><button data-act="debts">الخطة كاملة</button></div><div class="cards2 stagger">' +
       '<button class="card tap" data-act="debts"><div class="mini-lbl"><span style="color:var(--red)">'+ic('debt',16)+'</span> المتبقي</div><div class="mini-amt num">'+(D&&D.debtTotals?fmt(D.debtTotals.remaining):'—')+' <small>ر.ي</small></div><div class="bar r"><i data-w="'+(D&&D.debtTotals?D.debtTotals.paidPct:0)+'"></i></div><small class="cap">'+(D&&D.debtTotals?D.debtTotals.count+' ديون قائمة · مسدد '+D.debtTotals.paidPct+'%':'نسبة السداد')+'</small></button>' +
       '<button class="card tap" data-act="allowances"><div class="mini-lbl"><span style="color:var(--gold)">'+ic('gift',16)+'</span> المخصصات</div><div class="mini-amt num">'+(D&&D.allowances?D.allowances.filter(function(a){return a.paidThisMonth;}).length+'/'+D.allowances.length:'—')+'</div><div class="bar"><i data-w="'+(D&&D.allowances&&D.allowances.length?Math.round(D.allowances.filter(function(a){return a.paidThisMonth;}).length/D.allowances.length*100):0)+'"></i></div><small class="cap">صُرفت هذا الشهر</small></button>' +
@@ -874,6 +875,7 @@ function deficitSheet(){
       const L = lbl[d.cover];
       return '<div class="row"><div class="gem g-gray num" style="font-weight:800;font-size:15px">'+(i+1)+'</div><div class="t"><b style="white-space:normal">'+esc(d.creditor)+'</b><small>'+(d.due?'الموعد '+dTxt(d.due):'')+' <span class="pill '+L[1]+'">'+L[0]+'</span>'+(d.short?' <span class="pill r">ينقص '+fmt(d.short)+'</span>':'')+'</small></div><div class="v num">'+fmt(d.need)+'</div></div>';
     }).join('') + '</div>' +
+    (X.savingsCover ? '<div class="card flat" style="margin-top:14px"><b>يمكن تغطية '+fmt(X.savingsCover)+' ر.ي من الادخار</b><p class="note-s" style="margin:6px 0 10px">الادخار غير محسوب في العجز. السحب بموافقة مدير واحد وبسبب مكتوب.</p><button class="btn-navy" type="button" data-call="coverSavings" style="margin:0">تجهيز تحويل من الادخار</button></div>' : '') +
     (X.deferredCount ? '<p class="note-s" style="margin-top:12px">خارج الحساب: '+X.deferredCount+' دين يحتمل التأخير بقيمة '+fmt(X.deferredTotal)+' ر.ي.</p>' : '') +
     '<button class="btn-ghost" data-close>إغلاق</button>');
 }
@@ -891,18 +893,121 @@ function spendingSheet(){
     block('حسب البند', N.top) + block('حسب البيت', N.byHouse) + block('حسب الشخص', N.byPerson) +
     '<button class="btn-ghost" data-close>إغلاق</button>');
 }
+function fundRow(f){
+  const P = purpIcon(f.purpose);
+  const sub = [f.cur !== 'YER' ? (CUR_AR[f.cur]||f.cur) : '', f.holder ? 'عند '+esc(f.holder) : ''].filter(String).join(' · ');
+  return '<button class="row tapr" data-call="fundDetail" data-arg="'+esc(f.id)+'"'+(f.active?'':' style="opacity:.55"')+'>'+gem(P[1], P[2], 19) +
+    '<div class="t"><b style="white-space:normal">'+esc(f.name)+(f.isTarget?' <span class="pill g">يستقبل الدخل</span>':'')+(f.active?'':' <span class="pill m">موقوف</span>')+'</b><small>'+sub+'</small></div>' +
+    '<div class="v num'+(f.bal<0?' neg':'')+'">'+fmt(f.bal)+' <small>'+(CUR_AR[f.cur]||f.cur)+'</small>'+(f.cur!=='YER'&&f.yer!==null?'<small style="display:block;font-weight:500;opacity:.7">≈ '+fmt(f.yer)+' ر.ي</small>':'')+'</div></button>';
+}
 function fundsSheet(){
-  const D = S.data;
-  openSheet('<form data-submit="mfMoveFund">' + sheetHead('الصناديق','كل دخل يتوزع تلقائياً: ديون '+D.split.debts+'% · ادخار '+D.split.savings+'% · مصاريف '+D.split.expenses+'%') +
-    '<div class="funds3" style="margin-bottom:18px">' + FUNDS.map(function(f){ return '<div class="fund">'+gem(f[1], f[2], 18)+'<small>'+f[0]+'</small><b class="num'+(D.funds[f[0]]<0?' neg':'')+'">'+fmt(D.funds[f[0]])+'</b></div>'; }).join('') + '</div>' +
-    '<h3 style="font-size:17px;margin-bottom:12px">تحويل بين الصناديق</h3>' +
+  const D = S.data, L = D.fundList || [];
+  const groups = FUNDS.map(function(P){
+    const items = L.filter(function(f){ return f.purpose === P[0]; });
+    if (!items.length) return '';
+    return '<div class="sec-h" style="margin-top:16px"><h3>'+P[0]+'</h3><span class="num" style="font-weight:800">'+fmt(D.funds[P[0]])+' ر.ي</span></div><div class="list">'+items.map(fundRow).join('')+'</div>';
+  }).join('');
+  openSheet(sheetHead('الصناديق','ادخل على أي صندوق لتعديل رصيده أو جعله يستقبل الدخل الجديد') + groups +
+    '<p class="note-s" style="margin-top:12px">الادخار غير محسوب في مؤشر العجز، ويمكن السحب منه بموافقة مدير واحد.</p>' +
+    '<button class="btn-navy" data-call="newFundSheet">+ صندوق جديد</button>' +
+    '<button class="btn-ghost" data-call="moveSheet" style="margin-bottom:8px">تحويل بين الصناديق</button>' +
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+}
+window.newFundSheet = function(){
+  openSheet('<form data-submit="mfNewFund">' + sheetHead('صندوق جديد','مثال: «صندوق البيت الأول» للادخار بالدولار') +
+    '<div class="fg"><label>اسم الصندوق</label><input class="inp" name="name" placeholder="مثال: صندوق البيت الأول" required></div>' +
+    '<div class="fg"><label>الغرض</label><div class="pick" data-name="purpose">'+FUNDS.map(function(P,i){ return '<button type="button" class="'+(i===2?'on':'')+'" data-v="'+P[0]+'">'+ic(P[1],16)+' '+P[0]+'</button>'; }).join('')+'</div></div>' +
+    '<div class="fg"><label>عملة الصندوق</label>'+currencySelect('YER')+'</div>' +
+    '<div class="fg"><label>مَن يحمله؟ (اختياري)</label><input class="inp" name="holder" placeholder="مثال: محمد"></div>' +
+    '<div class="fg"><label>الرصيد الافتتاحي (بعملة الصندوق)</label><input class="inp num big-in" name="opening" inputmode="decimal" placeholder="0"></div>' +
+    footer('إنشاء الصندوق') + '</form>');
+};
+window.mfNewFund = function(f){ send(f, 'createFund', { name: f.name.value, purpose: pv(f,'purpose'), currency: f.currency.value, holder: f.holder.value, opening: f.opening.value }, '✓ أُنشئ الصندوق'); };
+window.fundDetail = function(id){
+  const f = fundsActive().concat((S.data.fundList||[]).filter(function(x){ return !x.active; })).filter(function(x){ return x.id === id; })[0];
+  if (!f) return;
+  const P = purpIcon(f.purpose);
+  openSheet('<form data-submit="mfSetBal">' + sheetHead(esc(f.name), f.purpose+' · '+(CUR_AR[f.cur]||f.cur)+(f.holder?' · عند '+esc(f.holder):'')) +
+    '<div class="card flat"><div class="pl"><span>الرصيد الحالي</span><b class="num">'+fmt(f.bal)+' '+(CUR_AR[f.cur]||f.cur)+'</b></div>'+(f.cur!=='YER'&&f.yer!==null?'<div class="pl"><span>ما يعادله بالريال اليمني</span><b class="num">'+fmt(f.yer)+'</b></div>':'')+'</div>' +
+    '<input type="hidden" name="id" value="'+esc(f.id)+'">' +
+    '<h3 style="font-size:16px;margin:18px 0 10px">تعديل الرصيد (افتتاحي أو تسوية)</h3>' +
+    '<div class="fg"><label>الرصيد الصحيح الآن ('+(CUR_AR[f.cur]||f.cur)+')</label><input class="inp num big-in" name="balance" inputmode="decimal" value="'+f.bal+'" required></div>' +
+    '<div class="fg"><label>السبب</label><input class="inp" name="reason" value="رصيد افتتاحي" required></div>' +
+    '<button class="btn-navy" type="submit">حفظ الرصيد</button>' +
+    (!f.isTarget && f.active ? '<button class="btn-ghost" type="button" data-call="mfTarget" data-arg="'+esc(f.id)+'" style="margin-bottom:8px">اجعله يستقبل دخل «'+f.purpose+'» الجديد</button>' : '') +
+    (f.active && !f.system ? '<button class="btn-ghost" type="button" data-call="mfStopFund" data-arg="'+esc(f.id)+'" style="margin-bottom:8px;color:var(--red)">إيقاف الصندوق</button>' : '') +
+    (!f.active ? '<button class="btn-ghost" type="button" data-call="mfStartFund" data-arg="'+esc(f.id)+'" style="margin-bottom:8px">إعادة تفعيله</button>' : '') +
+    '<button class="btn-ghost" type="button" data-close>إغلاق</button></form>');
+};
+window.mfSetBal = function(f){ send(f, 'setFundBalance', { id: f.id.value, balance: f.balance.value, reason: f.reason.value }, '✓ حُفظ الرصيد'); };
+window.mfTarget = function(id){ quick('setTarget', { fundId: id }, '✓ سيستقبل هذا الصندوق الدخل الجديد'); };
+window.mfStopFund = function(id){ quick('updateFund', { id: id, active: false }, '✓ أُوقف الصندوق'); };
+window.mfStartFund = function(id){ quick('updateFund', { id: id, active: true }, '✓ أُعيد تفعيله'); };
+window.moveSheet = function(preFrom, preAmt){
+  if (!preFrom){ const sv = fundsActive().filter(function(f){ return f.purpose === 'الادخار' && f.bal > 0; }).sort(function(a,b){ return (b.yer||0)-(a.yer||0); })[0]; if (sv) preFrom = sv.id; }
+  openSheet('<form data-submit="mfMoveFund">' + sheetHead('تحويل بين الصناديق','يُسجَّل بسبب، ويصل إشعار للمدراء الآخرين') +
     '<div class="fg"><label>من</label>'+fundPick('from','الادخار')+'</div>' +
     '<div class="fg"><label>إلى</label>'+fundPick('to','المصاريف')+'</div>' +
-    '<div class="fg"><label>المبلغ (ر.ي)</label><input class="inp num big-in" name="amount" inputmode="decimal" placeholder="0" required></div>' +
-    '<div class="fg"><label>السبب</label><input class="inp" name="reason" placeholder="مثال: سحب من الادخار لعلاج" required></div>' +
+    '<div class="fg"><label>المبلغ (بعملة الصندوق المسحوب منه)</label><input class="inp num big-in" name="amount" inputmode="decimal" placeholder="0" required value="'+(preAmt||'')+'"></div>' +
+    '<div class="fg"><label>السبب</label><input class="inp" name="reason" placeholder="مثال: سحب من الادخار لتغطية العجز" required></div>' +
     footer('تحويل') + '</form>');
+  if (preFrom){ const g = document.querySelector('#sheetBody [data-name="from"]'); if (g) g.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === preFrom); }); }
+};
+window.coverSavings = function(){
+  const X = S.data.insights.deficit, f = (S.data.fundList||[]).filter(function(x){ return x.id === X.savingsFund; })[0];
+  let amt = X.savingsCover;
+  if (f && f.cur !== 'YER' && f.bal > 0 && f.yer) amt = Math.min(f.bal, Math.ceil(X.savingsCover / (f.yer / f.bal) * 100) / 100);
+  moveSheet(X.savingsFund || '', amt);
+};
+window.mfMoveFund = function(f){ send(f, 'moveFund', { fromId: pv(f,'from'), toId: pv(f,'to'), amount: f.amount.value, reason: f.reason.value }, '✓ تم التحويل'); };
+
+/* ---------- المحافظ (لعلي فقط) ---------- */
+function walletsCard(D){
+  if (!D || !D.isOwner || !D.wallets) return '';
+  const hide = !S.bal.shown;
+  return '<div class="sec-h"><h3>محافظ العائلة</h3><button data-act="wallets">التفاصيل</button></div><button class="card tap" data-act="wallets" style="width:100%;text-align:right">' +
+    D.wallets.map(function(w){ return '<div class="pl"><span>'+esc(w.short||first(w.name))+'</span><b class="num'+(w.balance<0?' neg':'')+'">'+(hide?'••••':fmt(w.balance))+'</b></div>'; }).join('') +
+    '<div class="pl net"><span>المجموع</span><b class="num">'+(hide?'••••':fmt(D.walletsTotal))+' ر.ي</b></div></button>';
 }
-window.mfMoveFund = function(f){ send(f, 'moveFund', { from: pv(f,'from'), to: pv(f,'to'), amount: f.amount.value, reason: f.reason.value }, '✓ تم التحويل'); };
+function walletsSheet(){
+  const D = S.data;
+  if (!D || !D.isOwner){ toast('غير متاح لحسابك'); return; }
+  const diff = D.walletsTotal - D.cash;
+  openSheet(sheetHead('محافظ العائلة','كم مع كل شخص الآن — يظهر لك أنت فقط') +
+    '<div class="card flat"><div class="pl"><span>مجموع المحافظ</span><b class="num">'+fmt(D.walletsTotal)+'</b></div><div class="pl"><span>مجموع الصناديق</span><b class="num">'+fmt(D.cash)+'</b></div>' +
+    '<div class="pl net'+(Math.abs(diff)>1?' neg':'')+'"><span>الفرق</span><b class="num">'+fmt(diff)+'</b></div></div>' +
+    '<p class="note-s" style="margin-top:8px">الفرق يجب أن يقترب من الصفر؛ إن لم يكن كذلك فهناك رصيد افتتاحي ناقص في محفظة أو صندوق.</p>' +
+    '<div class="sec-h" style="margin-top:14px"><h3>الأشخاص</h3></div><div class="list">' + D.wallets.map(function(w){
+      return '<button class="row tapr" data-call="walletSheet" data-arg="'+esc(w.id)+'">'+gem('wallet','g-navy',19)+'<div class="t"><b>'+esc(w.name)+'</b><small>'+esc(w.house)+(w.hasBase?'':' · <span class="pill a">بدون رصيد افتتاحي</span>')+'</small></div><div class="v num'+(w.balance<0?' neg':'')+'">'+fmt(w.balance)+'</div></button>';
+    }).join('') + '</div>' +
+    '<button class="btn-navy" data-call="transferSheet">تحويل نقد بين شخصين</button><button class="btn-ghost" data-close>إغلاق</button>');
+}
+window.walletSheet = function(userId){
+  const w0 = (S.data.wallets||[]).filter(function(w){ return w.id === userId; })[0];
+  openSheet(sheetHead(esc(w0 ? w0.name : ''), 'جارٍ تحميل الحركات…'));
+  api('walletStatement', { userId: userId }).then(function(r){
+    if (!r.ok){ toast(r.error || 'تعذّر'); return; }
+    const w = r.wallet;
+    openSheet('<form data-submit="mfSetWallet">' + sheetHead(esc(w.name), esc(w.house)+(w.hasBase?' · آخر رصيد مؤكد '+dTxt(w.baseDate):' · لم يُسجَّل رصيد افتتاحي بعد')) +
+      '<div class="card flat"><div class="pl net"><span>الرصيد الآن</span><b class="num">'+fmt(w.balance)+' ر.ي</b></div><div class="pl"><span>دخل</span><b class="num" style="color:var(--green)">+ '+fmt(w.inTotal)+'</b></div><div class="pl"><span>خرج</span><b class="num" style="color:var(--red)">− '+fmt(w.outTotal)+'</b></div></div>' +
+      '<div class="sec-h" style="margin-top:16px"><h3>السجل</h3></div>' +
+      (w.moves.length ? '<div class="list">'+w.moves.map(function(m){
+        return '<div class="row"><div class="gem '+(m.amount>=0?'g-green':'g-red')+'">'+ic(m.amount>=0?'up':'minus',18,2)+'</div><div class="t"><b style="white-space:normal">'+esc(m.title)+'</b><small>'+dTxt(m.date)+' · الرصيد '+fmt(m.balance)+'</small></div><div class="v '+(m.amount>=0?'plus':'minus')+' num">'+(m.amount>=0?'+':'−')+fmt(Math.abs(m.amount))+'</div></div>';
+      }).join('')+'</div>' : emptyList('list','لا حركات بعد الرصيد المؤكد','')) +
+      '<h3 style="font-size:16px;margin:18px 0 10px">تأكيد / تعديل الرصيد</h3><input type="hidden" name="userId" value="'+esc(w.id)+'">' +
+      amountField('YER') + dateField() +
+      '<button class="btn-navy" type="submit">حفظ الرصيد</button><button class="btn-ghost" type="button" data-close>إغلاق</button></form>');
+  }).catch(function(){ toast('تعذّر الاتصال'); });
+};
+window.mfSetWallet = function(f){ send(f, 'setWallet', { userId: f.userId.value, amount: f.amount.value, currency: f.currency.value, date: f.date.value }, '✓ حُفظ رصيد المحفظة'); };
+window.transferSheet = function(){
+  const P = (S.data.people||[]);
+  const pk = function(n, def){ return '<div class="pick" data-name="'+n+'">'+P.map(function(x){ return '<button type="button" class="'+(x.id===def?'on':'')+'" data-v="'+esc(x.id)+'">'+esc(x.short)+'</button>'; }).join('')+'</div>'; };
+  openSheet('<form data-submit="mfTransferCash">' + sheetHead('تحويل نقد بين شخصين','يغيّر محفظتيهما، ولا يغيّر الصناديق') +
+    '<div class="fg"><label>من</label>'+pk('from', S.profile.id)+'</div><div class="fg"><label>إلى</label>'+pk('to', '')+'</div>' + amountField('YER') +
+    '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + dateField() + footer('تحويل') + '</form>');
+};
+window.mfTransferCash = function(f){ send(f, 'transferCash', { fromId: pv(f,'from'), toId: pv(f,'to'), amount: f.amount.value, currency: f.currency.value, note: f.note.value, date: f.date.value }, '✓ تم تسجيل التحويل'); };
 
 /* ---------- DEBTS ---------- */
 function debtsSheet(){
@@ -945,7 +1050,7 @@ function formPayDebt(x){
     '<div class="fg"><label>من أي صندوق؟</label>'+fundPick('fund','الديون')+'</div>' +
     dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('تأكيد السداد') + '</form>');
 }
-window.mfPayDebt = function(f){ send(f, 'payDebt', { id: f.id.value, amount: f.amount.value, fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم تسجيل السداد'); };
+window.mfPayDebt = function(f){ send(f, 'payDebt', { id: f.id.value, amount: f.amount.value, fundId: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم تسجيل السداد'); };
 function formAddDebt(){
   openSheet('<form data-submit="mfAddDebt">' + sheetHead('إضافة دين','يدخل في خطة السداد ومؤشر العجز فوراً') +
     '<div class="fg"><label>الدائن</label><input class="inp" name="creditor" required placeholder="لمن الدين؟"></div>' + amountField('YER') +
@@ -990,14 +1095,34 @@ function formPayAllowance(a){
     '<div class="fg"><label>من أي صندوق خرج؟</label>'+fundPick('fund','المصاريف')+'</div>' +
     fundHint() + dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('تأكيد الصرف') + '</form>');
 }
-window.mfPayAllowance = function(f){ send(f, 'payAllowance', { id: f.id.value, amount: f.amount.value, fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم صرف المخصص'); };
+window.mfPayAllowance = function(f){ send(f, 'payAllowance', { id: f.id.value, amount: f.amount.value, fundId: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم صرف المخصص'); };
 
-function fundPick(name, def){
-  return '<div class="pick fundpick" data-name="'+name+'">'+FUNDS.map(function(f){ return '<button type="button" class="'+(f[0]===def?'on':'')+'" data-v="'+f[0]+'">'+ic(f[1],16)+' '+f[0]+'</button>'; }).join('')+'</div>';
+function fundsActive(){ return ((S.data && S.data.fundList) || []).filter(function(f){ return f.active; }); }
+function purpIcon(p){ for (let i=0;i<FUNDS.length;i++) if (FUNDS[i][0]===p) return FUNDS[i]; return FUNDS[0]; }
+function fundPick(name, def, onpick){
+  const L = fundsActive();
+  if (!L.length) return '<p class="note-s">لا توجد صناديق</p>';
+  const inP = L.filter(function(f){ return f.purpose === def; });
+  const sel = (inP.filter(function(f){ return f.isTarget; })[0] || inP[0] || L[0]).id;
+  return '<div class="pick fundpick" data-name="'+name+'"'+(onpick?' data-onpick="'+onpick+'"':'')+'>'+L.map(function(f){
+    const P = purpIcon(f.purpose);
+    return '<button type="button" class="'+(f.id===sel?'on':'')+'" data-v="'+esc(f.id)+'">'+ic(P[1],16)+' '+esc(f.name)+' <small class="num" style="opacity:.7">'+fmt(f.bal)+' '+(CUR_AR[f.cur]||f.cur)+'</small></button>';
+  }).join('')+'</div>';
 }
 function fundHint(){
   const D = S.data; if (!D || !D.funds) return '';
   return '<p class="note-s" style="margin:-6px 2px 14px">الأرصدة: '+FUNDS.map(function(f){ return f[0]+' <b class="num">'+fmt(D.funds[f[0]])+'</b>'; }).join(' · ')+'</p>';
+}
+function payerPick(p){
+  const people = (S.data && S.data.people) || [];
+  const def = S.profile.username === 'ali.mohsen' ? 'بدون' : S.profile.name;
+  return '<div class="fg"><label>من دفع نقداً؟ <small style="color:var(--muted)">(لمحفظته)</small></label><div class="pick" data-name="payer"><button type="button" class="'+(def==='بدون'?'on':'')+'" data-v="بدون">لا أحد</button>' +
+    people.map(function(x){ return '<button type="button" class="'+(x.name===def?'on':'')+'" data-v="'+esc(x.name)+'">'+esc(x.short)+'</button>'; }).join('') + '</div></div>';
+}
+function quick(action, payload, okMsg){
+  api(action, payload).then(function(r){
+    if (r.ok){ toast(okMsg || '✓ تم'); loadData(true); } else toast(r.error || 'تعذّر التنفيذ');
+  }).catch(function(){ toast('تعذّر الاتصال'); });
 }
 
 /* ---------- notifications ---------- */
@@ -1075,7 +1200,7 @@ function formDecide(id, approve){
     '<div class="fg"><label>ملاحظة '+(approve?'(اختياري)':'للطالب')+'</label><input class="inp" name="note" '+(approve?'':'required')+'></div>' +
     footer(approve?'موافقة وصرف':'رفض') + '</form>');
 }
-window.mfDecide = function(f){ send(f, 'decideRequest', { id: f.id.value, decision: f.decision.value, fund: pv(f,'fund'), note: f.note.value }, f.decision.value === 'approve' ? '✓ تمت الموافقة' : 'تم الرفض'); };
+window.mfDecide = function(f){ send(f, 'decideRequest', { id: f.id.value, decision: f.decision.value, fundId: pv(f,'fund'), note: f.note.value }, f.decision.value === 'approve' ? '✓ تمت الموافقة' : 'تم الرفض'); };
 
 /* ---------- ME ---------- */
 function viewMe(){
@@ -1119,7 +1244,7 @@ function act(a){
   const map = {
     expense:formExpense, income:needData(formIncome), surprise:needData(formSurprise), support:formSupport, request:formRequest, rates:formRates,
     debts:debtsSheet, payDebtPick:payDebtPick, addDebt:formAddDebt, allowances:allowancesSheet, newAllowance:needData(function(){ formAllowance(null); }),
-    funds:needData(fundsSheet), deficit:needData(deficitSheet), advisor:needData(advisorSheet), spending:needData(spendingSheet),
+    funds:needData(fundsSheet), wallets:needData(walletsSheet), deficit:needData(deficitSheet), advisor:needData(advisorSheet), spending:needData(spendingSheet),
     notifs:notifSheet, refresh:function(){ toast('جارٍ التحديث…'); loadData(); },
     toggleBal:function(){ S.bal.shown = !S.bal.shown; go('home', true); },
     push:pushToggle, guide:openGuide, password:formPassword, logout:logout,
@@ -1151,6 +1276,7 @@ function bindSheet(){
     g.querySelectorAll('button').forEach(function(x){ x.onclick = function(){ g.querySelectorAll('button').forEach(function(y){ y.classList.remove('on'); }); x.classList.add('on'); if (g.dataset.onpick) window[g.dataset.onpick](x.dataset.v); }; });
   });
   b.querySelectorAll('[data-act]').forEach(function(el){ el.onclick = function(){ closeSheet(); setTimeout(function(){ act(el.dataset.act); }, 250); }; });
+  b.querySelectorAll('[data-call]').forEach(function(el){ el.onclick = function(){ const fn = window[el.dataset.call], arg = el.dataset.arg; closeSheet(); setTimeout(function(){ fn(arg); }, 250); }; });
   const f = b.querySelector('form');
   if (f) f.addEventListener('submit', function(e){ e.preventDefault(); if (window[f.dataset.submit]) window[f.dataset.submit](f); });
 }
@@ -1221,7 +1347,7 @@ function formExpense(){
     '<div class="fg"><label>البند</label><div class="catgrid" data-name="category">'+cats.map(function(c,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+c[0]+'">'+gem(c[1], c[2], 19)+'<span>'+c[0]+'</span></button>'; }).join('')+'</div></div>' +
     (_scopes.houses.length > 1 ? '<div class="fg"><label>لأي بيت؟</label><div class="seg" data-name="house" data-onpick="mfPickHouse">'+_scopes.houses.map(function(h,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+h+'">'+h+'</button>'; }).join('')+'</div></div>' : '') +
     '<div class="fg"><label>لمن؟</label><div class="pick" id="whoPick" data-name="who"></div></div>' +
-    (p.isAdmin ? '<div class="fg"><label>من أي صندوق؟</label>'+fundPick('fund','المصاريف')+'</div>' : '') +
+    (p.isAdmin ? '<div class="fg"><label>من أي صندوق؟</label>'+fundPick('fund','المصاريف')+'</div>' + payerPick(p) : '') +
     dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note" placeholder="مثال: مقاضي الأسبوع"></div>' +
     footer('حفظ المصروف') + '</form>');
   mfPickHouse(h0);
@@ -1231,7 +1357,7 @@ function formExpense(){
 window.mfSaveExpense = function(f){
   const houseSeg = f.querySelector('[data-name="house"]');
   send(f, 'addExpense', { amount: f.amount.value, currency: f.currency.value, category: pv(f,'category'), house: houseSeg ? pv(f,'house') : S.profile.house,
-    who: pv(f,'who'), fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ حُفظ المصروف');
+    who: pv(f,'who'), fundId: pv(f,'fund'), payer: pv(f,'payer'), date: f.date.value, note: f.note.value }, '✓ حُفظ المصروف');
 };
 
 /* توزيع الدخل على الصناديق: ذكي (افتراضي) أو يدوي — نفس معادلة الخادم للمعاينة */
