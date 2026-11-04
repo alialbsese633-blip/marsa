@@ -244,12 +244,117 @@ textarea.inp{height:88px;padding:14px 16px;resize:none}
 .pill.r{background:#FDECEA;color:var(--red)}.pill.a{background:#FBF2DA;color:#8A5D0B}.pill.g{background:#E3F4EC;color:var(--green)}.pill.m{background:#EEF1EC;color:var(--muted)}
 .row .v small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);text-align:left}
 .plan{margin-top:14px}
-.plan .pl{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed #E3E9E0;font-size:14.5px}
-.plan .pl:last-child{border-bottom:0}
-.plan .pl b{font-weight:800}
-.plan .pl.net{font-size:16px}.plan .pl.net b{color:var(--green)}.plan .pl.net.neg b{color:var(--red)}
+.pl{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed #E3E9E0;font-size:14.5px}
+.pl:last-child{border-bottom:0}
+.pl b{font-weight:800}
+.pl.net{font-size:16px}.pl.net b{color:var(--green)}.pl.net.neg b{color:var(--red)}
 .note-s{color:var(--muted);font-size:12.5px;margin-top:8px;line-height:1.6}
 .loading-dots{color:var(--muted);font-size:13px;text-align:center;padding:14px}
+
+/* ===== luxury gems (icon chips) ===== */
+.gem{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;color:#fff;position:relative;
+  box-shadow:0 8px 16px -8px var(--gc,rgba(0,0,0,.35)), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.08)}
+.gem::after{content:"";position:absolute;inset:1px 1px 50% 1px;border-radius:13px 13px 40% 40%;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent);pointer-events:none}
+.gem svg{position:relative;z-index:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
+.g-red{background:linear-gradient(145deg,#F08A7F,#C2453D);--gc:rgba(194,69,61,.6)}
+.g-green{background:linear-gradient(145deg,#5FC79B,#2E8B67);--gc:rgba(46,139,103,.6)}
+.g-gold{background:linear-gradient(145deg,#EBCF6E,#B88F17);--gc:rgba(184,143,23,.6)}
+.g-navy{background:linear-gradient(145deg,#4C9581,#1F4A3F);--gc:rgba(31,74,63,.6)}
+.g-violet{background:linear-gradient(145deg,#A88BE6,#6B46B5);--gc:rgba(107,70,181,.55)}
+.g-blue{background:linear-gradient(145deg,#7FB2EC,#3A6FB8);--gc:rgba(58,111,184,.55)}
+.g-teal{background:linear-gradient(145deg,#5EC2C6,#1F8A8F);--gc:rgba(31,138,143,.55)}
+.g-amber{background:linear-gradient(145deg,#F2BE62,#C98A1B);--gc:rgba(201,138,27,.55)}
+.g-pink{background:linear-gradient(145deg,#EE9BBE,#C2527F);--gc:rgba(194,82,127,.5)}
+.g-gray{background:linear-gradient(145deg,#A7B4AD,#6A7A72);--gc:rgba(106,122,114,.45)}
+.qa .gem{width:50px;height:50px;border-radius:17px;margin:0 auto 10px}
+body.big .qa .gem{width:60px;height:60px}
+.ag .gem{width:48px;height:48px;border-radius:16px;margin-bottom:12px}
+.row .gem{width:42px;height:42px}
+.set-row .gem{width:38px;height:38px;border-radius:12px}
+.hs{text-align:right;color:inherit;width:100%}
+.hbar{height:6px;border-radius:6px;background:rgba(255,255,255,.12);margin-top:14px;overflow:hidden;position:relative}
+.hbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-soft),var(--gold));border-radius:6px}
+.cap{color:var(--muted);font-size:12px}
+.card.flat{box-shadow:none}
+button.card{width:100%;text-align:right;display:block}
+.tapr{width:100%;text-align:right;transition:background .2s}.tapr:active{background:#F4F7F2}
+.row .t small.nt{display:block;color:#8A968F;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* deficit indicator */
+.deficit{display:block;width:100%;text-align:right;margin-top:16px;border-radius:24px;padding:20px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(140deg,#B4473F 0%,#8E2F2A 60%,#6E2420 100%);border:1px solid rgba(255,190,180,.35);box-shadow:0 22px 40px -18px rgba(142,47,42,.7)}
+.deficit::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;left:-60px;bottom:-110px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+.df-top{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;position:relative}
+.df-lbl{display:flex;align-items:center;gap:6px;font-weight:700;color:#FFD9D3}
+.df-when{color:rgba(255,255,255,.7);font-size:12.5px;background:rgba(0,0,0,.15);padding:3px 10px;border-radius:999px}
+.df-amt{font-size:36px;font-weight:800;margin-top:6px;line-height:1.2;position:relative}
+.df-amt small{font-size:15px;font-weight:500;color:rgba(255,255,255,.7);margin-right:6px}
+.df-sub{color:rgba(255,255,255,.75);font-size:13px;position:relative}
+.df-bar{height:8px;border-radius:8px;background:rgba(0,0,0,.22);margin-top:14px;overflow:hidden;position:relative}
+.df-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#FFE29A,#FFFFFF)}
+.df-legend{display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:rgba(255,255,255,.7);position:relative}
+.df-legend b{color:#fff;font-weight:700}
+.ok-strip{margin-top:16px;display:flex;align-items:center;gap:8px;padding:13px 16px;border-radius:16px;background:#E3F4EC;color:var(--green);font-weight:700;font-size:14px}
+
+/* advisor */
+.advisor{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(225,231,222,.6);overflow:hidden}
+.adv-head{display:flex;justify-content:space-between;align-items:center;padding:18px;background:linear-gradient(135deg,#F7F1DC,#FBF8EE);border-bottom:1px solid #EFE6C8}
+.adv-head small{display:block;color:#7A5E0A;font-size:12.5px;font-weight:600}
+.adv-head b{font-size:28px;font-weight:800;color:var(--navy-900)}
+.adv-head em{font-style:normal;font-size:14px;color:var(--muted);font-weight:500}
+.adv-today{text-align:center;background:#fff;border-radius:14px;padding:8px 14px;border:1px solid #EFE6C8}
+.adv-today b{font-size:17px;color:var(--green)}
+.adv-today.over b{color:var(--red)}
+.tip{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EEF2EC;align-items:flex-start}
+.tip:last-child{border-bottom:0}
+.tip .gem{width:36px;height:36px;border-radius:12px}
+.tip b{display:block;font-size:14.5px;line-height:1.45}
+.tip p{color:var(--muted);font-size:13px;line-height:1.6;margin-top:2px}
+.tip.r b{color:var(--red)}
+
+/* funds */
+.funds3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fund{background:var(--card);border-radius:18px;padding:14px 10px;box-shadow:var(--shadow);border:1px solid rgba(225,231,222,.6);text-align:center}
+.fund .gem{width:38px;height:38px;border-radius:13px;margin:0 auto 8px}
+.fund small{display:block;color:var(--muted);font-size:12px}
+.fund b{font-size:15.5px;font-weight:800}
+.fund b.neg{color:var(--red)}
+
+/* top spending */
+.topc{padding:16px 16px 12px}
+.tc{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.tc .gem{width:34px;height:34px;border-radius:11px}
+.tc-m{flex:1;min-width:0}
+.tc-l{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.tc-l small{color:var(--muted);font-weight:600;font-size:11.5px}
+.tc-bar{height:6px;border-radius:6px;background:#EDF1EB;margin-top:6px;overflow:hidden;background-image:none}
+.tc-bar i{display:block;height:100%;border-radius:6px;background:inherit;width:0;transition:width 1.1s var(--ease)}
+.tc-bar.g-red i{background:linear-gradient(90deg,#F08A7F,#C2453D)}.tc-bar.g-green i{background:linear-gradient(90deg,#5FC79B,#2E8B67)}
+.tc-bar.g-gold i{background:linear-gradient(90deg,#EBCF6E,#B88F17)}.tc-bar.g-navy i{background:linear-gradient(90deg,#4C9581,#1F4A3F)}
+.tc-bar.g-violet i{background:linear-gradient(90deg,#A88BE6,#6B46B5)}.tc-bar.g-blue i{background:linear-gradient(90deg,#7FB2EC,#3A6FB8)}
+.tc-bar.g-teal i{background:linear-gradient(90deg,#5EC2C6,#1F8A8F)}.tc-bar.g-amber i{background:linear-gradient(90deg,#F2BE62,#C98A1B)}
+.tc-bar.g-pink i{background:linear-gradient(90deg,#EE9BBE,#C2527F)}.tc-bar.g-gray i{background:linear-gradient(90deg,#A7B4AD,#6A7A72)}
+.tc-bar.g-red,.tc-bar.g-green,.tc-bar.g-gold,.tc-bar.g-navy,.tc-bar.g-violet,.tc-bar.g-blue,.tc-bar.g-teal,.tc-bar.g-amber,.tc-bar.g-pink,.tc-bar.g-gray{background:#EDF1EB;box-shadow:none}
+.tc-foot{display:flex;justify-content:space-between;border-top:1px dashed #E3E9E0;padding-top:10px;font-size:14px;color:var(--muted)}
+.tc-foot b{color:var(--ink)}
+
+/* forms */
+.catgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.catgrid button{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:10px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.2s}
+.catgrid button .gem{width:36px;height:36px;border-radius:12px}
+.catgrid button span{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.2}
+.catgrid button.on{border-color:var(--gold);background:var(--gold-pale);transform:translateY(-2px);box-shadow:0 8px 16px -10px rgba(184,143,23,.6)}
+body.big .catgrid{grid-template-columns:repeat(3,1fr)}
+.fundpick button{display:inline-flex;align-items:center;gap:6px}
+.split3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.split3 small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.split3 .inp{text-align:center;font-weight:800;font-size:18px}
+.split3 .inp[readonly]{background:#F1F4EF}
+.big-in{font-size:24px!important;font-weight:800;height:64px!important;direction:ltr;text-align:left}
+.mini-btn{padding:7px 14px;border-radius:11px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:13px;color:var(--ink)}
+.mini-btn.gold{background:linear-gradient(135deg,var(--gold-soft),var(--gold));border-color:transparent;color:var(--navy-900)}
+.btn-danger{width:100%;height:52px;border-radius:16px;background:#FDECEA;color:var(--red);font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.icon-btn .dot{display:block}
 </style>
 </head>
 <body>
@@ -330,7 +435,29 @@ const I = {
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff:'<path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.2M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.6 5-1.4M2 2l20 20M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   wallet:'<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
-  text:'<path d="M4 7V4h16v3M9 20h6M12 4v16"/>'
+  text:'<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  vault:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5V7M12 17v-1.5M15.5 12H17M7 12h1.5M7 20v1.5M17 20v1.5"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  chart:'<path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6" rx="1"/><rect x="12" y="7" width="3" height="10" rx="1"/><rect x="17" y="13" width="3" height="4" rx="1"/>',
+  trend:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+  talk:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  leaf:'<path d="M11 20A7 7 0 0 1 4 13c0-6 5-10 16-10 0 11-4 17-9 17z"/><path d="M4 21c3-6 7-9 12-11"/>',
+  gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  food:'<path d="M5 11h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7z"/><path d="M8 11l2-7M16 11l-2-7M3 11h18"/>',
+  flame:'<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6-4-9-1 2-2 3-3.5 3.5C11 7 11 4 9 2c0 4-4 7-4 13 0 4.3 3 7 7 7z"/><path d="M12 22a3 3 0 0 1-3-3c0-2 1.5-3 3-5 1.5 2 3 3 3 5a3 3 0 0 1-3 3z"/>',
+  car:'<path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M3 12h18"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/>',
+  health:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/><path d="M8 12h2l1.5-3 2 6 1.5-3h1"/>',
+  receipt:'<path d="M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z"/><path d="M9 9h6M9 13h6"/>',
+  rent:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><circle cx="12" cy="14" r="2"/><path d="M12 16v3"/>',
+  shirt:'<path d="M20.4 6.6 16 4l-1.5 1.5a3.5 3.5 0 0 1-5 0L8 4 3.6 6.6l1.6 4.2L7 10v10h10V10l1.8.8z"/>',
+  school:'<path d="M22 9 12 4 2 9l10 5 10-5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5M22 9v6"/>',
+  dots:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
 };
 function ic(name, size, stroke){
   const s = size || 22;
@@ -534,7 +661,7 @@ function go(tab, keep){
   paintIcons(app);
   bindView(app);
   if (!keep) window.scrollTo({ top:0 });
-  requestAnimationFrame(function(){ app.querySelectorAll('.bar i[data-w]').forEach(function(b){ b.style.width = b.dataset.w + '%'; }); });
+  requestAnimationFrame(function(){ app.querySelectorAll('.bar i[data-w], .tc-bar i[data-w]').forEach(function(b){ b.style.width = b.dataset.w + '%'; }); });
 }
 
 function greet(){ const h = new Date().getHours(); return h < 12 ? 'صباح الخير' : (h < 18 ? 'مساء النور' : 'مساء الخير'); }
@@ -566,152 +693,384 @@ async function loadData(silent){
   }
 }
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && S.token && Date.now() - S.lastLoad > 60000) loadData(true); });
-function actRow(x){
-  const inc = x.kind === 'income';
-  const sub = [x.who && (inc && x.to ? esc(x.who) + ' ← ' + esc(x.to) : esc(x.who)), x.house && x.house !== x.who ? esc(x.house) : '', dTxt(x.date)].filter(String).join(' · ');
-  return '<div class="row"><div class="ic '+(inc?'ic-inc':'ic-exp')+'">'+ic(inc?'up':'minus',20)+'</div>' +
-    '<div class="t"><b>'+esc(x.title)+'</b><small>'+sub+'</small></div>' +
-    '<div class="v '+(inc?'plus':'minus')+' num">'+(inc?'+':'−')+amtHtml(x)+'</div></div>';
-}
+/* ================= CATEGORIES & FUNDS ================= */
+const CATS = [
+  ['أكل وتموين','food','g-green'], ['قات','leaf','g-teal'], ['غاز وماء','flame','g-blue'], ['مواصلات','car','g-navy'],
+  ['علاج','health','g-red'], ['فواتير','receipt','g-gold'], ['إيجار','rent','g-violet'], ['ملابس','shirt','g-pink'],
+  ['مدرسة','school','g-amber'], ['مخصص','gift','g-gold'], ['أخرى','dots','g-gray']
+];
+function catOf(name){ for (let i=0;i<CATS.length;i++) if (CATS[i][0]===name) return CATS[i]; return [name,'dots','g-gray']; }
+const FUNDS = [['المصاريف','wallet','g-gold'],['الديون','debt','g-red'],['الادخار','save','g-green']];
+function gem(icon, cls, size){ return '<div class="gem '+cls+'">'+ic(icon, size||22, 2)+'</div>'; }
+
 function emptyList(icon, t, s){ return '<div class="list"><div class="empty"><div class="ic">'+ic(icon,28)+'</div><b>'+t+'</b>'+s+'</div></div>'; }
+function loadingList(){ return '<div class="list"><div class="loading-dots"><span class="spinner" style="display:inline-block;vertical-align:middle;margin-left:8px;border-color:rgba(31,74,63,.15);border-top-color:var(--navy-700)"></span>جارٍ تحميل البيانات…</div></div>'; }
+
+function actRow(x, i){
+  const inc = x.kind === 'income';
+  const c = inc ? [x.title, x.title==='مفاجئ'?'spark':(x.title==='دعم'?'send':'up'), x.title==='دعم'?'g-violet':'g-green'] : catOf(x.title);
+  const who = inc ? (x.to && x.to !== x.who ? esc(first(x.who)) + ' ← ' + esc(first(x.to)) : esc(first(x.who))) : esc(x.who === 'البيت عموماً' ? x.house : x.who);
+  const sub = [who, dTxt(x.date)].filter(String).join(' · ');
+  const title = inc ? (x.title === 'مفاجئ' ? 'دخل مفاجئ' : x.title) : x.title;
+  const note = x.note ? '<small class="nt">'+esc(x.note)+'</small>' : '';
+  return '<button class="row tapr" data-row="'+i+'">'+gem(c[1], c[2], 19) +
+    '<div class="t"><b>'+esc(title)+'</b><small>'+sub+'</small>'+note+'</div>' +
+    '<div class="v '+(inc?'plus':'minus')+' num">'+(inc?'+':'−')+amtHtml(x)+'</div></button>';
+}
 
 /* ---------- HOME ---------- */
 function viewHome(){
   const p = S.profile, D = S.data;
-  function hv(v){ return !S.bal.shown ? '••••' : (v === null || v === undefined ? '—' : fmt(v)); }
+  const hide = !S.bal.shown;
+  function hv(v){ return hide ? '••••' : (v === null || v === undefined ? '—' : fmt(v)); }
   const top =
     '<header class="topbar"><div class="tb-row">' +
       '<div class="avatar">'+initial(p.name)+'</div>' +
       '<div class="hello"><small>'+greet()+'</small><b>'+first(p.name)+'</b></div>' +
-      '<button class="icon-btn" data-act="notifs" aria-label="الإشعارات"><i data-i="bell"></i>'+(p.canApprove?'<span class="dot hidden" id="bellDot"></span>':'')+'</button>' +
+      '<button class="icon-btn" data-act="notifs" aria-label="الإشعارات">'+ic('bell',21)+(D&&D.notifications&&D.notifications.length?'<span class="dot"></span>':'')+'</button>' +
     '</div><div class="tb-brand"><span class="tb-date" style="margin:0">'+today()+'</span><span class="wm">Al Busaisi Family</span></div></header>';
 
-  const hero = p.canSeeAll
-    ? '<section class="hero">' +
-        '<div class="hero-lbl"><i data-i="wallet" data-s="18"></i> الرصيد العام للعائلة' +
-          '<button data-act="toggleBal" style="margin-right:auto;color:rgba(255,255,255,.6)">'+ic(S.bal.shown?'eye':'eyeOff',18)+'</button></div>' +
-        '<div class="hero-amt num">'+(S.bal.shown?'—':'••••••')+'<small>ر.ي</small></div>' +
-        '<div class="hero-sub">يظهر الرصيد بعد إدخال الأرصدة الافتتاحية</div>' +
-        '<div class="hero-split">' +
-          '<div class="hs d"><span>الديون</span><b class="num">'+hv(D && D.debtTotals ? D.debtTotals.remaining : null)+'</b></div>' +
-          '<div class="hs s"><span>الادخار</span><b class="num">'+hv(D ? D.savings : null)+'</b></div>' +
-          '<div class="hs e"><span>صرف الشهر</span><b class="num">'+hv(D ? D.month.spent : null)+'</b></div>' +
-        '</div></section>'
-    : '<section class="hero">' +
-        '<div class="hero-lbl"><i data-i="wallet" data-s="18"></i> مصاريفي هذا الشهر</div>' +
-        '<div class="hero-amt num">'+(D ? fmt(D.month.spent) : '—')+'<small>ر.ي</small></div>' +
-        '<div class="hero-sub">'+(p.dependents.length?'تشمل: '+p.dependents.join(' و '):'رصيدك ومصاريفك الشخصية')+'</div>' +
-        '<div class="hero-split" style="grid-template-columns:1fr 1fr">' +
-          '<div class="hs e"><span>المخصص</span><b class="num">—</b></div>' +
-          '<div class="hs s"><span>المتبقي</span><b class="num">—</b></div>' +
-        '</div></section>';
+  let hero;
+  if (p.canSeeAll){
+    hero = '<section class="hero">' +
+      '<div class="hero-lbl">'+ic('wallet',18)+' النقد المتاح للعائلة' +
+        '<button data-act="toggleBal" style="margin-right:auto;color:rgba(255,255,255,.6)">'+ic(hide?'eyeOff':'eye',18)+'</button></div>' +
+      '<div class="hero-amt num">'+(D ? hv(D.cash) : '—')+'<small>ر.ي</small></div>' +
+      '<div class="hero-sub">مجموع الصناديق الثلاثة'+(D&&D.ratesUpdated?' · الصرف محدّث '+dTxt(D.ratesUpdated):'')+'</div>' +
+      '<div class="hero-split">' +
+        '<button class="hs d" data-act="debts"><span>الديون</span><b class="num">'+hv(D && D.debtTotals ? D.debtTotals.remaining : null)+'</b></button>' +
+        '<button class="hs s" data-act="funds"><span>الادخار</span><b class="num">'+hv(D ? D.savings : null)+'</b></button>' +
+        '<button class="hs e" data-tab-go="activity"><span>صرف الشهر</span><b class="num">'+hv(D ? D.month.spent : null)+'</b></button>' +
+      '</div></section>';
+  } else {
+    const A = D && D.myAllowance;
+    const used = A && A.amount ? Math.min(100, Math.round(A.spent / A.amount * 100)) : 0;
+    hero = '<section class="hero">' +
+      '<div class="hero-lbl">'+ic('wallet',18)+' '+(A?'المتبقي من مخصصي':'مصاريفي هذا الشهر')+'</div>' +
+      '<div class="hero-amt num">'+(D ? fmt(A ? A.remaining : D.month.spent) : '—')+'<small>ر.ي</small></div>' +
+      '<div class="hero-sub">'+(p.dependents.length?'تشمل: '+p.dependents.join(' و '):'مصاريفك الشخصية')+'</div>' +
+      (A ? '<div class="hbar"><i style="width:'+used+'%"></i></div>' : '') +
+      '<div class="hero-split" style="grid-template-columns:1fr 1fr">' +
+        '<div class="hs e"><span>المخصص</span><b class="num">'+(A?fmt(A.amount):'—')+'</b></div>' +
+        '<div class="hs d"><span>صرفت</span><b class="num">'+(D?fmt(A?A.spent:D.month.spent):'—')+'</b></div>' +
+      '</div></section>';
+  }
 
-  const actions = [];
-  actions.push(['expense','ic-exp','minus','مصروف']);
-  actions.push(['income','ic-inc','up', p.isAdmin ? 'دخل' : 'دخلي']);
-  if (p.canSendSupport) actions.push(['support','ic-sup','send','دعم مرسل']);
-  if (p.canAddSurpriseIncome) actions.push(['surprise','ic-sur','spark','دخل مفاجئ']);
-  if (!p.isAdmin) actions.push(['request','ic-req','req','طلب زيادة']);
-  if (p.isRateManager) actions.push(['rates','ic-rate','rate','سعر الصرف']);
+  const actions = [['expense','minus','g-red','مصروف'], ['income','up','g-green', p.isAdmin ? 'دخل' : 'دخلي']];
+  if (p.isAdmin) actions.push(['allowances','gift','g-gold','المخصصات']);
+  if (p.isAdmin) actions.push(['payDebtPick','debt','g-navy','سداد دين']);
+  if (p.canSendSupport) actions.push(['support','send','g-violet','دعم مرسل']);
+  if (p.canAddSurpriseIncome) actions.push(['surprise','spark','g-blue','دخل مفاجئ']);
+  if (p.isRateManager || p.isAdmin) actions.push(['rates','rate','g-teal','سعر الصرف']);
+  if (p.isAdmin) actions.push(['funds','vault','g-amber','الصناديق']);
+  if (!p.isAdmin) actions.push(['request','req','g-amber','طلب زيادة']);
   const quick = '<div class="sec-h"><h3>إجراءات سريعة</h3></div><div class="quick stagger">' +
     actions.slice(0, document.body.classList.contains('big') ? 4 : 8).map(function(a){
-      return '<button class="qa" data-act="'+a[0]+'"><div class="ic '+a[1]+'">'+ic(a[2],22)+'</div><span>'+a[3]+'</span></button>';
+      return '<button class="qa" data-act="'+a[0]+'">'+gem(a[1], a[2], 22)+'<span>'+a[3]+'</span></button>';
     }).join('') + '</div>';
 
-  const adminCards = p.canSeeAll
-    ? '<div class="sec-h"><h3>نظرة عامة</h3></div><div class="cards2 stagger">' +
-        '<div class="card tap" data-act="debts"><div class="mini-lbl"><span style="color:var(--red)">'+ic('debt',16)+'</span> خطة الديون</div><div class="mini-amt num">'+(D&&D.debtTotals?fmt(D.debtTotals.remaining):'—')+' <small>ر.ي</small></div><div class="bar r"><i data-w="'+(D&&D.debtTotals?D.debtTotals.paidPct:0)+'"></i></div><small style="color:var(--muted);font-size:12px">'+(D&&D.debtTotals?D.debtTotals.count+' ديون · مسدد '+D.debtTotals.paidPct+'%':'نسبة السداد')+'</small></div>' +
-        '<div class="card tap" data-act="savings"><div class="mini-lbl"><span style="color:var(--green)">'+ic('save',16)+'</span> صندوق الادخار</div><div class="mini-amt num">'+(D?fmt(D.savings):'—')+' <small>ر.ي</small></div><div class="bar g"><i data-w="0"></i></div><small style="color:var(--muted);font-size:12px">من الهدف</small></div>' +
-      '</div>' + planCard(D)
-    : '';
+  let body = '';
+  if (p.canSeeAll){
+    body += deficitCard(D) + advisorCard(D, false) + fundsRow(D) + topCard(D);
+    body += '<div class="sec-h"><h3>الديون</h3><button data-act="debts">الخطة كاملة</button></div><div class="cards2 stagger">' +
+      '<button class="card tap" data-act="debts"><div class="mini-lbl"><span style="color:var(--red)">'+ic('debt',16)+'</span> المتبقي</div><div class="mini-amt num">'+(D&&D.debtTotals?fmt(D.debtTotals.remaining):'—')+' <small>ر.ي</small></div><div class="bar r"><i data-w="'+(D&&D.debtTotals?D.debtTotals.paidPct:0)+'"></i></div><small class="cap">'+(D&&D.debtTotals?D.debtTotals.count+' ديون قائمة · مسدد '+D.debtTotals.paidPct+'%':'نسبة السداد')+'</small></button>' +
+      '<button class="card tap" data-act="allowances"><div class="mini-lbl"><span style="color:var(--gold)">'+ic('gift',16)+'</span> المخصصات</div><div class="mini-amt num">'+(D&&D.allowances?D.allowances.filter(function(a){return a.paidThisMonth;}).length+'/'+D.allowances.length:'—')+'</div><div class="bar"><i data-w="'+(D&&D.allowances&&D.allowances.length?Math.round(D.allowances.filter(function(a){return a.paidThisMonth;}).length/D.allowances.length*100):0)+'"></i></div><small class="cap">صُرفت هذا الشهر</small></button>' +
+    '</div>' + planCard(D);
+  } else if (D && D.myAllowance){
+    body += memberAdvice(D);
+  }
 
   const recent = '<div class="sec-h"><h3>آخر الحركات</h3><button data-tab-go="activity">الكل</button></div>' +
-    (!D ? '<div class="list"><div class="loading-dots">جارٍ تحميل البيانات…</div></div>'
-        : D.activity.length ? '<div class="list">'+D.activity.slice(0,5).map(actRow).join('')+'</div>'
+    (!D ? loadingList() : D.activity.length ? '<div class="list">'+D.activity.slice(0,5).map(actRow).join('')+'</div>'
         : emptyList('list','لا توجد حركات بعد','ابدأ بتسجيل أول مصروف أو دخل'));
 
-  return '<div class="view">'+top+'<div class="wrap">'+hero+quick+adminCards+recent+'<div style="height:12px"></div></div></div>';
+  return '<div class="view">'+top+'<div class="wrap">'+hero+quick+body+recent+'<div style="height:12px"></div></div></div>';
+}
+
+/* مؤشر العجز */
+function deficitCard(D){
+  if (!D || !D.insights) return '';
+  const X = D.insights.deficit;
+  if (X.amount >= 0) return '<div class="ok-strip">'+ic('check',18,2.4)+' لا عجز: الموارد تغطي الديون العاجلة (فائض '+fmt(X.amount)+' ر.ي)</div>';
+  const nd = daysTo(X.nextDue);
+  return '<button class="deficit" data-act="deficit">' +
+    '<div class="df-top"><span class="df-lbl">'+ic('alert',17,2.2)+' مؤشر العجز</span><span class="df-when">'+(nd!==null?(nd>=0?'أقرب موعد بعد '+nd+' يوم':'موعد متأخر'):'')+'</span></div>' +
+    '<div class="df-amt num">−'+fmt(-X.amount)+'<small>ر.ي</small></div>' +
+    '<div class="df-sub">'+(X.sar?'≈ '+fmt(X.sar)+' ر.س · ':'')+'الموارد تغطي '+X.coverPct+'% من الديون العاجلة</div>' +
+    '<div class="df-bar"><i style="width:'+X.coverPct+'%"></i></div>' +
+    '<div class="df-legend"><span>متاح + متوقع <b class="num">'+fmt(X.resources)+'</b></span><span>عاجل <b class="num">'+fmt(X.urgent)+'</b></span></div>' +
+  '</button>';
+}
+
+/* مستشار العائلة */
+function advisorCard(D, full){
+  if (!D || !D.insights) return '';
+  const N = D.insights, T = N.tips || [];
+  if (!T.length && !N.daily) return '';
+  const list = (full ? T : T.slice(0, 3)).map(function(t){
+    return '<div class="tip '+t.lvl+'">'+gem(t.icon, {r:'g-red',a:'g-amber',g:'g-green',m:'g-gray'}[t.lvl]||'g-gray', 17)+'<div><b>'+esc(t.t)+'</b><p>'+esc(t.d)+'</p></div></div>';
+  }).join('');
+  return '<div class="sec-h"><h3>مستشار العائلة</h3>'+(!full && T.length > 3 ? '<button data-act="advisor">كل النصائح ('+T.length+')</button>' : '')+'</div>' +
+    '<div class="advisor">' + (N.daily && !full ? '<div class="adv-head"><div><small>حد المصروف اليومي'+(N.daily.until?' حتى '+dTxt(N.daily.until):'')+'</small><b class="num">'+fmt(N.daily.limit)+' <em>ر.ي</em></b></div>' +
+      '<div class="adv-today '+(N.daily.over?'over':'')+'"><small>صُرف اليوم</small><b class="num">'+fmt(N.daily.spentToday)+'</b></div></div>' : '') + list + '</div>';
+}
+function memberAdvice(D){
+  const A = D.myAllowance;
+  if (!A || A.remaining === null) return '';
+  const now = new Date(); const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const left = dim - now.getDate() + 1;
+  const per = Math.max(0, Math.floor(A.remaining / left / 100) * 100);
+  return '<div class="sec-h"><h3>نصيحة اليوم</h3></div><div class="advisor"><div class="tip '+(A.remaining<0?'r':'g')+'">'+gem('target', A.remaining<0?'g-red':'g-green', 17) +
+    '<div><b>'+(A.remaining<0?'تجاوزت مخصصك بـ '+fmt(-A.remaining)+' ر.ي':'اصرف بحدود '+fmt(per)+' ر.ي يومياً')+'</b><p>'+(A.remaining<0?'حاول تقليل المصاريف حتى نهاية الشهر، أو اطلب زيادة إن كان ضرورياً.':'المتبقي '+fmt(A.remaining)+' ر.ي لمدة '+left+' يوم حتى نهاية الشهر.')+'</p></div></div></div>';
+}
+
+/* الصناديق */
+function fundsRow(D){
+  if (!D || !D.funds) return '';
+  return '<div class="sec-h"><h3>الصناديق</h3><button data-act="funds">تحويل</button></div><div class="funds3 stagger">' + FUNDS.map(function(f){
+    const v = D.funds[f[0]];
+    return '<button class="fund" data-act="funds">'+gem(f[1], f[2], 18)+'<small>'+f[0]+'</small><b class="num'+(v<0?' neg':'')+'">'+(S.bal.shown?fmt(v):'••••')+'</b></button>';
+  }).join('') + '</div>';
+}
+
+/* أعلى المصاريف */
+function topCard(D){
+  if (!D || !D.insights) return '';
+  const T = D.insights.top;
+  if (!T || !T.length) return '';
+  const max = T[0].amount || 1;
+  return '<div class="sec-h"><h3>أكثر المصاريف هذا الشهر</h3><button data-act="spending">التفاصيل</button></div><button class="card tap topc" data-act="spending">' +
+    T.slice(0,5).map(function(t){ const c = catOf(t.name);
+      return '<div class="tc">'+gem(c[1], c[2], 16)+'<div class="tc-m"><div class="tc-l"><span>'+esc(t.name)+'</span><b class="num">'+fmt(t.amount)+' <small>'+t.pct+'%</small></b></div><div class="tc-bar '+c[2]+'"><i data-w="'+Math.round(t.amount/max*100)+'"></i></div></div></div>';
+    }).join('') +
+    '<div class="tc-foot"><span>إجمالي الشهر</span><b class="num">'+fmt(D.insights.monthTotal)+' ر.ي</b></div></button>';
 }
 
 function planCard(D){
   if (!D || !D.plan) return '';
   const P = D.plan, d = daysTo(P.date);
-  return '<div class="sec-h"><h3>خطة الدخل القادم</h3></div><div class="card tap plan" data-act="debts" style="margin-top:0">' +
-    '<div class="mini-lbl">'+ic('up',16)+' '+esc(P.label)+' · '+dTxt(P.date)+(d!==null&&d>=0?' (بعد '+d+' يوم)':'')+'</div>' +
+  return '<div class="sec-h"><h3>خطة الدخل القادم</h3></div><button class="card tap plan" data-act="debts" style="margin-top:0;width:100%;text-align:right">' +
+    '<div class="mini-lbl">'+ic('calendar',16)+' '+esc(P.label)+' · '+dTxt(P.date)+(d!==null&&d>=0?' (بعد '+d+' يوم)':'')+'</div>' +
     '<div class="pl"><span>الدخل المتوقع</span><b class="num">'+fmt(P.income)+' ر.ي</b></div>' +
-    '<div class="pl"><span>الديون القائمة</span><b class="num" style="color:var(--red)">− '+fmt(P.debts)+' ر.ي</b></div>' +
+    '<div class="pl"><span>الديون العاجلة</span><b class="num" style="color:var(--red)">− '+fmt(P.debts)+' ر.ي</b></div>' +
     '<div class="pl net'+(P.net<0?' neg':'')+'"><span>المتبقي بعد السداد</span><b class="num">'+fmt(P.net)+' ر.ي</b></div>' +
-    (P.pendingRate ? '<div class="note-s">⚠️ '+P.pendingRate+' دين بعملة أجنبية غير محسوب، بانتظار سعر الصرف</div>' : '') +
-    (P.deferred ? '<div class="note-s">الديون العاجلة فقط محسوبة. يوجد '+P.deferredCount+' دين يحتمل التأخير بقيمة '+fmt(P.deferred)+' ر.ي غير داخل الخطة.</div>' : '') +
-  '</div>';
+    (P.deferred ? '<div class="note-s">'+P.deferredCount+' دين يحتمل التأخير ('+fmt(P.deferred)+' ر.ي) خارج الخطة.</div>' : '') +
+  '</button>';
 }
 
-/* ---------- DEBTS (sheet) ---------- */
+/* ---------- SHEETS: deficit / advisor / spending / funds ---------- */
+function deficitSheet(){
+  const X = S.data.insights.deficit;
+  const lbl = { full:['مغطى','g'], part:['جزئي','a'], none:['غير مغطى','r'], pending:['بانتظار الصرف','m'] };
+  openSheet(sheetHead('مؤشر العجز','توزيع الموارد على الديون العاجلة حسب الأولوية') +
+    '<div class="card flat"><div class="pl"><span>النقد المتاح الآن</span><b class="num">'+fmt(X.cash)+'</b></div><div class="pl"><span>الدخل المتوقع حتى '+dTxt(X.lastDue)+'</span><b class="num">'+fmt(X.expected)+'</b></div>' +
+    '<div class="pl"><span>الديون العاجلة</span><b class="num" style="color:var(--red)">− '+fmt(X.urgent)+'</b></div><div class="pl net'+(X.amount<0?' neg':'')+'"><span>'+(X.amount<0?'العجز':'الفائض')+'</span><b class="num">'+fmt(X.amount)+' ر.ي</b></div></div>' +
+    '<div class="sec-h" style="margin-top:18px"><h3>ترتيب السداد</h3></div><div class="list">' + X.list.map(function(d, i){
+      const L = lbl[d.cover];
+      return '<div class="row"><div class="gem g-gray num" style="font-weight:800;font-size:15px">'+(i+1)+'</div><div class="t"><b style="white-space:normal">'+esc(d.creditor)+'</b><small>'+(d.due?'الموعد '+dTxt(d.due):'')+' <span class="pill '+L[1]+'">'+L[0]+'</span>'+(d.short?' <span class="pill r">ينقص '+fmt(d.short)+'</span>':'')+'</small></div><div class="v num">'+fmt(d.need)+'</div></div>';
+    }).join('') + '</div>' +
+    (X.deferredCount ? '<p class="note-s" style="margin-top:12px">خارج الحساب: '+X.deferredCount+' دين يحتمل التأخير بقيمة '+fmt(X.deferredTotal)+' ر.ي.</p>' : '') +
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+}
+function advisorSheet(){ openSheet(sheetHead('مستشار العائلة','نصائح محسوبة من بياناتكم الحقيقية') + advisorCard(S.data, true).replace(/<div class="sec-h">[\s\S]*?<\/div>/, '') + '<button class="btn-ghost" data-close>إغلاق</button>'); }
+function spendingSheet(){
+  const N = S.data.insights;
+  function block(title, arr){
+    if (!arr || !arr.length) return '';
+    const max = arr[0].amount || 1;
+    return '<div class="sec-h" style="margin-top:16px"><h3>'+title+'</h3></div><div class="card flat topc">' + arr.map(function(t){ const c = catOf(t.name);
+      return '<div class="tc">'+gem(c[1], c[2], 16)+'<div class="tc-m"><div class="tc-l"><span>'+esc(t.name)+'</span><b class="num">'+fmt(t.amount)+' <small>'+t.pct+'%</small></b></div><div class="tc-bar '+c[2]+'"><i style="width:'+Math.round(t.amount/max*100)+'%"></i></div></div></div>'; }).join('') + '</div>';
+  }
+  openSheet(sheetHead('تحليل المصاريف','هذا الشهر · الإجمالي '+fmt(N.monthTotal)+' ر.ي') +
+    (N.projected ? '<div class="card flat"><div class="pl"><span>المتوقع لنهاية الشهر بهذه الوتيرة</span><b class="num">'+fmt(N.projected)+'</b></div>'+(N.target?'<div class="pl"><span>السقف المقترح</span><b class="num">'+fmt(N.target)+'</b></div>':'')+'</div>' : '') +
+    block('حسب البند', N.top) + block('حسب البيت', N.byHouse) + block('حسب الشخص', N.byPerson) +
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+}
+function fundsSheet(){
+  const D = S.data;
+  openSheet('<form data-submit="mfMoveFund">' + sheetHead('الصناديق','كل دخل يتوزع تلقائياً: ديون '+D.split.debts+'% · ادخار '+D.split.savings+'% · مصاريف '+D.split.expenses+'%') +
+    '<div class="funds3" style="margin-bottom:18px">' + FUNDS.map(function(f){ return '<div class="fund">'+gem(f[1], f[2], 18)+'<small>'+f[0]+'</small><b class="num'+(D.funds[f[0]]<0?' neg':'')+'">'+fmt(D.funds[f[0]])+'</b></div>'; }).join('') + '</div>' +
+    '<h3 style="font-size:17px;margin-bottom:12px">تحويل بين الصناديق</h3>' +
+    '<div class="fg"><label>من</label>'+fundPick('from','الادخار')+'</div>' +
+    '<div class="fg"><label>إلى</label>'+fundPick('to','المصاريف')+'</div>' +
+    '<div class="fg"><label>المبلغ (ر.ي)</label><input class="inp num big-in" name="amount" inputmode="decimal" placeholder="0" required></div>' +
+    '<div class="fg"><label>السبب</label><input class="inp" name="reason" placeholder="مثال: سحب من الادخار لعلاج" required></div>' +
+    footer('تحويل') + '</form>');
+}
+window.mfMoveFund = function(f){ send(f, 'moveFund', { from: pv(f,'from'), to: pv(f,'to'), amount: f.amount.value, reason: f.reason.value }, '✓ تم التحويل'); };
+
+/* ---------- DEBTS ---------- */
 function debtsSheet(){
   const D = S.data;
   if (!D || !D.debts){ toast(D ? 'غير متاح لحسابك' : 'جارٍ التحميل…'); return; }
-  const T = D.debtTotals;
-  const rows = D.debts.map(function(x){
+  const T = D.debtTotals, admin = S.profile.isAdmin;
+  const rows = D.debts.map(function(x, i){
     const d = daysTo(x.due), paid = x.status === 'مسدد';
     const when = paid ? '<span class="pill g">مسدد</span>' : (x.due ? (d < 0 ? '<span class="pill r">متأخر '+(-d)+' يوم</span>' : '<span class="pill '+(d<=7?'r':'a')+'">'+(d===0?'اليوم':'بعد '+d+' يوم')+'</span>') : '');
     const type = x.type ? '<span class="pill '+(x.type==='عاجل'?'r':'m')+'">'+esc(x.type)+'</span>' : '';
     const amt = x.cur === 'YER' ? fmt(paid ? x.yer : x.remaining) + ' <small style="display:inline">ر.ي</small>'
-      : fmt(x.amount) + ' ' + (CUR_AR[x.cur]||x.cur) + (x.remaining !== null ? '<small>≈ '+fmt(x.remaining)+' ر.ي</small>' : '<small>بانتظار سعر الصرف</small>');
-    return '<div class="row"><div class="ic ic-exp" style="font-weight:800">'+(paid?'✓':x.priority)+'</div>' +
-      '<div class="t"><b style="white-space:normal">'+esc(x.creditor)+'</b><small>'+(x.due?'الموعد '+dTxt(x.due):'بدون موعد')+' '+type+when+'</small></div>' +
-      '<div class="v num'+(paid?' plus':' minus')+'">'+amt+'</div></div>';
+      : fmt(x.amount) + ' ' + (CUR_AR[x.cur]||x.cur) + (x.remaining !== null ? '<small>≈ '+fmt(paid ? x.yer : x.remaining)+' ر.ي</small>' : '<small>بانتظار سعر الصرف</small>');
+    const prog = !paid && x.paid && x.yer ? '<div class="bar r" style="margin-top:6px;height:5px"><i style="width:'+Math.round(x.paid/x.yer*100)+'%"></i></div>' : '';
+    return '<'+(admin&&!paid?'button data-debt="'+i+'"':'div')+' class="row'+(admin&&!paid?' tapr':'')+'">'+(paid?gem('check','g-green',18):'<div class="gem g-red num" style="font-weight:800;font-size:15px">'+x.priority+'</div>') +
+      '<div class="t"><b style="white-space:normal">'+esc(x.creditor)+'</b><small>'+(x.due?'الموعد '+dTxt(x.due):'بدون موعد')+' '+type+when+'</small>'+prog+'</div>' +
+      '<div class="v num'+(paid?' plus':' minus')+'">'+amt+'</div></'+(admin&&!paid?'button':'div')+'>';
   }).join('');
-  openSheet(sheetHead('خطة سداد الديون','مرتبة حسب الأولوية ثم الموعد') +
-    '<div class="card" style="margin-bottom:14px;box-shadow:none"><div class="mini-lbl">إجمالي المتبقي</div><div class="mini-amt num">'+fmt(T.remaining)+' <small>ر.ي</small></div>' +
-      '<div class="bar r"><i style="width:'+T.paidPct+'%"></i></div><small style="color:var(--muted);font-size:12px">'+T.count+' ديون قائمة · مسدد '+T.paidPct+'%'+(T.pendingRate?' · '+T.pendingRate+' بانتظار سعر الصرف':'')+'</small></div>' +
-    (rows ? '<div class="list">'+rows+'</div>' : emptyList('debt','لا توجد ديون','')) +
+  openSheet(sheetHead('خطة سداد الديون','العاجل أولاً، ثم الأولوية، ثم الموعد'+(admin?' · اضغط على دين لسداده':'')) +
+    '<div class="card flat"><div class="mini-lbl">إجمالي المتبقي</div><div class="mini-amt num">'+fmt(T.remaining)+' <small>ر.ي</small></div>' +
+      '<div class="bar r"><i style="width:'+T.paidPct+'%"></i></div><small class="cap">'+T.count+' ديون قائمة · مسدد '+T.paidPct+'%'+(T.pendingRate?' · '+T.pendingRate+' بانتظار سعر الصرف':'')+'</small></div>' +
+    (rows ? '<div class="list" style="margin-top:14px">'+rows+'</div>' : emptyList('debt','لا توجد ديون','')) +
+    (admin ? '<button class="btn-navy" data-act="addDebt" style="margin-top:14px">'+ic('plus',20)+' إضافة دين</button>' : '') +
     (D.expected && D.expected.length ? '<div class="sec-h"><h3>الدخل المتوقع</h3></div><div class="list">' + D.expected.map(function(x){
-        return '<div class="row"><div class="ic ic-inc">'+ic('up',20)+'</div><div class="t"><b>'+esc(x.note || x.who)+'</b><small>'+esc(x.who)+' · '+dTxt(x.date)+'</small></div><div class="v plus num">'+amtHtml(x)+'</div></div>';
+        return '<div class="row">'+gem('calendar','g-green',18)+'<div class="t"><b>'+esc(x.note || x.who)+'</b><small>'+esc(x.who)+' · '+dTxt(x.date)+'</small></div><div class="v plus num">'+amtHtml(x)+'</div></div>';
       }).join('') + '</div>' : '') +
-    '<button class="btn-ghost" data-close style="margin-top:14px">إغلاق</button>');
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+  document.querySelectorAll('#sheetBody [data-debt]').forEach(function(b){ b.onclick = function(){ const x = D.debts[Number(b.dataset.debt)]; closeSheet(); setTimeout(function(){ formPayDebt(x); }, 260); }; });
+}
+function payDebtPick(){
+  const D = S.data;
+  if (!D || !D.debts){ toast('جارٍ التحميل…'); return; }
+  const open = D.debts.filter(function(d){ return d.status !== 'مسدد'; });
+  if (!open.length){ toast('لا توجد ديون قائمة 🎉'); return; }
+  debtsSheet();
+}
+function formPayDebt(x){
+  openSheet('<form data-submit="mfPayDebt">' + sheetHead('سداد: '+esc(x.creditor), 'المتبقي '+(x.remaining!==null?fmt(x.remaining)+' ر.ي':'بانتظار سعر الصرف')) +
+    '<input type="hidden" name="id" value="'+esc(x.id)+'">' +
+    '<div class="fg"><label>المبلغ المسدد (ر.ي)</label><input class="inp num big-in" name="amount" inputmode="decimal" value="'+(x.remaining||'')+'" required></div>' +
+    '<div class="fg"><label>من أي صندوق؟</label>'+fundPick('fund','الديون')+'</div>' +
+    dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('تأكيد السداد') + '</form>');
+}
+window.mfPayDebt = function(f){ send(f, 'payDebt', { id: f.id.value, amount: f.amount.value, fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم تسجيل السداد'); };
+function formAddDebt(){
+  openSheet('<form data-submit="mfAddDebt">' + sheetHead('إضافة دين','يدخل في خطة السداد ومؤشر العجز فوراً') +
+    '<div class="fg"><label>الدائن</label><input class="inp" name="creditor" required placeholder="لمن الدين؟"></div>' + amountField('YER') +
+    '<div class="fg"><label>النوع</label><div class="seg" data-name="type"><button type="button" class="on" data-v="عاجل">عاجل</button><button type="button" data-v="يحتمل التأخير">يحتمل التأخير</button></div></div>' +
+    '<div class="fg"><label>الموعد</label><input class="inp" type="date" name="due"></div>' +
+    '<div class="fg"><label>الأولوية (1 = الأهم)</label><input class="inp num" name="priority" inputmode="numeric" value="10"></div>' +
+    '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('حفظ الدين') + '</form>');
+}
+window.mfAddDebt = function(f){ send(f, 'addDebt', { creditor: f.creditor.value, amount: f.amount.value, currency: f.currency.value, type: pv(f,'type'), due: f.due.value, priority: f.priority.value, note: f.note.value }, '✓ أُضيف الدين'); };
+
+/* ---------- ALLOWANCES ---------- */
+function allowancesSheet(){
+  const D = S.data;
+  if (!D || !D.allowances){ toast('جارٍ التحميل…'); return; }
+  const rows = D.allowances.map(function(a, i){
+    return '<div class="row">'+gem('gift', a.paidThisMonth?'g-green':'g-gold', 18) +
+      '<div class="t"><b>'+esc(a.person)+'</b><small>'+esc(a.period)+' '+(a.paidThisMonth?'<span class="pill g">صُرف '+dTxt(a.lastPaid)+'</span>':'<span class="pill a">لم يُصرف هذا الشهر</span>')+'</small></div>' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><b class="num" style="font-size:15px">'+amtHtml(a)+'</b>' +
+      '<div style="display:flex;gap:6px"><button class="mini-btn" data-alw-edit="'+i+'">تعديل</button><button class="mini-btn gold" data-alw-pay="'+i+'">صرف</button></div></div></div>';
+  }).join('');
+  openSheet(sheetHead('المخصصات','حدّد مخصص كل فرد، واصرفه من الصندوق المناسب') +
+    (rows ? '<div class="list">'+rows+'</div>' : emptyList('gift','لا توجد مخصصات بعد','أضف أول مخصص لأحد أفراد العائلة')) +
+    '<button class="btn-navy" data-act="newAllowance" style="margin-top:14px">'+ic('plus',20)+' إضافة / تعديل مخصص</button>' +
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+  document.querySelectorAll('#sheetBody [data-alw-pay]').forEach(function(b){ b.onclick = function(){ const a = D.allowances[Number(b.dataset.alwPay)]; closeSheet(); setTimeout(function(){ formPayAllowance(a); }, 260); }; });
+  document.querySelectorAll('#sheetBody [data-alw-edit]').forEach(function(b){ b.onclick = function(){ const a = D.allowances[Number(b.dataset.alwEdit)]; closeSheet(); setTimeout(function(){ formAllowance(a); }, 260); }; });
+}
+function formAllowance(a){
+  const P = (S.data.people || []).filter(function(p){ return p.username !== 'ali.mohsen'; });
+  const sel = a ? a.userId : (P[0] && P[0].id);
+  openSheet('<form data-submit="mfSetAllowance">' + sheetHead(a?'تعديل مخصص':'مخصص جديد','المبلغ الذي يُصرف لهذا الشخص بشكل دوري. اكتب 0 لإيقافه') +
+    '<div class="fg"><label>لمن؟</label><div class="pick" data-name="userId">'+P.map(function(p){ return '<button type="button" class="'+(p.id===sel?'on':'')+'" data-v="'+p.id+'">'+esc(p.short)+'</button>'; }).join('')+'</div></div>' +
+    '<div class="fg"><label>المبلغ</label><div class="amt-wrap"><input class="inp num" name="amount" inputmode="decimal" placeholder="0" value="'+(a?a.amount:'')+'" required>'+currencySelect(a?a.cur:'YER')+'</div></div>' +
+    '<div class="fg"><label>الدورية</label><div class="seg" data-name="period">'+['شهري','أسبوعي'].map(function(x){ return '<button type="button" class="'+((a?a.period:'شهري')===x?'on':'')+'" data-v="'+x+'">'+x+'</button>'; }).join('')+'</div></div>' +
+    footer('حفظ المخصص') + '</form>');
+}
+window.mfSetAllowance = function(f){ send(f, 'setAllowance', { userId: pv(f,'userId'), amount: f.amount.value, currency: f.currency.value, period: pv(f,'period') }, '✓ تم حفظ المخصص'); };
+function formPayAllowance(a){
+  openSheet('<form data-submit="mfPayAllowance">' + sheetHead('صرف مخصص: '+esc(first(a.person)), 'يُسجَّل كمصروف ويُخصم من الصندوق المختار، ويصل إشعار لـ'+esc(first(a.person))) +
+    '<input type="hidden" name="id" value="'+esc(a.id)+'">' +
+    '<div class="fg"><label>المبلغ ('+(CUR_AR[a.cur]||a.cur)+')</label><input class="inp num big-in" name="amount" inputmode="decimal" value="'+a.amount+'" required></div>' +
+    '<div class="fg"><label>من أي صندوق خرج؟</label>'+fundPick('fund','المصاريف')+'</div>' +
+    fundHint() + dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('تأكيد الصرف') + '</form>');
+}
+window.mfPayAllowance = function(f){ send(f, 'payAllowance', { id: f.id.value, amount: f.amount.value, fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ تم صرف المخصص'); };
+
+function fundPick(name, def){
+  return '<div class="pick fundpick" data-name="'+name+'">'+FUNDS.map(function(f){ return '<button type="button" class="'+(f[0]===def?'on':'')+'" data-v="'+f[0]+'">'+ic(f[1],16)+' '+f[0]+'</button>'; }).join('')+'</div>';
+}
+function fundHint(){
+  const D = S.data; if (!D || !D.funds) return '';
+  return '<p class="note-s" style="margin:-6px 2px 14px">الأرصدة: '+FUNDS.map(function(f){ return f[0]+' <b class="num">'+fmt(D.funds[f[0]])+'</b>'; }).join(' · ')+'</p>';
 }
 
+/* ---------- notifications ---------- */
 function notifSheet(){
   const N = (S.data && S.data.notifications) || [];
   openSheet(sheetHead('الإشعارات','آخر ما وصلك') + (N.length ? '<div class="list">' + N.map(function(n){
       const t = n.time ? new Date(n.time) : null;
       const when = t ? new Intl.DateTimeFormat('ar-u-nu-latn',{ day:'numeric', month:'short', hour:'numeric', minute:'2-digit' }).format(t) : '';
-      return '<div class="row"><div class="ic ic-rate">'+ic('bell',20)+'</div><div class="t"><b style="white-space:normal">'+esc(n.title)+'</b><small style="display:block">'+esc(n.text)+'</small><small>'+when+'</small></div></div>';
-    }).join('') + '</div>' : emptyList('bell','لا توجد إشعارات','')) + '<button class="btn-ghost" data-close style="margin-top:14px">إغلاق</button>');
+      return '<div class="row">'+gem('bell','g-teal',17)+'<div class="t"><b style="white-space:normal">'+esc(n.title)+'</b><small style="display:block">'+esc(n.text)+'</small><small>'+when+'</small></div></div>';
+    }).join('') + '</div>' : emptyList('bell','لا توجد إشعارات','')) + '<button class="btn-ghost" data-close>إغلاق</button>');
 }
 
 /* ---------- ACTIVITY ---------- */
 function viewActivity(){
   const p = S.profile;
   const chips = ['الكل','المصاريف','الدخل'].concat(p.canSeeAll?['البيت الأول','البيت الثاني','الأفراد']:[]);
-  return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>الحركات</h2><p>'+(p.canSeeAll?'كل مصاريف ودخل العائلة':'مصاريفك ودخلك')+'</p></div><div class="wrap">' +
+  return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>الحركات</h2><p>'+(p.canSeeAll?'كل مصاريف ودخل العائلة':'مصاريفك ودخلك')+(p.isAdmin?' · اضغط على حركة للتفاصيل':'')+'</p></div><div class="wrap">' +
     '<div class="chips">'+chips.map(function(c){ return '<button class="chip'+(c===S.f?' on':'')+'" data-chip data-f="'+c+'">'+c+'</button>'; }).join('')+'</div>' +
     actList() + '</div></div>';
 }
-
-function actList(){
-  const D = S.data;
-  if (!D) return '<div class="list"><div class="loading-dots">جارٍ تحميل البيانات…</div></div>';
-  const f = S.f;
-  const L = D.activity.filter(function(x){
+function actFiltered(){
+  const D = S.data, f = S.f;
+  return D.activity.map(function(x, i){ x._i = i; return x; }).filter(function(x){
     if (f === 'المصاريف') return x.kind === 'expense';
     if (f === 'الدخل') return x.kind === 'income';
     if (f === 'البيت الأول' || f === 'البيت الثاني') return x.house === f || x.house === 'البيتين';
     if (f === 'الأفراد') return x.kind === 'expense' && x.house && x.house !== 'البيت الأول' && x.house !== 'البيت الثاني' && x.house !== 'البيتين';
     return true;
   });
-  return L.length ? '<div class="list">'+L.map(actRow).join('')+'</div>' : emptyList('list','السجل فارغ','كل ما تسجله سيظهر هنا مرتباً بالتاريخ');
 }
+function actList(){
+  if (!S.data) return loadingList();
+  const L = actFiltered();
+  return L.length ? '<div class="list">'+L.map(function(x){ return actRow(x, x._i); }).join('')+'</div>' : emptyList('list','السجل فارغ','كل ما تسجله سيظهر هنا مرتباً بالتاريخ');
+}
+function rowDetail(i){
+  const x = S.data.activity[i]; if (!x) return;
+  const inc = x.kind === 'income';
+  const lines = [['النوع', inc ? 'دخل: '+x.title : 'مصروف: '+x.title], ['المبلغ', fmt(x.amount)+' '+(CUR_AR[x.cur]||x.cur)+(x.cur!=='YER'&&x.yer?' (≈ '+fmt(x.yer)+' ر.ي)':'')],
+    ['التاريخ', dTxt(x.date)], [inc?'من':'لمن', inc ? x.who : x.who], [inc?'المستلم':'البيت', inc ? x.to : x.house], ['سجّله', x.by], [inc?'':'الصندوق', inc ? '' : x.fund], ['ملاحظة', x.note]];
+  openSheet(sheetHead(inc?'تفاصيل الدخل':'تفاصيل المصروف', esc(x.id)) +
+    '<div class="card flat">' + lines.filter(function(l){ return l[0] && l[1]; }).map(function(l){ return '<div class="pl"><span>'+l[0]+'</span><b style="font-weight:700;max-width:65%;text-align:left">'+esc(l[1])+'</b></div>'; }).join('') + '</div>' +
+    (x.canDelete ? '<form data-submit="mfDelete" style="margin-top:16px"><input type="hidden" name="id" value="'+esc(x.id)+'"><input type="hidden" name="kind" value="'+x.kind+'">' +
+      '<div class="fg"><label>للحذف: اكتب السبب (يُحفظ في سجل التدقيق ويُبلَّغ المدراء)</label><input class="inp" name="reason" placeholder="مثال: مسجّل مرتين" required></div>' +
+      '<button class="btn-danger" type="submit">'+ic('trash',19)+' حذف</button></form>' : '') +
+    '<button class="btn-ghost" data-close>إغلاق</button>');
+}
+window.mfDelete = function(f){ send(f, 'deleteEntry', { id: f.id.value, kind: f.kind.value, reason: f.reason.value }, '✓ تم الحذف'); };
 
 /* ---------- REQUESTS ---------- */
 function viewRequests(){
-  const p = S.profile;
-  const head = '<div class="ph"><div class="wm">Al Busaisi Family</div><h2>الطلبات</h2><p>'+(p.canApprove?'طلبات زيادة المخصص بانتظار موافقتك':'طلباتك لزيادة المخصص')+'</p></div>';
+  const p = S.profile, D = S.data;
+  const head = '<div class="ph"><div class="wm">Al Busaisi Family</div><h2>الطلبات</h2><p>'+(p.canApprove?'تكفي موافقة مدير واحد':'طلباتك لزيادة المخصص')+'</p></div>';
   const btn = p.canApprove ? '' : '<button class="btn-navy" data-act="request" style="margin-bottom:18px">'+ic('plus',20)+' طلب زيادة مخصص</button>';
-  const chips = '<div class="chips"><button class="chip on" data-chip>بانتظار الموافقة</button><button class="chip" data-chip>معتمدة</button><button class="chip" data-chip>مرفوضة</button></div>';
-  return '<div class="view">'+head+'<div class="wrap">'+btn+chips+
-    '<div class="list"><div class="empty"><div class="ic">'+ic('inbox',28)+'</div><b>لا توجد طلبات</b>'+(p.canApprove?'ستصلك الطلبات الجديدة هنا وعلى إيميلك':'عند إرسال طلب ستتابع حالته من هنا')+'</div></div></div></div>';
+  const st = S.rf || 'بانتظار الموافقة';
+  const chips = '<div class="chips">'+[['بانتظار الموافقة','بانتظار الموافقة'],['معتمد','معتمدة'],['مرفوض','مرفوضة']].map(function(c){ return '<button class="chip'+(c[0]===st?' on':'')+'" data-chip data-rf="'+c[0]+'">'+c[1]+'</button>'; }).join('')+'</div>';
+  let list;
+  if (!D) list = loadingList();
+  else {
+    const L = (D.requests || []).filter(function(r){ return r.status === st; });
+    list = L.length ? '<div class="list">' + L.map(function(r){
+      return '<div class="row" style="align-items:flex-start">'+gem('req', st==='معتمد'?'g-green':(st==='مرفوض'?'g-red':'g-amber'), 18) +
+        '<div class="t"><b>'+esc(first(r.by))+' · '+fmt(r.amount)+' '+(CUR_AR[r.cur]||r.cur)+'</b><small style="display:block;white-space:normal">'+esc(r.reason)+'</small><small>'+esc(r.kind)+' · '+dTxt(r.date)+(r.decidedBy?' · '+esc(first(r.decidedBy)):'')+'</small>' +
+        (p.canApprove && st === 'بانتظار الموافقة' ? '<div style="display:flex;gap:8px;margin-top:10px"><button class="mini-btn gold" data-rq-ok="'+esc(r.id)+'">موافقة</button><button class="mini-btn" data-rq-no="'+esc(r.id)+'">رفض</button></div>' : '') +
+        '</div></div>';
+    }).join('') + '</div>' : emptyList('inbox','لا توجد طلبات', p.canApprove ? 'تصلك الطلبات الجديدة هنا وبإشعار على الجوال' : 'عند إرسال طلب ستتابع حالته من هنا');
+  }
+  return '<div class="view">'+head+'<div class="wrap">'+btn+chips+list+'</div></div>';
 }
+function formDecide(id, approve){
+  const r = S.data.requests.filter(function(x){ return x.id === id; })[0]; if (!r) return;
+  openSheet('<form data-submit="mfDecide">' + sheetHead(approve?'موافقة على الطلب':'رفض الطلب', esc(r.by)+' · '+fmt(r.amount)+' '+(CUR_AR[r.cur]||r.cur)) +
+    '<input type="hidden" name="id" value="'+esc(id)+'"><input type="hidden" name="decision" value="'+(approve?'approve':'reject')+'">' +
+    (approve ? '<div class="fg"><label>يُصرف من صندوق</label>'+fundPick('fund','المصاريف')+'</div>' + fundHint() : '') +
+    '<div class="fg"><label>ملاحظة '+(approve?'(اختياري)':'للطالب')+'</label><input class="inp" name="note" '+(approve?'':'required')+'></div>' +
+    footer(approve?'موافقة وصرف':'رفض') + '</form>');
+}
+window.mfDecide = function(f){ send(f, 'decideRequest', { id: f.id.value, decision: f.decision.value, fund: pv(f,'fund'), note: f.note.value }, f.decision.value === 'approve' ? '✓ تمت الموافقة' : 'تم الرفض'); };
 
 /* ---------- ME ---------- */
 function viewMe(){
@@ -721,11 +1080,12 @@ function viewMe(){
   return '<div class="view"><div class="ph"><div class="wm">Al Busaisi Family</div><h2>حسابي</h2><p>الإعدادات والمساعدة</p></div><div class="wrap">' +
     '<div class="card profile-card"><div class="avatar">'+initial(p.name)+'</div><div><b style="font-size:18px">'+p.name+'</b><div style="color:var(--muted);font-size:13.5px;direction:ltr;text-align:right">'+p.username+'</div><span class="tag">'+role+' · '+p.house+'</span></div></div>' +
     '<div class="sec-h"><h3>الإعدادات</h3></div><div class="list">' +
-      '<button class="set-row" data-act="push"><div class="ic">'+ic('bell',20)+'</div><span>إشعارات الجوال</span><b style="color:var(--gold);font-size:13px">'+pushStatusText()[0]+'</b></button>' +
-      '<button class="set-row" data-act="guide"><div class="ic">'+ic('help',20)+'</div><span>دليل الاستخدام</span></button>' +
-      '<button class="set-row" data-act="bigtext"><div class="ic">'+ic('text',20)+'</div><span>خط كبير</span><b style="color:var(--gold)">'+(document.body.classList.contains('big')?'مفعّل':'متوقف')+'</b></button>' +
-      '<button class="set-row" data-act="password"><div class="ic">'+ic('key',20)+'</div><span>تغيير كلمة السر</span></button>' +
-      '<button class="set-row danger" data-act="logout"><div class="ic">'+ic('out',20)+'</div><span>تسجيل الخروج</span></button>' +
+      '<button class="set-row" data-act="push">'+gem('bell','g-teal',18)+'<span>إشعارات الجوال</span><b style="color:var(--gold);font-size:13px">'+pushStatusText()[0]+'</b></button>' +
+      '<button class="set-row" data-act="refresh">'+gem('refresh','g-green',18)+'<span>تحديث البيانات</span></button>' +
+      '<button class="set-row" data-act="guide">'+gem('help','g-blue',18)+'<span>دليل الاستخدام</span></button>' +
+      '<button class="set-row" data-act="bigtext">'+gem('text','g-violet',18)+'<span>خط كبير</span><b style="color:var(--gold)">'+(document.body.classList.contains('big')?'مفعّل':'متوقف')+'</b></button>' +
+      '<button class="set-row" data-act="password">'+gem('key','g-amber',18)+'<span>تغيير كلمة السر</span></button>' +
+      '<button class="set-row danger" data-act="logout">'+gem('out','g-red',18)+'<span>تسجيل الخروج</span></button>' +
     '</div>' +
     '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:22px">الدخول محفوظ على هذا الجهاز حتى '+exp+'<br>عائلة البسيسي · صُمّم وأُدير بواسطة علي البسيسي</p></div></div>';
 }
@@ -734,18 +1094,29 @@ function viewMe(){
 function bindView(root){
   root.querySelectorAll('[data-act]').forEach(function(el){ el.onclick = function(){ act(el.dataset.act); }; });
   root.querySelectorAll('[data-tab-go]').forEach(function(el){ el.onclick = function(){ go(el.dataset.tabGo); }; });
+  root.querySelectorAll('[data-row]').forEach(function(el){ el.onclick = function(){ rowDetail(Number(el.dataset.row)); }; });
+  root.querySelectorAll('[data-rq-ok]').forEach(function(el){ el.onclick = function(){ formDecide(el.dataset.rqOk, true); }; });
+  root.querySelectorAll('[data-rq-no]').forEach(function(el){ el.onclick = function(){ formDecide(el.dataset.rqNo, false); }; });
   root.querySelectorAll('.chips').forEach(function(g){
-    g.querySelectorAll('[data-chip]').forEach(function(c){ c.onclick = function(){ g.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); }); c.classList.add('on'); if (c.dataset.f){ S.f = c.dataset.f; go(S.tab, true); } }; });
+    g.querySelectorAll('[data-chip]').forEach(function(c){ c.onclick = function(){
+      if (c.dataset.f){ S.f = c.dataset.f; }
+      if (c.dataset.rf){ S.rf = c.dataset.rf; }
+      go(S.tab, true);
+    }; });
   });
+  const badge = document.getElementById('reqBadge');
+  const n = S.data ? (S.data.pendingRequests || 0) : 0;
+  badge.textContent = n; badge.classList.toggle('hidden', !n);
 }
 
+function needData(fn){ return function(){ if (!S.data){ toast('جارٍ تحميل البيانات…'); return; } fn.apply(null, arguments); }; }
 function act(a){
   const map = {
-    expense:formExpense, income:formIncome, surprise:formSurprise, support:formSupport, request:formRequest, rates:formRates,
-    debts:debtsSheet,
-    savings:function(){ infoSheet('صندوق الادخار','الرصيد، الإيداعات التلقائية، والسحب بموافقة مدير.','save'); },
-    notifs:notifSheet,
-    toggleBal:function(){ S.bal.shown = !S.bal.shown; go('home'); },
+    expense:formExpense, income:needData(formIncome), surprise:needData(formSurprise), support:formSupport, request:formRequest, rates:formRates,
+    debts:debtsSheet, payDebtPick:payDebtPick, addDebt:formAddDebt, allowances:allowancesSheet, newAllowance:needData(function(){ formAllowance(null); }),
+    funds:needData(fundsSheet), deficit:needData(deficitSheet), advisor:needData(advisorSheet), spending:needData(spendingSheet),
+    notifs:notifSheet, refresh:function(){ toast('جارٍ التحديث…'); loadData(); },
+    toggleBal:function(){ S.bal.shown = !S.bal.shown; go('home', true); },
     push:pushToggle, guide:openGuide, password:formPassword, logout:logout,
     bigtext:function(){ document.body.classList.toggle('big'); go('me'); }
   };
@@ -758,6 +1129,7 @@ function openSheet(html){
   paintIcons(document.getElementById('sheetBody'));
   document.getElementById('scrim').classList.add('on');
   document.getElementById('sheet').classList.add('on');
+  document.getElementById('sheet').scrollTop = 0;
   bindSheet();
 }
 function closeSheet(){
@@ -775,7 +1147,23 @@ function bindSheet(){
   });
   b.querySelectorAll('[data-act]').forEach(function(el){ el.onclick = function(){ closeSheet(); setTimeout(function(){ act(el.dataset.act); }, 250); }; });
   const f = b.querySelector('form');
-  if (f) f.addEventListener('submit', function(e){ e.preventDefault(); (window[f.dataset.submit] || pendingSave)(f); });
+  if (f) f.addEventListener('submit', function(e){ e.preventDefault(); if (window[f.dataset.submit]) window[f.dataset.submit](f); });
+}
+/* قيمة الاختيار المحدد في مجموعة أزرار */
+function pv(f, name){ const g = f.querySelector('[data-name="'+name+'"]'); const on = g && g.querySelector('button.on'); return on ? on.dataset.v : ''; }
+/* إرسال موحّد: يمنع التكرار، يعرض انتظار، يحدّث البيانات بعد النجاح */
+async function send(f, action, payload, okMsg){
+  const btn = f.querySelector('[type=submit]');
+  if (btn.disabled) return;
+  const label = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span>';
+  try{
+    const r = await api(action, payload);
+    if (r.ok){ closeSheet(); toast(okMsg || '✓ تم الحفظ'); loadData(true); }
+    else if (r.error === 'AUTH'){ toast('انتهت الجلسة، سجّل الدخول من جديد'); setTimeout(function(){ store(false, null); location.reload(); }, 1500); }
+    else toast(r.error || 'تعذّر الحفظ');
+  }catch(e){ toast('تعذّر الاتصال، تأكد من الإنترنت'); }
+  finally{ btn.disabled = false; btn.innerHTML = label; }
 }
 
 function currencySelect(def){
@@ -789,25 +1177,28 @@ function footer(label){ return '<button class="btn-navy" type="submit">'+label+'
 function openActions(){
   const p = S.profile;
   document.getElementById('fab').classList.add('open');
-  const items = [['expense','ic-exp','minus','تسجيل مصروف','أي مبلغ صرفته']];
-  items.push(['income','ic-inc','up', p.isAdmin?'تسجيل دخل':'تسجيل دخلي','عند استلام أي مبلغ']);
-  if (p.canSendSupport) items.push(['support','ic-sup','send','دعم مرسل','تحويل للعائلة']);
-  if (p.canAddSurpriseIncome) items.push(['surprise','ic-sur','spark','دخل مفاجئ','يعيد حساب الخطة']);
-  if (!p.isAdmin) items.push(['request','ic-req','req','طلب زيادة','للمخصص']);
-  if (p.isRateManager) items.push(['rates','ic-rate','rate','سعر الصرف','تحديث العملات']);
+  const items = [['expense','minus','g-red','تسجيل مصروف','أي مبلغ صرفته']];
+  items.push(['income','up','g-green', p.isAdmin?'تسجيل دخل':'تسجيل دخلي','عند استلام أي مبلغ']);
+  if (p.isAdmin) items.push(['allowances','gift','g-gold','المخصصات','تحديد وصرف']);
+  if (p.isAdmin) items.push(['payDebtPick','debt','g-navy','سداد دين','من صندوق الديون']);
+  if (p.canSendSupport) items.push(['support','send','g-violet','دعم مرسل','تحويل للعائلة']);
+  if (p.canAddSurpriseIncome) items.push(['surprise','spark','g-blue','دخل مفاجئ','يعيد حساب الخطة']);
+  if (!p.isAdmin) items.push(['request','req','g-amber','طلب زيادة','للمخصص']);
+  if (p.isRateManager || p.isAdmin) items.push(['rates','rate','g-teal','سعر الصرف','تحديث العملات']);
   openSheet(sheetHead('ماذا تريد أن تسجل؟','اختر نوع العملية') +
-    '<div class="action-grid">'+items.map(function(a){ return '<button class="ag" data-act="'+a[0]+'"><div class="ic '+a[1]+'">'+ic(a[2],22)+'</div><b>'+a[3]+'</b><small>'+a[4]+'</small></button>'; }).join('')+'</div>' +
+    '<div class="action-grid">'+items.map(function(a){ return '<button class="ag" data-act="'+a[0]+'">'+gem(a[1], a[2], 22)+'<b>'+a[3]+'</b><small>'+a[4]+'</small></button>'; }).join('')+'</div>' +
     '<button class="btn-ghost" data-close>إغلاق</button>');
 }
 
 /* ---------- forms ---------- */
 function expenseScopes(){
   const p = S.profile;
-  if (p.isAdmin) return { houses:['البيت الأول','البيت الثاني','فردي'], who:{
+  if (p.isAdmin) return { houses:['البيت الأول','البيت الثاني','البيتين','فردي'], who:{
     'البيت الأول':['البيت عموماً','محمد','شيرين','راكان','إليان'],
     'البيت الثاني':['البيت عموماً','الوالد','الوالدة','جدة مريم'],
+    'البيتين':['البيتين'],
     'فردي':['علي','محمد','عبدالرحمن','نهاية'] } };
-  const who = {}; who[p.house] = [first(p.name)].concat(p.dependents);
+  const who = {}; who[p.house] = [first(p.name)].concat(p.dependents).concat(p.house.indexOf('البيت')===0?['البيت عموماً']:[]);
   return { houses:[p.house], who:who };
 }
 let _scopes = null;
@@ -817,41 +1208,105 @@ window.mfPickHouse = function(h){
   box.querySelectorAll('button').forEach(function(x){ x.onclick = function(){ box.querySelectorAll('button').forEach(function(y){ y.classList.remove('on'); }); x.classList.add('on'); }; });
 };
 function formExpense(){
+  const p = S.profile;
   _scopes = expenseScopes();
   const h0 = _scopes.houses[0];
-  openSheet('<form>' + sheetHead('تسجيل مصروف','سجّل المبلغ فور الصرف') + amountField('YER') +
-    (_scopes.houses.length > 1 ? '<div class="fg"><label>لأي بيت؟</label><div class="seg" data-onpick="mfPickHouse">'+_scopes.houses.map(function(h,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+h+'">'+h+'</button>'; }).join('')+'</div></div>' : '') +
-    '<div class="fg"><label>لمن؟</label><div class="pick" id="whoPick"></div></div>' +
-    '<div class="fg"><label>البند</label><div class="pick">'+['أكل وتموين','غاز وماء','مواصلات','علاج','فواتير','ملابس','مدرسة','أخرى'].map(function(b,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+b+'">'+b+'</button>'; }).join('')+'</div></div>' +
+  const cats = CATS.filter(function(c){ return c[0] !== 'مخصص'; });
+  openSheet('<form data-submit="mfSaveExpense">' + sheetHead('تسجيل مصروف','سجّل المبلغ فور الصرف، ويصل إشعار للمدراء') + amountField('YER') +
+    '<div class="fg"><label>البند</label><div class="catgrid" data-name="category">'+cats.map(function(c,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+c[0]+'">'+gem(c[1], c[2], 19)+'<span>'+c[0]+'</span></button>'; }).join('')+'</div></div>' +
+    (_scopes.houses.length > 1 ? '<div class="fg"><label>لأي بيت؟</label><div class="seg" data-name="house" data-onpick="mfPickHouse">'+_scopes.houses.map(function(h,i){ return '<button type="button" class="'+(i?'':'on')+'" data-v="'+h+'">'+h+'</button>'; }).join('')+'</div></div>' : '') +
+    '<div class="fg"><label>لمن؟</label><div class="pick" id="whoPick" data-name="who"></div></div>' +
+    (p.isAdmin ? '<div class="fg"><label>من أي صندوق؟</label>'+fundPick('fund','المصاريف')+'</div>' : '') +
     dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note" placeholder="مثال: مقاضي الأسبوع"></div>' +
     footer('حفظ المصروف') + '</form>');
   mfPickHouse(h0);
+  const g = document.querySelector('#sheetBody .catgrid');
+  g.querySelectorAll('button').forEach(function(x){ x.onclick = function(){ g.querySelectorAll('button').forEach(function(y){ y.classList.remove('on'); }); x.classList.add('on'); }; });
+}
+window.mfSaveExpense = function(f){
+  const houseSeg = f.querySelector('[data-name="house"]');
+  send(f, 'addExpense', { amount: f.amount.value, currency: f.currency.value, category: pv(f,'category'), house: houseSeg ? pv(f,'house') : S.profile.house,
+    who: pv(f,'who'), fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ حُفظ المصروف');
+};
+
+/* حقول توزيع الدخل على الصناديق (للمدراء) مع اقتراح ذكي عند وجود عجز */
+function splitFields(){
+  const D = S.data, sp = D.split || {debts:20,savings:10,expenses:70};
+  const X = D.insights && D.insights.deficit;
+  const sugg = X && X.amount < 0 ? '<button type="button" class="mini-btn gold" id="splitSugg" style="margin-top:8px">اقتراح لهذا الشهر: الأولوية للديون العاجلة</button>' : '';
+  return '<div class="fg"><label>التوزيع على الصناديق (%)</label><div class="split3">' +
+    '<div><small>ديون</small><input class="inp num" name="sd" inputmode="numeric" value="'+sp.debts+'"></div>' +
+    '<div><small>ادخار</small><input class="inp num" name="ss" inputmode="numeric" value="'+sp.savings+'"></div>' +
+    '<div><small>مصاريف</small><input class="inp num" name="se" value="'+sp.expenses+'" readonly></div></div>'+sugg+'</div>';
+}
+function bindSplit(f){
+  if (!f.sd) return;
+  function upd(){ f.se.value = Math.max(0, 100 - (Number(f.sd.value)||0) - (Number(f.ss.value)||0)); }
+  f.sd.oninput = upd; f.ss.oninput = upd;
+  const b = document.getElementById('splitSugg');
+  if (b) b.onclick = function(){
+    const X = S.data.insights.deficit, amt = Number(f.amount.value) || 0;
+    const cur = f.currency.value, rate = (S.data.rates || {})[cur] || (cur === 'YER' ? 1 : 0);
+    const yer = amt * rate;
+    if (!yer){ toast('اكتب المبلغ أولاً'); return; }
+    const need = Math.max(0, X.urgent - Math.max(0, X.cash));
+    let d = Math.min(90, Math.ceil(need / yer * 100 / 5) * 5);
+    f.sd.value = d; f.ss.value = 0; upd();
+    toast('ديون '+d+'% · ادخار 0% · مصاريف '+(100-d)+'%');
+  };
 }
 function formIncome(){
-  const p = S.profile;
-  openSheet('<form>' + sheetHead(p.isAdmin?'تسجيل دخل':'تسجيل دخلي','سجّل المبلغ فور استلامه فعلياً') + amountField(p.username==='abdulrahman.m'?'SAR':(p.username==='mohammed.m'?'USD':'YER')) +
-    '<div class="fg"><label>نوع الدخل</label><div class="seg"><button type="button" class="on">راتب</button><button type="button">متغير</button><button type="button">أخرى</button></div></div>' +
+  const p = S.profile, D = S.data;
+  const people = (D.people || []);
+  const exp = (D.expected || []);
+  openSheet('<form data-submit="mfSaveIncome">' + sheetHead(p.isAdmin?'تسجيل دخل':'تسجيل دخلي','سجّل المبلغ فور استلامه فعلياً، ويتوزع تلقائياً على الصناديق') +
+    amountField(p.username==='abdulrahman.m'?'SAR':(p.username==='mohammed.m'?'YER':'YER')) +
+    (p.isAdmin ? '<div class="fg"><label>دخل مَن؟</label><div class="pick" data-name="who">'+people.map(function(x){ return '<button type="button" class="'+(x.id===p.id?'on':'')+'" data-v="'+esc(x.name)+'">'+esc(x.short)+'</button>'; }).join('')+'</div></div>' : '') +
+    '<div class="fg"><label>نوع الدخل</label><div class="seg" data-name="kind"><button type="button" class="on" data-v="راتب">راتب</button><button type="button" data-v="متغير">متغير</button><button type="button" data-v="أخرى">أخرى</button></div></div>' +
+    (p.isAdmin && exp.length ? '<div class="fg"><label>هل هو دخل متوقع وصل؟</label><div class="pick" data-name="expectedId"><button type="button" class="on" data-v="">لا</button>'+exp.map(function(e){ return '<button type="button" data-v="'+esc(e.id)+'">'+esc(e.note||e.who)+' · '+fmt(e.amount)+'</button>'; }).join('')+'</div></div>' : '') +
+    (p.isAdmin ? splitFields() : '') +
     dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note"></div>' + footer('حفظ الدخل') + '</form>');
+  const f = document.querySelector('#sheetBody form');
+  bindSplit(f);
+  /* اختيار دخل متوقع يعبّئ المبلغ والشخص تلقائياً */
+  f.querySelectorAll('[data-name="expectedId"] button').forEach(function(btn){
+    const old = btn.onclick;
+    btn.onclick = function(){ old && old(); const e = exp.filter(function(x){ return x.id === btn.dataset.v; })[0]; if (!e) return;
+      f.amount.value = e.amount; f.currency.value = e.cur; f.note.value = e.note || '';
+      f.querySelectorAll('[data-name="who"] button').forEach(function(w){ w.classList.toggle('on', w.dataset.v === e.who); });
+    };
+  });
 }
+window.mfSaveIncome = function(f){
+  const body = { amount: f.amount.value, currency: f.currency.value, kind: pv(f,'kind'), date: f.date.value, note: f.note.value };
+  if (S.profile.isAdmin){ body.who = pv(f,'who'); body.expectedId = pv(f,'expectedId'); body.split = { debts: f.sd.value, savings: f.ss.value }; }
+  send(f, 'addIncome', body, '✓ حُفظ الدخل ووُزّع على الصناديق');
+};
 function formSurprise(){
-  openSheet('<form>' + sheetHead('دخل مفاجئ ✨','يُضاف للرصيد ويعيد حساب خطة الديون والادخار تلقائياً') + amountField('YER') +
-    '<div class="fg"><label>المصدر</label><input class="inp" name="source" placeholder="مثال: هدية، مكافأة، بيع..."></div>' + dateField() + footer('إضافة وإعادة الحساب') + '</form>');
+  openSheet('<form data-submit="mfSaveSurprise">' + sheetHead('دخل مفاجئ ✨','يُضاف للصناديق ويعيد حساب العجز والخطة فوراً') + amountField('YER') +
+    '<div class="fg"><label>المصدر</label><input class="inp" name="note" placeholder="مثال: هدية، مكافأة، بيع..." required></div>' + splitFields() + dateField() + footer('إضافة وإعادة الحساب') + '</form>');
+  bindSplit(document.querySelector('#sheetBody form'));
 }
+window.mfSaveSurprise = function(f){ send(f, 'addIncome', { amount: f.amount.value, currency: f.currency.value, kind: 'مفاجئ', who: S.profile.name, note: f.note.value, date: f.date.value, split: { debts: f.sd.value, savings: f.ss.value } }, '✓ أُضيف الدخل المفاجئ'); };
 function formSupport(){
-  openSheet('<form>' + sheetHead('دعم مرسل','مبلغ أرسلته للعائلة من عمان') + amountField('SAR') +
-    '<div class="fg"><label>المستلم</label><div class="pick"><button type="button" class="on">محمد</button><button type="button">نهاية</button><button type="button">الوالد</button></div></div>' +
+  openSheet('<form data-submit="mfSaveSupport">' + sheetHead('دعم مرسل','مبلغ أرسلته للعائلة من عمان') + amountField('SAR') +
+    '<div class="fg"><label>المستلم</label><div class="pick" data-name="to"><button type="button" class="on" data-v="محمد محسن">محمد</button><button type="button" data-v="نهاية علي صالح">نهاية</button><button type="button" data-v="محسن عبدالله صالح">الوالد</button></div></div>' +
     dateField() + '<div class="fg"><label>ملاحظة (اختياري)</label><input class="inp" name="note" placeholder="مثال: دعم شهر نوفمبر"></div>' + footer('حفظ الدعم') + '</form>');
 }
+window.mfSaveSupport = function(f){ send(f, 'addIncome', { amount: f.amount.value, currency: f.currency.value, kind: 'دعم', to: pv(f,'to'), date: f.date.value, note: f.note.value }, '✓ حُفظ الدعم'); };
 function formRequest(){
-  openSheet('<form>' + sheetHead('طلب زيادة مخصص','يصل الطلب فوراً لمحمد وعلي ونهاية، وتكفي موافقة واحد منهم') +
-    '<div class="fg"><label>نوع الزيادة</label><div class="seg"><button type="button" class="on">أسبوعي</button><button type="button">شهري</button><button type="button">مرة واحدة</button></div></div>' +
+  openSheet('<form data-submit="mfSaveRequest">' + sheetHead('طلب زيادة مخصص','يصل الطلب فوراً لمحمد وعلي ونهاية، وتكفي موافقة واحد منهم') +
+    '<div class="fg"><label>نوع الزيادة</label><div class="seg" data-name="kind"><button type="button" class="on" data-v="مرة واحدة">مرة واحدة</button><button type="button" data-v="أسبوعي">أسبوعي</button><button type="button" data-v="شهري">شهري</button></div></div>' +
     amountField('YER') + '<div class="fg"><label>السبب</label><textarea class="inp" name="reason" placeholder="اكتب السبب باختصار" required></textarea></div>' + footer('إرسال الطلب') + '</form>');
 }
+window.mfSaveRequest = function(f){ send(f, 'createRequest', { kind: pv(f,'kind'), amount: f.amount.value, currency: f.currency.value, reason: f.reason.value }, '✓ أُرسل الطلب'); };
 function formRates(){
-  openSheet('<form>' + sheetHead('تحديث سعر الصرف','كم يساوي كل عملة بالريال اليمني اليوم؟') +
-    [['USD','دولار أمريكي'],['SAR','ريال سعودي'],['OMR','ريال عماني']].map(function(c){ return '<div class="fg"><label>1 '+c[1]+' =</label><div class="amt-wrap"><input class="inp num" name="'+c[0]+'" inputmode="decimal" placeholder="0" required><div class="inp" style="width:112px;height:64px;display:grid;place-items:center;font-weight:700">ر.ي</div></div></div>'; }).join('') +
+  const R = (S.data && S.data.rates) || {};
+  openSheet('<form data-submit="mfSaveRates">' + sheetHead('تحديث سعر الصرف','كم يساوي كل عملة بالريال اليمني اليوم؟ (اترك الخانة فارغة إن لم يتغير)') +
+    [['SAR','ريال سعودي'],['USD','دولار أمريكي'],['OMR','ريال عماني']].map(function(c){ return '<div class="fg"><label>1 '+c[1]+' =</label><div class="amt-wrap"><input class="inp num" name="'+c[0]+'" inputmode="decimal" placeholder="'+(R[c[0]]||'0')+'"'+(R[c[0]]?' value="'+R[c[0]]+'"':'')+'><div class="inp" style="width:112px;height:64px;display:grid;place-items:center;font-weight:700">ر.ي</div></div></div>'; }).join('') +
     footer('حفظ الأسعار') + '</form>');
 }
+window.mfSaveRates = function(f){ send(f, 'setRates', { USD: f.USD.value, SAR: f.SAR.value, OMR: f.OMR.value }, '✓ حُدّث سعر الصرف'); };
 function formPassword(){
   openSheet('<form data-submit="mfSavePassword">' + sheetHead('تغيير كلمة السر','6 أحرف أو أرقام على الأقل') +
     '<div class="fg"><label>كلمة السر الحالية</label><input class="inp" type="password" name="old" autocomplete="current-password" required></div>' +
@@ -859,29 +1314,19 @@ function formPassword(){
     '<div class="fg"><label>تأكيد كلمة السر الجديدة</label><input class="inp" type="password" name="new2" autocomplete="new-password" minlength="6" required></div>' +
     footer('حفظ') + '</form>');
 }
-window.mfSavePassword = async function(f){
-  const old = f.old.value, n1 = f.new1.value, n2 = f.new2.value;
-  if (n1 !== n2){ toast('كلمتا السر غير متطابقتين'); return; }
-  const btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span>';
-  try{
-    const r = await api('changePassword', { oldPassword:old, newPassword:n1 });
-    if (r.ok){ closeSheet(); toast('✓ تم تغيير كلمة السر'); } else toast(r.error || 'تعذّر الحفظ');
-  }catch(e){ toast('تعذّر الاتصال'); }
-  finally{ btn.disabled = false; btn.textContent = 'حفظ'; }
+window.mfSavePassword = function(f){
+  if (f.new1.value !== f.new2.value){ toast('كلمتا السر غير متطابقتين'); return; }
+  send(f, 'changePassword', { oldPassword: f.old.value, newPassword: f.new1.value }, '✓ تم تغيير كلمة السر');
 };
-function pendingSave(){ closeSheet(); toast('تم التصميم ✓ الحفظ الفعلي يتفعّل في المرحلة 4'); }
-
-function infoSheet(t, s, icon){
-  openSheet(sheetHead(t, s) + '<div class="list"><div class="empty"><div class="ic">'+ic(icon,28)+'</div><b>قيد التجهيز</b>يتفعّل هذا القسم بعد إدخال البيانات</div></div><button class="btn-ghost" data-close>إغلاق</button>');
-}
 
 /* ---------- guide ---------- */
 function openGuide(){
   const p = S.profile;
   const steps = [['اضغط الزر الذهبي ➕','في أسفل الشاشة بالمنتصف'],
     ['اختر "مصروف" أو "دخل"','حسب ما تريد تسجيله'],
-    ['اكتب المبلغ واضغط حفظ','وهذا كل شيء ✓']];
+    ['اكتب المبلغ واختر البند واضغط حفظ','وهذا كل شيء ✓']];
   if (!p.isAdmin) steps.push(['تحتاج مبلغاً إضافياً؟','اضغط "طلب زيادة" واكتب السبب']);
+  else steps.push(['تابع مؤشر العجز ومستشار العائلة','في الرئيسية: حد المصروف اليومي ونصائح السداد']);
   openSheet(sheetHead('أهلاً '+first(p.name)+' 👋','طريقة الاستخدام في خطوات بسيطة') +
     steps.map(function(s,i){ return '<div class="guide-step"><div class="n">'+(i+1)+'</div><div><b>'+s[0]+'</b><p>'+s[1]+'</p></div></div>'; }).join('') +
     '<p style="color:var(--muted);font-size:13.5px;margin:10px 2px 4px">💡 تجد هذا الدليل دائماً في: حسابي ← دليل الاستخدام</p>' +
