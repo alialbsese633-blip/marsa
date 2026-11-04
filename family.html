@@ -355,6 +355,11 @@ body.big .catgrid{grid-template-columns:repeat(3,1fr)}
 .mini-btn.gold{background:linear-gradient(135deg,var(--gold-soft),var(--gold));border-color:transparent;color:var(--navy-900)}
 .btn-danger{width:100%;height:52px;border-radius:16px;background:#FDECEA;color:var(--red);font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 .icon-btn .dot{display:block}
+.smart-box{margin-top:10px;background:linear-gradient(135deg,#F7F1DC,#FBF8EE);border:1px solid #EFE6C8;border-radius:16px;padding:10px 14px}
+.sb-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14.5px;border-bottom:1px dashed #E8DDB8}
+.sb-row:last-of-type{border-bottom:0}
+.sb-row span{display:flex;align-items:center;gap:6px;color:#5C4A10;font-weight:600}
+.sb-row b{font-weight:800}.sb-row b small{color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
@@ -1229,32 +1234,56 @@ window.mfSaveExpense = function(f){
     who: pv(f,'who'), fund: pv(f,'fund'), date: f.date.value, note: f.note.value }, '✓ حُفظ المصروف');
 };
 
-/* حقول توزيع الدخل على الصناديق (للمدراء) مع اقتراح ذكي عند وجود عجز */
+/* توزيع الدخل على الصناديق: ذكي (افتراضي) أو يدوي — نفس معادلة الخادم للمعاينة */
+function smartSplit(m, yer){
+  if (!(yer > 0) || !m) return null;
+  let living = Math.max(0, m.dailyAvg * m.daysToNext + m.allowPending - Math.max(0, m.fundExpenses));
+  living = Math.min(yer, Math.max(living, Math.round(yer * 0.15)));
+  let rest = yer - living;
+  const debts = Math.min(rest, Math.max(0, m.urgentNeed - Math.max(0, m.fundDebts)));
+  rest -= debts;
+  let extra = 0, sav = 0;
+  if (rest > 0){ if (m.deferredNeed > 0) extra = Math.min(m.deferredNeed, Math.round(rest / 2)); sav = rest - extra; }
+  const r = function(v){ return Math.round(v / 100) * 100; };
+  const d = r(debts + extra), s = r(sav);
+  return { debts:d, savings:s, expenses:yer - d - s };
+}
 function splitFields(){
-  const D = S.data, sp = D.split || {debts:20,savings:10,expenses:70};
-  const X = D.insights && D.insights.deficit;
-  const sugg = X && X.amount < 0 ? '<button type="button" class="mini-btn gold" id="splitSugg" style="margin-top:8px">اقتراح لهذا الشهر: الأولوية للديون العاجلة</button>' : '';
-  return '<div class="fg"><label>التوزيع على الصناديق (%)</label><div class="split3">' +
-    '<div><small>ديون</small><input class="inp num" name="sd" inputmode="numeric" value="'+sp.debts+'"></div>' +
-    '<div><small>ادخار</small><input class="inp num" name="ss" inputmode="numeric" value="'+sp.savings+'"></div>' +
-    '<div><small>مصاريف</small><input class="inp num" name="se" value="'+sp.expenses+'" readonly></div></div>'+sugg+'</div>';
+  const sp = S.data.split || {debts:20,savings:10,expenses:70};
+  return '<div class="fg"><label>التوزيع على الصناديق</label><div class="seg" data-name="smode"><button type="button" class="on" data-v="auto">'+ic('spark',15)+' ذكي (أنا أوزع)</button><button type="button" data-v="manual">يدوي</button></div>' +
+    '<div id="smartBox" class="smart-box"><div class="sb-row"><span>اكتب المبلغ لترى التوزيع المقترح</span></div></div>' +
+    '<div id="manualBox" class="split3 hidden" style="margin-top:10px">' +
+      '<div><small>ديون %</small><input class="inp num" name="sd" inputmode="numeric" value="'+sp.debts+'"></div>' +
+      '<div><small>ادخار %</small><input class="inp num" name="ss" inputmode="numeric" value="'+sp.savings+'"></div>' +
+      '<div><small>مصاريف %</small><input class="inp num" name="se" value="'+sp.expenses+'" readonly></div></div></div>';
 }
 function bindSplit(f){
   if (!f.sd) return;
+  const box = document.getElementById('smartBox'), man = document.getElementById('manualBox');
+  function yerVal(){ const cur = f.currency.value, rate = (S.data.rates || {})[cur] || (cur === 'YER' ? 1 : 0); return Math.round((Number(String(f.amount.value).replace(/,/g,'')) || 0) * rate); }
+  function preview(){
+    const y = yerVal(), m0 = S.data.smart;
+    const m = m0 && pv(f,'expectedId') ? Object.assign({}, m0, { daysToNext: m0.daysAfterNext }) : m0;
+    const R = smartSplit(m, y);
+    if (!R){ box.innerHTML = '<div class="sb-row"><span>'+(y?'لا تتوفر بيانات كافية':'اكتب المبلغ لترى التوزيع المقترح')+'</span></div>'; return; }
+    const pc = function(v){ return Math.round(v / y * 100); };
+    box.innerHTML =
+      '<div class="sb-row"><span>'+ic('debt',15)+' الديون</span><b class="num">'+fmt(R.debts)+' <small>'+pc(R.debts)+'%</small></b></div>' +
+      '<div class="sb-row"><span>'+ic('wallet',15)+' المصاريف</span><b class="num">'+fmt(R.expenses)+' <small>'+pc(R.expenses)+'%</small></b></div>' +
+      '<div class="sb-row"><span>'+ic('save',15)+' الادخار</span><b class="num">'+fmt(R.savings)+' <small>'+pc(R.savings)+'%</small></b></div>' +
+      '<p class="note-s">المصاريف تكفي المعيشة '+m.daysToNext+' يوماً (متوسط '+fmt(m.dailyAvg)+' ر.ي يومياً'+(m.allowPending?' + مخصصات '+fmt(m.allowPending):'')+')، والباقي للديون العاجلة'+(R.savings?'، والفائض للادخار':'')+'.</p>';
+  }
   function upd(){ f.se.value = Math.max(0, 100 - (Number(f.sd.value)||0) - (Number(f.ss.value)||0)); }
   f.sd.oninput = upd; f.ss.oninput = upd;
-  const b = document.getElementById('splitSugg');
-  if (b) b.onclick = function(){
-    const X = S.data.insights.deficit, amt = Number(f.amount.value) || 0;
-    const cur = f.currency.value, rate = (S.data.rates || {})[cur] || (cur === 'YER' ? 1 : 0);
-    const yer = amt * rate;
-    if (!yer){ toast('اكتب المبلغ أولاً'); return; }
-    const need = Math.max(0, X.urgent - Math.max(0, X.cash));
-    let d = Math.min(90, Math.ceil(need / yer * 100 / 5) * 5);
-    f.sd.value = d; f.ss.value = 0; upd();
-    toast('ديون '+d+'% · ادخار 0% · مصاريف '+(100-d)+'%');
-  };
+  f.amount.addEventListener('input', preview); f.currency.addEventListener('change', preview);
+  f.querySelectorAll('[data-name="smode"] button').forEach(function(btn){
+    const old = btn.onclick;
+    btn.onclick = function(){ old && old(); const auto = btn.dataset.v === 'auto'; box.classList.toggle('hidden', !auto); man.classList.toggle('hidden', auto); };
+  });
+  f._preview = preview;
+  preview();
 }
+function splitPayload(f){ return pv(f,'smode') === 'manual' ? { debts: f.sd.value, savings: f.ss.value } : { auto: true }; }
 function formIncome(){
   const p = S.profile, D = S.data;
   const people = (D.people || []);
@@ -1272,14 +1301,14 @@ function formIncome(){
   f.querySelectorAll('[data-name="expectedId"] button').forEach(function(btn){
     const old = btn.onclick;
     btn.onclick = function(){ old && old(); const e = exp.filter(function(x){ return x.id === btn.dataset.v; })[0]; if (!e) return;
-      f.amount.value = e.amount; f.currency.value = e.cur; f.note.value = e.note || '';
+      f.amount.value = e.amount; f.currency.value = e.cur; f.note.value = e.note || ''; f._preview && f._preview();
       f.querySelectorAll('[data-name="who"] button').forEach(function(w){ w.classList.toggle('on', w.dataset.v === e.who); });
     };
   });
 }
 window.mfSaveIncome = function(f){
   const body = { amount: f.amount.value, currency: f.currency.value, kind: pv(f,'kind'), date: f.date.value, note: f.note.value };
-  if (S.profile.isAdmin){ body.who = pv(f,'who'); body.expectedId = pv(f,'expectedId'); body.split = { debts: f.sd.value, savings: f.ss.value }; }
+  if (S.profile.isAdmin){ body.who = pv(f,'who'); body.expectedId = pv(f,'expectedId'); body.split = splitPayload(f); }
   send(f, 'addIncome', body, '✓ حُفظ الدخل ووُزّع على الصناديق');
 };
 function formSurprise(){
@@ -1287,7 +1316,7 @@ function formSurprise(){
     '<div class="fg"><label>المصدر</label><input class="inp" name="note" placeholder="مثال: هدية، مكافأة، بيع..." required></div>' + splitFields() + dateField() + footer('إضافة وإعادة الحساب') + '</form>');
   bindSplit(document.querySelector('#sheetBody form'));
 }
-window.mfSaveSurprise = function(f){ send(f, 'addIncome', { amount: f.amount.value, currency: f.currency.value, kind: 'مفاجئ', who: S.profile.name, note: f.note.value, date: f.date.value, split: { debts: f.sd.value, savings: f.ss.value } }, '✓ أُضيف الدخل المفاجئ'); };
+window.mfSaveSurprise = function(f){ send(f, 'addIncome', { amount: f.amount.value, currency: f.currency.value, kind: 'مفاجئ', who: S.profile.name, note: f.note.value, date: f.date.value, split: splitPayload(f) }, '✓ أُضيف الدخل المفاجئ'); };
 function formSupport(){
   openSheet('<form data-submit="mfSaveSupport">' + sheetHead('دعم مرسل','مبلغ أرسلته للعائلة من عمان') + amountField('SAR') +
     '<div class="fg"><label>المستلم</label><div class="pick" data-name="to"><button type="button" class="on" data-v="محمد محسن">محمد</button><button type="button" data-v="نهاية علي صالح">نهاية</button><button type="button" data-v="محسن عبدالله صالح">الوالد</button></div></div>' +
