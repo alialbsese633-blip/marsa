@@ -642,6 +642,7 @@ function planCard(D){
     '<div class="pl"><span>الديون القائمة</span><b class="num" style="color:var(--red)">− '+fmt(P.debts)+' ر.ي</b></div>' +
     '<div class="pl net'+(P.net<0?' neg':'')+'"><span>المتبقي بعد السداد</span><b class="num">'+fmt(P.net)+' ر.ي</b></div>' +
     (P.pendingRate ? '<div class="note-s">⚠️ '+P.pendingRate+' دين بعملة أجنبية غير محسوب، بانتظار سعر الصرف</div>' : '') +
+    (P.deferred ? '<div class="note-s">الديون العاجلة فقط محسوبة. يوجد '+P.deferredCount+' دين يحتمل التأخير بقيمة '+fmt(P.deferred)+' ر.ي غير داخل الخطة.</div>' : '') +
   '</div>';
 }
 
@@ -695,8 +696,8 @@ function actList(){
   const L = D.activity.filter(function(x){
     if (f === 'المصاريف') return x.kind === 'expense';
     if (f === 'الدخل') return x.kind === 'income';
-    if (f === 'البيت الأول' || f === 'البيت الثاني') return x.house === f;
-    if (f === 'الأفراد') return x.kind === 'expense' && x.house && x.house !== 'البيت الأول' && x.house !== 'البيت الثاني';
+    if (f === 'البيت الأول' || f === 'البيت الثاني') return x.house === f || x.house === 'البيتين';
+    if (f === 'الأفراد') return x.kind === 'expense' && x.house && x.house !== 'البيت الأول' && x.house !== 'البيت الثاني' && x.house !== 'البيتين';
     return true;
   });
   return L.length ? '<div class="list">'+L.map(actRow).join('')+'</div>' : emptyList('list','السجل فارغ','كل ما تسجله سيظهر هنا مرتباً بالتاريخ');
