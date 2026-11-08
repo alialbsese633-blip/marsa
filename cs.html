@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>خدمة العملاء والحجوزات | مرسى</title>
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="hr-config.js"></script>
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<meta name="theme-color" content="#F3F6F6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F6F6;--surface:#fff;--surface-2:#F1F5F6;--border:#DFE7E9;--ink:#0E2429;--ink-2:#44585D;--muted:#7D9095;
+--brand:#287070;--brand-deep:#16474A;--brand-soft:#E4F0F0;--good:#1E7A55;--good-soft:#E2F2EA;--warn:#9A6A10;--warn-soft:#FAF1DC;--bad:#B03A33;--bad-soft:#FAE7E5;
+--font:"IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif;--shadow:0 1px 2px rgba(10,50,57,.05),0 6px 20px -12px rgba(10,50,57,.18)}
+@media (prefers-color-scheme:dark){:root{--bg:#0A1719;--surface:#102226;--surface-2:#15292E;--border:#24393E;--ink:#E7F2F3;--ink-2:#B1C4C7;--muted:#7F9599;--brand:#2FB3C4;--brand-deep:#061C20;--brand-soft:#0F3A40;--good:#52C28E;--good-soft:#123427;--warn:#E0BA58;--warn-soft:#382D12;--bad:#E8857B;--bad-soft:#3C1E1B}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;padding-bottom:env(safe-area-inset-bottom,0)}
+a{color:inherit}button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.bar{background:var(--brand-deep);color:#fff;position:sticky;top:0;z-index:5}.bar-in{max-width:1180px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.bar h1{font-size:17px;margin:0;font-weight:600}.bar a{color:#fff;text-decoration:none;opacity:.85}.sp{flex:1}.who{font-size:13px;opacity:.85}
+.wrap{max-width:1180px;margin:auto;padding:14px 16px 40px}
+.cust{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px}
+.cust label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);min-height:42px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}.tabs button{border:1px solid var(--border);background:var(--surface);padding:10px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;font-weight:500}
+.tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 10px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.lbl{font-size:12px;color:var(--muted);margin-bottom:3px;display:block}
+.btn{border:0;background:var(--brand);color:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;min-height:42px}
+.btn.alt{background:var(--brand-soft);color:var(--brand-deep)}.btn.wa{background:#1F8F55}.btn.bad{background:var(--bad-soft);color:var(--bad)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--border);background:var(--surface-2);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px}.chip.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-deep);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border)}th{color:var(--muted);font-weight:500;font-size:12px}
+.num{font-variant-numeric:tabular-nums}.tot td{font-weight:700;font-size:16px}
+.note{padding:10px 12px;border-radius:10px;font-size:13px;margin:8px 0}.note.w{background:var(--warn-soft);color:var(--warn)}.note.b{background:var(--bad-soft);color:var(--bad)}.note.g{background:var(--good-soft);color:var(--good)}
+.opt{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--surface-2)}
+.rep{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--surface)}.rep h3{margin:0 0 6px;font-size:15px}.rep p{margin:0 0 8px;white-space:pre-wrap;line-height:1.8;color:var(--ink-2)}
+.var{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:0 4px}
+.small{font-size:12px;color:var(--muted)}.hide{display:none!important}
+.step{border:2px solid var(--brand);border-radius:14px;padding:16px;background:var(--brand-soft)}.step h3{margin:0 0 6px}
+.prog{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:8px 0}.prog i{display:block;height:100%;background:var(--brand)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--brand-deep);color:#fff;padding:10px 18px;border-radius:99px;z-index:9;display:none}
+#qprint{display:none}
+@media (max-width:640px){.cust{grid-template-columns:1fr}.bar h1{font-size:15px}}
+@media print{body>*:not(#qprint){display:none!important}#qprint{display:block;color:#000;background:#fff;padding:24px;direction:rtl}#qprint table th,#qprint table td{border-bottom:1px solid #ccc;color:#000}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="الرئيسية">→ مرسى</a><h1>خدمة العملاء والحجوزات</h1><span class="sp"></span><span class="who" id="who"></span></div></header>
+<div class="wrap" id="app"><div class="card">جارٍ التحقق من الدخول…</div></div>
+<div class="toast" id="toast"></div>
+<div id="qprint"></div>
+<script>
+(function(){
+'use strict';
+var API=String((window.HR_CONFIG||{}).API_URL||'').trim(),TK='marsa_token',KEY='cs_v1',USER=null,TOKEN=null;
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(m){var t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(function(){t.style.display='none'},2200)}
+function api(b){return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(b)}).then(function(r){return r.json()})}
+
+/* ---------- البيانات الافتراضية (لا أسعار مُختلقة: الإدارة تُدخل الأسعار) ---------- */
+var REPLIES=[
+{c:'أسعار وتوفر',t:'طلب التواريخ',b:'أهلاً {{الاسم}}، يسعدنا خدمتك. لأعطيك السعر والتوفر، تكرّم اكتب لنا تاريخ الوصول والمغادرة وعدد الأشخاص.'},
+{c:'أسعار وتوفر',t:'متابعة عرض سعر',b:'أهلاً {{الاسم}}، نتابع معك بخصوص عرض السعر الذي أرسلناه. هل ما زلت مهتماً؟ العرض متاح حتى {{انتهاء العرض}}.'},
+{c:'موقع ومرافق',t:'إرسال الموقع',b:'تفضل موقع {{البناية}} على الخريطة: {{رابط الموقع}}'},
+{c:'دفع وتأكيد',t:'خطوات التأكيد والدفع',b:'للتأكيد نرسل لك العقد الرسمي أولاً بالتواريخ والسعر وسياسة الإلغاء، ثم رابط الدفع الرسمي لمبلغ العربون {{العربون}} ر.ع. بعد الدفع يصلك إيصال مرقّم وقسيمة تأكيد الحجز.'},
+{c:'دفع وتأكيد',t:'أوقات الدخول والخروج',b:'{{أوقات الدخول والخروج المعتمدة}}'},
+{c:'دفع وتأكيد',t:'سياسة الإلغاء',b:'{{نص سياسة الإلغاء المعتمد من الإدارة}}'},
+{c:'شكاوى',t:'اعتذار واستلام شكوى',b:'نعتذر لك عمّا حصل، ونقدّر إبلاغك لنا. سنتابع الأمر بأنفسنا الآن ونعود إليك خلال {{المدة}}.'},
+{c:'كسب الثقة',t:'هل أنتم شركة مرخصة؟',b:'نحن شركة العالمية السعيدة المتحدة، سجل تجاري رقم 1428061، ونعمل باسم نسائم صلالة للشقق المفروشة. يمكنك التحقق من بياناتنا وأرقامنا من موقعنا الرسمي nassayem.com، أو الاتصال بنا على 99551237.'},
+{c:'كسب الثقة',t:'خائف من دفع العربون',b:'سؤالك في محله. قبل أي دفع نرسل لك العقد الرسمي بالتواريخ والسعر وسياسة الإلغاء، ويتم الدفع عبر رابط الدفع الرسمي للشركة فقط، وبعده يصلك إيصال مرقّم وقسيمة تأكيد حجز.'},
+{c:'كسب الثقة',t:'هل الصور حقيقية؟',b:'الصور من بناياتنا الفعلية. نرسل لك الآن فيديو حديثاً للوحدة نفسها، ويمكنك مقارنته بما في موقعنا الرسمي nassayem.com.'},
+{c:'كسب الثقة',t:'أريد رؤية الشقة قبل الدفع',b:'نرسل لك جولة فيديو للوحدة ومبنى البناية وموقعها على الخريطة، {{ويمكن ترتيب مكالمة فيديو مع مشرف البناية}}.'},
+{c:'كسب الثقة',t:'لا أريد التحويل لحساب شخصي',b:'{{الدفع يتم عبر رابط الدفع الرسمي أو حساب باسم الشركة فقط}}، ولا نطلب التحويل إلى أي حساب شخصي.'},
+{c:'كسب الثقة',t:'سمعت عن حالات نصب',b:'نتفهم حذرك، فهذا يحدث فعلاً في المواسم. للأمان: لا تدفع إلا بعد استلام العقد، وتأكد أن الرابط باسم الشركة، ويمكنك الاتصال بالرقم الرسمي المنشور في nassayem.com للتأكد من أي طلب دفع.'},
+{c:'كسب الثقة',t:'أفضّل الحجز عبر منصة',b:'يمكنك الحجز عبر Booking.com {{رابط البناية}} إن كان ذلك أريح لك، ونرحب بك أيضاً بالحجز المباشر معنا.'}
+];
+var LESSONS=[
+{t:'الجولة السريعة للشاشة',s:['اكتب اسم عميل تجريبي ورقمه في الشريط العلوي.','افتح تبويب «عرض السعر» ثم «الردود السريعة».','اضغط «/» على الكيبورد وشاهد كيف يذهب المؤشر لبحث الردود.']},
+{t:'عرض السعر: 23/7 إلى 5/8',s:['اختر البناية ونوع الوحدة.','اختر الوصول 23/7 والمغادرة 5/8 وتأكد أن الليالي 13.','اضغط «احسب» وراجع تفصيل الفترات.','اضغط «نسخ النص» ثم «فتح واتساب».']},
+{t:'الرد السريع والمتغيّرات',s:['ابحث عن «سياسة الإلغاء».','املأ الحقول الصفراء (المتغيّرات) قبل الإرسال.','اضغط «نسخ» أو «واتساب».']},
+{t:'العميل المتشكك',s:['افتح فئة «كسب الثقة».','اختر الرد المناسب لسؤال العميل: ترخيص، عربون، صور، نصب.','أرسل رابط الموقع الرسمي مع الرد.']},
+{t:'العقد والعربون',s:['بعد قول العميل «تأكيد»، افتح صفحة الاستقبال لإصدار العقد (حجز جديد).','أرسل رابط الدفع الرسمي بمبلغ العربون الصحيح.','لا تؤكد الحجز قبل تأكد المحاسب من الدفع.']},
+{t:'الزحام والمكالمات الفائتة',s:['إن لم تستطع الرد على الاتصال، أرسل رد «المكالمة الفائتة» من الردود السريعة.','دوّن في ملاحظات الفريق أي محادثة تركتها.','لا ترد على محادثة يكتب فيها زميلك.']}
+];
+var DEF={buildings:['الحي التجاري','المعتزة (صلالة الوسطى)','عوقد','الوادي','الحصيلة','السعادة','السعادة نستو'],types:['غرفة واحدة','غرفتان','ثلاث غرف'],
+rates:[],los:[],presets:[],depositPct:0,validHours:24,caps:{rcp:0,acc:0,hr:100,gm:100},replies:null,hist:[],guide:{}};
+var S=load();
+function load(){try{var j=JSON.parse(localStorage.getItem(KEY)||'{}');return Object.assign(JSON.parse(JSON.stringify(DEF)),j)}catch(e){return JSON.parse(JSON.stringify(DEF))}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('تعذّر الحفظ على هذا الجهاز')}}
+function isAdmin(){return USER&&(USER.role==='hr'||USER.role==='gm')}
+function reps(){return S.replies||REPLIES}
+
+/* ---------- تواريخ وحساب ---------- */
+function pd(s){var p=String(s).split('-');return Date.UTC(+p[0],+p[1]-1,+p[2])}
+function fd(ms){return new Date(ms).toISOString().slice(0,10)}
+function dm(s){var p=String(s).split('-');return +p[2]+'/'+(+p[1])}
+function m3(n){return (Math.round(n*1000)/1000).toFixed(3)}
+function nightsList(a,b){var o=[],x=pd(a),y=pd(b);for(;x<y;x+=864e5)o.push(fd(x));return o}
+function pick(b,t,d){var best=null;S.rates.forEach(function(r){
+  if((r.building!=='*'&&r.building!==b)||(r.type!=='*'&&r.type!==t)||d<r.from||d>r.to)return;
+  var sc=(+r.prio||0)*1000+(r.building!=='*'?100:0)+(r.type!=='*'?10:0)-(pd(r.to)-pd(r.from))/864e5/1000;
+  if(!best||sc>best.sc)best={r:r,sc:sc}});return best&&best.r}
+function quote(o){
+  var ns=nightsList(o.from,o.to);if(!ns.length)return{err:'تاريخ المغادرة يجب أن يكون بعد الوصول'};
+  var miss=[],lines=[],minStay=0;
+  ns.forEach(function(d){var r=pick(o.b,o.t,d);if(!r){miss.push(d);return}minStay=Math.max(minStay,+r.min||0);lines.push({d:d,rate:+r.rate,label:r.label||'سعر الليلة'})});
+  if(miss.length)return{err:'لا يوجد سعر للتواريخ: '+miss.slice(0,4).map(dm).join('، ')+(miss.length>4?' …':'')+' — أضف الفترة في «الأسعار» (للإدارة).'};
+  var groups=[];lines.forEach(function(l){var g=groups[groups.length-1];if(g&&g.rate===l.rate&&g.label===l.label&&pd(l.d)-pd(g.to)===864e5){g.to=l.d;g.n++}else groups.push({from:l.d,to:l.d,rate:l.rate,label:l.label,n:1})});
+  var sub=lines.reduce(function(a,l){return a+l.rate},0),losPct=0;
+  S.los.forEach(function(x){if(ns.length>=+x.min&&+x.pct>losPct)losPct=+x.pct});
+  var cap=(S.caps||{})[USER&&USER.role];if(cap==null)cap=0;
+  var man=Math.max(0,+o.manual||0),capErr=man>cap?'الخصم اليدوي يتجاوز صلاحيتك ('+cap+'%) — يلزم اعتماد المشرف/المدير':'';
+  var los=sub*losPct/100,mn=capErr?0:sub*man/100,total=sub-los-mn;
+  return{ns:ns.length,groups:groups,sub:sub,losPct:losPct,los:los,man:man,mn:mn,capErr:capErr,total:total,avg:total/ns.length,
+    dep:S.depositPct>0?total*S.depositPct/100:0,minStay:minStay,minWarn:minStay>ns.length?'الحد الأدنى للإقامة في هذه الفترة '+minStay+' ليالٍ':''}
+}
+function quoteText(o,q){
+  var c=cust();var L=['أهلاً '+(c.name||'بك')+'،','عرض سعر إقامتكم في نسائم صلالة — '+o.b+' (خريف ظفار)',
+  'الوصول: '+dm(o.from)+'  |  المغادرة: '+dm(o.to)+'  ('+q.ns+' ليلة)','الوحدة: '+o.t];
+  q.groups.forEach(function(g){L.push('• '+dm(g.from)+(g.n>1?' – '+dm(g.to):'')+': '+g.n+' ليلة × '+m3(g.rate)+' ر.ع')});
+  if(q.los)L.push('خصم الإقامة الطويلة '+q.losPct+'%: −'+m3(q.los)+' ر.ع');
+  if(q.mn)L.push('خصم خاص '+q.man+'%: −'+m3(q.mn)+' ر.ع');
+  L.push('الإجمالي: '+m3(q.total)+' ر.ع (بمتوسط '+m3(q.avg)+' ر.ع لليلة)');
+  if(q.dep)L.push('عربون التثبيت: '+m3(q.dep)+' ر.ع');
+  L.push('العرض صالح لمدة '+S.validHours+' ساعة من إرساله.','للتأكيد اكتب «تأكيد» وسنرسل العقد ورابط الدفع الرسمي.','نسائم صلالة — حيث تسكن الراحة | nassayem.com');
+  return L.join('\n')
+}
+
+/* ---------- واتساب واتصال ---------- */
+function phone(){var p=String(($('#cPhone')||{}).value||'').replace(/[^\d]/g,'');if(p.length===8)p='968'+p;return p}
+function cust(){return{name:(($('#cName')||{}).value||'').trim(),phone:phone()}}
+function wa(text){var p=phone();if(!p){toast('اكتب رقم العميل أولاً');return}window.open('https://wa.me/'+p+'?text='+encodeURIComponent(text),'_blank','noopener')}
+function copy(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('تم النسخ')},fb)}else fb();function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('تم النسخ')}catch(e){toast('تعذّر النسخ')}a.remove()}}
+
+/* ---------- الواجهة ---------- */
+var TAB='quote',CAT='الكل',LAST=null;
+function shell(){
+  var tabs=[['quote','عرض السعر'],['replies','الردود السريعة'],['guide','الدليل التفاعلي']];if(isAdmin())tabs.push(['rates','الأسعار والإعدادات']);
+  $('#app').innerHTML='<div class="cust"><div><label>اسم العميل</label><input id="cName" autocomplete="off"></div><div><label>رقم العميل (واتساب/اتصال)</label><input id="cPhone" inputmode="tel" placeholder="9XXXXXXX" autocomplete="off"></div><div style="display:flex;align-items:end;gap:6px"><button class="btn wa" id="cWa" type="button">واتساب</button><button class="btn alt" id="cTel" type="button">اتصال</button></div></div>'+
+  '<div class="tabs" id="tabs">'+tabs.map(function(t){return '<button type="button" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div><div id="pane"></div>';
+  $('#cWa').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}window.open('https://wa.me/'+p,'_blank','noopener')};
+  $('#cTel').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}location.href='tel:+'+p};
+  $('#tabs').onclick=function(e){var b=e.target.closest('button[data-t]');if(b)go(b.dataset.t)};
+  go(TAB)
+}
+function go(t){TAB=t;$$('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});({quote:pQuote,replies:pReplies,guide:pGuide,rates:pRates})[t]()}
+function opts(a,v){return a.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>'}).join('')}
+
+function pQuote(){
+  var today=fd(Date.now()),pre=S.presets.length?'<div class="chips" id="pre" style="margin-bottom:10px">'+S.presets.map(function(p,i){return '<button type="button" class="chip" data-i="'+i+'">'+esc(p.name)+'</button>'}).join('')+'</div>':'';
+  $('#pane').innerHTML='<div class="card"><h2>احسب عرض السعر</h2>'+pre+
+  '<div class="grid"><div><span class="lbl">البناية</span><select id="qB">'+opts(S.buildings)+'</select></div><div><span class="lbl">نوع الوحدة</span><select id="qT">'+opts(S.types)+'</select></div>'+
+  '<div><span class="lbl">الوصول</span><input type="date" id="qF" value="'+today+'"></div><div><span class="lbl">المغادرة</span><input type="date" id="qO"></div>'+
+  '<div><span class="lbl">الليالي</span><input id="qN" readonly></div><div><span class="lbl">خصم يدوي %</span><input id="qM" type="number" min="0" max="100" value="0"></div></div>'+
+  '<div class="row" style="margin-top:12px"><button class="btn" id="qGo" type="button">احسب</button></div>'+
+  (S.rates.length?'':'<div class="note w">لم تُدخل أسعار بعد. '+(isAdmin()?'افتح «الأسعار والإعدادات» وأضف الفترات.':'اطلب من الإدارة إدخال الأسعار.')+'</div>')+'</div><div id="qOut"></div>';
+  function nn(){var f=$('#qF').value,o=$('#qO').value;$('#qN').value=f&&o?Math.max(0,(pd(o)-pd(f))/864e5):''}
+  $('#qF').onchange=function(){if(!$('#qO').value||$('#qO').value<=$('#qF').value)$('#qO').value=fd(pd($('#qF').value)+864e5);nn()};$('#qO').onchange=nn;
+  if($('#pre'))$('#pre').onclick=function(e){var b=e.target.closest('[data-i]');if(!b)return;var p=S.presets[+b.dataset.i];$('#qF').value=p.from;$('#qO').value=p.to;nn()};
+  $('#qGo').onclick=function(){
+    var o={b:$('#qB').value,t:$('#qT').value,from:$('#qF').value,to:$('#qO').value,manual:$('#qM').value};if(!o.from||!o.to){toast('اختر التاريخين');return}
+    var q=quote(o),out=$('#qOut');if(q.err){out.innerHTML='<div class="note b">'+esc(q.err)+'</div>';return}
+    LAST={o:o,q:q};var txt=quoteText(o,q);
+    out.innerHTML='<div class="card"><h2>العرض: '+q.ns+' ليلة</h2><table><thead><tr><th>الفترة</th><th>الليالي</th><th>سعر الليلة</th><th>المجموع</th></tr></thead><tbody>'+
+    q.groups.map(function(g){return '<tr><td>'+dm(g.from)+(g.n>1?' – '+dm(g.to):'')+' <span class="small">'+esc(g.label)+'</span></td><td class="num">'+g.n+'</td><td class="num">'+m3(g.rate)+'</td><td class="num">'+m3(g.n*g.rate)+'</td></tr>'}).join('')+
+    '<tr><td>المجموع الفرعي</td><td></td><td></td><td class="num">'+m3(q.sub)+'</td></tr>'+(q.los?'<tr><td>خصم الإقامة الطويلة '+q.losPct+'%</td><td></td><td></td><td class="num">−'+m3(q.los)+'</td></tr>':'')+(q.mn?'<tr><td>خصم خاص '+q.man+'%</td><td></td><td></td><td class="num">−'+m3(q.mn)+'</td></tr>':'')+
+    '<tr class="tot"><td>الإجمالي (ر.ع)</td><td></td><td class="small">متوسط '+m3(q.avg)+'</td><td class="num">'+m3(q.total)+'</td></tr>'+(q.dep?'<tr><td>العربون ('+S.depositPct+'%)</td><td></td><td></td><td class="num">'+m3(q.dep)+'</td></tr>':'')+'</tbody></table>'+
+    (q.capErr?'<div class="note b">'+q.capErr+'</div>':'')+(q.minWarn?'<div class="note w">'+q.minWarn+'</div>':'')+
+    '<div class="note w">تأكد من توفر الوحدة في لوحة الشقق (الاستقبال) قبل إرسال العرض.</div>'+
+    '<textarea id="qTxt">'+esc(txt)+'</textarea><div class="row" style="margin-top:10px"><button class="btn wa" id="qWa" type="button">فتح واتساب بالعرض</button><button class="btn alt" id="qCp" type="button">نسخ النص</button><button class="btn alt" id="qPr" type="button">طباعة / PDF</button></div></div>';
+    $('#qWa').onclick=function(){wa($('#qTxt').value);log(o,q)};$('#qCp').onclick=function(){copy($('#qTxt').value);log(o,q)};
+    $('#qPr').onclick=function(){printQ(o,q);log(o,q)};
+  };
+  hist()
+}
+function log(o,q){S.hist.unshift({at:Date.now(),by:USER&&USER.name,cust:cust(),o:o,total:q.total,ns:q.ns});S.hist=S.hist.slice(0,50);save();hist()}
+function hist(){var h=$('#qHist');if(!h){var d=document.createElement('div');d.id='qHist';$('#pane').appendChild(d);h=d}
+  h.innerHTML=S.hist.length?'<div class="card"><h2>آخر العروض (على هذا الجهاز)</h2><table><tbody>'+S.hist.slice(0,8).map(function(x){return '<tr><td>'+new Date(x.at).toLocaleString('ar-OM',{dateStyle:'short',timeStyle:'short'})+'</td><td>'+esc(x.cust.name||x.cust.phone||'—')+'</td><td>'+esc(x.o.b)+' · '+dm(x.o.from)+'–'+dm(x.o.to)+'</td><td class="num">'+m3(x.total)+'</td></tr>'}).join('')+'</tbody></table></div>':''}
+function printQ(o,q){var c=cust();$('#qprint').innerHTML='<div style="display:flex;align-items:center;gap:12px;border-bottom:2px solid #16474A;padding-bottom:10px;margin-bottom:14px"><img src="icons/logo-full.png" style="height:56px" alt=""><div><b style="font-size:20px">عرض سعر</b><div>نسائم صلالة للشقق المفروشة — حيث تسكن الراحة</div></div></div>'+
+  '<p>السيد/ة: <b>'+esc(c.name||'—')+'</b></p><p>'+esc(o.b)+' — '+esc(o.t)+' | الوصول '+dm(o.from)+' والمغادرة '+dm(o.to)+' ('+q.ns+' ليلة)</p><table><thead><tr><th>الفترة</th><th>الليالي</th><th>سعر الليلة</th><th>المجموع</th></tr></thead><tbody>'+
+  q.groups.map(function(g){return '<tr><td>'+dm(g.from)+(g.n>1?' – '+dm(g.to):'')+'</td><td>'+g.n+'</td><td>'+m3(g.rate)+'</td><td>'+m3(g.n*g.rate)+'</td></tr>'}).join('')+(q.los?'<tr><td colspan="3">خصم الإقامة الطويلة '+q.losPct+'%</td><td>−'+m3(q.los)+'</td></tr>':'')+(q.mn?'<tr><td colspan="3">خصم خاص</td><td>−'+m3(q.mn)+'</td></tr>':'')+
+  '<tr><td colspan="3"><b>الإجمالي (ر.ع)</b></td><td><b>'+m3(q.total)+'</b></td></tr>'+(q.dep?'<tr><td colspan="3">عربون التثبيت</td><td>'+m3(q.dep)+'</td></tr>':'')+'</tbody></table><p>العرض صالح لمدة '+S.validHours+' ساعة من إصداره. العربون يُخصم من الإجمالي.</p><p style="font-size:12px">العالمية السعيدة المتحدة ش.م.م — س.ت 1428061 — 99551237 — nassayem.com</p>';
+  window.print()}
+
+function pReplies(){
+  var cats=['الكل'].concat(reps().map(function(r){return r.c}).filter(function(v,i,a){return a.indexOf(v)===i}));
+  $('#pane').innerHTML='<div class="card"><input id="rq" placeholder="ابحث في الردود… (اضغط / للوصول السريع)" autocomplete="off"><div class="chips" id="rc" style="margin-top:10px">'+cats.map(function(c){return '<button type="button" class="chip'+(c===CAT?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div></div><div id="rl"></div>'+(isAdmin()?'<div class="card"><h2>إضافة رد</h2><div class="grid"><input id="nC" placeholder="الفئة"><input id="nT" placeholder="العنوان"></div><textarea id="nB" placeholder="نص الرد، والمتغيّرات بين {{ }}"></textarea><div class="row"><button class="btn" id="nAdd" type="button">حفظ الرد</button></div></div>':'');
+  $('#rc').onclick=function(e){var b=e.target.closest('[data-c]');if(b){CAT=b.dataset.c;pReplies()}};$('#rq').oninput=list;list();
+  if($('#nAdd'))$('#nAdd').onclick=function(){var c=$('#nC').value.trim(),t=$('#nT').value.trim(),b=$('#nB').value.trim();if(!c||!t||!b){toast('أكمل الحقول');return}S.replies=reps().concat([{c:c,t:t,b:b}]);save();pReplies();toast('تمت الإضافة')};
+  function list(){var q=$('#rq').value.trim(),a=reps().filter(function(r){return(CAT==='الكل'||r.c===CAT)&&(!q||(r.t+' '+r.b+' '+r.c).indexOf(q)>=0)});
+    $('#rl').innerHTML=a.map(function(r,i){var vars=(r.b.match(/\{\{[^}]+\}\}/g)||[]).filter(function(v,j,x){return x.indexOf(v)===j});
+      return '<div class="rep" data-k="'+esc(r.t)+'"><span class="small">'+esc(r.c)+'</span><h3>'+esc(r.t)+'</h3>'+(vars.length?'<div class="grid" style="margin-bottom:8px">'+vars.map(function(v){return '<input data-v="'+esc(v)+'" placeholder="'+esc(v.slice(2,-2))+'">'}).join('')+'</div>':'')+'<p>'+esc(r.b).replace(/\{\{[^}]+\}\}/g,function(m){return '<span class="var">'+m.slice(2,-2)+'</span>'})+'</p><div class="row"><button class="btn wa" data-a="wa" type="button">واتساب</button><button class="btn alt" data-a="cp" type="button">نسخ</button>'+(isAdmin()?'<button class="btn bad" data-a="rm" type="button">حذف</button>':'')+'</div></div>'}).join('')||'<div class="card small">لا نتائج</div>';
+    $$('#rl .rep').forEach(function(el){el.onclick=function(e){var b=e.target.closest('[data-a]');if(!b)return;var r=reps().filter(function(x){return x.t===el.dataset.k})[0];
+      if(b.dataset.a==='rm'){S.replies=reps().filter(function(x){return x!==r});save();pReplies();return}
+      var txt=r.b.replace(/\{\{[^}]+\}\}/g,function(m){var i=$$('input[data-v]',el).filter(function(x){return x.dataset.v===m})[0];var v=i&&i.value.trim();if(!v&&m==='{{الاسم}}')v=cust().name;return v||m});
+      var open=/\{\{/.test(txt);if(open&&!confirm('بقيت متغيّرات غير معبّأة، هل تريد المتابعة؟'))return;b.dataset.a==='wa'?wa(txt):copy(txt)}})}
+}
+
+function pGuide(){
+  var done=S.guide||{},n=LESSONS.length,k=LESSONS.filter(function(l,i){return done[i]}).length,cur=LESSONS.findIndex(function(l,i){return !done[i]});
+  var h='<div class="card"><h2>الدليل التفاعلي لتدريب الموظف الجديد</h2><div class="small">خطوة واحدة في كل مرة — اضغط «تمت» بعد تنفيذ الخطوة.</div><div class="prog"><i style="width:'+Math.round(k/n*100)+'%"></i></div><div class="small">أنجزت '+k+' من '+n+' دروس</div></div>';
+  if(cur<0)h+='<div class="note g">أنهيت كل الدروس. أنت جاهز للمناوبة.</div>';
+  else{var L=LESSONS[cur],g=S.guideStep||{},si=g[cur]||0;h+='<div class="step"><div class="small">الدرس '+(cur+1)+' من '+n+'</div><h3>'+esc(L.t)+'</h3><p>الخطوة '+(si+1)+' من '+L.s.length+':</p><p style="font-size:17px;font-weight:600">'+esc(L.s[si])+'</p><div class="row"><button class="btn" id="gOk" type="button">تمت</button>'+(si>0?'<button class="btn alt" id="gBk" type="button">السابقة</button>':'')+'</div></div>'}
+  h+='<div class="card"><h2>كل الدروس</h2>'+LESSONS.map(function(l,i){return '<div class="row" style="padding:6px 0"><span>'+(done[i]?'✅':'⬜')+'</span><span>'+esc(l.t)+'</span></div>'}).join('')+'<div class="row" style="margin-top:8px"><button class="btn alt" id="gRs" type="button">إعادة الدليل من البداية</button></div></div>'+
+  '<div class="card"><h2>اختصارات</h2><table><tbody><tr><td>/</td><td>البحث في الردود السريعة</td></tr><tr><td>Ctrl + Q</td><td>فتح عرض السعر</td></tr></tbody></table></div>';
+  $('#pane').innerHTML=h;
+  if($('#gOk'))$('#gOk').onclick=function(){S.guideStep=S.guideStep||{};var si=(S.guideStep[cur]||0)+1;if(si>=LESSONS[cur].s.length){done[cur]=1;S.guide=done}else S.guideStep[cur]=si;save();pGuide()};
+  if($('#gBk'))$('#gBk').onclick=function(){S.guideStep[cur]=Math.max(0,(S.guideStep[cur]||0)-1);save();pGuide()};
+  $('#gRs').onclick=function(){S.guide={};S.guideStep={};save();pGuide()}
+}
+
+function pRates(){
+  var B=['*'].concat(S.buildings),T=['*'].concat(S.types);
+  $('#pane').innerHTML='<div class="note w">الإعدادات تُحفظ على هذا الجهاز. للاستخدام على جهاز آخر استخدم «تصدير» ثم «استيراد».</div>'+
+  '<div class="card"><h2>إضافة فترة سعرية</h2><div class="grid"><div><span class="lbl">البناية (* = الكل)</span><select id="rB">'+opts(B)+'</select></div><div><span class="lbl">نوع الوحدة (* = الكل)</span><select id="rT">'+opts(T)+'</select></div><div><span class="lbl">من</span><input type="date" id="rF"></div><div><span class="lbl">إلى (شامل)</span><input type="date" id="rO"></div><div><span class="lbl">سعر الليلة (ر.ع)</span><input type="number" step="0.001" id="rR"></div><div><span class="lbl">الاسم</span><input id="rL" placeholder="مثال: ذروة الخريف"></div><div><span class="lbl">الأولوية</span><input type="number" id="rP" value="1"></div><div><span class="lbl">أدنى ليالٍ</span><input type="number" id="rM" value="0"></div></div><div class="row" style="margin-top:10px"><button class="btn" id="rAdd" type="button">إضافة</button></div></div>'+
+  '<div class="card"><h2>الفترات الحالية ('+S.rates.length+')</h2><div style="overflow:auto"><table><thead><tr><th>البناية</th><th>النوع</th><th>الفترة</th><th>السعر</th><th>الاسم</th><th>أولوية</th><th></th></tr></thead><tbody>'+
+  S.rates.map(function(r,i){return '<tr><td>'+esc(r.building)+'</td><td>'+esc(r.type)+'</td><td>'+dm(r.from)+' – '+dm(r.to)+'</td><td class="num">'+m3(r.rate)+'</td><td>'+esc(r.label)+'</td><td>'+r.prio+'</td><td><button class="btn bad" data-d="'+i+'" type="button">حذف</button></td></tr>'}).join('')+'</tbody></table></div></div>'+
+  '<div class="card"><h2>مواسم جاهزة (أزرار سريعة)</h2><div class="grid"><input id="pN" placeholder="الاسم"><input type="date" id="pF"><input type="date" id="pO"><button class="btn alt" id="pAdd" type="button">إضافة</button></div><div class="chips" style="margin-top:8px">'+S.presets.map(function(p,i){return '<span class="chip">'+esc(p.name)+' '+dm(p.from)+'–'+dm(p.to)+' <a href="#" data-p="'+i+'">✕</a></span>'}).join('')+'</div></div>'+
+  '<div class="card"><h2>الخصومات والعربون والصلاحيات</h2><div class="grid"><div><span class="lbl">خصم الإقامة الطويلة: من ليالٍ</span><input type="number" id="lM" value="'+(S.los[0]?S.los[0].min:'')+'"></div><div><span class="lbl">النسبة %</span><input type="number" id="lP" value="'+(S.los[0]?S.los[0].pct:'')+'"></div><div><span class="lbl">العربون %</span><input type="number" id="dP" value="'+S.depositPct+'"></div><div><span class="lbl">صلاحية العرض (ساعة)</span><input type="number" id="vH" value="'+S.validHours+'"></div><div><span class="lbl">أقصى خصم يدوي: الاستقبال %</span><input type="number" id="cR" value="'+S.caps.rcp+'"></div><div><span class="lbl">أقصى خصم يدوي: الحسابات %</span><input type="number" id="cA" value="'+S.caps.acc+'"></div></div>'+
+  '<span class="lbl" style="margin-top:10px">البنايات (سطر لكل بناية)</span><textarea id="eB" style="min-height:90px">'+esc(S.buildings.join('\n'))+'</textarea><span class="lbl">أنواع الوحدات</span><textarea id="eT" style="min-height:70px">'+esc(S.types.join('\n'))+'</textarea><div class="row" style="margin-top:10px"><button class="btn" id="sAll" type="button">حفظ الإعدادات</button><button class="btn alt" id="xEx" type="button">تصدير</button><button class="btn alt" id="xIm" type="button">استيراد</button></div></div>';
+  $('#rAdd').onclick=function(){var r={building:$('#rB').value,type:$('#rT').value,from:$('#rF').value,to:$('#rO').value,rate:+$('#rR').value,label:$('#rL').value.trim(),prio:+$('#rP').value||0,min:+$('#rM').value||0};
+    if(!r.from||!r.to||r.to<r.from||!(r.rate>0)){toast('تحقق من التواريخ والسعر');return}S.rates.push(r);S.rates.sort(function(a,b){return a.from<b.from?-1:1});save();pRates()};
+  $$('[data-d]').forEach(function(b){b.onclick=function(){S.rates.splice(+b.dataset.d,1);save();pRates()}});
+  $('#pAdd').onclick=function(){var n=$('#pN').value.trim(),f=$('#pF').value,o=$('#pO').value;if(!n||!f||!o){toast('أكمل الحقول');return}S.presets.push({name:n,from:f,to:o});save();pRates()};
+  $$('[data-p]').forEach(function(a){a.onclick=function(e){e.preventDefault();S.presets.splice(+a.dataset.p,1);save();pRates()}});
+  $('#sAll').onclick=function(){var m=+$('#lM').value,p=+$('#lP').value;S.los=m>0&&p>0?[{min:m,pct:p}]:[];S.depositPct=+$('#dP').value||0;S.validHours=+$('#vH').value||24;S.caps.rcp=+$('#cR').value||0;S.caps.acc=+$('#cA').value||0;
+    var b=$('#eB').value.split('\n').map(function(x){return x.trim()}).filter(Boolean),t=$('#eT').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);if(b.length)S.buildings=b;if(t.length)S.types=t;save();toast('تم الحفظ');pRates()};
+  $('#xEx').onclick=function(){var d={rates:S.rates,los:S.los,presets:S.presets,depositPct:S.depositPct,validHours:S.validHours,caps:S.caps,buildings:S.buildings,types:S.types,replies:S.replies};copy(JSON.stringify(d))};
+  $('#xIm').onclick=function(){var s=prompt('الصق نص التصدير هنا');if(!s)return;try{var d=JSON.parse(s);Object.assign(S,d);save();pRates();toast('تم الاستيراد')}catch(e){toast('النص غير صالح')}}
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')){e.preventDefault();go('replies');setTimeout(function(){var q=$('#rq');if(q)q.focus()},0)}
+  if(e.ctrlKey&&(e.key==='q'||e.key==='Q')){e.preventDefault();go('quote')}});
+
+/* ---------- الدخول: نفس جلسة مرسى ---------- */
+try{TOKEN=localStorage.getItem(TK)}catch(e){}
+if(!API||!TOKEN){location.replace('./')}
+else api({action:'me',t:TOKEN}).then(function(r){
+  if(!r||!r.ok){location.replace('./');return}USER=r.user;
+  if(['hr','gm','acc','rcp'].indexOf(USER.role)<0){$('#app').innerHTML='<div class="card">هذا القسم لموظفي الاستقبال والحسابات والإدارة.</div>';return}
+  $('#who').textContent=USER.name||'';shell()
+}).catch(function(){$('#app').innerHTML='<div class="card">تعذّر الاتصال بالخادم. تأكد من الإنترنت ثم أعد المحاولة.</div>'});
+})();
+</script>
+</body>
+</html>
