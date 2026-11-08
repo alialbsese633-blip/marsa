@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<title>السنة الغراء | Marsa</title>
+<style>
+@font-face{font-family:"SunnaAmiri";src:url(fonts/amiri-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"SunnaAmiri";src:url(fonts/amiri-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"SunnaQuran";src:url(fonts/amiri-quran.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"SunnaPlex";src:url(fonts/plex-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"SunnaPlex";src:url(fonts/plex-700.woff2) format("woff2");font-weight:700;font-display:swap}
+:root{color-scheme:light;--g:#0E5A44;--deep:#0B3D2E;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;--bad:#A3261F;--gold:#B8892B;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"SunnaPlex","IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 500px at 90% -10%,#E0EFE8 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.75 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:8px;min-height:58px}
+.bar img{height:40px}.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);text-decoration:none;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.btn.pri{background:var(--g);color:#fff;border-color:var(--g)}.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.btn.sm{padding:6px 11px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.wrap{max-width:760px;margin:0 auto;padding:14px 16px 70px}
+h1{font-size:clamp(24px,5vw,32px);line-height:1.25;margin:6px 0 4px}
+h2{font-size:19px;margin:0 0 6px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--sh);margin:14px 0}
+.hero{background:linear-gradient(135deg,var(--deep),var(--g));color:#fff;border:0}
+.hero .mute{color:rgba(255,255,255,.82)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat{background:rgba(255,255,255,.13);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px}.stat small{font-size:12px;opacity:.88}
+.prog{height:10px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:12px}.prog i{display:block;height:100%;background:#F2C14E;border-radius:99px;transition:width .3s}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}
+.tab{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);cursor:pointer;color:var(--ink);text-decoration:none}
+.tab.on{background:var(--g);color:#fff;border-color:transparent}
+.msg{padding:0;overflow:hidden}
+.msg .pv{background:#072A20;display:block;width:100%}
+.msg .pv canvas,.msg .pv img{display:block;width:100%;height:auto}
+.msg .body{padding:12px 14px 14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px;background:#E6F2EC;color:var(--g)}
+.chip.q{background:#FFF3D6;color:#7A5426}
+.done-badge{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px;background:var(--ok);color:#fff}
+.lib-item{padding:14px}
+.lib-item .t{font:400 20px/2 "SunnaAmiri","SunnaQuran",serif;margin:6px 0}
+.lib-item .t.q{font-family:"SunnaQuran","SunnaAmiri",serif;font-size:21px}
+.src{font-size:13px;color:var(--mute)}
+input[type=text],input[type=search],input[type=time],select{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:15px var(--font);background:#fff;color:var(--ink)}
+.f{margin:10px 0}.f label{display:block;font-weight:700;font-size:14px;margin-bottom:4px}
+.times{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:#10292B;color:#fff;border-radius:99px;padding:10px 18px;font-size:14px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(7,22,18,.7);z-index:50;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:22px;max-width:520px;width:100%;overflow:hidden;margin:auto}
+.modal canvas{display:block;width:100%;height:auto}
+.modal .body{padding:12px 14px 16px}
+.deny{text-align:center;padding:30px 16px}
+.note{background:#FFF8E6;border-inline-start:4px solid #E3B341;padding:10px 12px;border-radius:10px;font-size:14px}
+.empty{text-align:center;color:var(--mute);padding:24px}
+</style>
+<script src="sunna-data.js"></script>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
+<a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#set">⚙️</a></div></header>
+<div class="wrap" id="app"></div>
+<div class="modal" id="modal"><div class="box" id="box"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+'use strict';
+var app=document.getElementById('app'), KEY='sunna_v1';
+var COMMUNITY='https://chat.whatsapp.com/CsN8NZHur6vGSErSUKXKxA';
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function ar(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})}
+
+/* ===== الصلاحية: القسم خاص بعلي ===== */
+var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
+var allowed=U&&(U.role==='hr'||/علي|Ali/i.test(U.name||''));
+if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">🔒</div><h2>هذا القسم خاص</h2><p class="mute">سجّل الدخول من الصفحة الرئيسية لمرسى بحسابك.</p><a class="btn pri" href="./">الصفحة الرئيسية</a></div>';return}
+
+/* ===== البيانات ===== */
+var D=window.SUNNA, ROWS=D.rows, CATS=D.cats;
+var POOL={h:[],q:[]};ROWS.forEach(function(r,i){POOL[r[0]].push(i)});
+
+/* ===== الحالة (على هذا الجهاز) ===== */
+var MIXES={A:{n:'آية + حديثان',s:['q','h','h']},B:{n:'ثلاثة أحاديث',s:['h','h','h']},C:{n:'ثلاث آيات',s:['q','q','q']}};
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+var S=load();S.sent=S.sent||{};S.sw=S.sw||{};S.rp=S.rp||{h:0,q:0};
+S.cfg=S.cfg||{};var C=S.cfg;C.sig=C.sig||'السنة الغراء';C.mix=C.mix||'A';C.times=C.times||['08:00','13:30','19:30'];C.link=C.link||COMMUNITY;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+save();
+
+function pad(n){return ('0'+n).slice(-2)}
+function dkey(d){d=d||new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function dayNo(d){d=d||new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,10,8))/864e5)}
+function mod(a,n){return ((a%n)+n)%n}
+
+/* رسائل اليوم: ترتيب ثابت لكل يوم (نفس الرسائل على أي جهاز) */
+function todayList(){
+  var slots=MIXES[C.mix].s, n=dayNo(), k=dkey(), out=[], cnt={h:0,q:0}, seen={h:0,q:0};
+  slots.forEach(function(t){cnt[t]++});
+  slots.forEach(function(t,i){
+    var idx=POOL[t][mod(n*cnt[t]+seen[t],POOL[t].length)];seen[t]++;
+    var sw=S.sw[k+'|'+i];if(sw!=null)idx=sw;
+    out.push({slot:i,idx:idx,type:t});
+  });
+  return out;
+}
+function swapSlot(slot){
+  var list=todayList(),cur=list[slot],t=cur.type,used={};list.forEach(function(x){used[x.idx]=1});
+  var p=POOL[t],g=0,idx;
+  do{idx=p[mod(p.length-1-(S.rp[t]||0),p.length)];S.rp[t]=(S.rp[t]||0)+1;g++}while(used[idx]&&g<50);
+  S.sw[dkey()+'|'+slot]=idx;
+  delete (S.sent[dkey()]||{})[slot];
+  save();
+}
+function isSent(k,slot){return !!(S.sent[k]&&S.sent[k][slot])}
+function setSent(slot,v){var k=dkey();S.sent[k]=S.sent[k]||{};if(v)S.sent[k][slot]=1;else delete S.sent[k][slot];save()}
+function sentCount(k){return S.sent[k]?Object.keys(S.sent[k]).length:0}
+function totalSent(){var t=0;for(var k in S.sent)t+=Object.keys(S.sent[k]).length;return t}
+function streak(){var n=0,d=new Date();var need=MIXES[C.mix].s.length;for(;;){var c=sentCount(dkey(d));if(c>=need){n++}else if(!(n===0&&dkey(d)===dkey())){break}d.setDate(d.getDate()-1);if(n>2000)break}return n}
+
+/* ===== نصوص الرسالة ===== */
+function refParts(r){
+  if(r[0]==='q')return {lead:'قَالَ اللَّهُ تَعَالَى:',who:'',src:'سورة '+r[3]+' · الآية '+ar(r[5]),srcTxt:'سورة '+r[3]+'، الآية '+ar(r[5]),kind:'آية كريمة'};
+  var who=r[6]?('عَنْ '+r[6]):'';
+  return {lead:'قَالَ رَسُولُ اللَّهِ ﷺ:',who:who,src:'رواه '+r[1]+' · كتاب '+r[3],srcTxt:'رواه '+r[1]+' — كتاب '+r[3],kind:'حديث شريف'};
+}
+function msgText(i){
+  var r=ROWS[i],p=refParts(r),t;
+  if(r[0]==='q')t='قال الله تعالى:\n﴿ '+r[2]+' ﴾\n\n📖 '+p.srcTxt;
+  else t=(p.who?p.who+'\n':'')+'قال رسول الله ﷺ:\n«'+r[2]+'»\n\n📚 '+p.srcTxt;
+  return t+'\n\n🌿 '+C.sig;
+}
+
+/* ===== الخطوط ===== */
+var fontsReady=null;
+function loadFonts(){
+  if(fontsReady)return fontsReady;
+  var list=['700 60px SunnaAmiri','400 40px SunnaAmiri','400 40px SunnaQuran','500 30px SunnaPlex','700 30px SunnaPlex'];
+  fontsReady=Promise.all(list.map(function(f){return document.fonts.load(f,'السنة الغراء ﷺ ﴿﴾')})).catch(function(){});
+  return fontsReady;
+}
+
+/* ===== التصميم الموحّد: يرسم الصورة 1080×1350 ===== */
+var W=1080,H=1350,GOLD='#D9B45F',CREAM='#F8F1DC',SOFT='#A9C9B9';
+function octagram(x,cx,cy,r,fill){
+  for(var k=0;k<2;k++){
+    x.beginPath();
+    for(var j=0;j<4;j++){var a=Math.PI/4*k+Math.PI/2*j+Math.PI/4,px=cx+r*Math.cos(a),py=cy+r*Math.sin(a);if(j===0)x.moveTo(px,py);else x.lineTo(px,py)}
+    x.closePath();if(fill)x.fill();else x.stroke();
+  }
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function wrap(x,text,maxW){
+  var words=text.split(/\s+/),lines=[],cur='';
+  for(var i=0;i<words.length;i++){var t=cur?cur+' '+words[i]:words[i];if(x.measureText(t).width>maxW&&cur){lines.push(cur);cur=words[i]}else cur=t}
+  if(cur)lines.push(cur);return lines;
+}
+function render(i){
+  var r=ROWS[i],p=refParts(r),isQ=r[0]==='q';
+  var c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
+  x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
+  /* الخلفية */
+  var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0C4433');g.addColorStop(1,'#061F18');x.fillStyle=g;x.fillRect(0,0,W,H);
+  var rg=x.createRadialGradient(W/2,H*0.45,60,W/2,H*0.45,760);rg.addColorStop(0,'rgba(60,150,115,.28)');rg.addColorStop(1,'rgba(60,150,115,0)');x.fillStyle=rg;x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(217,180,95,.075)';x.lineWidth=2;
+  for(var yy=40;yy<H+80;yy+=150){for(var xx=(Math.round(yy/150)%2?0:75)+0;xx<W+80;xx+=150)octagram(x,xx,yy,52,false)}
+  /* الإطار */
+  x.strokeStyle=GOLD;x.lineWidth=3;rr(x,38,38,W-76,H-76,30);x.stroke();
+  x.strokeStyle='rgba(217,180,95,.45)';x.lineWidth=1.5;rr(x,58,58,W-116,H-116,22);x.stroke();
+  x.fillStyle=GOLD;[[58,58],[W-58,58],[58,H-58],[W-58,H-58]].forEach(function(q){octagram(x,q[0],q[1],17,true)});
+  /* الرأس */
+  x.fillStyle=GOLD;octagram(x,W/2,118,26,true);
+  x.fillStyle='#0C4433';octagram(x,W/2,118,12,true);
+  x.font='700 30px SunnaPlex';var pw=x.measureText(p.kind).width+80;
+  x.strokeStyle=GOLD;x.lineWidth=2;rr(x,W/2-pw/2,172,pw,60,30);x.stroke();
+  x.fillStyle=GOLD;x.fillText(p.kind,W/2,203);
+  /* المقدمة */
+  var y=292;
+  if(p.who){x.font='400 34px SunnaAmiri';x.fillStyle=SOFT;x.fillText(p.who,W/2,y);y+=58}
+  x.font='700 46px SunnaAmiri';x.fillStyle=GOLD;x.fillText(p.lead,W/2,y);
+  var top=y+54,bottom=1010;
+  /* النص: يُصغَّر تلقائياً حتى يتّسع */
+  var body=isQ?('﴿ '+r[2]+' ﴾'):r[2], fam=isQ?'SunnaQuran':'SunnaAmiri', size, lines, lh;
+  for(size=68;size>=30;size-=2){
+    x.font='400 '+size+'px '+fam;lines=wrap(x,body,880);lh=size*(isQ?2.0:1.85);
+    if(lines.length*lh<=bottom-top)break;
+  }
+  x.fillStyle=CREAM;x.font='400 '+size+'px '+fam;
+  var blockH=lines.length*lh,y0=top+(bottom-top-blockH)/2+lh/2;
+  lines.forEach(function(l,k){x.fillText(l,W/2,y0+k*lh)});
+  /* الفاصل والمصدر */
+  x.strokeStyle='rgba(217,180,95,.7)';x.lineWidth=2;
+  x.beginPath();x.moveTo(160,1056);x.lineTo(W/2-34,1056);x.moveTo(W/2+34,1056);x.lineTo(W-160,1056);x.stroke();
+  x.fillStyle=GOLD;octagram(x,W/2,1056,13,true);
+  x.font='500 34px SunnaPlex';x.fillStyle=GOLD;
+  var s=p.src;if(x.measureText(s).width>900){x.font='500 28px SunnaPlex'}
+  x.fillText(s,W/2,1112);
+  if(!isQ){x.font='400 26px SunnaPlex';x.fillStyle=SOFT;x.fillText('من الصحيحين · تحرّي الصحة والتوثيق',W/2,1160)}
+  else{x.font='400 26px SunnaPlex';x.fillStyle=SOFT;x.fillText('المصحف المرتّل برواية حفص عن عاصم',W/2,1160)}
+  /* التذييل: حقوق السنة الغراء */
+  x.fillStyle=GOLD;x.font='700 66px SunnaAmiri';x.fillText(C.sig,W/2,1243);
+  x.fillStyle='rgba(217,180,95,.8)';octagram(x,W/2-150,1243,9,true);octagram(x,W/2+150,1243,9,true);
+  return c;
+}
+
+/* ===== المشاركة ===== */
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast on';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='toast'},2400)}
+function blobOf(c){return new Promise(function(res){c.toBlob(res,'image/png')})}
+async function fileOf(i,n){await loadFonts();var b=await blobOf(render(i));return new File([b],'sunna-'+dkey()+'-'+(n||1)+'.png',{type:'image/png'})}
+function download(file){var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=file.name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
+async function shareImages(idxs){
+  try{
+    var files=[];for(var k=0;k<idxs.length;k++)files.push(await fileOf(idxs[k],k+1));
+    if(navigator.canShare&&navigator.canShare({files:files})){await navigator.share({files:files});return true}
+    files.forEach(download);toast('حُفظت الصورة — أرسلها من معرض الصور');return false;
+  }catch(e){if(e&&e.name==='AbortError')return null;toast('تعذّرت المشاركة');return null}
+}
+async function shareText(i){
+  var t=msgText(i);
+  try{if(navigator.share){await navigator.share({text:t});return true}}catch(e){if(e&&e.name==='AbortError')return null}
+  window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');return false;
+}
+function copyText(i){
+  var t=msgText(i);
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('تم النسخ ✓')},fb)}else fb();
+  function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('تم النسخ ✓')}catch(e){toast('تعذّر النسخ')}a.remove()}
+}
+
+/* ===== واجهة: اليوم ===== */
+var DAYN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function hijri(){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date())}catch(e){return ''}}
+function viewToday(){
+  var list=todayList(),k=dkey(),need=list.length,done=sentCount(k),d=new Date();
+  var h='<div class="card hero"><div class="mute">'+DAYN[d.getDay()]+' · '+esc(hijri())+'</div><h1>رسائل اليوم 🌙</h1>'
+   +'<div class="mute">'+(done>=need?'أحسنت! أرسلت رسائل اليوم كلها — جزاك الله خيراً.':'أرسل '+ar(need)+' رسائل اليوم إلى مجتمع «السنة الغراء».')+'</div>'
+   +'<div class="prog"><i style="width:'+Math.round(done/need*100)+'%"></i></div>'
+   +'<div class="stats"><div class="stat"><b>'+ar(done)+'/'+ar(need)+'</b><small>أُرسل اليوم</small></div><div class="stat"><b>'+ar(streak())+'</b><small>أيام متتالية</small></div><div class="stat"><b>'+ar(totalSent())+'</b><small>مجموع المرسَل</small></div></div></div>';
+  h+='<div class="row" style="margin:0 0 4px"><button class="btn pri" id="allShare">📲 شارك الثلاث صور دفعة واحدة</button><a class="btn" href="'+esc(C.link)+'" target="_blank" rel="noopener">💬 افتح المجتمع في واتساب</a></div>';
+  list.forEach(function(it){
+    var r=ROWS[it.idx],sent=isSent(k,it.slot);
+    h+='<div class="card msg" data-slot="'+it.slot+'" data-i="'+it.idx+'"><div class="pv" id="pv'+it.slot+'"></div><div class="body">'
+     +'<span class="chip '+(it.type==='q'?'q':'')+'">'+esc(CATS[r[4]])+'</span> '+(sent?'<span class="done-badge">✓ أُرسلت</span>':'')
+     +'<div class="row"><button class="btn pri sm" data-a="img">📲 صورة</button><button class="btn sm" data-a="txt">📝 نص</button><button class="btn sm" data-a="cp">📋 نسخ</button>'
+     +'<button class="btn sm '+(sent?'':'ok')+'" data-a="sent">'+(sent?'↩︎ إلغاء الإرسال':'✅ تم الإرسال')+'</button><button class="btn sm" data-a="swap">🔄 بدّلها</button></div></div></div>';
+  });
+  h+='<div class="note">اضغط «صورة» ثم اختر واتساب ثم مجتمع «السنة الغراء». الرسائل مأخوذة من صحيح البخاري وصحيح مسلم والمصحف، ويُختم كل تصميم بعبارة «'+esc(C.sig)+'».</div>';
+  app.innerHTML=h;
+  loadFonts().then(function(){list.forEach(function(it){var pv=document.getElementById('pv'+it.slot);if(pv){pv.innerHTML='';pv.appendChild(render(it.idx))}})});
+  document.getElementById('allShare').onclick=async function(){
+    var ok=await shareImages(list.map(function(x){return x.idx}));
+    if(ok){list.forEach(function(x){setSent(x.slot,true)});toast('سُجّلت الثلاث كمُرسلة ✓');viewToday()}
+  };
+  [].forEach.call(app.querySelectorAll('.msg'),function(el){
+    var slot=+el.dataset.slot,idx=+el.dataset.i;
+    el.onclick=async function(e){
+      var b=e.target.closest('button');if(!b)return;var a=b.dataset.a,ok;
+      if(a==='img'){ok=await shareImages([idx]);if(ok){setSent(slot,true);toast('سُجّلت كمُرسلة ✓');viewToday()}}
+      else if(a==='txt'){ok=await shareText(idx);if(ok){setSent(slot,true);viewToday()}}
+      else if(a==='cp')copyText(idx);
+      else if(a==='sent'){setSent(slot,!isSent(k,slot));viewToday()}
+      else if(a==='swap'){swapSlot(slot);viewToday()}
+    };
+  });
+}
+
+/* ===== واجهة: المكتبة ===== */
+var NORM=null;
+function nrm(s){return s.replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ‏]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')}
+var LF={q:'',cat:-1,t:'',lim:30};
+function viewLib(){
+  if(!NORM)NORM=ROWS.map(function(r){return nrm(r[2])});
+  var h='<h1>المكتبة 📚</h1><div class="mute">'+ar(ROWS.length)+' رسالة من البخاري ومسلم والقرآن — ابحث أو اختر تصنيفاً.</div>'
+   +'<div class="f"><input type="search" id="q" placeholder="ابحث في النصوص…" value="'+esc(LF.q)+'"></div>'
+   +'<div class="tabs" id="tt"><a class="tab '+(LF.t===''?'on':'')+'" data-t="">الكل</a><a class="tab '+(LF.t==='h'?'on':'')+'" data-t="h">أحاديث</a><a class="tab '+(LF.t==='q'?'on':'')+'" data-t="q">آيات</a></div>'
+   +'<div class="tabs" id="cc"><a class="tab '+(LF.cat<0?'on':'')+'" data-c="-1">كل التصنيفات</a>'+CATS.map(function(c,i){return '<a class="tab '+(LF.cat===i?'on':'')+'" data-c="'+i+'">'+esc(c)+'</a>'}).join('')+'</div>'
+   +'<div id="res"></div>';
+  app.innerHTML=h;drawRes();
+  var q=document.getElementById('q');q.oninput=function(){LF.q=q.value;LF.lim=30;drawRes()};
+  document.getElementById('tt').onclick=function(e){var a=e.target.closest('.tab');if(!a)return;LF.t=a.dataset.t;LF.lim=30;viewLib()};
+  document.getElementById('cc').onclick=function(e){var a=e.target.closest('.tab');if(!a)return;LF.cat=+a.dataset.c;LF.lim=30;viewLib()};
+}
+function drawRes(){
+  var qn=nrm(LF.q.trim()),out=[];
+  for(var i=0;i<ROWS.length;i++){var r=ROWS[i];if(LF.t&&r[0]!==LF.t)continue;if(LF.cat>=0&&r[4]!==LF.cat)continue;if(qn&&NORM[i].indexOf(qn)<0&&nrm(r[3]).indexOf(qn)<0)continue;out.push(i)}
+  var el=document.getElementById('res'),h='<div class="mute" style="margin:8px 0">'+ar(out.length)+' نتيجة</div>';
+  if(!out.length)h+='<div class="empty">لا توجد نتائج</div>';
+  out.slice(0,LF.lim).forEach(function(i){
+    var r=ROWS[i],p=refParts(r);
+    h+='<div class="card lib-item" data-i="'+i+'"><span class="chip '+(r[0]==='q'?'q':'')+'">'+esc(CATS[r[4]])+'</span>'
+     +'<div class="t '+(r[0]==='q'?'q':'')+'">'+(r[0]==='q'?'﴿ '+esc(r[2])+' ﴾':esc(r[2]))+'</div><div class="src">'+esc(p.who?p.who+' — ':'')+esc(p.srcTxt)+(r[0]==='h'&&r[1]==='البخاري'&&r[5]?' — رقم '+ar(r[5]):'')+'</div>'
+     +'<div class="row"><button class="btn pri sm" data-a="pv">🖼️ معاينة وإرسال</button><button class="btn sm" data-a="cp">📋 نسخ</button></div></div>';
+  });
+  if(out.length>LF.lim)h+='<div style="text-align:center"><button class="btn" id="more">عرض المزيد</button></div>';
+  el.innerHTML=h;
+  var m=document.getElementById('more');if(m)m.onclick=function(){LF.lim+=30;drawRes()};
+  el.onclick=function(e){var b=e.target.closest('button');if(!b||b.id==='more')return;var i=+b.closest('.lib-item').dataset.i;if(b.dataset.a==='cp')copyText(i);else if(b.dataset.a==='pv')openPv(i)};
+}
+function openPv(i){
+  var box=document.getElementById('box'),m=document.getElementById('modal');
+  box.innerHTML='<div id="mpv"></div><div class="body"><div class="row"><button class="btn pri sm" data-a="img">📲 صورة</button><button class="btn sm" data-a="txt">📝 نص</button><button class="btn sm" data-a="cp">📋 نسخ</button><button class="btn sm" data-a="x">إغلاق</button></div></div>';
+  m.classList.add('on');
+  loadFonts().then(function(){var p=document.getElementById('mpv');if(p)p.appendChild(render(i))});
+  box.onclick=function(e){var b=e.target.closest('button');if(!b)return;var a=b.dataset.a;
+    if(a==='x')m.classList.remove('on');else if(a==='img')shareImages([i]);else if(a==='txt')shareText(i);else if(a==='cp')copyText(i)};
+  m.onclick=function(e){if(e.target===m)m.classList.remove('on')};
+}
+
+/* ===== واجهة: الإعدادات والتذكير ===== */
+function ics(){
+  var base=location.href.split('#')[0],now=new Date(),st=dkey(now).replace(/-/g,''),stamp=now.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Marsa//Sunna//AR','CALSCALE:GREGORIAN'];
+  C.times.forEach(function(t,i){
+    var hm=t.replace(':','')+'00';
+    L.push('BEGIN:VEVENT','UID:sunna-'+(i+1)+'@marsa','DTSTAMP:'+stamp,'DTSTART:'+st+'T'+hm,'DURATION:PT10M','RRULE:FREQ=DAILY',
+      'SUMMARY:🌙 السنة الغراء — رسالة '+ar(i+1),'DESCRIPTION:افتح مرسى ثم السنة الغراء وأرسل رسالتك إلى المجتمع','URL:'+base,
+      'BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY','DESCRIPTION:🌙 وقت رسائل السنة الغراء','END:VALARM','END:VEVENT');
+  });
+  L.push('END:VCALENDAR');return L.join('\r\n');
+}
+function viewSet(){
+  var h='<h1>الإعدادات ⚙️</h1>'
+   +'<div class="card"><h2>التذكير اليومي</h2><div class="mute">يضيف ٣ تذكيرات متكررة كل يوم في تقويم الآيفون، وعند ضغط التنبيه يفتح هذه الصفحة.</div>'
+   +'<div class="f"><label>أوقات التذكير</label><div class="times">'+C.times.map(function(t,i){return '<input type="time" data-ti="'+i+'" value="'+t+'">'}).join('')+'</div></div>'
+   +'<button class="btn pri" id="icsb">🔔 أضف التذكيرات إلى التقويم</button></div>'
+   +'<div class="card"><h2>الرسائل</h2><div class="f"><label>التوزيع اليومي</label><select id="mix">'+Object.keys(MIXES).map(function(k){return '<option value="'+k+'"'+(C.mix===k?' selected':'')+'>'+MIXES[k].n+'</option>'}).join('')+'</select></div>'
+   +'<div class="f"><label>عبارة الحقوق أسفل التصميم</label><input type="text" id="sig" value="'+esc(C.sig)+'"></div>'
+   +'<div class="f"><label>رابط المجتمع</label><input type="text" id="lnk" value="'+esc(C.link)+'" style="direction:ltr"></div></div>'
+   +'<div class="card"><h2>معلومات</h2><div class="mute">المكتبة: '+ar(POOL.h.length)+' حديثاً (البخاري ومسلم) و'+ar(POOL.q.length)+' آية — تكفي نحو '+ar(Math.floor(ROWS.length/3))+' يوماً بدون تكرار. حالة «تم الإرسال» محفوظة على هذا الجهاز.</div>'
+   +'<div class="row"><button class="btn sm" id="rst">إعادة ضبط سجل الإرسال</button></div></div>';
+  app.innerHTML=h;
+  [].forEach.call(app.querySelectorAll('input[type=time]'),function(el){el.onchange=function(){C.times[+el.dataset.ti]=el.value||C.times[+el.dataset.ti];save()}});
+  document.getElementById('mix').onchange=function(){C.mix=this.value;save();toast('تم الحفظ ✓')};
+  document.getElementById('sig').onchange=function(){C.sig=this.value.trim()||'السنة الغراء';save();toast('تم الحفظ ✓')};
+  document.getElementById('lnk').onchange=function(){C.link=this.value.trim()||COMMUNITY;save();toast('تم الحفظ ✓')};
+  document.getElementById('icsb').onclick=function(){download(new File([ics()],'sunna-reminders.ics',{type:'text/calendar'}));toast('افتح الملف ثم اضغط «إضافة الكل»')};
+  document.getElementById('rst').onclick=function(){if(confirm('مسح سجل «تم الإرسال» من هذا الجهاز؟')){S.sent={};S.sw={};S.rp={h:0,q:0};save();toast('تمت إعادة الضبط')}};
+}
+
+/* ===== التوجيه ===== */
+function route(){
+  var h=(location.hash||'#today').slice(1);
+  if(h==='lib')viewLib();else if(h==='set')viewSet();else viewToday();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+route();
+})();
+</script>
+</body>
+</html>
