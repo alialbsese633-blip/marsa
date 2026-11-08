@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "مرسى × واتساب",
+  "version": "1.0.0",
+  "description": "يفتح مرسى بجانب واتساب ويب: يلتقط رقم العميل تلقائياً ويُدخل عروض الأسعار والردود في خانة الكتابة.",
+  "permissions": ["sidePanel", "tabs"],
+  "host_permissions": ["https://web.whatsapp.com/*"],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "action": { "default_title": "مرسى × واتساب", "default_icon": { "48": "icons/i48.png" } },
+  "content_scripts": [{ "matches": ["https://web.whatsapp.com/*"], "js": ["content.js"], "run_at": "document_idle" }],
+  "icons": { "48": "icons/i48.png", "192": "icons/i192.png" }
+}

@@ -49,6 +49,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 10px;
 .prog{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:8px 0}.prog i{display:block;height:100%;background:var(--brand)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--brand-deep);color:#fff;padding:10px 18px;border-radius:99px;z-index:9;display:none}
 #qprint{display:none}
+body.embed .bar{display:none}body.embed .wrap{padding:8px}body.embed .cust{grid-template-columns:1fr 1fr;padding:8px}body.embed .cust>div:last-child{grid-column:1/3}body.embed .card{padding:10px}body.embed .tabs button{padding:8px 12px}
 @media (max-width:640px){.cust{grid-template-columns:1fr}.bar h1{font-size:15px}}
 @media print{body>*:not(#qprint){display:none!important}#qprint{display:block;color:#000;background:#fff;padding:24px;direction:rtl}#qprint table th,#qprint table td{border-bottom:1px solid #ccc;color:#000}}
 </style>
@@ -61,6 +62,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 10px;
 <script>
 (function(){
 'use strict';
+var EMBED=/[?&]embed=1/.test(location.search);
 var API=String((window.HR_CONFIG||{}).API_URL||'').trim(),TK='marsa_token',KEY='cs_v1',USER=null,TOKEN=null;
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -139,21 +141,21 @@ function quoteText(o,q){
 /* ---------- واتساب واتصال ---------- */
 function phone(){var p=String(($('#cPhone')||{}).value||'').replace(/[^\d]/g,'');if(p.length===8)p='968'+p;return p}
 function cust(){return{name:(($('#cName')||{}).value||'').trim(),phone:phone()}}
-function wa(text){var p=phone();if(!p){toast('اكتب رقم العميل أولاً');return}window.open('https://wa.me/'+p+'?text='+encodeURIComponent(text),'_blank','noopener')}
+function wa(text){if(EMBED){parent.postMessage({marsa:'insert',text:text},'*');toast('أُدخل في خانة واتساب — راجعه ثم اضغط Enter');return}var p=phone();if(!p){toast('اكتب رقم العميل أولاً');return}window.open('https://wa.me/'+p+'?text='+encodeURIComponent(text),'_blank','noopener')}
 function copy(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('تم النسخ')},fb)}else fb();function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('تم النسخ')}catch(e){toast('تعذّر النسخ')}a.remove()}}
 
 /* ---------- الواجهة ---------- */
 var TAB='quote',CAT='الكل',LAST=null;
 function shell(){
-  var tabs=[['quote','عرض السعر'],['replies','الردود السريعة'],['guide','الدليل التفاعلي']];if(isAdmin())tabs.push(['rates','الأسعار والإعدادات']);
+  var tabs=[['quote','عرض السعر'],['replies','الردود السريعة'],['branches','الفروع والمواقع'],['guide','الدليل التفاعلي']];if(isAdmin())tabs.push(['rates','الأسعار والإعدادات']);
   $('#app').innerHTML='<div class="cust"><div><label>اسم العميل</label><input id="cName" autocomplete="off"></div><div><label>رقم العميل (واتساب/اتصال)</label><input id="cPhone" inputmode="tel" placeholder="9XXXXXXX" autocomplete="off"></div><div style="display:flex;align-items:end;gap:6px"><button class="btn wa" id="cWa" type="button">واتساب</button><button class="btn alt" id="cTel" type="button">اتصال</button></div></div>'+
   '<div class="tabs" id="tabs">'+tabs.map(function(t){return '<button type="button" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div><div id="pane"></div>';
-  $('#cWa').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}window.open('https://wa.me/'+p,'_blank','noopener')};
-  $('#cTel').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}location.href='tel:+'+p};
+  $('#cWa').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}if(EMBED){parent.postMessage({marsa:'openchat',phone:p},'*')}else window.open('https://wa.me/'+p,'_blank','noopener')};
+  $('#cTel').onclick=function(){var p=phone();if(!p){toast('اكتب رقم العميل');return}if(EMBED){parent.postMessage({marsa:'call',phone:p},'*')}else location.href='tel:+'+p};
   $('#tabs').onclick=function(e){var b=e.target.closest('button[data-t]');if(b)go(b.dataset.t)};
   go(TAB)
 }
-function go(t){TAB=t;$$('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});({quote:pQuote,replies:pReplies,guide:pGuide,rates:pRates})[t]()}
+function go(t){TAB=t;$$('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});({quote:pQuote,replies:pReplies,branches:pBranches,guide:pGuide,rates:pRates})[t]()}
 function opts(a,v){return a.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>'}).join('')}
 
 function pQuote(){
@@ -206,6 +208,30 @@ function pReplies(){
       var open=/\{\{/.test(txt);if(open&&!confirm('بقيت متغيّرات غير معبّأة، هل تريد المتابعة؟'))return;b.dataset.a==='wa'?wa(txt):copy(txt)}})}
 }
 
+
+/* ---------- الفروع والمواقع (بيانات مأخوذة من الكتالوج؛ الناقص يُكمَّل من هنا ويُحفظ على هذا الجهاز) ---------- */
+var CO={name:'نسائم صلالة للشقق المفروشة',legal:'العالمية السعيدة المتحدة ش.م.م',site:'https://nassayem.com',cr:'1428061',phones:['99551237','90111228']};
+var BR=[
+ {id:'saadah-nesto',n:'السعادة - نستو',phone:'98977430',mail:'saadahnisto@gmail.com',map:'https://www.google.com/travel/hotels/s/YFboJPF57qpCrPLu9',geo:[17.048829,54.159505],near:'نستو هايبر ماركت (دقيقتان بالسيارة)',units:'شقة 140 ر.ع. شهرياً · استوديو 120 · غرفة مع حمام ومطبخ 90',am:'إنترنت، تكييف، مطبخ مجهز، مواقف، مصعد، استقبال 24 ساعة',ut:'الكهرباء والماء مشمولة',ct:'عقد شهري أو يومي'},
+ {id:'tijari',n:'الحي التجاري'},{id:'awqad-north',n:'عوقد الشمالية'},{id:'wadi',n:'الوادي'},{id:'moataza',n:'المعتزة'},{id:'haseela',n:'الحصيلة'},{id:'saadah-25',n:'السعادة-25'},{id:'awqad-villa',n:'فيلا عوقد'}];
+function bx(b){var o=(S.binfo||{})[b.id]||{};return Object.assign({},b,o)}
+function bMsg(b){var l=[CO.name,'فرع '+b.n];if(b.units)l.push(b.units);if(b.am)l.push('المزايا: '+b.am);if(b.ut)l.push(b.ut);var m=b.map||(b.geo?'https://maps.google.com/?q='+b.geo[0]+','+b.geo[1]:'');if(m)l.push('الموقع: '+m);l.push('للحجز: '+(b.phone||CO.phones[0]));l.push(CO.site);return l.join('\n')}
+function pBranches(){
+ var h='<div class="card"><h2>'+esc(CO.name)+'</h2><div class="small">'+esc(CO.legal)+' · سجل تجاري '+CO.cr+' · <a href="'+CO.site+'" target="_blank" rel="noopener">nassayem.com</a> · خدمة العملاء: '+CO.phones.join(' / ')+'</div>'+
+ '<div class="row" style="margin-top:8px"><button class="btn alt" type="button" id="bCat">فتح الكتالوج</button><button class="btn" type="button" id="bCo">إرسال تعريف الشركة</button></div></div>';
+ h+=BR.map(function(r){var b=bx(r),m=b.map||(b.geo?'https://maps.google.com/?q='+b.geo[0]+','+b.geo[1]:'');
+  return '<div class="card"><h2>'+esc(b.n)+'</h2>'+(b.units?'<p>'+esc(b.units)+'</p><div class="small">'+esc(b.am||'')+' · '+esc(b.ut||'')+' · '+esc(b.ct||'')+(b.near?' · قريب من: '+esc(b.near):'')+'</div>':'<div class="note">بيانات هذا الفرع (الوحدات والأسعار والموقع) لم تصل بعد — أضفها من «تعديل».</div>')+
+  '<div class="small" style="margin-top:6px">'+(b.phone?'هاتف الفرع: '+esc(b.phone)+' ':'')+(b.mail?'· '+esc(b.mail):'')+'</div>'+
+  '<div class="row" style="margin-top:8px">'+(m?'<a class="btn alt" href="'+esc(m)+'" target="_blank" rel="noopener">الخريطة</a>':'')+'<button class="btn wa" type="button" data-bs="'+r.id+'">أرسل للعميل</button><button class="btn alt" type="button" data-be="'+r.id+'">تعديل</button></div>'+
+  '<div id="be_'+r.id+'"></div></div>'}).join('');
+ $('#pane').innerHTML=h;
+ $('#bCat').onclick=function(){window.open('catalog.html','_blank','noopener')};
+ $('#bCo').onclick=function(){wa(CO.name+'\n'+CO.legal+'\nسجل تجاري '+CO.cr+'\nالموقع الرسمي: '+CO.site+'\nخدمة العملاء: '+CO.phones.join(' / '))};
+ $$('[data-bs]').forEach(function(b){b.onclick=function(){wa(bMsg(bx(BR.filter(function(r){return r.id===b.dataset.bs})[0])))}});
+ $$('[data-be]').forEach(function(b){b.onclick=function(){var r=BR.filter(function(x){return x.id===b.dataset.be})[0],o=bx(r),d=$('#be_'+r.id);
+  d.innerHTML='<span class="lbl">رابط الخريطة</span><input id="m_'+r.id+'" value="'+esc(o.map||'')+'"><span class="lbl">هاتف الفرع</span><input id="p_'+r.id+'" value="'+esc(o.phone||'')+'"><span class="lbl">الوحدات والأسعار</span><textarea id="u_'+r.id+'">'+esc(o.units||'')+'</textarea><button class="btn" type="button" id="s_'+r.id+'">حفظ</button>';
+  $('#s_'+r.id).onclick=function(){S.binfo=S.binfo||{};S.binfo[r.id]={map:$('#m_'+r.id).value.trim(),phone:$('#p_'+r.id).value.trim(),units:$('#u_'+r.id).value.trim()};save();toast('تم الحفظ');pBranches()}}});
+}
 function pGuide(){
   var done=S.guide||{},n=LESSONS.length,k=LESSONS.filter(function(l,i){return done[i]}).length,cur=LESSONS.findIndex(function(l,i){return !done[i]});
   var h='<div class="card"><h2>الدليل التفاعلي لتدريب الموظف الجديد</h2><div class="small">خطوة واحدة في كل مرة — اضغط «تمت» بعد تنفيذ الخطوة.</div><div class="prog"><i style="width:'+Math.round(k/n*100)+'%"></i></div><div class="small">أنجزت '+k+' من '+n+' دروس</div></div>';
@@ -243,14 +269,24 @@ document.addEventListener('keydown',function(e){
   if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')){e.preventDefault();go('replies');setTimeout(function(){var q=$('#rq');if(q)q.focus()},0)}
   if(e.ctrlKey&&(e.key==='q'||e.key==='Q')){e.preventDefault();go('quote')}});
 
-/* ---------- الدخول: نفس جلسة مرسى ---------- */
-try{TOKEN=localStorage.getItem(TK)}catch(e){}
-if(!API||!TOKEN){location.replace('./')}
-else api({action:'me',t:TOKEN}).then(function(r){
-  if(!r||!r.ok){location.replace('./');return}USER=r.user;
+/* ---------- الدخول: نفس جلسة مرسى (مع نموذج دخول داخلي للوحة الجانبية) ---------- */
+function loginForm(msg){
+  $('#app').innerHTML='<form class="card" id="lf" style="max-width:380px;margin:30px auto"><h2>تسجيل الدخول إلى مرسى</h2><span class="lbl">اسم المستخدم</span><input id="lU" autocapitalize="none" autocomplete="username"><span class="lbl" style="margin-top:8px">كلمة المرور</span><input id="lP" type="password" autocomplete="current-password">'+(msg?'<div class="note b">'+esc(msg)+'</div>':'')+'<div class="row" style="margin-top:12px"><button class="btn" id="lB">دخول</button></div></form>';
+  $('#lf').onsubmit=function(e){e.preventDefault();$('#lB').disabled=true;
+    api({action:'login',u:$('#lU').value.trim(),p:$('#lP').value}).then(function(r){
+      if(!r||!r.ok){loginForm(r&&r.error==='locked'?'أُوقفت المحاولات مؤقتاً، انتظر 10 دقائق':'اسم المستخدم أو كلمة المرور غير صحيحة');return}
+      if(r.user&&r.user.must){loginForm('غيّر كلمة المرور أولاً من تطبيق مرسى ثم ارجع هنا');return}
+      TOKEN=r.token;try{localStorage.setItem(TK,r.token);localStorage.setItem('marsa_user',JSON.stringify(r.user))}catch(x){}start(r.user)
+    }).catch(function(){loginForm('تعذّر الاتصال بالخادم')})}
+}
+function start(u){USER=u;
   if(['hr','gm','acc','rcp'].indexOf(USER.role)<0){$('#app').innerHTML='<div class="card">هذا القسم لموظفي الاستقبال والحسابات والإدارة.</div>';return}
-  $('#who').textContent=USER.name||'';shell()
-}).catch(function(){$('#app').innerHTML='<div class="card">تعذّر الاتصال بالخادم. تأكد من الإنترنت ثم أعد المحاولة.</div>'});
+  $('#who').textContent=USER.name||'';shell()}
+try{TOKEN=localStorage.getItem(TK)}catch(e){}
+if(EMBED){document.body.classList.add('embed');window.addEventListener('message',function(e){var d=e.data||{};if(d.marsa!=='chat')return;var n=$('#cName'),p=$('#cPhone');if(n&&d.name&&n.value!==d.name)n.value=d.name;if(p&&d.phone&&p.value!==d.phone)p.value=d.phone})}
+if(!API){$('#app').innerHTML='<div class="card">إعدادات الخادم غير موجودة.</div>'}
+else if(!TOKEN)loginForm('');
+else api({action:'me',t:TOKEN}).then(function(r){if(!r||!r.ok){loginForm('انتهت الجلسة، سجّل الدخول من جديد');return}start(r.user)}).catch(function(){$('#app').innerHTML='<div class="card">تعذّر الاتصال بالخادم. تأكد من الإنترنت ثم أعد المحاولة.</div>'});
 })();
 </script>
 </body>
