@@ -218,7 +218,6 @@ function render(i){
   }
   function srcLine(cx,cy){
     x.font='500 34px SunnaPlex';x.fillStyle=GOLD;var s2=p.src;if(x.measureText(s2).width>880)x.font='500 26px SunnaPlex';if(x.measureText(s2).width>880)x.font='500 22px SunnaPlex';x.fillText(s2,cx,cy);
-    x.font='400 26px SunnaPlex';x.fillStyle=SOFT;x.fillText(p.foot,cx,cy+48);
   }
   function fit(maxSize,wd,t,b2,cap){
     var size,lines,lh,body=isQ?('﴿ '+r[2]+' ﴾'):((r[0]==='d'||r[0]==='w')?('« '+r[2]+' »'):r[2]);
@@ -339,7 +338,7 @@ function viewToday(){
     var r=ROWS[it.idx],sent=isSent(k,it.slot);
     var ci=canImg(it.idx),pp=refParts(r);
     h+='<div class="card msg" data-slot="'+it.slot+'" data-i="'+it.idx+'">'+(ci?'<div class="pv" id="pv'+it.slot+'"></div>':'<div class="textpv"><div class="k">'+esc(pp.kind+(r[7]?' — '+r[7]:''))+'</div><div class="tt">'+esc(r[2])+'</div><div class="sr">'+esc(pp.srcTxt)+'</div></div>')+'<div class="body">'
-     +'<span class="chip '+(it.type==='q'?'q':'')+'">'+esc(CATS[r[4]])+'</span> '+(sent?'<span class="done-badge">✓ أُرسلت</span>':'')
+     +'<span class="chip '+(it.type==='q'?'q':'')+'">'+esc(CATS[r[4]])+'</span> '+'<span class="src">'+esc(pp.foot)+'</span> '+(sent?'<span class="done-badge">✓ أُرسلت</span>':'')
      +'<div class="row">'+(ci?'<button class="btn pri sm" data-a="img">📲 صورة</button><button class="btn sm" data-a="ci">🖼️ نسخ الصورة</button>':'')+'<button class="btn '+(ci?'':'pri ')+'sm" data-a="txt">📝 '+(ci?'نص':'مشاركة كنص')+'</button><button class="btn sm" data-a="cp">📋 نسخ النص</button>'
      +'<button class="btn sm '+(sent?'':'ok')+'" data-a="sent">'+(sent?'↩︎ إلغاء الإرسال':'✅ تم الإرسال')+'</button><button class="btn sm" data-a="swap">🔄 بدّلها</button></div>'+(ci?swHtml(it.idx):'')+(noteOf(it.idx)?'<div class="note" style="margin-top:10px">'+noteOf(it.idx)+'</div>':'')+'</div></div>';
   });
