@@ -1,15 +1,15 @@
 {
   "id": "family.html",
-  "name": "Al Busaisi Family · عائلة البسيسي",
-  "short_name": "Al Busaisi",
+  "name": "البسيسي · ميزانية العائلة",
+  "short_name": "البسيسي",
   "description": "ميزانية عائلة البسيسي",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "family.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#2A5D4F",
-  "theme_color": "#2A5D4F",
+  "background_color": "#12343B",
+  "theme_color": "#12343B",
   "icons": [
     {
       "src": "icons/family-192.png",
