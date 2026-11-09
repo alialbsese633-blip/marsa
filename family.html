@@ -527,7 +527,7 @@ function pushRefresh(){
 function pushInit(){
   if (!OS_APP_ID || PUSH.st !== 'off') return;
   PUSH.st = 'loading';
-  pushCleanStart().then(pushLoadSdk);
+  pushCleanStart().then(pushOwnWorker).then(pushLoadSdk);
 }
 /* مرة واحدة لكل جهاز: نزيل بقايا إشعارات تطبيق التدريب القديم (نفس النطاق بمفتاح مختلف كان يمنع التسجيل) */
 function pushCleanStart(){
@@ -538,6 +538,13 @@ function pushCleanStart(){
       return r.pushManager.getSubscription().then(function(s){ return s && s.unsubscribe(); }).catch(function(){}).then(function(){ return r.unregister(); });
     }));
   }).then(function(){ return dropOneSignalDb(); }).catch(function(){}).then(function(){ try{ localStorage.setItem('mf_push_clean_v6', '1'); }catch(e){} });
+}
+/* نسجّل عامل الإشعارات بأنفسنا في مكانه الخاص، فلا نعتمد على OneSignal في هذه الخطوة */
+function pushOwnWorker(){
+  if (!('serviceWorker' in navigator)) return Promise.resolve();
+  const base = new URL('push/family/', location.href).pathname;
+  return navigator.serviceWorker.register(base + 'OneSignalSDKWorker.js', { scope: base })
+    .then(function(r){ PUSH.reg = r; }).catch(function(e){ PUSH.err = 'sw: ' + String((e && e.message) || e).slice(0, 160); });
 }
 function dropOneSignalDb(){
   return new Promise(function(res){ try{ const q = indexedDB.deleteDatabase('ONE_SIGNAL_SDK_DB'); q.onsuccess = q.onerror = q.onblocked = function(){ res(); }; }catch(e){ res(); } });
@@ -691,7 +698,7 @@ function enterApp(){
   go('home');
   loadData();
   flushQueue();
-  setTimeout(function(){ pushInit(); pushLogin(); }, 1200);
+  pushInit();
   if (isIOS() && !isStandalone() && flag(GUIDE_KEY + S.profile.username)) maybeOnboard();
   if (!flag(GUIDE_KEY + S.profile.username)) setTimeout(openGuide, 700);
 }
@@ -1565,7 +1572,11 @@ Object.assign(I, {
   child:'<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/>',
   chev:'<path d="M15 18l-6-6 6-6"/>'
 });
-if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+/* لا نسجّل عامل مرسى العام هنا حتى لا يتداخل مع عامل الإشعارات.
+   وفي تطبيق العائلة المثبّت على الآيفون (تخزينه منفصل) نزيل نسخة سُجّلت سابقاً. */
+if ('serviceWorker' in navigator && isIOS() && isStandalone()) navigator.serviceWorker.getRegistrations().then(function(rs){
+  rs.forEach(function(r){ if (!/\/push\//.test(r.scope)) r.unregister(); });
+}).catch(function(){});
 
 /* =====================================================================
    v6 — النت الضعيف، الإشعارات التلقائية، مصروف الأطفال اليومي
@@ -1689,30 +1700,40 @@ function pushOnboard(){
 function pushEnableClick(){
   const btn = this, msg = document.getElementById('pushMsg');
   btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> جارٍ التفعيل';
-  let p;
-  try{ p = Notification.requestPermission(); }catch(e){ p = null; }
-  Promise.resolve(p).then(function(perm){
-    perm = perm || Notification.permission;
-    if (perm !== 'granted'){ PUSH.denied = perm === 'denied'; throw new Error(perm === 'denied' ? 'رفضت الإذن. فعّله من إعدادات الجوال' : 'لم تُمنح الموافقة'); }
+  const fail = function(e){
+    const m = String((e && e.message) || e || 'خطأ');
+    return pushDiag().then(function(d){
+      PUSH_REPORTED = '';
+      api('pushReport', { state: 'فشل: ' + m.slice(0, 60) + ' | ' + d, permission: ('Notification' in window) ? Notification.permission : '', standalone: isStandalone(), device: deviceName() }).catch(function(){});
+      btn.disabled = false; btn.innerHTML = ic('refresh', 18, 2.2) + ' إصلاح وإعادة المحاولة'; btn.onclick = pushRepair;
+      msg.innerHTML = '<span style="color:var(--red)">' + esc(m) + '</span><br><small style="color:var(--muted);direction:ltr;display:block">' + esc(d) + '</small>';
+    });
+  };
+  let first;
+  try{
+    if (PUSH.st === 'ready'){
+      /* داخل الضغطة مباشرة (شرط الآيفون): OneSignal يطلب الإذن ويسجّل الجهاز */
+      pushLogin();
+      first = (('Notification' in window) && Notification.permission === 'granted')
+        ? PUSH.os.User.PushSubscription.optIn()
+        : PUSH.os.Notifications.requestPermission().then(function(){ return PUSH.os.User.PushSubscription.optIn(); });
+    } else {
+      first = Promise.resolve(Notification.requestPermission()).then(function(){ return waitPushReady(20000); }).then(function(){ pushLogin(); return PUSH.os.User.PushSubscription.optIn(); });
+    }
+  }catch(e){ first = Promise.reject(e); }
+  Promise.resolve(first).then(function(){
+    if ('Notification' in window && Notification.permission !== 'granted'){ PUSH.denied = Notification.permission === 'denied'; throw new Error(PUSH.denied ? 'رفضت الإذن. فعّله من إعدادات الجوال' : 'لم تُمنح الموافقة'); }
     msg.textContent = 'تم السماح ✓ جارٍ تسجيل جهازك…';
-    return waitPushReady(15000);
-  }).then(function(){
-    pushLogin();
-    return Promise.resolve(PUSH.os.User.PushSubscription.optIn());
-  }).then(function(){ return waitToken(30000); }).then(function(ok){
+    return waitToken(30000);
+  }).then(function(ok){
     pushRefresh();
-    if (!ok) return pushDiag().then(function(d){ PUSH_REPORTED = ''; api('pushReport', { state: 'فشل: ' + d, permission: Notification.permission, standalone: isStandalone(), device: deviceName() }).catch(function(){}); throw new Error('لم يكتمل تسجيل الجهاز (' + d + ')'); });
+    if (!ok) throw new Error('لم يكتمل تسجيل الجهاز');
     pushReport();
     return api('pushTest').catch(function(){ return { ok: true }; });
   }).then(function(r){
     openSheet(bellArt() + sheetHead('تم تفعيل الإشعارات ✓', r && r.ok ? 'أرسلنا لك إشعاراً تجريبياً الآن' : 'جهازك مسجّل. قد يتأخر أول إشعار دقيقة') + '<button class="btn-navy" data-close>ممتاز</button>');
     if (S.tab === 'me') go('me');
-  }).catch(function(e){
-    btn.disabled = false; btn.innerHTML = ic('refresh', 18, 2.2) + ' إصلاح وإعادة المحاولة';
-    btn.onclick = pushRepair;
-    msg.innerHTML = '<span style="color:var(--red)">' + esc(String((e && e.message) || e)) + '</span>';
-    pushReport();
-  });
+  }).catch(fail);
 }
 function pushDiag(){
   const out = [];
@@ -1722,6 +1743,9 @@ function pushDiag(){
   return navigator.serviceWorker.getRegistrations().then(function(regs){
     const r = regs.filter(function(x){ return /\/push\/family\/$/.test(x.scope); })[0];
     out.push('عامل:' + (r ? (r.active ? 'يعمل' : 'غير نشط') : 'غير مسجّل'));
+    out.push('scopes:' + regs.map(function(x){ return x.scope.replace(location.origin, ''); }).join(','));
+    if (PUSH.err) out.push('err:' + PUSH.err);
+    out.push('sdk:' + PUSH.st);
     return r ? r.pushManager.getSubscription().then(function(s){ out.push('اشتراك المتصفح:' + (s ? 'نعم' : 'لا')); }) : null;
   }).catch(function(e){ out.push('خطأ:' + (e && e.message)); }).then(function(){ return out.join(' · '); });
 }
