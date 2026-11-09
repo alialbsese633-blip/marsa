@@ -367,7 +367,7 @@ body.big .catgrid{grid-template-columns:repeat(3,1fr)}
 
 .net-strip{display:flex;align-items:center;gap:8px;margin-top:14px!important;background:#FFF4DA;color:#7A5300;border:1px solid #F1D9A0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin:0 0 14px}
 .net-strip span{flex:1}.net-strip button{background:var(--navy-800);color:#fff;border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:700}
-.kids .row{align-items:center}
+.kids .row{align-items:center}.kid-acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}.kid-plus{font-size:12.5px;font-weight:700;color:var(--navy-700);background:var(--ivory);border-radius:10px;padding:6px 10px}.kid-ex{color:#7A5300!important}.kids .t small{display:block}
 .kid-btn{background:var(--navy-800);color:#fff;font-weight:700;font-size:14px;border-radius:12px;padding:9px 16px;min-width:86px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .kid-btn.done{background:#E3F4EE;color:#1E7A5A}.kid-btn.warn{background:#FDE8E6;color:var(--red)}
 .kid-setup{display:flex;align-items:center;gap:12px;width:100%;text-align:right;margin-bottom:18px}.kid-setup>div{flex:1}.kid-setup small{display:block;color:var(--muted);font-size:13px}
@@ -1334,7 +1334,7 @@ async function send(f, action, payload, okMsg){
   const label = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span>';
   if (QUEUE_OK.indexOf(action) > -1){
-    try{ const ok = await sendQ(action, payload, okMsg, action === 'addExpense' ? 'مصروف' : 'دخل'); if (ok) closeSheet(); }
+    try{ const ok = await sendQ(action, payload, okMsg, action === 'addExpense' ? 'مصروف' : (action === 'kidExtra' ? 'زيادة طفل' : 'دخل')); if (ok) closeSheet(); }
     finally{ btn.disabled = false; btn.innerHTML = label; }
     return;
   }
@@ -1576,7 +1576,7 @@ function dataKey(){ return 'mf_data_' + (S.profile ? S.profile.id : ''); }
 function cacheData(r){ try{ localStorage.setItem(dataKey(), JSON.stringify({ at: Date.now(), d: r })); }catch(e){} }
 function cachedData(){ try{ const x = JSON.parse(localStorage.getItem(dataKey()) || 'null'); return x && x.d ? x : null; }catch(e){ return null; } }
 const QKEY = 'mf_queue_v1';
-const QUEUE_OK = ['addExpense','addIncome','kidGive'];
+const QUEUE_OK = ['addExpense','addIncome','kidGive','kidExtra'];
 function queue(){ try{ return JSON.parse(localStorage.getItem(QKEY) || '[]'); }catch(e){ return []; } }
 function setQueue(q){ try{ localStorage.setItem(QKEY, JSON.stringify(q)); }catch(e){} }
 function newCid(){ return (S.profile ? S.profile.id : 'x') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7); }
@@ -1772,25 +1772,38 @@ function kidsCard(D){
   }
   return '<div class="sec-h"><h3>مصروف الأطفال اليوم</h3>' + (p.isAdmin ? '<button data-act="kids">تعديل</button>' : '') + '</div><div class="list kids">' +
     L.map(function(k){
+      const ex = (k.todayExtra || []).map(function(x){ return '<small class="kid-ex">+ ' + fmt(x.amount) + ' · ' + esc(x.note) + ' · ' + esc(first(x.by)) + '</small>'; }).join('');
       return '<div class="row">' + gem('child', k.givenToday ? 'g-green' : 'g-blue', 19) +
         '<div class="t"><b>' + esc(k.name) + ' <span class="num" style="font-weight:500;color:var(--muted)">' + fmt(k.amount) + ' ' + (CUR_AR[k.currency] || '') + '</span></b>' +
-        '<small>' + (k.givenToday ? 'أُعطي اليوم' + (k.givenBy ? ' · ' + esc(first(k.givenBy)) : '') : 'لم يُعطَ بعد') + ' · هذا الشهر ' + k.monthDays + ' يوم</small></div>' +
-        (k.givenToday ? '<button class="kid-btn done" data-kid-undo="' + esc(k.givenId) + '">' + ic('check', 16, 2.6) + ' تم</button>'
-                      : '<button class="kid-btn" data-kid-give="' + esc(k.id) + '">أعطيته</button>') + '</div>';
+        '<small>' + (k.givenToday ? 'أعطاه اليوم ' + esc(first(k.givenBy)) : 'لم يُعطَ اليوم بعد') + '</small>' + ex +
+        '<small>هذا الشهر: يومي <span class="num">' + fmt(k.monthDaily || 0) + '</span>' + (k.monthExtra ? ' · زيادات <span class="num">' + fmt(k.monthExtra) + '</span>' : '') + '</small></div>' +
+        '<div class="kid-acts">' + (k.givenToday ? '<button class="kid-btn done" data-kid-undo="' + esc(k.givenId) + '">' + ic('check', 16, 2.6) + ' أُعطي</button>'
+                      : '<button class="kid-btn" data-kid-give="' + esc(k.id) + '">أعطيته</button>') +
+        '<button class="kid-plus" data-kid-extra="' + esc(k.id) + '">+ زيادة</button></div></div>';
     }).join('') + '</div>';
 }
 function bindKids(root){
   root.querySelectorAll('[data-kid-give]').forEach(function(b){ b.onclick = async function(){
     if (b.disabled) return; b.disabled = true; b.innerHTML = '<span class="spinner"></span>';
     const k = (S.data.kids || []).filter(function(x){ return x.id === b.dataset.kidGive; })[0];
-    const ok = await sendQ('kidGive', { kidId: b.dataset.kidGive }, '✓ سُجّل مصروف ' + (k ? k.name : '') + ' اليوم', 'مصروف ' + (k ? k.name : ''));
+    const ok = await sendQ('kidGive', { kidId: b.dataset.kidGive }, '✓ سُجّل مصروف ' + (k ? k.name : '') + '، ووصل تنبيه للعائلة', 'مصروف ' + (k ? k.name : ''));
     if (ok && k){ k.givenToday = true; k.givenBy = S.profile.name; } b.disabled = false; go(S.tab, true);
   }; });
   root.querySelectorAll('[data-kid-undo]').forEach(function(b){ b.onclick = function(){
-    if (!b.dataset.sure){ b.dataset.sure = '1'; b.textContent = 'تراجع؟'; b.classList.add('warn'); setTimeout(function(){ if (b.isConnected){ delete b.dataset.sure; b.innerHTML = ic('check', 16, 2.6) + ' تم'; b.classList.remove('warn'); paintIcons(b); } }, 3000); return; }
+    if (!b.dataset.sure){ b.dataset.sure = '1'; b.textContent = 'تراجع؟'; b.classList.add('warn'); setTimeout(function(){ if (b.isConnected){ delete b.dataset.sure; b.innerHTML = ic('check', 16, 2.6) + ' أُعطي'; b.classList.remove('warn'); } }, 3000); return; }
     b.disabled = true; quick('kidUndo', { givenId: b.dataset.kidUndo }, '✓ أُلغي تسجيل اليوم');
   }; });
+  root.querySelectorAll('[data-kid-extra]').forEach(function(b){ b.onclick = function(){ kidExtraSheet(b.dataset.kidExtra); }; });
 }
+function kidExtraSheet(id){
+  const k = (S.data.kids || []).filter(function(x){ return x.id === id; })[0];
+  if (!k) return;
+  openSheet('<form data-submit="mfKidExtra">' + sheetHead('زيادة لـ' + esc(k.name), 'مصروف مباشر غير المصروف اليومي، ويصل تنبيه للعائلة') +
+    '<input type="hidden" name="kidId" value="' + esc(k.id) + '">' + amountField('YER') +
+    '<div class="fg"><label>التوضيح (إلزامي)</label><input class="inp" name="note" placeholder="مثال: دفتر وأقلام للمدرسة" required></div>' +
+    dateField() + footer('تسجيل الزيادة') + '</form>');
+}
+window.mfKidExtra = function(f){ send(f, 'kidExtra', { kidId: f.kidId.value, amount: f.amount.value, currency: f.currency.value, note: f.note.value, date: f.date.value }, '✓ سُجّلت الزيادة، ووصل تنبيه للعائلة'); };
 function kidsSheet(){
   const D = S.data, L = D.kids || [];
   const people = D.people || [];
@@ -1800,11 +1813,11 @@ function kidsSheet(){
     return '<form data-submit="mfKidSet" class="card flat" style="margin-bottom:12px"><input type="hidden" name="id" value="' + esc(k.id) + '">' +
       '<div class="fg"><label>اسم الطفل</label><input class="inp" name="name" value="' + esc(k.name) + '" placeholder="مثال: راكان" required></div>' +
       '<div class="fg"><label>المصروف اليومي (ر.ي)</label><input class="inp num big-in" name="amount" inputmode="numeric" value="' + (k.amount === '' ? '' : k.amount) + '" placeholder="1500" required></div>' +
-      '<div class="fg"><label>من يعطيه؟ (يظهر له زر «أعطيته»)</label><div class="pick" data-name="guardian">' + people.map(function(x){ return '<button type="button" class="' + (x.name === k.guardian ? 'on' : '') + '" data-v="' + esc(x.name) + '">' + esc(x.short || first(x.name)) + '</button>'; }).join('') + '</div></div>' +
+      '<div class="fg"><label>المسؤول عنه (يصله تذكير الصباح)</label><div class="pick" data-name="guardian">' + people.map(function(x){ return '<button type="button" class="' + (x.name === k.guardian ? 'on' : '') + '" data-v="' + esc(x.name) + '">' + esc(x.short || first(x.name)) + '</button>'; }).join('') + '</div></div>' +
       '<button class="btn-navy" type="submit" style="margin:0">' + (k.id ? 'حفظ' : 'إضافة') + '</button>' +
       (k.id ? '<p class="note-s" style="margin-top:8px">لإيقافه: اكتب 0</p>' : '') + '</form>';
   };
-  openSheet(sheetHead('مصروف الأطفال اليومي', 'مبلغ ثابت كل يوم، يُسجَّل عندما يضغط من يعطيه «أعطيته»، ويُخصم من صندوق المصاريف') +
+  openSheet(sheetHead('مصروف الأطفال اليومي', 'مبلغ ثابت كل يوم. أي فرد يضغط «أعطيته» فيصل تنبيه للباقين، ويُخصم من صندوق المصاريف') +
     L.map(form).join('') + '<div class="sec-h" style="margin-top:6px"><h3>' + (L.length ? 'طفل آخر' : 'أضف طفلاً') + '</h3></div>' + form(null) +
     '<button class="btn-ghost" data-close>إغلاق</button>');
 }
