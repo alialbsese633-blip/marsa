@@ -72,7 +72,7 @@ input[type=text],input[type=search],input[type=time],select{width:100%;border:1p
 </head>
 <body>
 <header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
-<a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#set">⚙️</a></div></header>
+<a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#kh">🎧 الختمة</a><a class="btn" href="#set">⚙️</a></div></header>
 <div class="wrap" id="app"></div>
 <div class="modal" id="modal"><div class="box" id="box"></div></div>
 <div class="toast" id="toast"></div>
@@ -444,10 +444,70 @@ function viewSet(){
   document.getElementById('rst').onclick=function(){if(confirm('مسح سجل «تم الإرسال» من هذا الجهاز؟')){S.sent={};S.sw={};S.rp={h:0,q:0};save();toast('تمت إعادة الضبط')}};
 }
 
+
+/* ===== الختمة ===== */
+var SN=["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+var KFALL=[{v:'i:ar.alafasy',n:'مشاري العفاسي'},{v:'i:ar.saadalghamdi',n:'سعد الغامدي'}];
+S.kh=S.kh||{rec:'i:ar.alafasy',done:{},last:1};
+var KREC=null,KURL={};
+function khUrl(rec,n){
+  var k=rec+'|'+n;
+  if(KURL[k])return Promise.resolve(KURL[k]);
+  if(rec.indexOf('i:')===0){var u='https://cdn.islamic.app/quran/audio-surah/'+rec.slice(2)+'/'+n+'.mp3';KURL[k]=u;return Promise.resolve(u)}
+  return fetch('https://api.quran.com/api/v4/chapter_recitations/'+rec.slice(2)+'/'+n).then(function(r){return r.json()}).then(function(j){
+    var u=j&&j.audio_file&&j.audio_file.audio_url;if(!u)throw new Error('no url');KURL[k]=u;return u});
+}
+function khRecs(){
+  if(KREC)return Promise.resolve(KREC);
+  return fetch('https://api.quran.com/api/v4/resources/chapter_reciters?language=ar').then(function(r){return r.json()}).then(function(j){
+    var a=(j.reciters||[]).map(function(x){return{v:'q:'+x.id,n:(x.translated_name&&x.translated_name.name)||x.name}});
+    KREC=a.length?a.concat(KFALL):KFALL;return KREC}).catch(function(){KREC=KFALL;return KREC});
+}
+function viewKh(){
+  var K=S.kh,cnt=Object.keys(K.done).length,pct=Math.round(cnt*100/114);
+  var nxt=0;for(var i=1;i<=114;i++){if(!K.done[i]){nxt=i;break}}
+  var h='<h1>الختمة 🎧</h1><div class="card hero"><h2>تقدّمك: '+ar(cnt)+' من ١١٤ سورة</h2><div class="mute">اسمع كل سورة كاملة بصوت القارئ الذي تختاره، وعلّم ما أتممت.</div><div class="prog"><i style="width:'+pct+'%"></i></div>'
+   +'<div class="row">'+(nxt?'<button class="btn gold" id="knx">▶ تابع: سورة '+SN[nxt-1]+'</button>':'<span class="chip">🎉 ما شاء الله، ختمت القرآن! تقبّل الله منك</span>')+'</div></div>'
+   +'<div class="card"><div class="f"><label>القارئ</label><select id="krc"></select></div>'
+   +'<audio id="kau" controls preload="none" style="width:100%"></audio><div class="mute" id="kst">اختر سورة من القائمة للاستماع.</div>'
+   +'<div class="row"><button class="btn ok sm" id="kdn">✓ علّم السورة كمسموعة</button><button class="btn sm" id="kshr">📤 مشاركة السورة للمجتمع</button><button class="btn sm" id="krs">إعادة الختمة</button></div></div>'
+   +'<div class="card"><div class="tabs" style="flex-wrap:wrap" id="ksl"></div></div>'
+   +'<div class="note">الصوت يُبثّ مباشرة من مواقع التلاوات العامة (يحتاج إنترنت)، ولا يُخزَّن في التطبيق.</div>';
+  app.innerHTML=h;
+  var au=document.getElementById('kau'),st=document.getElementById('kst'),sel=document.getElementById('krc');
+  function paint(){
+    document.getElementById('ksl').innerHTML=SN.map(function(nm,i){var n=i+1;return '<a class="tab '+(K.done[n]?'on':'')+'" data-n="'+n+'" style="'+(K.last===n&&!K.done[n]?'border-color:var(--gold)':'')+'">'+(K.done[n]?'✓ ':'')+ar(n)+'. '+nm+'</a>'}).join('');
+    [].forEach.call(document.querySelectorAll('#ksl .tab'),function(a){a.onclick=function(){play(+a.dataset.n)}});
+    var c=Object.keys(K.done).length;document.querySelector('.hero h2').textContent='تقدّمك: '+ar(c)+' من ١١٤ سورة';document.querySelector('.prog i').style.width=Math.round(c*100/114)+'%';
+  }
+  function play(n){
+    K.last=n;save();st.textContent='جارٍ التحميل: سورة '+SN[n-1]+'…';
+    khUrl(K.rec,n).then(function(u){au.src=u;au.play().catch(function(){});st.textContent='سورة '+SN[n-1]+' ('+ar(n)+')'}).catch(function(){st.textContent='تعذّر تحميل التلاوة — جرّب قارئاً آخر.'});
+    paint();
+  }
+  function done(n){K.done[n]=1;save();paint()}
+  khRecs().then(function(a){
+    if(!a.some(function(r){return r.v===K.rec})){K.rec=a[0].v;save()}
+    sel.innerHTML=a.map(function(r){return '<option value="'+r.v+'"'+(K.rec===r.v?' selected':'')+'>'+esc(r.n)+'</option>'}).join('');
+  });
+  sel.onchange=function(){K.rec=sel.value;save();if(au.getAttribute('src'))play(K.last)};
+  au.onended=function(){done(K.last);if(K.last<114)play(K.last+1)};
+  var nb=document.getElementById('knx');if(nb)nb.onclick=function(){play(nxt)};
+  document.getElementById('kdn').onclick=function(){done(K.last);toast('تم ✓ تقبّل الله')};
+  document.getElementById('kshr').onclick=function(){
+    khUrl(K.rec,K.last).then(function(u){
+      var t='🎧 استمع إلى سورة '+SN[K.last-1]+'\n'+u+'\n\n'+C.sig;
+      if(navigator.share)navigator.share({text:t}).catch(function(){});else{try{navigator.clipboard.writeText(t);toast('تم النسخ ✓')}catch(e){}}
+    }).catch(function(){toast('تعذّر جلب الرابط')});
+  };
+  document.getElementById('krs').onclick=function(){if(confirm('بدء ختمة جديدة وتصفير التقدّم؟')){K.done={};K.last=1;save();viewKh()}};
+  paint();
+}
+
 /* ===== التوجيه ===== */
 function route(){
   var h=(location.hash||'#today').slice(1);
-  if(h==='lib')viewLib();else if(h==='set')viewSet();else viewToday();
+  if(h==='kh')viewKh();else if(h==='lib')viewLib();else if(h==='set')viewSet();else viewToday();
   window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',route);
