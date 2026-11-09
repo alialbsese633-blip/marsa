@@ -491,7 +491,7 @@ function viewKh(){
    +'<div class="row">'+(nxt?'<button class="btn gold" id="knx">▶ تابع: سورة '+SN[nxt-1]+'</button>':'<span class="chip">🎉 ما شاء الله، ختمت القرآن! تقبّل الله منك</span>')+'</div></div>'
    +'<div class="card"><div class="f"><label>القارئ</label><select id="krc"></select></div>'
    +'<audio id="kau" controls preload="none" style="width:100%"></audio><div class="mute" id="kst">اختر سورة من القائمة للاستماع.</div><div class="tabs" style="flex-wrap:wrap" id="kpt"></div>'
-   +'<div class="row"><button class="btn ok sm" id="kdn">✓ علّم السورة كمسموعة</button><button class="btn pri sm" id="kcp">📋 نسخ النص</button><button class="btn sm" id="kshr">📤 مشاركة</button><button class="btn sm" id="krs">إعادة الختمة</button></div></div>'
+   +'<div class="row"><button class="btn ok sm" id="kdn">✓ علّم السورة كمسموعة</button><button class="btn pri sm" id="kcp">📋 نسخ النص</button><button class="btn sm" id="kshr">📤 مشاركة</button><button class="btn gold sm" id="kclip">🎵 مقطع صوتي (حتى ٥ د)</button><button class="btn sm" id="krs">إعادة الختمة</button></div></div>'
    +'<div class="card"><div class="tabs" style="flex-wrap:wrap" id="ksl"></div></div>'
    +'<div class="note">الصوت يُبثّ مباشرة من مواقع التلاوات العامة (يحتاج إنترنت)، ولا يُخزَّن في التطبيق.</div>';
   app.innerHTML=h;
@@ -535,6 +535,21 @@ function viewKh(){
   document.getElementById('kshr').onclick=function(){
     khUrl(K.rec,K.last).then(function(u){var t=ktext(u);
       if(navigator.share)navigator.share({text:t}).catch(function(){});else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')})};
+  document.getElementById('kclip').onclick=function(){
+    var btn=this,D=au.duration;if(!D||!isFinite(D)){toast('شغّل السورة أولاً');return}
+    var q=PT[PI]||{f:0,t:D},nm='sunna-'+K.last+(PT.length>1?'-part'+(PI+1):'')+'.mp3';
+    btn.disabled=true;toast('جارٍ تجهيز المقطع…');
+    khUrl(K.rec,K.last).then(function(u){
+      return fetch(u,{headers:{Range:'bytes=0-0'}}).then(function(r){
+        var m=/\/(\d+)\s*$/.exec(r.headers.get('content-range')||'');if(!m)throw new Error('range');
+        var T=+m[1],st=Math.floor(q.f/D*T),en=Math.min(T-1,Math.floor(q.t/D*T));
+        return fetch(u,{headers:{Range:'bytes='+st+'-'+en}})}).then(function(r){return r.blob()});
+    }).then(function(bl){
+      var f=new File([bl],nm,{type:'audio/mpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[f]}))return navigator.share({files:[f],text:'🎧 سلسلة ختم القرآن الكريم صوتياً — '+partLabel().split('\n')[0]+'\n\n'+C.sig});
+      download(f);toast('تم تنزيل المقطع');
+    }).catch(function(e){if(e&&e.name==='AbortError')return;toast('تعذّر تجهيز المقطع من هذا القارئ — استخدم نسخ النص')}).then(function(){btn.disabled=false});
+  };
   document.getElementById('krs').onclick=function(){if(confirm('بدء ختمة جديدة وتصفير التقدّم؟')){K.done={};K.last=1;save();viewKh()}};
   paint();
 }
