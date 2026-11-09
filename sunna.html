@@ -457,6 +457,27 @@ function khUrl(rec,n){
   return fetch('https://api.quran.com/api/v4/chapter_recitations/'+rec.slice(2)+'/'+n).then(function(r){return r.json()}).then(function(j){
     var u=j&&j.audio_file&&j.audio_file.audio_url;if(!u)throw new Error('no url');KURL[k]=u;return u});
 }
+function khTim(rec,n){
+  if(rec.indexOf('q:')!==0)return Promise.resolve(null);
+  return fetch('https://api.quran.com/api/v4/chapter_recitations/'+rec.slice(2)+'/'+n+'?segments=true').then(function(r){return r.json()}).then(function(j){
+    var t=j&&j.audio_file&&j.audio_file.timestamps;if(!t||!t.length)return null;
+    return t.map(function(x){return{v:+String(x.verse_key).split(':')[1],f:x.timestamp_from/1000,t:x.timestamp_to/1000}})}).catch(function(){return null});
+}
+function mmss(x){x=Math.round(x);var m=Math.floor(x/60),s=x%60;return ar(m)+':'+ar((s<10?'0':'')+s)}
+function khParts(D,tm){
+  var MAX=300,P=[];
+  if(D<=MAX+5)return[{f:0,t:D,a:0,b:0}];
+  if(tm&&tm.length){
+    var cur={f:0,t:0,a:tm[0].v,b:tm[0].v};
+    tm.forEach(function(x,i){
+      if(x.t-cur.f>MAX&&cur.b>=cur.a&&i>0&&cur.t>cur.f){P.push(cur);cur={f:cur.t,t:x.t,a:x.v,b:x.v}}
+      else{cur.t=x.t;cur.b=x.v}});
+    cur.t=D;P.push(cur);return P;
+  }
+  var k=Math.ceil(D/MAX),w=D/k;
+  for(var i=0;i<k;i++)P.push({f:i*w,t:(i+1)*w,a:0,b:0});
+  return P;
+}
 function khRecs(){
   if(KREC)return Promise.resolve(KREC);
   return fetch('https://api.quran.com/api/v4/resources/chapter_reciters?language=ar').then(function(r){return r.json()}).then(function(j){
@@ -469,8 +490,8 @@ function viewKh(){
   var h='<h1>الختمة 🎧</h1><div class="card hero"><h2>تقدّمك: '+ar(cnt)+' من ١١٤ سورة</h2><div class="mute">اسمع كل سورة كاملة بصوت القارئ الذي تختاره، وعلّم ما أتممت.</div><div class="prog"><i style="width:'+pct+'%"></i></div>'
    +'<div class="row">'+(nxt?'<button class="btn gold" id="knx">▶ تابع: سورة '+SN[nxt-1]+'</button>':'<span class="chip">🎉 ما شاء الله، ختمت القرآن! تقبّل الله منك</span>')+'</div></div>'
    +'<div class="card"><div class="f"><label>القارئ</label><select id="krc"></select></div>'
-   +'<audio id="kau" controls preload="none" style="width:100%"></audio><div class="mute" id="kst">اختر سورة من القائمة للاستماع.</div>'
-   +'<div class="row"><button class="btn ok sm" id="kdn">✓ علّم السورة كمسموعة</button><button class="btn sm" id="kshr">📤 مشاركة السورة للمجتمع</button><button class="btn sm" id="krs">إعادة الختمة</button></div></div>'
+   +'<audio id="kau" controls preload="none" style="width:100%"></audio><div class="mute" id="kst">اختر سورة من القائمة للاستماع.</div><div class="tabs" style="flex-wrap:wrap" id="kpt"></div>'
+   +'<div class="row"><button class="btn ok sm" id="kdn">✓ علّم السورة كمسموعة</button><button class="btn pri sm" id="kcp">📋 نسخ النص</button><button class="btn sm" id="kshr">📤 مشاركة</button><button class="btn sm" id="krs">إعادة الختمة</button></div></div>'
    +'<div class="card"><div class="tabs" style="flex-wrap:wrap" id="ksl"></div></div>'
    +'<div class="note">الصوت يُبثّ مباشرة من مواقع التلاوات العامة (يحتاج إنترنت)، ولا يُخزَّن في التطبيق.</div>';
   app.innerHTML=h;
@@ -480,8 +501,21 @@ function viewKh(){
     [].forEach.call(document.querySelectorAll('#ksl .tab'),function(a){a.onclick=function(){play(+a.dataset.n)}});
     var c=Object.keys(K.done).length;document.querySelector('.hero h2').textContent='تقدّمك: '+ar(c)+' من ١١٤ سورة';document.querySelector('.prog i').style.width=Math.round(c*100/114)+'%';
   }
+  var PT=[],PI=0;
+  function selPart(i){PI=i;var q=PT[i];if(!q)return;au.currentTime=q.f+0.05;au.play().catch(function(){});drawParts()}
+  function drawParts(){
+    var el=document.getElementById('kpt');
+    if(PT.length<2){el.innerHTML='';return}
+    el.innerHTML=PT.map(function(q,i){return '<a class="tab '+(i===PI?'on':'')+'" data-p="'+i+'">الجزء '+ar(i+1)+'</a>'}).join('');
+    [].forEach.call(el.querySelectorAll('.tab'),function(a){a.onclick=function(){selPart(+a.dataset.p)}});
+  }
+  function partLabel(){var q=PT[PI]||{};var t='سورة '+SN[K.last-1];
+    if(PT.length>1){t+=' — الجزء '+ar(PI+1)+' من '+ar(PT.length);if(q.a)t+=' (الآيات '+ar(q.a)+(q.b>q.a?'–'+ar(q.b):'')+')';t+='\nمن الدقيقة '+mmss(q.f)+' إلى '+mmss(q.t)}
+    return t}
+  au.onloadedmetadata=function(){var n=K.last;khTim(K.rec,n).then(function(tm){if(K.last!==n)return;PT=khParts(au.duration,tm);PI=0;drawParts()})};
+  au.ontimeupdate=function(){var q=PT[PI];if(q&&PT.length>1&&au.currentTime>=q.t-0.1&&PI<PT.length-1){PI++;drawParts()}};
   function play(n){
-    K.last=n;save();st.textContent='جارٍ التحميل: سورة '+SN[n-1]+'…';
+    PT=[];PI=0;drawParts();K.last=n;save();st.textContent='جارٍ التحميل: سورة '+SN[n-1]+'…';
     khUrl(K.rec,n).then(function(u){au.src=u;au.play().catch(function(){});st.textContent='سورة '+SN[n-1]+' ('+ar(n)+')'}).catch(function(){st.textContent='تعذّر تحميل التلاوة — جرّب قارئاً آخر.'});
     paint();
   }
@@ -494,12 +528,13 @@ function viewKh(){
   au.onended=function(){done(K.last);if(K.last<114)play(K.last+1)};
   var nb=document.getElementById('knx');if(nb)nb.onclick=function(){play(nxt)};
   document.getElementById('kdn').onclick=function(){done(K.last);toast('تم ✓ تقبّل الله')};
+  function ktext(u){return '🎧 سلسلة ختم القرآن الكريم صوتياً\n\n'+partLabel()+'\n'+u+'\n\n'+C.sig}
+  document.getElementById('kcp').onclick=function(){
+    khUrl(K.rec,K.last).then(function(u){var t=ktext(u);
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('تم نسخ النص ✓')},function(){toast('تعذّر النسخ')});else toast('تعذّر النسخ')})};
   document.getElementById('kshr').onclick=function(){
-    khUrl(K.rec,K.last).then(function(u){
-      var t='🎧 استمع إلى سورة '+SN[K.last-1]+'\n'+u+'\n\n'+C.sig;
-      if(navigator.share)navigator.share({text:t}).catch(function(){});else{try{navigator.clipboard.writeText(t);toast('تم النسخ ✓')}catch(e){}}
-    }).catch(function(){toast('تعذّر جلب الرابط')});
-  };
+    khUrl(K.rec,K.last).then(function(u){var t=ktext(u);
+      if(navigator.share)navigator.share({text:t}).catch(function(){});else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')})};
   document.getElementById('krs').onclick=function(){if(confirm('بدء ختمة جديدة وتصفير التقدّم؟')){K.done={};K.last=1;save();viewKh()}};
   paint();
 }
