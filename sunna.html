@@ -68,12 +68,12 @@ input[type=text],input[type=search],input[type=time],select{width:100%;border:1p
 .sws{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}.sws small{color:var(--mute);font-size:12px}.sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2.5px var(--g)}
 .empty{text-align:center;color:var(--mute);padding:24px}
 </style>
-<script src="sunna-data.js"></script>
+<script src="sunna-data.js?v=96"></script>
 </head>
 <body>
 <header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
 <a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#kh">🎧 الختمة</a><a class="btn" href="#ad">🌅 الأذكار</a><a class="btn" href="#set">⚙️</a></div></header>
-<div class="wrap" id="app"></div>
+<div class="wrap" id="app"></div><div class="mute" style="text-align:center;padding:0 0 20px;font-size:12px">الإصدار ٩٦</div>
 <div class="modal" id="modal"><div class="box" id="box"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -112,7 +112,7 @@ function todayList(){
   slots.forEach(function(t){cnt[t]++});
   slots.forEach(function(t,i){
     var idx=POOL[t][mod(n*cnt[t]+seen[t],POOL[t].length)];seen[t]++;
-    var sw=S.sw[k+'|'+i];if(sw!=null)idx=sw;
+    var sw=S.sw[k+'|'+i];if(sw!=null&&ROWS[sw])idx=sw;
     out.push({slot:i,idx:idx,type:t});
   });
   return out;
@@ -580,6 +580,13 @@ function viewAd(){
 /* ===== التوجيه ===== */
 function route(){
   var h=(location.hash||'#today').slice(1);
+  try{ go(h) }catch(e){
+    app.innerHTML='<div class="card"><h2>حدث خطأ في الصفحة</h2><div class="mute">أرسل لقطة شاشة لهذه الرسالة:</div><pre style="direction:ltr;white-space:pre-wrap;font-size:12px">'+esc((e&&e.stack)||e)+'</pre><button class="btn" id="fix">إصلاح وإعادة المحاولة</button></div>';
+    document.getElementById('fix').onclick=function(){S.sw={};S.th={};S.ly={};save();location.reload()};
+  }
+  window.scrollTo(0,0);
+}
+function go(h){
   if(h==='ad')viewAd();else if(h==='kh')viewKh();else if(h==='lib')viewLib();else if(h==='set')viewSet();else viewToday();
   window.scrollTo(0,0);
 }

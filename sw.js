@@ -1,7 +1,7 @@
 /* Service Worker — يجعل التطبيق يفتح بسرعة وحتى بدون إنترنت.
    الصفحة نفسها: الشبكة أولاً (لتصلك آخر نسخة دائماً) ثم النسخة المحفوظة عند انقطاع الاتصال.
    طلبات قاعدة البيانات (Google) لا تمرّ من هنا أبداً. */
-const V = "ns-v95";
+const V = "ns-v96";
 const FONTS = 'td-fonts-v1';
 /* نحفظ مسبقاً الواجهة الأساسية فقط؛ بقية الصفحات والمكتبات تُحفظ عند أول استخدام (حتى لا يُعاد تنزيل ميغابايتات مع كل تحديث) */
 const SHELL = ['./', 'index.html', 'hr.html', 'hr-config.js', 'config.js', 'manifest.webmanifest',
@@ -39,7 +39,7 @@ self.addEventListener('fetch', (e) => {
 
   if (url.origin !== location.origin) return;   // الخادم، يوتيوب…: مباشرة من الشبكة
 
-  const isDoc = req.mode === 'navigate' || /\.html?$|\/$|config\.js$|\.webmanifest$/.test(url.pathname);
+  const isDoc = req.mode === 'navigate' || /sunna-data\.js$|\.html?$|\/$|config\.js$|\.webmanifest$/.test(url.pathname);
   if (isDoc) {
     /* الصفحات: الشبكة أولاً لتصلك آخر نسخة، لكن إن تأخرت الشبكة أكثر من 3 ثوانٍ تُفتح النسخة المحفوظة فوراً */
     e.respondWith(new Promise((resolve) => {
