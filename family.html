@@ -527,10 +527,39 @@ function pushRefresh(){
 function pushInit(){
   if (!OS_APP_ID || PUSH.st !== 'off') return;
   PUSH.st = 'loading';
+  pushCleanStart().then(pushLoadSdk);
+}
+/* مرة واحدة لكل جهاز: نزيل بقايا إشعارات تطبيق التدريب القديم (نفس النطاق بمفتاح مختلف كان يمنع التسجيل) */
+function pushCleanStart(){
+  let done = false; try{ done = localStorage.getItem('mf_push_clean_v6') === '1'; }catch(e){}
+  if (done || !('serviceWorker' in navigator)) return Promise.resolve();
+  return navigator.serviceWorker.getRegistrations().then(function(regs){
+    return Promise.all(regs.filter(function(r){ return /\/push\/onesignal\/$/.test(r.scope); }).map(function(r){
+      return r.pushManager.getSubscription().then(function(s){ return s && s.unsubscribe(); }).catch(function(){}).then(function(){ return r.unregister(); });
+    }));
+  }).then(function(){ return dropOneSignalDb(); }).catch(function(){}).then(function(){ try{ localStorage.setItem('mf_push_clean_v6', '1'); }catch(e){} });
+}
+function dropOneSignalDb(){
+  return new Promise(function(res){ try{ const q = indexedDB.deleteDatabase('ONE_SIGNAL_SDK_DB'); q.onsuccess = q.onerror = q.onblocked = function(){ res(); }; }catch(e){ res(); } });
+}
+/* إصلاح كامل: حذف تسجيل الإشعارات من هذا الجهاز ثم إعادة تحميل التطبيق */
+function pushRepair(){
+  toast('جارٍ إصلاح الإشعارات…');
+  const p = ('serviceWorker' in navigator) ? navigator.serviceWorker.getRegistrations().then(function(regs){
+    return Promise.all(regs.filter(function(r){ return /\/push\//.test(r.scope); }).map(function(r){
+      return r.pushManager.getSubscription().then(function(s){ return s && s.unsubscribe(); }).catch(function(){}).then(function(){ return r.unregister(); });
+    }));
+  }) : Promise.resolve();
+  p.catch(function(){}).then(dropOneSignalDb).then(function(){
+    try{ localStorage.removeItem('mf_push_ask_' + S.profile.id); localStorage.setItem('mf_push_open', '1'); }catch(e){}
+    location.reload();
+  });
+}
+function pushLoadSdk(){
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   window.OneSignalDeferred.push(function(OneSignal){
     PUSH.os = OneSignal;
-    const base = new URL('push/onesignal/', location.href).pathname;
+    const base = new URL('push/family/', location.href).pathname;
     return Promise.resolve(OneSignal.init({ appId: OS_APP_ID, serviceWorkerPath: base + 'OneSignalSDKWorker.js', serviceWorkerParam:{ scope: base } }))
       .then(function(){
         PUSH.st = 'ready'; pushRefresh(); pushLogin(); pushAuto();
@@ -571,19 +600,9 @@ function pushDetails(){
     '<div class="card" style="direction:ltr;text-align:left;font-size:13px;word-break:break-all;margin-bottom:14px;line-height:1.9">' +
     [row('optedIn', ps.optedIn), row('token', ps.token ? ps.token.slice(0,24)+'…' : 'NONE'), row('subscriptionId', ps.id || 'NONE'),
      row('externalId', u.externalId || 'NONE'), row('permission', ('Notification' in window)?Notification.permission:'none'), row('standalone', isStandalone())].join('<br>') + '</div>' +
-    '<button class="btn-navy" id="pushTestBtn" type="button">إرسال إشعار تجريبي</button><button class="btn-ghost" id="pushRetry" style="margin-bottom:8px">إعادة تسجيل الجهاز</button><button class="btn-ghost" data-close>إغلاق</button>');
+    '<button class="btn-navy" id="pushTestBtn" type="button">إرسال إشعار تجريبي</button><button class="btn-ghost" id="pushRetry" style="margin-bottom:8px">إصلاح الإشعارات على هذا الجهاز</button><button class="btn-ghost" data-close>إغلاق</button>');
   document.getElementById('pushTestBtn').onclick = function(){ const b = this; b.disabled = true; api('pushTest').then(function(r){ toast(r.ok ? '✓ أُرسل، يصلك خلال ثوانٍ' : (r.error || 'تعذّر')); b.disabled = false; }).catch(function(){ toast('تعذّر الاتصال'); b.disabled = false; }); };
-  document.getElementById('pushRetry').onclick = async function(){
-    this.disabled = true; this.textContent = 'جارٍ إعادة التسجيل…';
-    try{
-      await PUSH.os.User.PushSubscription.optOut();
-      await new Promise(function(r){ setTimeout(r, 1200); });
-      await PUSH.os.Notifications.requestPermission();
-      await PUSH.os.User.PushSubscription.optIn();
-      await new Promise(function(r){ setTimeout(r, 2500); });
-    }catch(e){ toast('خطأ: '+String((e&&e.message)||e).slice(0,80)); }
-    pushRefresh(); closeSheet(); setTimeout(pushDetails, 400);
-  };
+  document.getElementById('pushRetry').onclick = pushRepair;
 }
 function pushToggle(){
   if (!OS_APP_ID){ toast('إشعارات الجوال تُفعَّل قريباً'); return; }
@@ -602,6 +621,7 @@ function pushToggle(){
     return;
   }
   if (PUSH.opted){ pushDetails(); return; }
+  if (PUSH.noToken){ pushRepair(); return; }
   pushOnboard();
 }
 
@@ -1634,6 +1654,7 @@ function pushAuto(){
 function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function maybeOnboard(){
   if (!S.profile || PUSH.opted || PUSH.denied) return;
+  try{ if (localStorage.getItem('mf_push_open') === '1'){ localStorage.removeItem('mf_push_open'); setTimeout(pushOnboard, 600); return; } }catch(e){}
   if (document.getElementById('sheet').classList.contains('on')) return;
   const k = 'mf_push_ask_' + S.profile.id;
   try{ if (localStorage.getItem(k) === todayKey()) return; localStorage.setItem(k, todayKey()); }catch(e){}
@@ -1678,18 +1699,31 @@ function pushEnableClick(){
   }).then(function(){
     pushLogin();
     return Promise.resolve(PUSH.os.User.PushSubscription.optIn());
-  }).then(function(){ return waitToken(12000); }).then(function(ok){
-    pushRefresh(); pushReport();
-    if (!ok) throw new Error('لم يكتمل تسجيل الجهاز، اضغط «إعادة المحاولة»');
+  }).then(function(){ return waitToken(30000); }).then(function(ok){
+    pushRefresh();
+    if (!ok) return pushDiag().then(function(d){ PUSH_REPORTED = ''; api('pushReport', { state: 'فشل: ' + d, permission: Notification.permission, standalone: isStandalone(), device: deviceName() }).catch(function(){}); throw new Error('لم يكتمل تسجيل الجهاز (' + d + ')'); });
+    pushReport();
     return api('pushTest').catch(function(){ return { ok: true }; });
   }).then(function(r){
     openSheet(bellArt() + sheetHead('تم تفعيل الإشعارات ✓', r && r.ok ? 'أرسلنا لك إشعاراً تجريبياً الآن' : 'جهازك مسجّل. قد يتأخر أول إشعار دقيقة') + '<button class="btn-navy" data-close>ممتاز</button>');
     if (S.tab === 'me') go('me');
   }).catch(function(e){
-    btn.disabled = false; btn.innerHTML = 'إعادة المحاولة';
+    btn.disabled = false; btn.innerHTML = ic('refresh', 18, 2.2) + ' إصلاح وإعادة المحاولة';
+    btn.onclick = pushRepair;
     msg.innerHTML = '<span style="color:var(--red)">' + esc(String((e && e.message) || e)) + '</span>';
     pushReport();
   });
+}
+function pushDiag(){
+  const out = [];
+  out.push('إذن:' + (('Notification' in window) ? Notification.permission : '—'));
+  try{ const ps = PUSH.os.User.PushSubscription; out.push('معرّف:' + (ps.id ? 'نعم' : 'لا'), 'رمز:' + (ps.token ? 'نعم' : 'لا')); }catch(e){}
+  if (!('serviceWorker' in navigator)) return Promise.resolve(out.join(' · '));
+  return navigator.serviceWorker.getRegistrations().then(function(regs){
+    const r = regs.filter(function(x){ return /\/push\/family\/$/.test(x.scope); })[0];
+    out.push('عامل:' + (r ? (r.active ? 'يعمل' : 'غير نشط') : 'غير مسجّل'));
+    return r ? r.pushManager.getSubscription().then(function(s){ out.push('اشتراك المتصفح:' + (s ? 'نعم' : 'لا')); }) : null;
+  }).catch(function(e){ out.push('خطأ:' + (e && e.message)); }).then(function(){ return out.join(' · '); });
 }
 function waitPushReady(ms){
   return new Promise(function(res, rej){
