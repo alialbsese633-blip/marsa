@@ -72,12 +72,12 @@ input[type=text],input[type=search],input[type=time],select{width:100%;border:1p
 .sws{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}.sws small{color:var(--mute);font-size:12px}.sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2.5px var(--g)}
 .empty{text-align:center;color:var(--mute);padding:24px}
 </style>
-<script src="sunna-data.js?v=98"></script>
+<script src="sunna-data.js?v=99"></script>
 </head>
 <body>
 <header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
 <a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#kh">🎧 الختمة</a><a class="btn" href="#ad">🌅 الأذكار</a><a class="btn" href="#more">🧰 المزيد</a><a class="btn" href="#set">⚙️</a></div></header>
-<div class="wrap" id="app"></div><div class="mute" style="text-align:center;padding:0 0 20px;font-size:12px">الإصدار ٩٨</div>
+<div class="wrap" id="app"></div><div class="mute" style="text-align:center;padding:0 0 20px;font-size:12px">الإصدار ٩٩</div>
 <div class="modal" id="modal"><div class="box" id="box"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -776,6 +776,7 @@ function toggleFav(i){var k=favKey(i);if(S.fav[k])delete S.fav[k];else S.fav[k]=
 
 /* ===== الواجهة ===== */
 var MORE=[
+ ['vid','🎬','مقاطع قرآنية فيديو','تلاوة + آيات + خلفية — جاهزة لواتساب والحالة'],
  ['quiz','❓','مسابقة اليوم','سؤال جاهز للمجتمع + إجابته'],
  ['occ','📅','مناسبات وتذكيرات','الجمعة، الصيام، الأيام البيض، رمضان، ذو الحجة…'],
  ['dua','🤲','أدعية من القرآن','أدعية الأنبياء والصالحين بتصميم جاهز'],
@@ -788,7 +789,7 @@ var MORE=[
 ];
 function viewMore(sub){
   if(sub){var b='<a class="btn sm" href="#more" style="margin-bottom:10px">→ رجوع</a>';
-    if(sub==='quiz')return moreQuiz(b);if(sub==='occ')return moreOcc(b);if(sub==='dua')return moreDua(b);if(sub==='asma')return moreAsma(b);
+    if(sub==='vid')return moreVid(b);if(sub==='quiz')return moreQuiz(b);if(sub==='occ')return moreOcc(b);if(sub==='dua')return moreDua(b);if(sub==='asma')return moreAsma(b);
     if(sub==='make')return moreMake(b);if(sub==='chal')return moreChal(b);if(sub==='tpl')return moreTpl(b);if(sub==='fav')return moreFav(b);if(sub==='hist')return moreHist(b);}
   app.innerHTML='<h1>المزيد 🧰</h1><div class="mute">أدوات تساعدك على إحياء المجتمع وتنويع الرسائل.</div><div class="mgrid">'
    +MORE.map(function(m){return '<a class="card mtile" href="#more/'+m[0]+'"><span class="mi">'+m[1]+'</span><b>'+m[2]+'</b><small>'+m[3]+'</small></a>'}).join('')+'</div>';
@@ -865,8 +866,134 @@ function todayExtras(){
   var o=occasions(),Q=quizOf(dayNo());
   var h='';
   o.forEach(function(x){h+=txtCard('📅 مناسبة اليوم: '+x[0],x[1])});
-  h+='<div class="card"><h2>المزيد لليوم</h2><div class="row"><a class="btn sm" href="#more/quiz">❓ مسابقة اليوم</a><a class="btn sm" href="#ad">🌅 الأذكار</a><a class="btn sm" href="#kh">🎧 سورة اليوم</a><a class="btn sm" href="#more/asma">✨ اسم اليوم: '+asmaOf(dayNo())+'</a></div></div>';
+  h+='<div class="card"><h2>المزيد لليوم</h2><div class="row"><a class="btn sm" href="#more/vid">🎬 فيديو اليوم</a><a class="btn sm" href="#more/quiz">❓ مسابقة اليوم</a><a class="btn sm" href="#ad">🌅 الأذكار</a><a class="btn sm" href="#kh">🎧 سورة اليوم</a><a class="btn sm" href="#more/asma">✨ اسم اليوم: '+asmaOf(dayNo())+'</a></div></div>';
   return h;
+}
+
+
+/* ===== مقاطع قرآنية فيديو (تُصنع على الجهاز: تلاوة + آيات + خلفية) ===== */
+var VREC=[
+ {n:'مشاري العفاسي',isl:'ar.alafasy',ea:'Alafasy_128kbps',qc:'Alafasy/mp3'},
+ {n:'محمود خليل الحصري',isl:'ar.husary',ea:'Husary_128kbps',qc:'Husary/mp3'},
+ {n:'محمد صديق المنشاوي',isl:'ar.minshawi',ea:'Minshawy_Murattal_128kbps',qc:'Minshawi/Murattal/mp3'},
+ {n:'عبد الباسط عبد الصمد',isl:'ar.abdulbasitmurattal',ea:'Abdul_Basit_Murattal_192kbps',qc:'AbdulBaset/Murattal/mp3'},
+ {n:'ماهر المعيقلي',isl:'ar.mahermuaiqly',ea:'MaherAlMuaiqly128kbps'},
+ {n:'عبد الرحمن السديس',isl:'ar.abdurrahmaansudais',ea:'Abdurrahmaan_As-Sudais_192kbps',qc:'Sudais/mp3'},
+ {n:'سعود الشريم',isl:'ar.saoodshuraym',ea:'Saood_ash-Shuraym_128kbps',qc:'Shuraym/mp3'},
+ {n:'ياسر الدوسري',ea:'Yasser_Ad-Dussary_128kbps'},
+ {n:'ناصر القطامي',ea:'Nasser_Alqatami_128kbps'},
+ {n:'سعد الغامدي',ea:'Ghamadi_40kbps'}
+];
+S.vm=S.vm||{};S.vrec=S.vrec||0;
+function pad3(n){return ('00'+n).slice(-3)}
+function gAyah(s,a){var g=0;for(var k=0;k<s-1;k++)g+=D.vc[k];return g+a}
+function ayahUrls(rc,s,a){
+  if(window.VID_TEST)return [window.VID_TEST(s,a)];
+  var R=VREC[rc],u=[],k=pad3(s)+pad3(a);
+  if(R.isl){u.push('https://cdn.islamic.network/quran/audio/128/'+R.isl+'/'+gAyah(s,a)+'.mp3');u.push('https://cdn.islamic.network/quran/audio/64/'+R.isl+'/'+gAyah(s,a)+'.mp3')}
+  if(R.ea)u.push('https://everyayah.com/data/'+R.ea+'/'+k+'.mp3');
+  if(R.qc)u.push('https://verses.quran.com/'+R.qc+'/'+k+'.mp3');
+  var pref=+(localStorage.getItem('sunna_vsrc_'+rc)||-1);
+  if(pref>0&&pref<u.length){var p=u.splice(pref,1)[0];u.unshift(p)}
+  return u;
+}
+async function fetchAyah(ac,rc,s,a){
+  var us=ayahUrls(rc,s,a),err;
+  for(var k=0;k<us.length;k++){
+    try{var r=await fetch(us[k]);if(!r.ok)throw new Error('http '+r.status);var ab=await r.arrayBuffer();
+      var buf=await new Promise(function(res,rej){var p=ac.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)});
+      if(k>0&&!window.VID_TEST){var all=ayahUrls(rc,s,a);localStorage.setItem('sunna_vsrc_'+rc,String(all.indexOf(us[k])))}
+      return buf}catch(e){err=e}
+  }
+  throw err||new Error('no source');
+}
+function ayahParts(r){var w=r[2].split(' '),o=[],p=0;(r[10]||[w.length]).forEach(function(n){o.push(w.slice(p,p+n).join(' '));p+=n});return o}
+function vidMime(){
+  if(!window.MediaRecorder)return '';
+  var c=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4;codecs=avc1.4d002a,opus','video/mp4;codecs=avc1,opus','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  for(var k=0;k<c.length;k++)if(MediaRecorder.isTypeSupported(c[k]))return c[k];return '';
+}
+async function makeVideo(i,rc,ac,onProg,cv){
+  var r=ROWS[i],s=r[9],a0=+r[5],parts=ayahParts(r),bufs=[];
+  for(var k=0;k<parts.length;k++){onProg('جارٍ تحميل التلاوة: آية '+ar(k+1)+' من '+ar(parts.length)+'…');bufs.push(await fetchAyah(ac,rc,s,a0+k))}
+  var VW=720,VH=1280;cv.width=VW;cv.height=VH;var x=cv.getContext('2d');
+  /* الخلفية: مشهد مرسوم مرة واحدة */
+  var bg=document.createElement('canvas');bg.width=W;bg.height=H;var pick=S.vbg!=null?S.vbg:mod(i,SCENES.length+BGIMGS.length);
+  var bx=bg.getContext('2d');
+  if(pick>=SCENES.length&&BGIMGS[pick-SCENES.length]){var im=bgImgEl(pick-SCENES.length);var sc0=Math.max(W/im.width,H/im.height)||1;bx.drawImage(im,(W-im.width*sc0)/2,(H-im.height*sc0)/2,im.width*sc0,im.height*sc0)}
+  else sceneDraw(bx,mod(pick,SCENES.length),i);
+  var lead=0.8,times=[],t=lead;bufs.forEach(function(b){times.push(t);t+=b.duration+0.15});var total=t+1.2;
+  var dest=ac.createMediaStreamDestination(),gain=ac.createGain();gain.gain.value=1;gain.connect(dest);
+  var mon=ac.createGain();mon.gain.value=S.vmute?0:1;gain.connect(mon);mon.connect(ac.destination);
+  var vs=cv.captureStream(30),ms=new MediaStream(vs.getVideoTracks().concat(dest.stream.getAudioTracks()));
+  var mime=vidMime(),rec=new MediaRecorder(ms,mime?{mimeType:mime,videoBitsPerSecond:3500000}:undefined),chunks=[];
+  rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
+  var fam='SunnaQuran',T0;
+  function frame(){
+    var now=ac.currentTime-T0,cur=0;for(var k=0;k<times.length;k++)if(now>=times[k]-0.05)cur=k;
+    var z=1.08+0.06*Math.min(1,now/total),sw=VH/H*z,dw=W*sw,dh=H*sw;
+    x.drawImage(bg,(VW-dw)/2-now*2,(VH-dh)/2,dw,dh);
+    var g=x.createLinearGradient(0,0,0,VH);g.addColorStop(0,'rgba(0,0,0,.45)');g.addColorStop(.3,'rgba(0,0,0,.25)');g.addColorStop(.7,'rgba(0,0,0,.35)');g.addColorStop(1,'rgba(0,0,0,.8)');x.fillStyle=g;x.fillRect(0,0,VW,VH);
+    x.direction='rtl';x.textAlign='center';x.textBaseline='middle';x.shadowColor='rgba(0,0,0,.7)';x.shadowBlur=14;
+    x.fillStyle='#F3D58A';x.font='700 40px SunnaAmiri';x.fillText('سورة '+r[3],VW/2,150);
+    x.fillStyle='rgba(255,255,255,.85)';x.font='500 24px SunnaPlex';x.fillText('بصوت الشيخ '+VREC[rc].n,VW/2,205);
+    var txt='﴿\u00a0'+parts[cur]+'\u00a0﴾',size,lines,lh;
+    for(size=58;size>=24;size-=2){x.font='400 '+size+'px '+fam;lines=wrap(x,txt,620);lh=size*1.9;if(lines.length*lh<=760)break}
+    var al=Math.max(0,Math.min(1,(now-times[cur]+0.05)/0.5));x.globalAlpha=al;
+    x.fillStyle='#FFFFFF';var y0=VH/2+20-lines.length*lh/2+lh/2;lines.forEach(function(l,k){x.fillText(l,VW/2,y0+k*lh)});x.globalAlpha=1;
+    x.fillStyle='rgba(255,255,255,.8)';x.font='500 24px SunnaPlex';x.fillText('الآية '+ar(a0+cur),VW/2,1110);
+    x.fillStyle='#F3D58A';x.font='700 44px SunnaAmiri';x.fillText(C.sig,VW/2,1180);x.shadowBlur=0;
+    var pr=Math.min(1,now/total);x.fillStyle='rgba(255,255,255,.25)';x.fillRect(80,1230,VW-160,4);x.fillStyle='#F3D58A';x.fillRect(VW-80-(VW-160)*pr,1230,(VW-160)*pr,4);
+    return now;
+  }
+  await loadFonts();
+  return new Promise(function(res,rej){
+    rec.onstop=function(){res({blob:new Blob(chunks,{type:(mime||'video/webm').split(';')[0]}),mime:mime})};
+    rec.onerror=function(e){rej(e.error||e)};
+    T0=ac.currentTime+0.25;frame();rec.start(1000);
+    bufs.forEach(function(b,k){var src=ac.createBufferSource();src.buffer=b;src.connect(gain);src.start(T0+times[k])});
+    (function loop(){var now=frame();onProg('جارٍ التسجيل… '+ar(Math.round(Math.min(100,now/total*100)))+'٪ (لا تغلق الصفحة)');
+      if(now>=total){rec.stop();return}setTimeout(loop,33)})();
+  });
+}
+function vidList(){var o=[];for(var i=0;i<ROWS.length;i++){var r=ROWS[i];if(r[0]==='q'&&r[9]&&r[2].length<=420)o.push(i)}return o}
+function vidCaption(i,rc){var r=ROWS[i];return '🎬 تلاوة عطرة\n\n﴿ '+r[2]+' ﴾\n\n📖 '+refParts(r).srcTxt+'\n🎙️ بصوت الشيخ '+VREC[rc].n+'\n\n'+C.sig}
+function moreVid(b){
+  var L=vidList(),today=L[mod(dayNo(),L.length)];
+  app.innerHTML=b+'<h1>مقاطع قرآنية 🎬</h1><div class="mute">'+ar(L.length)+' مقطعاً بآيات كاملة. اختر القارئ ثم «اصنع الفيديو»: يُركَّب الفيديو على جهازك (تلاوة + الآيات + خلفية) بمدة التلاوة، وجاهز لواتساب والحالة.</div>'
+   +'<div class="card"><div class="f"><label>القارئ</label><select id="vrc">'+VREC.map(function(x,k){return '<option value="'+k+'"'+(S.vrec===k?' selected':'')+'>'+x.n+'</option>'}).join('')+'</select></div>'
+   +'<div class="f"><label>الخلفية</label><select id="vbg"><option value="">تلقائي (تتغيّر مع كل مقطع)</option>'+SCENES.concat(BGIMGS.map(function(_,k){return 'صورتي '+ar(k+1)})).map(function(n,k){return '<option value="'+k+'"'+(S.vbg===k?' selected':'')+'>'+n+'</option>'}).join('')+'</select></div>'
+   +'<label class="mute"><input type="checkbox" id="vmu"'+(S.vmute?' checked':'')+'> كتم الصوت أثناء التسجيل</label></div>'
+   +'<div id="vres"></div>';
+  document.getElementById('vrc').onchange=function(){S.vrec=+this.value;save()};
+  document.getElementById('vbg').onchange=function(){S.vbg=this.value===''?null:+this.value;save()};
+  document.getElementById('vmu').onchange=function(){S.vmute=this.checked;save()};
+  var order=[today].concat(L.filter(function(i){return i!==today}));
+  document.getElementById('vres').innerHTML=order.map(function(i,k){var r=ROWS[i];return '<div class="card lib-item" data-i="'+i+'">'+(k===0?'<span class="chip q">⭐ مقطع اليوم</span> ':'')+(S.vm[favKey(i)]?'<span class="done-badge">✓ صُنع</span>':'')
+    +'<b>'+esc(refParts(r).srcTxt)+'</b><div class="t q" style="font-size:18px">﴿ '+esc(r[2].length>160?r[2].slice(0,160)+'…':r[2])+' ﴾</div><div class="row"><button class="btn pri sm" data-a="mk">🎬 اصنع الفيديو</button><button class="btn sm" data-a="cp">📋 نسخ النص</button></div></div>'}).join('');
+  document.getElementById('vres').onclick=function(e){var bt=e.target.closest('button');if(!bt)return;var i=+bt.closest('.lib-item').dataset.i;
+    if(bt.dataset.a==='cp')copyStr(vidCaption(i,S.vrec||0));else vidOpen(i)};
+}
+function vidOpen(i){
+  var box=document.getElementById('box'),m=document.getElementById('modal'),rc=S.vrec||0;
+  if(!vidMime()){toast('متصفحك لا يدعم صنع الفيديو — حدّث المتصفح');return}
+  var AC=window.AudioContext||window.webkitAudioContext,ac=new AC();ac.resume&&ac.resume();
+  box.innerHTML='<div class="body"><canvas id="vcv" style="width:100%;max-height:60vh;object-fit:contain;border-radius:14px;background:#000"></canvas><div class="mute" id="vst" style="margin:10px 0">يبدأ…</div><div class="row" id="vbt"><button class="btn sm" data-a="x">إغلاق</button></div></div>';
+  m.classList.add('on');var cv=document.getElementById('vcv'),st=document.getElementById('vst'),busy=true;
+  box.onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.a==='x'){if(busy&&!confirm('إيقاف صنع الفيديو؟'))return;busy=false;try{ac.close()}catch(_){}m.classList.remove('on')}};
+  makeVideo(i,rc,ac,function(t){if(st)st.textContent=t},cv).then(function(res){
+    busy=false;try{ac.close()}catch(_){}
+    var ext=/mp4/.test(res.mime)?'mp4':'webm',r=ROWS[i],f=new File([res.blob],'quran-'+r[9]+'-'+r[5]+'.'+ext,{type:res.blob.type});
+    S.vm[favKey(i)]=1;save();
+    var url=URL.createObjectURL(f);
+    cv.outerHTML='<video src="'+url+'" controls playsinline style="width:100%;max-height:60vh;border-radius:14px;background:#000"></video>';
+    st.textContent='✓ الفيديو جاهز ('+ar(Math.round(res.blob.size/1024/1024*10)/10)+' م.ب)'+(ext==='webm'?' — صيغة WebM قد لا تُقبل في واتساب الآيفون':'');
+    document.getElementById('vbt').innerHTML='<button class="btn pri sm" data-a="sh">📲 مشاركة</button><button class="btn sm" data-a="dl">⬇️ تنزيل</button><button class="btn sm" data-a="cp">📋 نسخ النص</button><button class="btn sm" data-a="x">إغلاق</button>';
+    box.onclick=function(e){var b=e.target.closest('button');if(!b)return;var a=b.dataset.a;
+      if(a==='x')m.classList.remove('on');else if(a==='dl')download(f);else if(a==='cp')copyStr(vidCaption(i,rc));
+      else if(a==='sh'){if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(function(){});else{download(f);toast('تم التنزيل — أرسله من المعرض')}}};
+  }).catch(function(e){busy=false;try{ac.close()}catch(_){}
+    if(st)st.textContent='تعذّر صنع الفيديو: لم يُجلب صوت التلاوة من مواقع القرّاء ('+(e&&e.message||e)+'). جرّب قارئاً آخر أو تحقق من الإنترنت.'});
 }
 
 /* ===== التوجيه ===== */
