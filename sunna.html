@@ -72,12 +72,12 @@ input[type=text],input[type=search],input[type=time],select{width:100%;border:1p
 .sws{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}.sws small{color:var(--mute);font-size:12px}.sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2.5px var(--g)}
 .empty{text-align:center;color:var(--mute);padding:24px}
 </style>
-<script src="sunna-data.js?v=99"></script>
+<script src="sunna-data.js?v=100"></script>
 </head>
 <body>
 <header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
 <a class="btn" href="#today">🌙 اليوم</a><a class="btn" href="#lib">📚 المكتبة</a><a class="btn" href="#kh">🎧 الختمة</a><a class="btn" href="#ad">🌅 الأذكار</a><a class="btn" href="#more">🧰 المزيد</a><a class="btn" href="#set">⚙️</a></div></header>
-<div class="wrap" id="app"></div><div class="mute" style="text-align:center;padding:0 0 20px;font-size:12px">الإصدار ٩٩</div>
+<div class="wrap" id="app"></div><div class="mute" style="text-align:center;padding:0 0 20px;font-size:12px">الإصدار ١٠٠</div>
 <div class="modal" id="modal"><div class="box" id="box"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -95,10 +95,10 @@ if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">�
 
 /* ===== البيانات ===== */
 var D=window.SUNNA, ROWS=D.rows, CATS=D.cats;
-var POOL={h:[],q:[],s:[],d:[],w:[]};ROWS.forEach(function(r,i){POOL[r[0]].push(i)});
+var POOL={h:[],q:[],s:[],d:[],w:[],k:[]};ROWS.forEach(function(r,i){if(POOL[r[0]])POOL[r[0]].push(i)});
 
 /* ===== الحالة (على هذا الجهاز) ===== */
-var MIXES={A:{n:'آية + حديثان',s:['q','h','h']},B:{n:'ثلاثة أحاديث',s:['h','h','h']},C:{n:'ثلاث آيات',s:['q','q','q']},D:{n:'متنوع: آية + حديث + (قصة أو درّة أو حكمة بالتناوب)',s:['q','h','x']}};
+var MIXES={E:{n:'آية + حديث + فائدة من كتب العلماء',s:['q','h','k']},A:{n:'آية + حديثان',s:['q','h','h']},B:{n:'ثلاثة أحاديث',s:['h','h','h']},C:{n:'ثلاث آيات',s:['q','q','q']},D:{n:'متنوع: آية + حديث + (قصة أو درّة أو حكمة بالتناوب)',s:['q','h','x']}};
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
 var S=load();S.sent=S.sent||{};S.sw=S.sw||{};S.rp=S.rp||{h:0,q:0,s:0,d:0,w:0};
 S.cfg=S.cfg||{};var C=S.cfg;C.sig=C.sig||'السنة الغراء';C.mix=C.mix||'A';C.times=C.times||['08:00','13:30','19:30'];C.link=C.link||COMMUNITY;C.theme=C.theme||'rot';
@@ -112,7 +112,7 @@ function mod(a,n){return ((a%n)+n)%n}
 
 /* رسائل اليوم: ترتيب ثابت لكل يوم (نفس الرسائل على أي جهاز) */
 function todayList(){
-  var n=dayNo(), slots=MIXES[C.mix].s.map(function(t){return t==='x'?['s','d','w'][mod(n,3)]:t}), k=dkey(), out=[], cnt={h:0,q:0,s:0,d:0,w:0}, seen={h:0,q:0,s:0,d:0,w:0};
+  var n=dayNo(), slots=MIXES[C.mix].s.map(function(t){return t==='x'?['s','d','w','k'][mod(n,4)]:t}), k=dkey(), out=[], cnt={h:0,q:0,s:0,d:0,w:0,k:0}, seen={h:0,q:0,s:0,d:0,w:0,k:0};
   slots.forEach(function(t){cnt[t]++});
   slots.forEach(function(t,i){
     var idx=POOL[t][mod(n*cnt[t]+seen[t],POOL[t].length)];seen[t]++;
@@ -140,6 +140,7 @@ function refParts(r){
   if(r[0]==='u')return {lead:r[6],who:'',src:r[1],srcTxt:r[1],kind:r[3],foot:''};
   if(r[0]==='q'){var rg=r[6]?('الآيات '+ar(r[5])+'–'+ar(r[6])):('الآية '+ar(r[5]));return {lead:'قَالَ اللَّهُ تَعَالَى:',who:'',src:'سورة '+r[3]+' · '+rg,srcTxt:'سورة '+r[3]+'، '+rg,kind:r[7]||'آيات كريمة',foot:'المصحف المرتّل برواية حفص عن عاصم'}}
   if(r[0]==='s')return {lead:r[8]||'قَالَ رَسُولُ اللَّهِ ﷺ:',who:r[7],src:'رواه '+r[1]+' · كتاب '+r[3],srcTxt:'رواه '+r[1]+' — كتاب '+r[3],kind:'قصة من السنة',foot:'من الصحيحين · تحرّي الصحة والتوثيق'};
+  if(r[0]==='k'){var by=(r[7]||'').replace(/ ?\(.*\)$/,'');return {lead:by?(by.indexOf('من ')===0?'وقد قيل:':'قال '+by+':'):'قال ابن القيم رحمه الله:',who:'',src:(by?'نقله ابن القيم في ':'ابن القيم · ')+'«'+r[1]+'» ص '+ar(r[5]),srcTxt:(by?'نقله ابن القيم في ':'ابن القيم، ')+'«'+r[1]+'» ص '+ar(r[5])+' (ط. عالم الفوائد)',kind:'فوائد من كتب العلماء',foot:''}}
   if(r[0]==='w')return {lead:'',who:'',src:'من الحِكَم والمواعظ',srcTxt:'من الحِكَم والمواعظ',kind:'اقتباس إيماني',foot:'كلمات تُذكِّر وتُهذِّب'};
   if(r[0]==='d')return {lead:'قَالَ '+r[1]+':',who:'',src:'المصدر: '+r[3],srcTxt:'المصدر: '+r[3],kind:'دُرَّة من الدُّرَر',foot:'من أقوال السلف الصالح'};
   var who=r[6]?('عَنْ '+r[6]):'';
@@ -153,6 +154,7 @@ function msgText(i){
   else if(r[0]==='q')t=(r[7]?'🤲 '+r[7]+'\n\n':'')+'قال الله تعالى:\n﴿ '+r[2]+' ﴾\n\n📖 '+p.srcTxt;
   else if(r[0]==='s')t='📖 '+r[7]+'\n\n'+p.lead.replace('ﷺ:','ﷺ:')+'\n«'+r[2]+'»\n\n📚 '+p.srcTxt;
   else if(r[0]==='w')t='✨ «'+r[2]+'»\n\n📚 '+p.srcTxt;
+  else if(r[0]==='k')t='📚 فوائد من كتب العلماء'+(r[6]?' — '+r[6]:'')+'\n\n'+p.lead+'\n«'+r[2]+'»\n\n📖 '+p.srcTxt;
   else if(r[0]==='d')t=p.lead+'\n«'+r[2]+'»\n\n📚 '+p.srcTxt;
   else t=(p.who?p.who+'\n':'')+'قال رسول الله ﷺ:\n«'+r[2]+'»\n\n📚 '+p.srcTxt;
   return t+'\n\n🌿 '+C.sig;
@@ -238,7 +240,7 @@ function renderPhoto(i){
   if(pick>=SCENES.length&&BGIMGS[pick-SCENES.length]){var im=bgImgEl(pick-SCENES.length);var sc=Math.max(W/im.width,H/im.height)||1;x.drawImage(im,(W-im.width*sc)/2,(H-im.height*sc)/2,im.width*sc,im.height*sc)}
   else sceneDraw(x,mod(pick,SCENES.length),i);
   var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(0,0,0,.35)');g.addColorStop(.35,'rgba(0,0,0,.15)');g.addColorStop(.6,'rgba(0,0,0,.35)');g.addColorStop(1,'rgba(0,0,0,.75)');x.fillStyle=g;x.fillRect(0,0,W,H);
-  var body=isQ?('﴿ '+r[2]+' ﴾'):((r[0]==='w'||r[0]==='d'||(r[0]==='u'&&/^[dw]$/.test(r[8])))?('« '+r[2]+' »'):r[2]),fam=isQ?'SunnaQuran':'SunnaAmiri';
+  var body=isQ?('﴿ '+r[2]+' ﴾'):((r[0]==='w'||r[0]==='d'||r[0]==='k'||(r[0]==='u'&&/^[dw]$/.test(r[8])))?('« '+r[2]+' »'):r[2]),fam=isQ?'SunnaQuran':'SunnaAmiri';
   var top=p.lead?560:520,bottom=1150,size,lines,lh;
   for(size=r[2].length<20?130:(r[2].length<60?78:66);size>=24;size-=2){x.font='400 '+size+'px '+fam;lines=wrap(x,body,900);lh=size*(isQ?1.95:1.8);if(lines.length*lh<=bottom-top)break}
   var bh=lines.length*lh,y0=bottom-bh+lh/2;if(bh<bottom-top)y0=top+(bottom-top-bh)*.6+lh/2;
@@ -296,7 +298,7 @@ function render(i){
     x.font='500 34px SunnaPlex';x.fillStyle=GOLD;var s2=p.src;if(x.measureText(s2).width>880)x.font='500 26px SunnaPlex';if(x.measureText(s2).width>880)x.font='500 22px SunnaPlex';x.fillText(s2,cx,cy);
   }
   function fit(maxSize,wd,t,b2,cap){
-    var size,lines,lh,body=isQ?('﴿ '+r[2]+' ﴾'):((r[0]==='d'||r[0]==='w'||(r[0]==='u'&&/^[dwh]$/.test(r[8])))?('« '+r[2]+' »'):r[2]);
+    var size,lines,lh,body=isQ?('﴿ '+r[2]+' ﴾'):((r[0]==='d'||r[0]==='w'||r[0]==='k'||(r[0]==='u'&&/^[dwh]$/.test(r[8])))?('« '+r[2]+' »'):r[2]);
     for(size=maxSize;size>=24;size-=2){x.font='400 '+size+'px '+fam;lines=wrap(x,body,wd);lh=size*(isQ?2.0:1.85);if(lines.length*lh<=b2-t)break}
     return {size:size,lines:lines,lh:lh};
   }
@@ -453,7 +455,7 @@ function viewLib(){
   if(!NORM)NORM=ROWS.map(function(r){return nrm(r[2])});
   var h='<h1>المكتبة 📚</h1><div class="mute">'+ar(ROWS.length)+' رسالة: أحاديث من البخاري ومسلم، آيات، قصص صحيحة، ودرر من أقوال السلف — ابحث أو اختر تصنيفاً.</div>'
    +'<div class="f"><input type="search" id="q" placeholder="ابحث في النصوص…" value="'+esc(LF.q)+'"></div>'
-   +'<div class="tabs" id="tt"><a class="tab '+(LF.t===''?'on':'')+'" data-t="">الكل</a><a class="tab '+(LF.t==='h'?'on':'')+'" data-t="h">أحاديث</a><a class="tab '+(LF.t==='q'?'on':'')+'" data-t="q">آيات</a><a class="tab '+(LF.t==='s'?'on':'')+'" data-t="s">قصص</a><a class="tab '+(LF.t==='d'?'on':'')+'" data-t="d">درر</a><a class="tab '+(LF.t==='w'?'on':'')+'" data-t="w">حِكَم</a></div>'
+   +'<div class="tabs" id="tt"><a class="tab '+(LF.t===''?'on':'')+'" data-t="">الكل</a><a class="tab '+(LF.t==='h'?'on':'')+'" data-t="h">أحاديث</a><a class="tab '+(LF.t==='q'?'on':'')+'" data-t="q">آيات</a><a class="tab '+(LF.t==='s'?'on':'')+'" data-t="s">قصص</a><a class="tab '+(LF.t==='d'?'on':'')+'" data-t="d">درر</a><a class="tab '+(LF.t==='w'?'on':'')+'" data-t="w">حِكَم</a><a class="tab '+(LF.t==='k'?'on':'')+'" data-t="k">كتب العلماء</a></div>'
    +'<div class="tabs" id="cc"><a class="tab '+(LF.cat<0?'on':'')+'" data-c="-1">كل التصنيفات</a>'+CATS.map(function(c,i){return '<a class="tab '+(LF.cat===i?'on':'')+'" data-c="'+i+'">'+esc(c)+'</a>'}).join('')+'</div>'
    +'<div id="res"></div>';
   app.innerHTML=h;drawRes();
@@ -469,7 +471,7 @@ function drawRes(){
   out.slice(0,LF.lim).forEach(function(i){
     var r=ROWS[i],p=refParts(r);
     h+='<div class="card lib-item" data-i="'+i+'"><span class="chip '+(r[0]==='q'?'q':'')+'">'+esc(CATS[r[4]])+'</span>'
-     +(r[7]?'<b>'+esc(r[7])+'</b>':'')+'<div class="t '+(r[0]==='q'?'q':'')+'">'+(r[0]==='q'?'﴿ '+esc(r[2])+' ﴾':((r[0]==='d'||r[0]==='w')?'« '+esc(r[2])+' »':esc(r[2])))+'</div><div class="src">'+(noteOf(i)?'<div style="color:#8A5A00;margin-bottom:4px">'+noteOf(i)+'</div>':'')+esc(r[0]==='d'?r[1]+' — ':(p.who&&r[0]==='h'?p.who+' — ':''))+esc(p.srcTxt)+(r[0]==='h'&&r[1]==='البخاري'&&r[5]?' — رقم '+ar(r[5]):'')+'</div>'
+     +(r[0]==='k'?'<b>📚 '+esc(r[6])+'</b>':(r[7]?'<b>'+esc(r[7])+'</b>':''))+'<div class="t '+(r[0]==='q'?'q':'')+'">'+(r[0]==='q'?'﴿ '+esc(r[2])+' ﴾':((r[0]==='d'||r[0]==='w'||r[0]==='k')?'« '+esc(r[2])+' »':esc(r[2])))+'</div><div class="src">'+(noteOf(i)?'<div style="color:#8A5A00;margin-bottom:4px">'+noteOf(i)+'</div>':'')+esc(r[0]==='d'?r[1]+' — ':(p.who&&r[0]==='h'?p.who+' — ':''))+esc(p.srcTxt)+(r[0]==='h'&&r[1]==='البخاري'&&r[5]?' — رقم '+ar(r[5]):'')+'</div>'
      +'<div class="row">'+(canImg(i)?'<button class="btn pri sm" data-a="pv">🖼️ معاينة وإرسال</button>':'<button class="btn pri sm" data-a="tx">📝 مشاركة كنص</button>')+'<button class="btn sm" data-a="cp">📋 نسخ</button><button class="btn sm" data-a="fv">'+(S.fav[favKey(i)]?'⭐ محفوظة':'☆ مفضلة')+'</button></div></div>';
   });
   if(out.length>LF.lim)h+='<div style="text-align:center"><button class="btn" id="more">عرض المزيد</button></div>';
@@ -776,6 +778,7 @@ function toggleFav(i){var k=favKey(i);if(S.fav[k])delete S.fav[k];else S.fav[k]=
 
 /* ===== الواجهة ===== */
 var MORE=[
+ ['kutub','📖','فوائد من كتب العلماء','عبارات منتقاة من كتب الأئمة مع رقم الصفحة'],
  ['vid','🎬','مقاطع قرآنية فيديو','تلاوة + آيات + خلفية — جاهزة لواتساب والحالة'],
  ['quiz','❓','مسابقة اليوم','سؤال جاهز للمجتمع + إجابته'],
  ['occ','📅','مناسبات وتذكيرات','الجمعة، الصيام، الأيام البيض، رمضان، ذو الحجة…'],
@@ -789,10 +792,27 @@ var MORE=[
 ];
 function viewMore(sub){
   if(sub){var b='<a class="btn sm" href="#more" style="margin-bottom:10px">→ رجوع</a>';
-    if(sub==='vid')return moreVid(b);if(sub==='quiz')return moreQuiz(b);if(sub==='occ')return moreOcc(b);if(sub==='dua')return moreDua(b);if(sub==='asma')return moreAsma(b);
+    if(sub==='kutub')return moreKutub(b);if(sub==='vid')return moreVid(b);if(sub==='quiz')return moreQuiz(b);if(sub==='occ')return moreOcc(b);if(sub==='dua')return moreDua(b);if(sub==='asma')return moreAsma(b);
     if(sub==='make')return moreMake(b);if(sub==='chal')return moreChal(b);if(sub==='tpl')return moreTpl(b);if(sub==='fav')return moreFav(b);if(sub==='hist')return moreHist(b);}
   app.innerHTML='<h1>المزيد 🧰</h1><div class="mute">أدوات تساعدك على إحياء المجتمع وتنويع الرسائل.</div><div class="mgrid">'
    +MORE.map(function(m){return '<a class="card mtile" href="#more/'+m[0]+'"><span class="mi">'+m[1]+'</span><b>'+m[2]+'</b><small>'+m[3]+'</small></a>'}).join('')+'</div>';
+}
+
+function moreKutub(b){
+  var L=POOL.k,books={},tops={};
+  L.forEach(function(i){var r=ROWS[i];books[r[1]]=books[r[1]]||{a:r[3],n:0};books[r[1]].n++;tops[r[6]]=(tops[r[6]]||0)+1});
+  var today=L[mod(dayNo(),L.length)],cur=moreKutub.t||'';
+  var h=b+'<h1>فوائد من كتب العلماء 📖</h1><div class="mute">عبارات منتقاة بنصّها من كتب الأئمة، مع اسم الكتاب ورقم الصفحة للرجوع إليه.</div>'
+   +Object.keys(books).map(function(k){return '<div class="card"><h2>📕 '+esc(k)+'</h2><div class="mute">للإمام '+esc(books[k].a)+' — '+ar(books[k].n)+' فائدة</div></div>'}).join('')
+   +'<div class="card"><span class="chip q">⭐ فائدة اليوم</span><div class="t" style="font:20px/1.9 SunnaAmiri,serif;margin:8px 0">« '+esc(ROWS[today][2])+' »</div><div class="src">'+esc(refParts(ROWS[today]).srcTxt)+'</div><div class="row"><button class="btn pri sm" data-pv="'+today+'">🖼️ معاينة وإرسال</button><button class="btn sm" data-cp1="'+today+'">📋 نسخ</button></div></div>'
+   +'<div class="tabs" style="flex-wrap:wrap" id="ktt"><a class="tab'+(cur===''?' on':'')+'" data-k="">الكل</a>'+Object.keys(tops).map(function(t){return '<a class="tab'+(cur===t?' on':'')+'" data-k="'+esc(t)+'">'+esc(t)+' ('+ar(tops[t])+')</a>'}).join('')+'</div><div id="kres"></div>'
+   +'<div class="note">لإضافة كتاب جديد: أرسل ملف الكتاب (PDF) ويُستخرج منه باب جديد بالطريقة نفسها.</div>';
+  app.innerHTML=h;
+  var list=L.filter(function(i){return !cur||ROWS[i][6]===cur}).sort(function(x,y){return ROWS[x][5]-ROWS[y][5]});
+  document.getElementById('kres').innerHTML=list.map(function(i){var r=ROWS[i];return '<div class="card lib-item" data-i="'+i+'"><b>📚 '+esc(r[6])+'</b><div class="t">« '+esc(r[2])+' »</div><div class="src">'+esc(refParts(r).lead+' — '+refParts(r).srcTxt)+'</div><div class="row"><button class="btn pri sm" data-pv="'+i+'">🖼️ معاينة وإرسال</button><button class="btn sm" data-cp1="'+i+'">📋 نسخ</button><button class="btn sm" data-fv="'+i+'">'+(S.fav[favKey(i)]?'⭐ محفوظة':'☆ مفضلة')+'</button></div></div>'}).join('');
+  app.onclick=function(e){var a=e.target.closest('[data-k]');if(a&&a.closest('#ktt')){moreKutub.t=a.dataset.k;moreKutub(b);return}
+    var bt=e.target.closest('button');if(!bt)return;
+    if(bt.dataset.pv)openPv(+bt.dataset.pv);else if(bt.dataset.cp1)copyText(+bt.dataset.cp1);else if(bt.dataset.fv){bt.textContent=toggleFav(+bt.dataset.fv)?'⭐ محفوظة':'☆ مفضلة'}};
 }
 function moreQuiz(b){
   var n=dayNo(),Q=quizOf(n),Y=quizOf(n-1);
@@ -999,7 +1019,7 @@ function vidOpen(i){
 /* ===== التوجيه ===== */
 function route(){
   var h=(location.hash||'#today').slice(1);
-  var md=document.getElementById('modal');if(md)md.classList.remove('on');
+  var md=document.getElementById('modal');if(md)md.classList.remove('on');app.onclick=null;
   try{ go(h) }catch(e){
     app.innerHTML='<div class="card"><h2>حدث خطأ في الصفحة</h2><div class="mute">أرسل لقطة شاشة لهذه الرسالة:</div><pre style="direction:ltr;white-space:pre-wrap;font-size:12px">'+esc((e&&e.stack)||e)+'</pre><button class="btn" id="fix">إصلاح وإعادة المحاولة</button></div>';
     document.getElementById('fix').onclick=function(){S.sw={};S.th={};S.ly={};save();location.reload()};
