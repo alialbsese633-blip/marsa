@@ -160,34 +160,114 @@ footer b{color:var(--teal-d)}
  table.acttbl select,table.acttbl textarea{background:#f6f9f9!important;border-radius:8px!important;padding:6px 8px!important}
 }
 @media print{#syncBar,#login,.userbox{display:none!important}header{background:#fff!important}}
+
+/* ===== تصميم مبسّط v2 ===== */
+body{padding-bottom:84px;background:#f3f7f7}
+header{background:#fff!important;color:var(--ink);padding:10px 16px!important;gap:12px!important;flex-wrap:nowrap!important;box-shadow:0 1px 0 #e3ecec,0 4px 14px rgba(16,60,59,.05)}
+header::before,header::after{display:none!important}
+header img.lg{width:52px!important;height:52px!important;filter:none!important}
+header h1{color:var(--teal-d)!important;font-size:18px!important;margin:0}
+header .sub{color:var(--gold)!important;font-size:12px}
+.userbox{margin-inline-start:auto;background:var(--teal-l)!important;color:var(--teal-d)!important;padding:4px 6px 4px 12px!important}
+.userbox{white-space:nowrap;font-size:12.5px!important}.userbox button{color:var(--bad)!important}
+nav#tabs{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#fff;border-top:1px solid #e3ecec;box-shadow:0 -4px 16px rgba(16,60,59,.07);padding:6px 6px calc(6px + env(safe-area-inset-bottom));backdrop-filter:none}
+nav#tabs button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:14px;font-size:12px;color:#7a8a8a;background:none}
+nav#tabs button i{font-style:normal;font-size:21px;line-height:1.1}
+nav#tabs button.on{color:var(--teal-d);background:var(--teal-l)}
+@media(min-width:900px){body{padding-bottom:20px}nav#tabs{position:sticky;top:0;bottom:auto;display:flex;justify-content:center;gap:8px;border-top:0;border-bottom:1px solid #e3ecec;box-shadow:none;padding:8px}nav#tabs button{flex-direction:row;gap:6px;font-size:14px;padding:8px 20px}nav#tabs button i{font-size:16px}}
+main.narrow{max-width:720px}
+#syncBar{bottom:calc(78px + env(safe-area-inset-bottom))!important;padding:4px 6px 4px 12px!important;font-size:12px!important;opacity:.95}
+#syncBar button{padding:4px 12px!important;font-size:12px}
+@media(min-width:900px){#syncBar{bottom:14px!important}}
+.wkwrap{max-width:1080px;margin:12px auto 0;padding:0 18px;display:flex;gap:8px;align-items:center}
+.wkwrap button{border:1px solid #dfe9e8;background:#fff;border-radius:10px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--teal-d);white-space:nowrap}
+.wkwrap .lbl{flex:1;text-align:center;font-weight:700;color:var(--teal-d);font-size:14px}
+#backBar{max-width:1080px;margin:12px auto 0;padding:0 18px;display:flex;align-items:center;gap:10px}
+#backBar:empty{display:none}
+#backBar button{border:0;background:#fff;border:1px solid #dfe9e8;border-radius:10px;padding:6px 14px;font:inherit;color:var(--teal-d);cursor:pointer}
+#backBar b{color:var(--teal-d);font-size:16px}
+.hero{background:linear-gradient(135deg,#1a5d5b,#2b8c89);color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:6px;box-shadow:0 8px 22px rgba(26,93,91,.18)}
+.hero .hi{font-size:19px;font-weight:700}
+.hero .dt{opacity:.85;font-size:13px}
+.hero .sch{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.hero .sch span{background:rgba(255,255,255,.17);border-radius:20px;padding:2px 12px;font-size:13px}
+.prg{display:flex;align-items:center;gap:10px;font-size:13px}
+.pb{flex:1;height:8px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
+.pb i{display:block;height:100%;background:var(--gold);border-radius:6px}
+.hd{font-size:16px;color:var(--teal-d);margin:18px 4px 8px}
+.hd small{color:var(--mut);font-weight:400;font-size:13px}
+.hd.red{color:var(--bad)}
+.tc{background:#fff;border:1px solid #e3ecec;border-radius:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(16,60,59,.05)}
+.tc.late{border-color:#f3c3bd;background:#fffafa}
+.tc.open{border-color:var(--teal)}
+.tcr{display:flex;align-items:flex-start;gap:12px;padding:12px}
+.ck{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #b9cfcd;background:#fff;color:#fff;font-size:16px;font-weight:700;cursor:pointer;padding:0;margin-top:1px}
+.tc.done .ck{background:var(--ok);border-color:var(--ok)}
+.tc.done .tt{text-decoration:line-through;color:var(--mut)}
+.tb{flex:1;min-width:0;cursor:pointer}
+.tt{font-weight:700;font-size:15.5px;line-height:1.5;word-break:break-word}
+.tt .ph{color:#9aabab;font-weight:500}
+.tm{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:12.5px;color:var(--mut);margin-top:3px}
+.bp{background:var(--teal-l);color:var(--teal-d);border-radius:8px;padding:0 8px}
+.lt{color:var(--bad);font-weight:700}.prog{color:var(--warn);font-weight:700}
+.td{font-size:13px;color:#5f6f6f;margin-top:4px}
+.tn{font-size:13px;background:#fbf7ef;border-inline-start:3px solid var(--gold);padding:4px 8px;border-radius:6px;margin-top:6px;white-space:pre-wrap}
+.tc .ed{flex:none;border:0;background:#f2f6f6;min-width:34px;height:32px;border-radius:10px;font:inherit;font-size:13px;color:var(--teal-d);cursor:pointer;padding:0 8px}
+.ted{border-top:1px dashed #dfe9e8;padding:2px 14px 14px}
+.ted textarea{min-height:48px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:600px){.g3{grid-template-columns:1fr 1fr}.g3>div:last-child{grid-column:1/3}}
+.btn.x2{background:none;color:var(--bad);border:1px solid #f3c3bd}
+.addbig{width:100%;border:2px dashed #b9d6d4;background:#fff;color:var(--teal-d);border-radius:16px;padding:12px;font:inherit;font-weight:700;cursor:pointer;margin:2px 0 8px}
+.emp{text-align:center;color:var(--mut);background:#fff;border-radius:16px;padding:18px;border:1px solid #e3ecec;margin-bottom:10px}
+details.nx{margin-top:10px}
+details.nx>summary{cursor:pointer;color:var(--teal-d);font-weight:700;padding:10px 4px;list-style:none}
+details.nx>summary::-webkit-details-marker{display:none}
+details.nx>summary::before{content:'◂ '}details.nx[open]>summary::before{content:'▾ '}
+details.nx>summary small{color:var(--mut);font-weight:400}
+.seg{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+.seg button{border:1px solid #dfe9e8;background:#fff;border-radius:20px;padding:6px 14px;font:inherit;font-size:13.5px;color:var(--mut);cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--teal-d);color:#fff;border-color:var(--teal-d)}
+.seg button small{opacity:.8}
+.seg.sm button{padding:3px 12px;font-size:12.5px}
+.seg.sm button.on{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal)}
+.dayc{background:#fff;border:1px solid #e3ecec;border-radius:18px;padding:12px;margin-bottom:12px}
+.dayc.today{border:2px solid var(--teal)}
+.dayc.off{opacity:.6;padding:10px 14px}
+.dayc .dh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:0 2px 8px}
+.dayc .dh b{color:var(--teal-d);font-size:15.5px}
+.dayc .dh span{font-size:12.5px;color:var(--mut)}
+.dayc .dh small{margin-inline-start:auto;color:var(--teal-d);font-weight:700}
+.dayc .tc{box-shadow:none;background:#fafcfc}
+.dayc .tc.late{background:#fffafa}
+.addsm{border:0;background:none;color:var(--teal);font:inherit;font-weight:700;cursor:pointer;padding:4px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:700px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{background:#fff;border:1px solid #e3ecec;border-radius:18px;padding:14px;text-align:right;font:inherit;cursor:pointer;color:var(--ink)}
+.tile i{font-style:normal;font-size:26px;display:block}
+.tile b{display:block;color:var(--teal-d);margin-top:6px;font-size:14.5px}
+.tile small{color:var(--mut);font-size:12px;line-height:1.5;display:block}
+#toast{bottom:calc(130px + env(safe-area-inset-bottom))!important;z-index:30!important}@media(min-width:900px){#toast{bottom:70px!important}}
+@media print{#wkWrap,#backBar,nav#tabs{display:none!important}}
 </style>
 </head>
 <body>
 <script type="application/json" id="seed">{"tasks": [], "weeks": {"2026-11-16": {"meet": {"summary": "اجتماع الاثنين 16/11/2026 – مخرجات الاجتماع مسجلة في تبويب «المعلقات».", "challenges": "", "needs": "ستاند شامبو استيل (20)، استشوار (12)، 7 مكيفات للحصيلة"}, "goals": [], "points": [], "proposals": [], "days": {}, "review": {"score": "", "mgr": "", "next": ""}}}, "actions": [{"id": "a0", "b": "الحي التجاري", "t": "تنظيم شقق اليومي وكورنر الضيافة", "d": "سكر – قهوة سريعة التحضير – شاي – أعواد تحريك – أكواب – فواكه – ماء – معمول – صحن تقديم", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a1", "b": "الحي التجاري", "t": "تغيير ستائر الطابقين 7 و 8", "d": "نوع الواي فاي", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-23", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a2", "b": "الحي التجاري", "t": "ستاند شامبو استيل للحمامات", "d": "العدد: 20 – متطلب من المشرف", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a3", "b": "الحي التجاري", "t": "استشوار للطابقين 7 و 8", "d": "العدد: 12 – متطلب من المشرف", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a4", "b": "صلالة الوسطى / المعتزة", "t": "نقل وتحويل الموظف محي الدين إلى المعتزة", "d": "لتجهيز الطابق الثالث", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-16", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a5", "b": "صلالة الوسطى / المعتزة", "t": "أعمال صيانة 3 شقق وتجهيزها لليومي (بوكينج)", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a6", "b": "صلالة الوسطى / المعتزة", "t": "نقل مستأجري الطابق الثالث وتخصيصه لليومي", "d": "يكتمل قبل الاثنين 23/11", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-21", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a7", "b": "صلالة الوسطى / المعتزة", "t": "تجهيز الطابق الثالث لعملاء بوكينج", "d": "زوليات – مناديل حمام – أدوات مطبخ – ورود – ديكور تلفزيون – ديكور حوائط غرف النوم – لوحات – مناشف – أباجورات – الممر الخارجي (سجاد وإضاءة)", "who": "عبدالسلام حامد", "exec": ["عبدالسلام حامد", "أبو رياض", "محي الدين"], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a8", "b": "عوقد الشمالية", "t": "تنظيف سنوي لـ 3 شقق", "d": "الشقق 405 – 202 – 404", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a9", "b": "عوقد الشمالية", "t": "تنظيف وتنظيم السرداب", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a10", "b": "الوادي", "t": "معالجة الرطوبة", "d": "الشقتان 401 و 102", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a11", "b": "الوادي", "t": "إصلاح الإضاءة الخارجية", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a12", "b": "الوادي", "t": "تجديد لوحات البناية", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a13", "b": "السعادة", "t": "صيانة ونظافة الشقة 405", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a14", "b": "السعادة نستو", "t": "تشييك وإشراف عام", "d": "", "who": "عبدالسلام حامد", "exec": ["عبدالسلام حامد"], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a15", "b": "الحصيلة", "t": "تجهيز الشقق الخمس للتأجير اليومي", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a16", "b": "الحصيلة", "t": "شراء وإضافة 7 مكيفات", "d": "", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-22", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}], "demo": false, "staff": [{"name": "عبدالسلام حامد", "role": "المشرف العام", "phone": "96898043410"}, {"name": "أبو رياض", "role": "", "phone": ""}, {"name": "محي الدين", "role": "المعتزة", "phone": ""}, {"name": "م. علاء", "role": "صيانة الأجهزة", "phone": "96898140185"}, {"name": "وضاح عبدالرقيب", "role": "المدير العام", "phone": "96895873503"}]}</script>
 
 <header>
-  <img alt="نسائم صلالة" src="icons/logo-mark-white.png">
-  <div>
-    <h1>خطة العمل الأسبوعية – الإشراف العام</h1>
-    <div class="sub">نسائم صلالة · المشرف العام: عبدالسلام حامد</div>
-    <span class="slogan">حيث تسكن الراحة · Where Comfort Resides</span>
-  </div>
-  <div class="weekbar">
-    <button id="prevW">‹ السابق</button>
-    <div class="lbl" id="weekLbl"></div>
-    <button id="nextW">التالي ›</button>
-  </div>
+  <img class="lg" alt="نسائم صلالة" src="icons/logo-full.png">
+  <div><h1>الإشراف العام</h1><div class="sub">نسائم صلالة</div></div>
   <div class="userbox" id="userBox" style="display:none"><span id="userName"></span><button id="logout">خروج</button></div>
 </header>
 
 <nav id="tabs">
-  <button data-t="today" class="on">١. التقرير اليومي</button>
-  <button data-t="acts">٢. المهام والمعلقات</button>
-  <button data-t="tasks">مهامي</button>
-  <button data-t="plan">٣. خطة الأسبوع</button>
-  <button data-t="review">٤. التحليل والمتابعة</button>
-  <button data-t="report">٥. تقرير المدير (PDF)</button>
+  <button data-t="home" class="on"><i>☀</i>اليوم</button>
+  <button data-t="acts"><i>✓</i>مهامي</button>
+  <button data-t="week"><i>▦</i>الأسبوع</button>
+  <button data-t="more"><i>☰</i>المزيد</button>
 </nav>
+<div id="backBar"></div>
+<div class="wkwrap" id="wkWrap"><button id="prevW">› السابق</button><div class="lbl" id="weekLbl"></div><button id="nextW">التالي ‹</button></div>
 
 <div id="demoBar" style="max-width:1080px;margin:14px auto 0;padding:0 18px"></div>
 <main id="view"></main>
@@ -228,7 +308,7 @@ function addD(d,n){d=new Date(d);d.setDate(d.getDate()+n);return d}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const hrs=m=>{m=Math.round(+m||0);const h=Math.floor(m/60),r=m%60;return h?(h+' س'+(r?' و'+r+' د':'')):r+' د'};
-let wk=monday(new Date()),tab='acts',dayIdx=(new Date().getDay()+6)%7,dirty=false;
+let wk=monday(new Date()),tab='home',dayIdx=(new Date().getDay()+6)%7,dirty=false;
 
 function W(){const k=iso(wk);if(!S.weeks[k])S.weeks[k]={meet:{summary:'',challenges:'',needs:''},goals:[],points:[],proposals:[],days:{},review:{score:'',mgr:'',next:''}};return S.weeks[k]}
 function taskById(id){return S.tasks.find(t=>t.id===id)}
@@ -275,7 +355,7 @@ V.today=el=>{const w=W();
  if(!D.units.length)schedB(dayIdx).forEach(x=>D.units.push({b:x,ready:0,cleaning:0,maint:0,note:''}));
  el.innerHTML=`<div class="tip">التقرير اليومي للمشرف العام – يُعبّأ <b>نهاية كل يوم</b>. اضغط على أي قسم لفتحه.</div>${dh}
  <div class="card" style="padding:10px 16px"><b style="color:var(--teal-d)">جدول اليوم:</b> ${SCHED[dayIdx].map(x=>`<span class="pill" style="font-size:13px;padding:2px 10px">${x}</span>`).join(' ')}</div>
- ${(()=>{const dv=iso(addD(wk,dayIdx)),L=S.actions.filter(a=>a.date===dv||(dv===iso(TODAY)&&isLate(a)));return `<div class="card"><h2>مهام اليوم من خطة المعلقات (${L.length})</h2><p class="hint">علّم ✓ عند الإنجاز، أو انقل المهمة ليوم آخر.</p>${L.length?`<div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${L.map(actRow).join('')}</tbody></table></div>`:'<p class="empty">لا توجد مهام لهذا اليوم</p>'}<div class="row"><button class="btn s" id="addSideD">+ مهمة جانبية لهذا اليوم</button></div></div>`})()}
+ ${(()=>{const dv=iso(addD(wk,dayIdx)),L=S.actions.filter(a=>a.date===dv||(dv===iso(TODAY)&&isLate(a)));return `<div class="card"><h2>مهام اليوم من خطة المعلقات (${L.length})</h2><p class="hint">علّم ✓ عند الإنجاز، أو انقل المهمة ليوم آخر.</p>${L.length?L.map(a=>tcard(a,isLate(a))).join(''):'<p class="empty">لا توجد مهام لهذا اليوم</p>'}<div class="row"><button class="btn s" id="addSideD">+ مهمة جانبية لهذا اليوم</button></div></div>`})()}
  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
   <div class="kpi"><b id="kPct">0%</b><span>نسبة إنجاز اليوم</span></div>
   <div class="kpi"><b id="kTime">0</b><span>وقت العمل</span></div>
@@ -293,7 +373,7 @@ V.today=el=>{const w=W();
    <label style="font-weight:700;color:var(--ink);margin-top:14px">الأعطال والطوارئ</label><div id="fl"></div>`)}
  ${sec(7,'التوصيات والإجراءات التصحيحية',`<div class="grid2"><div><label>مقترحات لتحسين العمل غداً</label><textarea data-r="next">${esc(D.rec.next)}</textarea></div><div><label>ملاحظات للإدارة تحتاج متابعة</label><textarea data-r="mgmt">${esc(D.rec.mgmt)}</textarea></div></div>`)}`;
  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{dayIdx=+b.dataset.d;render()});
- bindActs(el,render);const asd=el.querySelector('#addSideD');if(asd)asd.onclick=()=>{S.actions.push({id:uid(),b:schedB(dayIdx)[0]||ACT_B[ACT_B.length-1],t:'',d:'',who:'عبدالسلام حامد',exec:[],date:iso(addD(wk,dayIdx)),s:'لم يبدأ',kind:'جانبية',note:''});mark();render()};
+ bindCards(el,render);const asd=el.querySelector('#addSideD');if(asd)asd.onclick=()=>{S.actions.push({id:uid(),b:schedB(dayIdx)[0]||ACT_B[ACT_B.length-1],t:'',d:'',who:'عبدالسلام حامد',exec:[],date:iso(addD(wk,dayIdx)),s:'لم يبدأ',kind:'جانبية',note:''});OPEN=S.actions[S.actions.length-1].id;mark();render()};
  // simple field bindings
  el.querySelectorAll('[data-f]').forEach(s=>{const host=['lobby','elev','facade','wc'].includes(s.dataset.f)?D.clean:D.disc;s.onchange=()=>{host[s.dataset.f]=s.value;mark()}});
  el.querySelector('[data-c]').oninput=e=>{D.clean.note=e.target.value;mark()};
@@ -341,35 +421,98 @@ function bindActs(root,rerender){
  root.querySelectorAll('[data-rmx]').forEach(x=>x.onclick=()=>{S.actions[+x.dataset.rmx].exec.splice(+x.dataset.j,1);mark();rerender()});
  root.querySelectorAll('[data-delx]').forEach(x=>{let armed=false;x.onclick=()=>{if(!armed){armed=true;x.textContent='؟';x.title='اضغط مرة أخرى للحذف';return}S.actions.splice(+x.dataset.delx,1);mark();rerender()}});
 }
-let actView='day';
-V.acts=el=>{const A=S.actions,c=s=>A.filter(a=>a.s===s).length,late=A.filter(isLate);
- const groups={};A.forEach(a=>{const k=isLate(a)?'0late':(a.date||'9none');(groups[k]=groups[k]||[]).push(a)});
- const keys=Object.keys(groups).sort();
- const body=actView==='day'?keys.map(k=>`<div class="card"${k==='0late'?' style="border-color:#f1b5ae"':''}><h2 style="${k==='0late'?'color:var(--bad)':''}">${k==='0late'?'⚠ مهام متأخرة':k==='9none'?'بدون موعد':dLabel(k)+(k===iso(TODAY)?' – اليوم':'')} <span class="saveinfo">(${groups[k].length})</span></h2><div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${groups[k].map(actRow).join('')}</tbody></table></div></div>`).join('')
-  :ACT_B.map(bl=>{const L=A.filter(a=>a.b===bl);return L.length?`<div class="card"><h2>${bl} <span class="saveinfo">(${L.length})</span></h2><div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${L.map(actRow).join('')}</tbody></table></div></div>`:''}).join('');
- el.innerHTML=`<div class="kpis"><div class="kpi"><b>${A.length}</b><span>إجمالي المهام</span></div><div class="kpi"><b>${c('تم')}</b><span>تم</span></div><div class="kpi"><b>${A.length-c('تم')}</b><span>متبقية</span></div><div class="kpi"><b style="color:var(--bad)">${late.length}</b><span>متأخرة</span></div></div>
- <div class="row" style="margin:0 0 14px">
-  <button class="btn p" id="addSide">+ مهمة جانبية</button>
-  <button class="btn s" id="msgBtn">✉ رسائل الموظفين</button>
-  <button class="btn s" id="staffBtn">👥 قائمة الموظفين (${S.staff.length})</button>
-  <span style="margin-inline-start:auto" class="saveinfo">العرض:</span>
-  <button class="btn ${actView==='day'?'p':'s'}" data-view="day" style="padding:6px 12px">حسب اليوم</button>
-  <button class="btn ${actView==='bld'?'p':'s'}" data-view="bld" style="padding:6px 12px">حسب البناية</button></div>
- <div id="panel"></div>${body||'<p class="empty">لا توجد مهام</p>'}`;
- const rr=()=>V.acts(el);bindActs(el,rr);
- el.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{actView=x.dataset.view;rr()});
- el.querySelector('#addSide').onclick=()=>{A.push({id:uid(),b:ACT_B[ACT_B.length-1],t:'',d:'',who:'عبدالسلام حامد',exec:[],date:iso(TODAY),s:'لم يبدأ',kind:'جانبية',note:''});actView='day';mark();rr();setTimeout(()=>{const t=[...el.querySelectorAll('[data-f2="t"]')].find(x=>!x.value);t&&t.focus()},50)};
- const panel=el.querySelector('#panel');
- el.querySelector('#staffBtn').onclick=()=>{const r=()=>{panel.innerHTML=`<div class="card" style="border-color:var(--teal)"><h2>قائمة الموظفين</h2><p class="hint">الأسماء التي تظهر في خانة المنفّذ. رقم الواتساب اختياري (مثال 96891234567) لفتح الرسالة مباشرة.</p>${listTable(S.staff,[{k:'name',label:'الاسم',w:'150px'},{k:'role',label:'العمل / البناية',w:'150px'},{k:'phone',label:'رقم الواتساب',w:'130px'}],'إضافة موظف')}<div class="row"><button class="btn s" id="closeP">إغلاق</button></div></div>`;bindList(panel,S.staff,()=>({name:'',role:'',phone:''}),r);panel.querySelector('#closeP').onclick=rr};r()};
- el.querySelector('#msgBtn').onclick=()=>{const today=iso(TODAY),names=[...new Set(A.flatMap(a=>a.exec))];
-  const msgs=names.map(n=>{const mine=A.filter(a=>a.exec.includes(n)&&a.s!=='تم');const td=mine.filter(a=>a.date===today),lt=mine.filter(isLate);if(!td.length&&!lt.length)return null;
-   let m=`السلام عليكم ${n}،\n`;if(td.length)m+=`\n*مهامك اليوم ${dLabel(today)}:*\n`+td.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t}${a.d?' ('+a.d+')':''}`).join('\n')+'\n';
-   if(lt.length)m+=`\n*مهام متأخرة لم تُنجز:*\n`+lt.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t} (موعدها ${dLabel(a.date)})`).join('\n')+'\n';
-   m+=`\nنرجو إنجازها اليوم وإبلاغي عند الانتهاء.\nعبدالسلام حامد – المشرف العام\nنسائم صلالة`;const st=S.staff.find(s=>s.name===n);return {n,m,ph:(st?.phone||'').replace(/\D/g,''),cnt:td.length+lt.length}}).filter(Boolean);
-  panel.innerHTML=`<div class="card" style="border-color:var(--teal)"><h2>رسائل الموظفين – مهام اليوم والمتأخرة</h2><p class="hint">لكل موظف رسالة جاهزة. انسخها وأرسلها بالواتساب.</p>${msgs.length?msgs.map((x,i)=>`<div style="border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px"><b>${esc(x.n)}</b> <span class="saveinfo">(${x.cnt} مهام)</span><pre class="sum" style="margin:8px 0">${esc(x.m)}</pre><div class="row" style="margin:0"><button class="btn s" data-cp="${i}">نسخ الرسالة</button>${x.ph?`<a class="btn s" style="text-decoration:none" href="https://wa.me/${x.ph}?text=${encodeURIComponent(x.m)}" target="_blank">فتح في واتساب</a>`:''}</div></div>`).join(''):'<p class="empty">لا توجد مهام اليوم أو متأخرة على أي موظف.</p>'}<div class="row"><button class="btn s" id="closeP">إغلاق</button></div></div>`;
-  panel.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(msgs[+b.dataset.cp].m).then(()=>toast('تم نسخ الرسالة')).catch(()=>toast('حدد النص وانسخه يدوياً')));
-  panel.querySelector('#closeP').onclick=rr;panel.scrollIntoView({behavior:'smooth'})};
+let actView='day',actF='open',OPEN=null,nxOpen=false;
+function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s==='تم',ex=a.exec||[],op=OPEN===a.id;
+ return `<div class="tc${done?' done':late?' late':''}${op?' open':''}">
+ <div class="tcr"><button class="ck" data-ck="${i}" title="${done?'إلغاء الإنجاز':'تم الإنجاز'}">${done?'✓':''}</button>
+ <div class="tb" data-op="${i}">
+  <div class="tt">${a.t?esc(a.t):'<span class="ph">مهمة جديدة – اكتب عنوانها</span>'}</div>
+  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
+  ${a.d&&!op?`<div class="td">${esc(a.d)}</div>`:''}
+  ${a.note&&!op?`<div class="tn">📝 ${esc(a.note)}</div>`:''}
+ </div>
+ <button class="ed" data-op="${i}" title="تعديل وملاحظة">${op?'إغلاق':'✎'}</button></div>
+ ${op?`<div class="ted">
+  <label>المهمة</label><textarea data-f2="t" data-i="${i}" placeholder="اكتب المهمة">${esc(a.t)}</textarea>
+  <label>📝 ملاحظة</label><textarea data-f2="note" data-i="${i}" placeholder="ما تم، ما ينقص، سبب التأخير...">${esc(a.note)}</textarea>
+  <div class="g3"><div><label>البناية</label><select data-f2="b" data-i="${i}">${ACT_B.map(o=>`<option value="${o}"${o===a.b?' selected':''}>${SHORT(o)}</option>`).join('')}</select></div>
+  <div><label>يوم التنفيذ</label><select data-f2="date" data-i="${i}">${dateOpts(a.date)}</select></div>
+  <div><label>الحالة</label><select data-f2="s" data-i="${i}">${ACT_ST.map(o=>`<option${o===a.s?' selected':''}>${o}</option>`).join('')}</select></div></div>
+  <label>المنفّذ</label>${chips(a,i)}
+  <label>التفاصيل والمتطلبات</label><textarea data-f2="d" data-i="${i}" placeholder="اختياري">${esc(a.d)}</textarea>
+  <div class="row"><button class="btn p" data-cl>حفظ وإغلاق</button><button class="btn x2" data-delx="${i}" style="margin-inline-start:auto">حذف المهمة</button></div>
+ </div>`:''}</div>`}
+function bindCards(root,rr){
+ root.querySelectorAll('[data-ck]').forEach(x=>x.onclick=()=>{const a=S.actions[+x.dataset.ck];a.s=a.s==='تم'?'لم يبدأ':'تم';mark();if(a.s==='تم')toast('أحسنت ✓ تم إنجاز المهمة');rr()});
+ root.querySelectorAll('[data-op]').forEach(x=>x.onclick=()=>{const a=S.actions[+x.dataset.op];OPEN=OPEN===a.id?null:a.id;rr()});
+ root.querySelectorAll('[data-cl]').forEach(x=>x.onclick=()=>{OPEN=null;rr();toast('تم الحفظ')});
+ root.querySelectorAll('select[data-f2="date"]').forEach(x=>x.addEventListener('change',()=>toast('نُقلت المهمة إلى '+dLabel(x.value))));
+ bindActs(root,rr);
+ root.querySelectorAll('[data-delx]').forEach(x=>x.addEventListener('click',()=>{if(x.textContent==='؟')x.textContent='اضغط مرة أخرى للحذف'}));
+}
+function nextWork(d){d=addD(d,1);if(((d.getDay()+6)%7)===OFF)d=addD(d,1);return d}
+function newAct(date,b){const a={id:uid(),b:b||'الإدارة العامة',t:'',d:'',who:'عبدالسلام حامد',exec:[],date:date,s:'لم يبدأ',kind:'جانبية',note:''};S.actions.push(a);OPEN=a.id;mark();return a}
+
+/* ---- الرئيسية: اليوم ---- */
+V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date().getHours(),nm=(USER&&USER.name||'').split(' ')[0];
+ const L=A.filter(a=>a.date===td),late=A.filter(isLate),done=L.filter(a=>a.s==='تم').length,pct=L.length?Math.round(done/L.length*100):0;
+ const nx=nextWork(TODAY),N=A.filter(a=>a.date===iso(nx));if(N.some(a=>a.id===OPEN))nxOpen=true;
+ el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
+ ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
+ <div class="prg"><div class="pb"><i style="width:${pct}%"></i></div><b>أنجزت ${done} من ${L.length}</b></div></div>
+ <h3 class="hd">مهام اليوم <small>(${L.length})</small></h3>
+ ${L.length?L.map(a=>tcard(a)).join(''):'<div class="emp">لا توجد مهام مسجلة لليوم</div>'}
+ <button class="addbig" id="addT">+ إضافة مهمة لليوم</button>
+ ${late.length?`<h3 class="hd red">متأخرة من أيام سابقة <small>(${late.length})</small></h3>${late.map(a=>tcard(a,true)).join('')}`:''}
+ ${N.length?`<details class="nx"${nxOpen?' open':''}><summary>مهام ${dLabel(iso(nx))} <small>(${N.length})</small></summary>${N.map(a=>tcard(a)).join('')}</details>`:''}`;
+ const rr=()=>V.home(el);bindCards(el,rr);
+ const nd=el.querySelector('details.nx');if(nd)nd.ontoggle=()=>{nxOpen=nd.open};
+ el.querySelector('#addT').onclick=()=>{const d=ti==OFF?nextWork(TODAY):TODAY,j=(d.getDay()+6)%7;newAct(iso(d),schedB(j)[0]);rr();focusOpen(el)};
 };
+function focusOpen(el){setTimeout(()=>{const t=el.querySelector('.tc.open textarea[data-f2="t"]');if(t){t.focus();t.scrollIntoView({block:'center',behavior:'smooth'})}},60)}
+
+/* ---- مهامي: كل المهام ---- */
+V.acts=el=>{const A=S.actions,late=A.filter(isLate);
+ const SETS={open:A.filter(a=>a.s!=='تم'),late:late,done:A.filter(a=>a.s==='تم'),all:A},F=SETS[actF];
+ let body='';
+ if(actView==='day'){const groups={};F.forEach(a=>{const k=isLate(a)?'0late':(a.date||'9none');(groups[k]=groups[k]||[]).push(a)});
+  body=Object.keys(groups).sort().map(k=>`<h3 class="hd${k==='0late'?' red':''}">${k==='0late'?'متأخرة':k==='9none'?'بدون موعد':dLabel(k)+(k===iso(TODAY)?' – اليوم':'')} <small>(${groups[k].length})</small></h3>${groups[k].map(a=>tcard(a,k==='0late')).join('')}`).join('')}
+ else body=ACT_B.map(bl=>{const L=F.filter(a=>a.b===bl);return L.length?`<h3 class="hd">${bl} <small>(${L.length})</small></h3>${L.map(a=>tcard(a,true)).join('')}`:''}).join('');
+ el.innerHTML=`<div class="seg">${[['open','المتبقية'],['late','المتأخرة'],['done','المنجزة'],['all','الكل']].map(([k,l])=>`<button data-fl="${k}" class="${actF===k?'on':''}">${l} <small>${SETS[k].length}</small></button>`).join('')}</div>
+ <div class="seg sm"><button data-view="day" class="${actView==='day'?'on':''}">حسب اليوم</button><button data-view="bld" class="${actView==='bld'?'on':''}">حسب البناية</button></div>
+ <button class="addbig" id="addSide">+ مهمة جديدة</button>
+ ${body||'<div class="emp">لا توجد مهام هنا</div>'}`;
+ const rr=()=>V.acts(el);bindCards(el,rr);
+ el.querySelectorAll('[data-fl]').forEach(x=>x.onclick=()=>{actF=x.dataset.fl;rr()});
+ el.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{actView=x.dataset.view;rr()});
+ el.querySelector('#addSide').onclick=()=>{newAct(iso(((TODAY.getDay()+6)%7)==OFF?nextWork(TODAY):TODAY));actF='open';actView='day';rr();focusOpen(el)};
+};
+
+/* ---- الأسبوع ---- */
+V.week=el=>{const A=S.actions;
+ el.innerHTML=[0,1,2,3,4,5,6].map(i=>{const d=addD(wk,i),v=iso(d),isT=v===iso(TODAY);
+  if(i==OFF)return `<div class="dayc off"><div class="dh" style="margin:0"><b>${DAYN[i]} ${d.getDate()}/${d.getMonth()+1}</b><span>إجازة</span></div></div>`;
+  const L=A.filter(a=>a.date===v),dn=L.filter(a=>a.s==='تم').length;
+  return `<div class="dayc${isT?' today':''}"><div class="dh"><b>${DAYN[i]} ${d.getDate()}/${d.getMonth()+1}${isT?' – اليوم':''}</b><span>${SCHED[i].map(SHORT).join(' · ')}</span>${L.length?`<small>${dn}/${L.length}</small>`:''}</div>
+  ${L.map(a=>tcard(a)).join('')}<button class="addsm" data-addd="${v}" data-di="${i}">+ مهمة لهذا اليوم</button></div>`}).join('')+
+  `<div class="tiles" style="margin-top:6px"><button class="tile" data-go="plan"><i>🗓</i><b>اجتماع الاثنين والأهداف</b><small>ما طرحه المشرف وأهداف الأسبوع</small></button><button class="tile" data-go="report"><i>🖨</i><b>تقرير المدير PDF</b><small>تقرير هذا الأسبوع</small></button></div>`;
+ const rr=()=>V.week(el);bindCards(el,rr);
+ el.querySelectorAll('[data-addd]').forEach(x=>x.onclick=()=>{newAct(x.dataset.addd,schedB(+x.dataset.di)[0]);rr();focusOpen(el)});
+ el.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go));
+};
+
+/* ---- المزيد ---- */
+const MORE=[['today','📝','التقرير اليومي المفصّل','الشقق، النظافة، الموظفين، الشكاوى'],['plan','🗓','اجتماع الاثنين والأهداف','ما طرحه المشرف وأهداف الأسبوع'],['msgs','✉','رسائل الموظفين','رسالة واتساب جاهزة لكل موظف'],['staff','👥','قائمة الموظفين','أسماء المنفذين وأرقامهم'],['tasks','📌','المهام الثابتة','مهام المشرف المتكررة والوقت'],['review','📊','التحليل والمتابعة','نسب الإنجاز والوقت'],['report','🖨','تقرير المدير PDF','تقرير أسبوعي جاهز للطباعة']];
+V.more=el=>{el.innerHTML=`<div class="tiles">${MORE.map(([k,ic,t,s])=>`<button class="tile" data-go="${k}"><i>${ic}</i><b>${t}</b><small>${s}</small></button>`).join('')}</div>`;
+ el.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))};
+V.staff=el=>{const r=()=>{el.innerHTML=`<div class="card"><h2>قائمة الموظفين</h2><p class="hint">الأسماء التي تظهر في خانة المنفّذ. رقم الواتساب اختياري (مثال 96891234567) لفتح الرسالة مباشرة.</p>${listTable(S.staff,[{k:'name',label:'الاسم',w:'150px'},{k:'role',label:'العمل / البناية',w:'150px'},{k:'phone',label:'رقم الواتساب',w:'130px'}],'إضافة موظف')}</div>`;bindList(el,S.staff,()=>({name:'',role:'',phone:''}),r)};r()};
+V.msgs=el=>{const A=S.actions,today=iso(TODAY),names=[...new Set(A.flatMap(a=>a.exec))];
+ const msgs=names.map(n=>{const mine=A.filter(a=>a.exec.includes(n)&&a.s!=='تم');const td=mine.filter(a=>a.date===today),lt=mine.filter(isLate);if(!td.length&&!lt.length)return null;
+  let m=`السلام عليكم ${n}،\n`;if(td.length)m+=`\n*مهامك اليوم ${dLabel(today)}:*\n`+td.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t}${a.d?' ('+a.d+')':''}`).join('\n')+'\n';
+  if(lt.length)m+=`\n*مهام متأخرة لم تُنجز:*\n`+lt.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t} (موعدها ${dLabel(a.date)})`).join('\n')+'\n';
+  m+=`\nنرجو إنجازها اليوم وإبلاغي عند الانتهاء.\nعبدالسلام حامد – المشرف العام\nنسائم صلالة`;const st=S.staff.find(s=>s.name===n);return {n,m,ph:(st?.phone||'').replace(/\D/g,''),cnt:td.length+lt.length}}).filter(Boolean);
+ el.innerHTML=`<div class="card"><h2>رسائل الموظفين – مهام اليوم والمتأخرة</h2><p class="hint">لكل موظف رسالة جاهزة. انسخها أو افتحها في واتساب.</p>${msgs.length?msgs.map((x,i)=>`<div style="border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px"><b>${esc(x.n)}</b> <span class="saveinfo">(${x.cnt} مهام)</span><pre class="sum" style="margin:8px 0">${esc(x.m)}</pre><div class="row" style="margin:0"><button class="btn s" data-cp="${i}">نسخ الرسالة</button>${x.ph?`<a class="btn s" style="text-decoration:none" href="https://wa.me/${x.ph}?text=${encodeURIComponent(x.m)}" target="_blank">فتح في واتساب</a>`:''}</div></div>`).join(''):'<p class="empty">لا توجد مهام اليوم أو متأخرة على أي موظف.</p>'}</div>`;
+ el.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(msgs[+b.dataset.cp].m).then(()=>toast('تم نسخ الرسالة')).catch(()=>toast('حدد النص وانسخه يدوياً')))};
 
 /* ---- 2. TASKS ---- */
 V.tasks=el=>{
@@ -476,9 +619,15 @@ function demoBar(){const box=document.getElementById('demoBar');if(!S.demo){box.
  box.querySelector('#dShow').onclick=()=>{wk=monday(new Date(2026,10,9));dayIdx=0;render()};
  let armed=false;box.querySelector('#dClr').onclick=e=>{if(!armed){armed=true;e.target.textContent='اضغط مرة أخرى للتأكيد';return}
   delete S.weeks[DEMO_WK];S.tasks=S.tasks.filter(t=>!t.demo);S.demo=false;mark();render();toast('تم المسح – اضغط حفظ')}}
+const MAIN=['home','acts','week','more'],WKV=['week','today','plan','review','report'],NARROW=['home','acts','week','more'];
+function go(t){tab=t;OPEN=null;render();window.scrollTo(0,0)}
 function render(){demoBar();document.getElementById('weekLbl').textContent=`أسبوع ${fmt(wk)} – ${fmt(addD(wk,6))}`;
- document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));V[tab](document.getElementById('view'))}
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+ const nt=MAIN.includes(tab)?tab:'more';document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===nt));
+ document.getElementById('wkWrap').style.display=WKV.includes(tab)?'':'none';
+ const m=MORE.find(x=>x[0]===tab),bb=document.getElementById('backBar');
+ bb.innerHTML=m?`<button id="bk">→ رجوع</button><b>${m[2]}</b>`:'';if(m)bb.querySelector('#bk').onclick=()=>go('more');
+ const v=document.getElementById('view');v.classList.toggle('narrow',NARROW.includes(tab)||tab==='week');V[tab](v)}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>go(b.dataset.t));
 document.getElementById('prevW').onclick=()=>{wk=addD(wk,-7);render()};
 document.getElementById('nextW').onclick=()=>{wk=addD(wk,7);render()};
 
@@ -501,7 +650,7 @@ async function save(auto,note){if(!API){LS.set('ns-sup-cache',JSON.stringify(S))
   else throw new Error(res.error)}
  catch(e){setSync('err','لم يُحفظ – تحقق من الإنترنت');if(!auto)toast('تعذّر الحفظ – سيُعاد المحاولة')}
  finally{saving=false}}
-function showUser(){const u=document.getElementById('userBox');if(USER){u.style.display='flex';document.getElementById('userName').textContent='مرحباً، '+USER.name}}
+function showUser(){const u=document.getElementById('userBox');if(USER){u.style.display='flex';document.getElementById('userName').textContent=USER.name.split(' ')[0]}}
 function showLogin(err){document.getElementById('login').style.display='flex';document.getElementById('loginErr').textContent=err||'';setTimeout(()=>document.getElementById('pin').focus(),50)}
 document.getElementById('loginForm').onsubmit=async e=>{e.preventDefault();const p=document.getElementById('pin').value.trim();if(!p)return;
  const btn=document.getElementById('loginBtn');btn.disabled=true;btn.textContent='جارٍ التحقق...';
