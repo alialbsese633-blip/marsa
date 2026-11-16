@@ -43,6 +43,9 @@ function queueChanges(oldData, newData, user) {
     if ((o.s || '') !== (a.s || '')) row(a.id, 'status', o.s || '');
     if ((o.date || '') !== (a.date || '')) row(a.id, 'date', o.date || '');
     if (JSON.stringify(o.exec || []) !== JSON.stringify(a.exec || [])) row(a.id, 'exec');
+    const ol = (o.log || []).length, nl = (a.log || []).length;
+    if (nl > ol) a.log.slice(ol).forEach(function (L) { row(a.id, 'log', (L.by || '') + ': ' + (L.t || '')); });
+    if ((o.note || '') !== (a.note || '') && a.note) row(a.id, 'note');
   });
   Object.keys(oldA).forEach(function (id) { if (!seen[id]) row(id, 'deleted', oldA[id].t || ''); });
   if (!rows.length) return;
@@ -121,6 +124,8 @@ function digestItems(events, cur) {
     if (types.indexOf('status') >= 0) parts.push(a.s === 'تم' ? '✅ أُنجزت' : '🔄 الحالة: ' + a.s);
     if (types.indexOf('date') >= 0) parts.push('📅 يوم التنفيذ: ' + dlabel(a.date));
     if (types.indexOf('exec') >= 0) parts.push('👷 المنفّذ: ' + ((a.exec || []).join('، ') || '—'));
+    if (types.indexOf('note') >= 0) parts.push('📝 ملاحظة: ' + a.note);
+    evs.filter(function (e) { return e.type === 'log'; }).forEach(function (e) { parts.push('💬 ' + e.extra); });
     if (parts.length) out.push({ icon: '•', title: a.t, meta: parts.join('  ·  '), by: by });
   });
   return out;

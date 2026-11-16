@@ -248,6 +248,15 @@ details.nx>summary small{color:var(--mut);font-weight:400}
 .tile b{display:block;color:var(--teal-d);margin-top:6px;font-size:14.5px}
 .tile small{color:var(--mut);font-size:12px;line-height:1.5;display:block}
 #toast{bottom:calc(130px + env(safe-area-inset-bottom))!important;z-index:30!important}@media(min-width:900px){#toast{bottom:70px!important}}
+.lg{font-size:12.5px;color:#3d5555;background:#f2f6f6;border-radius:8px;padding:4px 8px;margin-top:6px}
+.lg b{color:var(--teal-d)}.lg small,.le small{color:#8a9a9a}
+.shr{color:#6a4fb3;font-weight:700}
+.logbox{background:#f7fafa;border:1px solid #e3ecec;border-radius:12px;padding:8px 10px;margin-top:10px}
+.logbox h4{margin:0 0 6px;font-size:13.5px;color:var(--teal-d)}
+.le{border-inline-start:3px solid var(--teal);padding:2px 8px;margin:6px 0;font-size:13px}
+.le.me{border-color:var(--gold)}
+.le div{white-space:pre-wrap}
+.logadd{display:flex;gap:6px;margin-top:6px}.logadd textarea{min-height:40px!important}
 @media print{#wkWrap,#backBar,nav#tabs{display:none!important}}
 </style>
 </head>
@@ -421,15 +430,16 @@ function bindActs(root,rerender){
  root.querySelectorAll('[data-rmx]').forEach(x=>x.onclick=()=>{S.actions[+x.dataset.rmx].exec.splice(+x.dataset.j,1);mark();rerender()});
  root.querySelectorAll('[data-delx]').forEach(x=>{let armed=false;x.onclick=()=>{if(!armed){armed=true;x.textContent='؟';x.title='اضغط مرة أخرى للحذف';return}S.actions.splice(+x.dataset.delx,1);mark();rerender()}});
 }
-let actView='day',actF='open',OPEN=null,nxOpen=false;
+let actView='day',actF='open',actP='',OPEN=null,nxOpen=false;
 function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s==='تم',ex=a.exec||[],op=OPEN===a.id;
  return `<div class="tc${done?' done':late?' late':''}${op?' open':''}">
  <div class="tcr"><button class="ck" data-ck="${i}" title="${done?'إلغاء الإنجاز':'تم الإنجاز'}">${done?'✓':''}</button>
  <div class="tb" data-op="${i}">
   <div class="tt">${a.t?esc(a.t):'<span class="ph">مهمة جديدة – اكتب عنوانها</span>'}</div>
-  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
+  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
   ${a.d&&!op?`<div class="td">${esc(a.d)}</div>`:''}
   ${a.note&&!op?`<div class="tn">📝 ${esc(a.note)}</div>`:''}
+  ${(a.log||[]).length&&!op?(L=>`<div class="lg">💬 <b>${esc(L.by)}</b>: ${esc(L.t)} <small>· ${tAgo(L.at)}${a.log.length>1?' · '+a.log.length+' تحديثات':''}</small></div>`)(a.log[a.log.length-1]):''}
  </div>
  <button class="ed" data-op="${i}" title="تعديل وملاحظة">${op?'إغلاق':'✎'}</button></div>
  ${op?`<div class="ted">
@@ -439,6 +449,8 @@ function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s=
   <div><label>يوم التنفيذ</label><select data-f2="date" data-i="${i}">${dateOpts(a.date)}</select></div>
   <div><label>الحالة</label><select data-f2="s" data-i="${i}">${ACT_ST.map(o=>`<option${o===a.s?' selected':''}>${o}</option>`).join('')}</select></div></div>
   <label>المنفّذ</label>${chips(a,i)}
+  <div class="logbox"><h4>💬 سجل المتابعة${ex.length>1?' – بين '+esc(ex.join('، ')):''}</h4>${(a.log||[]).map(L=>`<div class="le${USER&&L.by===USER.name?' me':''}"><b>${esc(L.by)}</b> <small>${tAgo(L.at)}</small><div>${esc(L.t)}</div></div>`).join('')||'<div class="saveinfo">لا توجد تحديثات بعد – اكتب ماذا عملت في المهمة.</div>'}
+  <div class="logadd"><textarea data-logt="${i}" placeholder="ماذا عملت؟ مثال: اشتريت الأغراض، باقي التركيب..."></textarea><button class="btn p" data-logb="${i}">إرسال</button></div></div>
   <label>التفاصيل والمتطلبات</label><textarea data-f2="d" data-i="${i}" placeholder="اختياري">${esc(a.d)}</textarea>
   <div class="row"><button class="btn p" data-cl>حفظ وإغلاق</button><button class="btn x2" data-delx="${i}" style="margin-inline-start:auto">حذف المهمة</button></div>
  </div>`:''}</div>`}
@@ -447,9 +459,11 @@ function bindCards(root,rr){
  root.querySelectorAll('[data-op]').forEach(x=>x.onclick=()=>{const a=S.actions[+x.dataset.op];OPEN=OPEN===a.id?null:a.id;rr()});
  root.querySelectorAll('[data-cl]').forEach(x=>x.onclick=()=>{OPEN=null;rr();toast('تم الحفظ')});
  root.querySelectorAll('select[data-f2="date"]').forEach(x=>x.addEventListener('change',()=>toast('نُقلت المهمة إلى '+dLabel(x.value))));
+ root.querySelectorAll('[data-logb]').forEach(x=>x.onclick=()=>{const i=+x.dataset.logb,t=root.querySelector(`[data-logt="${i}"]`).value.trim();if(!t)return;const a=S.actions[i];(a.log=a.log||[]).push({by:USER?USER.name:'—',at:Date.now(),t});if(a.s==='لم يبدأ')a.s='جارٍ';mark();rr();toast('تم إرسال التحديث')});
  bindActs(root,rr);
  root.querySelectorAll('[data-delx]').forEach(x=>x.addEventListener('click',()=>{if(x.textContent==='؟')x.textContent='اضغط مرة أخرى للحذف'}));
 }
+function tAgo(ms){const d=new Date(ms);return DAYN[(d.getDay()+6)%7]+' '+d.getDate()+'/'+(d.getMonth()+1)+' · '+d.toLocaleTimeString('ar-OM',{hour:'numeric',minute:'2-digit'})}
 function nextWork(d){d=addD(d,1);if(((d.getDay()+6)%7)===OFF)d=addD(d,1);return d}
 function newAct(date,b){const a={id:uid(),b:b||'الإدارة العامة',t:'',d:'',who:'عبدالسلام حامد',exec:[],date:date,s:'لم يبدأ',kind:'جانبية',note:''};S.actions.push(a);OPEN=a.id;mark();return a}
 
@@ -473,17 +487,20 @@ function focusOpen(el){setTimeout(()=>{const t=el.querySelector('.tc.open textar
 
 /* ---- مهامي: كل المهام ---- */
 V.acts=el=>{const A=S.actions,late=A.filter(isLate);
- const SETS={open:A.filter(a=>a.s!=='تم'),late:late,done:A.filter(a=>a.s==='تم'),all:A},F=SETS[actF];
+ const PP=[...new Set(A.flatMap(a=>a.exec))];if(actP&&!PP.includes(actP))actP='';
+ const SETS={open:A.filter(a=>a.s!=='تم'),late:late,done:A.filter(a=>a.s==='تم'),all:A},F=SETS[actF].filter(a=>!actP||a.exec.includes(actP));
  let body='';
  if(actView==='day'){const groups={};F.forEach(a=>{const k=isLate(a)?'0late':(a.date||'9none');(groups[k]=groups[k]||[]).push(a)});
   body=Object.keys(groups).sort().map(k=>`<h3 class="hd${k==='0late'?' red':''}">${k==='0late'?'متأخرة':k==='9none'?'بدون موعد':dLabel(k)+(k===iso(TODAY)?' – اليوم':'')} <small>(${groups[k].length})</small></h3>${groups[k].map(a=>tcard(a,k==='0late')).join('')}`).join('')}
  else body=ACT_B.map(bl=>{const L=F.filter(a=>a.b===bl);return L.length?`<h3 class="hd">${bl} <small>(${L.length})</small></h3>${L.map(a=>tcard(a,true)).join('')}`:''}).join('');
  el.innerHTML=`<div class="seg">${[['open','المتبقية'],['late','المتأخرة'],['done','المنجزة'],['all','الكل']].map(([k,l])=>`<button data-fl="${k}" class="${actF===k?'on':''}">${l} <small>${SETS[k].length}</small></button>`).join('')}</div>
+ ${PP.length?`<div class="seg sm"><button data-pp="" class="${actP?'':'on'}">كل المنفذين</button>${PP.map(n=>`<button data-pp="${esc(n)}" class="${actP===n?'on':''}">👷 ${esc(n)} <small>${A.filter(a=>a.s!=='تم'&&a.exec.includes(n)).length}</small></button>`).join('')}</div>`:''}
  <div class="seg sm"><button data-view="day" class="${actView==='day'?'on':''}">حسب اليوم</button><button data-view="bld" class="${actView==='bld'?'on':''}">حسب البناية</button></div>
  <button class="addbig" id="addSide">+ مهمة جديدة</button>
  ${body||'<div class="emp">لا توجد مهام هنا</div>'}`;
  const rr=()=>V.acts(el);bindCards(el,rr);
  el.querySelectorAll('[data-fl]').forEach(x=>x.onclick=()=>{actF=x.dataset.fl;rr()});
+ el.querySelectorAll('[data-pp]').forEach(x=>x.onclick=()=>{actP=x.dataset.pp;rr()});
  el.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{actView=x.dataset.view;rr()});
  el.querySelector('#addSide').onclick=()=>{newAct(iso(((TODAY.getDay()+6)%7)==OFF?nextWork(TODAY):TODAY));actF='open';actView='day';rr();focusOpen(el)};
 };
@@ -635,7 +652,17 @@ document.getElementById('nextW').onclick=()=>{wk=addD(wk,7);render()};
 let REV=LS.get('ns-sup-rev')||'',PIN=LS.get('ns-sup-pin')||'',USER=null,saving=false;
 function setSync(cls,t){const s=document.getElementById('syncBar');s.className=cls;document.getElementById('saveInfo').textContent=t}
 async function call(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});return r.json()}
-function applyServer(res){if(res.data){S=res.data;normalize();LS.set('ns-sup-cache',JSON.stringify(S))}REV=res.rev||'';LS.set('ns-sup-rev',REV)}
+function applyServer(res){if(res.data){S=res.data;normalize();LS.set('ns-sup-cache',JSON.stringify(S))}REV=res.rev||'';LS.set('ns-sup-rev',REV);if(migrate())setTimeout(()=>{mark();render()},50)}
+/* تحديث 16/11: ترتيب المهام حسب جدول النزول + المنفذين من ملف علي */
+function migrate(){S.mig=S.mig||[];if(S.mig.includes('m1611'))return false;
+ const A='عبدالسلام حامد',W='وضاح عبدالرقيب',Al='علي محسن',M='محمد حامد';
+ const P={a0:['2026-11-16',[A,Al,W]],a1:['2026-11-16',[W]],a2:['2026-11-16',[W,A]],a3:['2026-11-16',[W,A]],
+  a4:['2026-11-17',[A]],a5:['2026-11-17',[A]],a8:['2026-11-17',[A]],a10:['2026-11-17',[A]],a11:['2026-11-17',[A]],
+  a13:['2026-11-18',[A]],a14:['2026-11-18',[A]],a15:['2026-11-18',[A]],a16:['2026-11-18',[W]],
+  a6:['2026-11-21',[M,A]],a9:['2026-11-21',[A]],a7:['2026-11-24',[A,W,Al]],a12:['2026-11-24',[W,A]]};
+ S.actions.forEach(a=>{const x=P[a.id];if(!x)return;a.date=x[0];a.exec=x[1].slice();if(a.id==='a11')a.t='تركيب وشراء الإضاءة الخارجية'});
+ [[Al,'الإدارة'],[M,'']].forEach(([n,r])=>{if(!S.staff.some(s=>s.name===n))S.staff.push({name:n,role:r,phone:''})});
+ S.mig.push('m1611');LS.set('ns-sup-cache',JSON.stringify(S));return true}
 async function load(quiet){if(!API)return;try{if(!quiet)setSync('busy','جارٍ التحميل...');const res=await call({action:'load',pin:PIN});
   if(!res.ok){if(res.error==='pin'){showLogin('رقم الدخول غير صحيح');return}throw new Error(res.error)}
   USER=res.user;showUser();if(res.data)applyServer(res);else{REV='';await save(true,'إنشاء البيانات الأولى')}
