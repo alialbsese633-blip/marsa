@@ -29,6 +29,7 @@ function doPost(e) {
       if (cur.rev && req.rev !== cur.rev) {
         return out({ ok: false, error: 'conflict', user: user, rev: cur.rev, data: cur.data });
       }
+      try { queueChanges(cur.data, req.data, user); } catch (e) {}
       const rev = Utilities.getUuid();
       writeData(ss, req.data, rev);
       writeTasks(ss, req.data);
