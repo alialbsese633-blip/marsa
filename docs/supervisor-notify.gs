@@ -15,7 +15,7 @@ const NOTIFY = {
   EMAILS: {
     supervisor: 'bdalslamhfzaldyn@gmail.com',  // عبدالسلام حامد (مفعّل للتجربة)
     admin: '',                                   // علي البسيسي (اكتب بريدك لاحقاً)
-    manager: ''                                  // وضاح عبدالرقيب (لاحقاً)
+    manager: 'nssayemsalalah@gmail.com'            // وضاح عبدالرقيب (البريد المشترك مؤقتاً، يُغيَّر لاحقاً)
   }
 };
 
