@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الإشراف العام | نسائم صلالة</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1f6664">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="الإشراف العام">
+<link rel="icon" href="icons/logo-mark.png">
+<link rel="apple-touch-icon" href="icons/logo-mark.png">
+<script src="supervisor-config.js"></script>
+<style>
+@font-face{font-family:'Readex';src:url(fonts/readex-ar-400.woff2) format('woff2');font-weight:400;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'Readex';src:url(fonts/readex-la-400.woff2) format('woff2');font-weight:400;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Readex';src:url(fonts/readex-ar-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'Readex';src:url(fonts/readex-la-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Readex';src:url(fonts/readex-ar-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'Readex';src:url(fonts/readex-la-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+:root{--teal:#2b8c89;--teal-d:#1f6664;--teal-l:#e8f4f3;--ink:#1d2b2b;--mut:#5f6f6f;--line:#d9e2e2;--bg:#f5f7f7;--ok:#2e7d32;--warn:#b26a00;--bad:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font-family:Readex,Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
+header{background:#fff;border-bottom:3px solid var(--teal);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header img{width:62px;height:62px}
+header h1{margin:0;font-size:20px;color:var(--teal-d)}
+header .sub{color:var(--mut);font-size:13px}
+.weekbar{margin-inline-start:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.weekbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
+.weekbar .lbl{font-weight:700;min-width:210px;text-align:center}
+nav{display:flex;gap:4px;background:#fff;padding:0 20px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{border:0;background:none;padding:12px 16px;font:inherit;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--teal-d);border-color:var(--teal)}
+main{max-width:1080px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:17px;color:var(--teal-d)}
+.card .hint{color:var(--mut);font-size:13px;margin:0 0 12px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px;font-weight:500}
+input,select,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--teal-l);border-color:var(--teal)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.weekbar{margin:0}}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--teal-l);color:var(--teal-d);font-weight:700;text-align:right;padding:8px;border:1px solid var(--line)}
+td{padding:6px;border:1px solid var(--line);vertical-align:top}
+td input,td select,td textarea{border:0;padding:4px;background:transparent}
+td textarea{min-height:38px}
+.btn{border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.p{background:var(--teal);color:#fff}
+.btn.s{background:#fff;border:1px solid var(--teal);color:var(--teal-d)}
+.btn.x{background:none;color:var(--bad);padding:4px 8px;font-size:18px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.days{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.days button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer;min-width:92px}
+.days button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.days small{display:block;font-size:11px;opacity:.8}
+.days .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-inline-start:4px;vertical-align:middle}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:700px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;color:var(--teal-d)}
+.kpi span{font-size:13px;color:var(--mut)}
+.bar{height:8px;background:#e7ecec;border-radius:6px;overflow:hidden;min-width:90px}
+.bar i{display:block;height:100%;background:var(--teal)}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid var(--line)}
+.st-done{color:var(--ok)}.st-prog{color:var(--warn)}.st-no{color:var(--bad)}
+.saveinfo{font-size:13px;color:var(--mut)}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;opacity:0;transition:.3s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+.empty{color:var(--mut);text-align:center;padding:14px}
+pre.sum{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;margin:0}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:20px}
+.tip{background:var(--teal-l);border-inline-start:4px solid var(--teal);padding:10px 14px;border-radius:8px;font-size:14px;margin-bottom:14px}
+details.sec{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+details.sec>summary{cursor:pointer;padding:13px 16px;font-weight:700;color:var(--teal-d);font-size:16px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.sec>summary::after{content:'+';font-size:20px;color:var(--teal)}
+details.sec[open]>summary::after{content:'−'}
+details.sec>div{padding:0 16px 16px}
+.big{font-size:30px;font-weight:800;color:var(--teal-d)}
+.rep{background:#fff;color:#111;padding:28px 32px;border:1px solid var(--line);font-size:12.5px;line-height:1.55;width:794px;margin:0 auto}
+.rep .rh{display:flex;align-items:center;gap:14px;border-bottom:2px solid #1f6664;padding-bottom:10px;margin-bottom:12px}
+.rep .rh img{width:58px;height:58px}.rep h1{font-size:18px;margin:0;color:#111}.rep .meta{font-size:11.5px;color:#444}
+.rep h3{font-size:13.5px;color:#1f6664;margin:16px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;page-break-after:avoid}
+.rep table{font-size:11.5px;page-break-inside:auto}.rep tr{page-break-inside:avoid}.rep th{background:#eef3f3;color:#111;padding:5px 6px}.rep td{padding:4px 6px}
+.rep .sig{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px;text-align:center;font-size:12px}.rep .sig div{border-top:1px solid #333;padding-top:6px}
+@media print{body{background:#fff}header,nav,.noprint,footer,#saveBtn,#saveInfo{display:none!important}main{padding:0;max-width:none}.rep{border:0;padding:0;width:auto}}
+.chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.chip{background:var(--teal-l);color:var(--teal-d);border-radius:12px;padding:1px 4px 1px 8px;font-size:13px;white-space:nowrap}.chip b{cursor:pointer;color:var(--bad);margin-inline-start:4px;padding:0 3px}
+select.addx{width:auto;border:1px dashed var(--teal)!important;font-size:12px;padding:2px 4px!important;color:var(--teal-d)}
+tr.rowlate td{background:#fff6f5}tr.rowdone td{opacity:.55}tr.rowdone textarea{text-decoration:line-through}
+.pill{display:inline-block;background:var(--teal-l);color:var(--teal-d);border-radius:10px;padding:0 8px;font-size:12px;margin:1px}
+
+/* ===== هوية نسائم صلالة ===== */
+:root{--teal:#2b8c89;--teal-d:#1a5d5b;--teal-l:#e6f3f2;--gold:#c9a96e;--bg:#f2f6f6}
+body{background:var(--bg);-webkit-tap-highlight-color:transparent}
+header{position:relative;overflow:hidden;background:linear-gradient(135deg,#123f3e 0%,#1a5d5b 45%,#2b8c89 100%);border-bottom:0;color:#fff;padding:18px 22px 22px}
+header::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 120%,rgba(255,255,255,.12) 0,transparent 42%),radial-gradient(circle at 92% -30%,rgba(201,169,110,.28) 0,transparent 40%);pointer-events:none}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+header img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+header h1{color:#fff;font-size:20px;letter-spacing:.2px}
+header .sub{color:rgba(255,255,255,.82)}
+header .slogan{display:inline-block;margin-top:4px;font-size:12px;color:var(--gold);font-weight:500}
+.weekbar{position:relative;z-index:1}
+.weekbar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:10px}
+.weekbar .lbl{color:#fff}
+.userbox{position:relative;z-index:1;display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;background:rgba(0,0,0,.18);padding:5px 6px 5px 12px;border-radius:20px}
+.userbox button{background:none;border:0;color:var(--gold);font:inherit;cursor:pointer;padding:2px 6px}
+nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 2px 10px rgba(16,60,59,.06);gap:6px;padding:8px 14px;border-bottom:0}
+nav button{border:0;border-radius:22px;padding:8px 16px;color:var(--mut)}
+nav button.on{background:var(--teal-d);color:#fff;border:0}
+.card,.kpi,details.sec{border:1px solid #dfe9e8;border-radius:14px;box-shadow:0 1px 3px rgba(16,60,59,.05),0 6px 18px rgba(16,60,59,.04)}
+.kpi{position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--teal),var(--gold))}
+.card h2,details.sec>summary{color:var(--teal-d)}
+.btn{border-radius:10px}
+.btn.p{background:linear-gradient(135deg,var(--teal-d),var(--teal));box-shadow:0 3px 10px rgba(26,93,91,.25)}
+th{background:var(--teal-l)}
+.tip{border-inline-start-color:var(--gold);background:#fbf7ef}
+.days button{border-radius:12px}
+.days button.on{background:linear-gradient(135deg,var(--teal-d),var(--teal))}
+footer{padding:26px 10px 90px}
+footer b{color:var(--teal-d)}
+/* شريط الحفظ */
+#syncBar{position:fixed;bottom:14px;inset-inline-start:14px;z-index:8;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dfe9e8;border-radius:24px;padding:6px 8px 6px 14px;box-shadow:0 6px 20px rgba(16,60,59,.15);font-size:13px}
+#syncBar .dot{width:9px;height:9px;border-radius:50%;background:#9aa}
+#syncBar.ok .dot{background:#2e7d32}#syncBar.busy .dot{background:var(--gold)}#syncBar.err .dot{background:var(--bad)}
+#syncBar button{padding:6px 14px}
+/* شاشة الدخول */
+#login{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0f3534 0%,#1a5d5b 55%,#2b8c89 100%)}
+#login::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(201,169,110,.25),transparent 40%),radial-gradient(circle at 10% 90%,rgba(255,255,255,.08),transparent 45%)}
+#login .box{position:relative;width:100%;max-width:360px;background:#fff;border-radius:22px;padding:30px 26px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#login img{width:110px;margin:-4px auto 6px;display:block}
+#login h2{margin:6px 0 2px;color:var(--teal-d);font-size:19px}
+#login p{margin:0 0 18px;color:var(--mut);font-size:13px}
+#login input{text-align:center;font-size:24px;letter-spacing:10px;padding:12px;border-radius:12px;border:1.5px solid #cfe0df}
+#login .btn{width:100%;margin-top:12px;padding:12px;font-size:16px}
+#login .err{color:var(--bad);font-size:13px;min-height:20px;margin-top:8px}
+#login .gold{color:var(--gold);font-size:12px;margin-top:14px}
+@media(max-width:700px){
+ header{padding:14px 14px 18px;gap:10px}header img{width:44px;height:44px}header h1{font-size:17px}
+ .weekbar{width:100%;justify-content:space-between;flex-wrap:nowrap;gap:6px}.weekbar .lbl{min-width:0;font-size:12.5px;flex:1}.weekbar button{padding:5px 9px;font-size:13px;white-space:nowrap}
+ nav{padding:6px 8px}nav button{padding:7px 12px;font-size:13px}
+ main{padding:12px}.card{padding:14px}
+}
+@media(max-width:760px){
+ table.acttbl thead{display:none}
+ table.acttbl,table.acttbl tbody{display:block;border:0}
+ table.acttbl tr{display:grid;grid-template-columns:34px 1fr 1fr 34px;gap:4px 8px;border:1px solid #dfe9e8;border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;position:relative}
+ table.acttbl tr.rowlate{border-color:#f1b5ae;background:#fff6f5}
+ table.acttbl td{display:block;border:0;padding:0;background:transparent!important}
+ table.acttbl td[data-l]:not([data-l="تم"])::before{content:attr(data-l);display:block;font-size:11px;color:var(--mut)}
+ table.acttbl td[data-l="تم"]{grid-row:1;grid-column:1;padding-top:4px}table.acttbl td[data-l="تم"] input{width:22px;height:22px}
+ table.acttbl td.c-t{grid-row:1;grid-column:2/4}table.acttbl td.c-t textarea{font-weight:700;font-size:15px}
+ table.acttbl td.c-del{grid-row:1;grid-column:4}
+ table.acttbl td.c-d,table.acttbl td.c-x{grid-column:1/5}
+ table.acttbl td[data-l="البناية"]{grid-column:1/3}
+ table.acttbl td[data-l="يوم التنفيذ"]{grid-column:3/5}
+ table.acttbl td[data-l="الحالة"]{grid-column:1/5}
+ table.acttbl select,table.acttbl textarea{background:#f6f9f9!important;border-radius:8px!important;padding:6px 8px!important}
+}
+@media print{#syncBar,#login,.userbox{display:none!important}header{background:#fff!important}}
+</style>
+</head>
+<body>
+<script type="application/json" id="seed">{"tasks": [], "weeks": {"2026-11-16": {"meet": {"summary": "اجتماع الاثنين 16/11/2026 – مخرجات الاجتماع مسجلة في تبويب «المعلقات».", "challenges": "", "needs": "ستاند شامبو استيل (20)، استشوار (12)، 7 مكيفات للحصيلة"}, "goals": [], "points": [], "proposals": [], "days": {}, "review": {"score": "", "mgr": "", "next": ""}}}, "actions": [{"id": "a0", "b": "الحي التجاري", "t": "تنظيم شقق اليومي وكورنر الضيافة", "d": "سكر – قهوة سريعة التحضير – شاي – أعواد تحريك – أكواب – فواكه – ماء – معمول – صحن تقديم", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a1", "b": "الحي التجاري", "t": "تغيير ستائر الطابقين 7 و 8", "d": "نوع الواي فاي", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-23", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a2", "b": "الحي التجاري", "t": "ستاند شامبو استيل للحمامات", "d": "العدد: 20 – متطلب من المشرف", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a3", "b": "الحي التجاري", "t": "استشوار للطابقين 7 و 8", "d": "العدد: 12 – متطلب من المشرف", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-19", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a4", "b": "صلالة الوسطى / المعتزة", "t": "نقل وتحويل الموظف محي الدين إلى المعتزة", "d": "لتجهيز الطابق الثالث", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-16", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a5", "b": "صلالة الوسطى / المعتزة", "t": "أعمال صيانة 3 شقق وتجهيزها لليومي (بوكينج)", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a6", "b": "صلالة الوسطى / المعتزة", "t": "نقل مستأجري الطابق الثالث وتخصيصه لليومي", "d": "يكتمل قبل الاثنين 23/11", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-21", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a7", "b": "صلالة الوسطى / المعتزة", "t": "تجهيز الطابق الثالث لعملاء بوكينج", "d": "زوليات – مناديل حمام – أدوات مطبخ – ورود – ديكور تلفزيون – ديكور حوائط غرف النوم – لوحات – مناشف – أباجورات – الممر الخارجي (سجاد وإضاءة)", "who": "عبدالسلام حامد", "exec": ["عبدالسلام حامد", "أبو رياض", "محي الدين"], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a8", "b": "عوقد الشمالية", "t": "تنظيف سنوي لـ 3 شقق", "d": "الشقق 405 – 202 – 404", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a9", "b": "عوقد الشمالية", "t": "تنظيف وتنظيم السرداب", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a10", "b": "الوادي", "t": "معالجة الرطوبة", "d": "الشقتان 401 و 102", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a11", "b": "الوادي", "t": "إصلاح الإضاءة الخارجية", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-17", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a12", "b": "الوادي", "t": "تجديد لوحات البناية", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-24", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a13", "b": "السعادة", "t": "صيانة ونظافة الشقة 405", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a14", "b": "السعادة نستو", "t": "تشييك وإشراف عام", "d": "", "who": "عبدالسلام حامد", "exec": ["عبدالسلام حامد"], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a15", "b": "الحصيلة", "t": "تجهيز الشقق الخمس للتأجير اليومي", "d": "", "who": "عبدالسلام حامد", "exec": [], "date": "2026-11-18", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}, {"id": "a16", "b": "الحصيلة", "t": "شراء وإضافة 7 مكيفات", "d": "", "who": "عبدالسلام حامد", "exec": ["وضاح عبدالرقيب"], "date": "2026-11-22", "s": "لم يبدأ", "kind": "من الاجتماع", "note": ""}], "demo": false, "staff": [{"name": "عبدالسلام حامد", "role": "المشرف العام", "phone": "96898043410"}, {"name": "أبو رياض", "role": "", "phone": ""}, {"name": "محي الدين", "role": "المعتزة", "phone": ""}, {"name": "م. علاء", "role": "صيانة الأجهزة", "phone": "96898140185"}, {"name": "وضاح عبدالرقيب", "role": "المدير العام", "phone": "96895873503"}]}</script>
+
+<header>
+  <img alt="نسائم صلالة" src="icons/logo-mark-white.png">
+  <div>
+    <h1>خطة العمل الأسبوعية – الإشراف العام</h1>
+    <div class="sub">نسائم صلالة · المشرف العام: عبدالسلام حامد</div>
+    <span class="slogan">حيث تسكن الراحة · Where Comfort Resides</span>
+  </div>
+  <div class="weekbar">
+    <button id="prevW">‹ السابق</button>
+    <div class="lbl" id="weekLbl"></div>
+    <button id="nextW">التالي ›</button>
+  </div>
+  <div class="userbox" id="userBox" style="display:none"><span id="userName"></span><button id="logout">خروج</button></div>
+</header>
+
+<nav id="tabs">
+  <button data-t="today" class="on">١. التقرير اليومي</button>
+  <button data-t="acts">٢. المهام والمعلقات</button>
+  <button data-t="tasks">مهامي</button>
+  <button data-t="plan">٣. خطة الأسبوع</button>
+  <button data-t="review">٤. التحليل والمتابعة</button>
+  <button data-t="report">٥. تقرير المدير (PDF)</button>
+</nav>
+
+<div id="demoBar" style="max-width:1080px;margin:14px auto 0;padding:0 18px"></div>
+<main id="view"></main>
+
+<div id="syncBar"><span class="dot"></span><span id="saveInfo">—</span><button class="btn p" id="saveBtn">حفظ</button></div>
+<footer><b>نسائم صلالة</b> – حيث تسكن الراحة<br>نظام الإشراف العام · صُمّم بواسطة علي البسيسي</footer>
+<div id="login" style="display:none"><form class="box" id="loginForm">
+  <img src="icons/logo-full.png" alt="نسائم صلالة">
+  <h2>الإشراف العام</h2><p>أدخل رقم الدخول الخاص بك</p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" placeholder="••••">
+  <button class="btn p" type="submit" id="loginBtn">دخول</button>
+  <div class="err" id="loginErr"></div>
+  <div class="gold">حيث تسكن الراحة</div>
+</form></div>
+<div id="toast"></div>
+
+<script>
+const API=(window.SUP_CONFIG&&window.SUP_CONFIG.API_URL)||'';
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const SEED=(()=>{try{return JSON.parse(document.getElementById('seed').textContent)}catch(e){return {}}})();
+let S=(()=>{try{return JSON.parse(LS.get('ns-sup-cache')||'null')||JSON.parse(JSON.stringify(SEED))}catch(e){return JSON.parse(JSON.stringify(SEED))}})();
+function normalize(){S.tasks=S.tasks||[];S.weeks=S.weeks||{};S.actions=S.actions||[];S.staff=S.staff||[];
+ S.actions.forEach(a=>{a.exec=Array.isArray(a.exec)?a.exec:(a.exec?String(a.exec).split(/\s*\+\s*/).filter(x=>x&&x!=='يُحدد'):[]);if(!a.kind)a.kind='من الاجتماع'})}
+normalize();
+
+const BUILDINGS=['كل البنايات','الإدارة العامة','الحي التجاري','صلالة الوسطى / المعتزة','عوقد الشمالية','الوادي','الحصيلة','السعادة','السعادة نستو'];
+const AREAS=['النظافة','الصيانة','المشتريات','تطوير الفريق','التفتيش والجودة','أخرى'];
+const KINDS=['يومية متكررة','أسبوعية','تكليف من الإدارة','طارئة'];
+const OVER=['لا يوجد','الاستقبال','المشتريات','الصيانة','صيانة الأجهزة','الحسابات','الإدارة العامة','التسويق','أكثر من جهة'];
+const PRI=['عالية','متوسطة','منخفضة'];
+const STAT=['تم','جارٍ','لم يتم','مؤجل'];
+const DAYN=['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'];
+
+function monday(d){d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmt(d){return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()}
+function addD(d,n){d=new Date(d);d.setDate(d.getDate()+n);return d}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hrs=m=>{m=Math.round(+m||0);const h=Math.floor(m/60),r=m%60;return h?(h+' س'+(r?' و'+r+' د':'')):r+' د'};
+let wk=monday(new Date()),tab='acts',dayIdx=(new Date().getDay()+6)%7,dirty=false;
+
+function W(){const k=iso(wk);if(!S.weeks[k])S.weeks[k]={meet:{summary:'',challenges:'',needs:''},goals:[],points:[],proposals:[],days:{},review:{score:'',mgr:'',next:''}};return S.weeks[k]}
+function taskById(id){return S.tasks.find(t=>t.id===id)}
+function mark(){dirty=true;LS.set('ns-sup-cache',JSON.stringify(S));setSync('','تعديلات غير محفوظة');clearTimeout(window._as);window._as=setTimeout(()=>save(true),2500)}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2400)}
+
+/* ---- editable table helper ---- */
+function listTable(arr,cols,addLabel){
+ let h='<div style="overflow-x:auto"><table><thead><tr><th style="width:30px">#</th>'+cols.map(c=>`<th${c.w?` style="min-width:${c.w}"`:''}>${c.label}</th>`).join('')+'<th style="width:36px"></th></tr></thead><tbody>';
+ if(!arr.length)h+=`<tr><td colspan="${cols.length+2}" class="empty">لا يوجد بنود بعد</td></tr>`;
+ arr.forEach((r,i)=>{h+=`<tr><td>${i+1}</td>`+cols.map(c=>{const v=r[c.k]??'',a=`data-i="${i}" data-k="${c.k}"`;
+  if(c.type==='select'){const opts=typeof c.opts==='function'?c.opts():c.opts;return `<td><select ${a}>${opts.map(o=>{const val=Array.isArray(o)?o[0]:o,lab=Array.isArray(o)?o[1]:o;return `<option value="${esc(val)}"${val==v?' selected':''}>${esc(lab)}</option>`}).join('')}</select></td>`}
+  if(c.type==='area')return `<td><textarea ${a}>${esc(v)}</textarea></td>`;
+  if(c.type==='num')return `<td><input type="number" min="0" step="${c.step||5}" ${a} value="${esc(v)}"></td>`;
+  return `<td><input ${a} value="${esc(v)}"></td>`}).join('')+`<td><button class="btn x" data-del="${i}" title="حذف">×</button></td></tr>`});
+ return h+`</tbody></table></div><div class="row"><button class="btn s" data-add>+ ${addLabel}</button></div>`;
+}
+function bindList(root,arr,blank,rerender,onChange){
+ root.querySelectorAll('[data-k]').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{arr[el.dataset.i][el.dataset.k]=el.type==='number'?Number(el.value):el.value;mark();onChange&&onChange()}));
+ root.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{arr.splice(+b.dataset.del,1);mark();rerender()});
+ root.querySelector('[data-add]').onclick=()=>{arr.push(blank());mark();rerender()};
+}
+function field(o,k,label,type='area'){return `<div><label>${label}</label>${type==='area'?`<textarea data-f="${k}">${esc(o[k])}</textarea>`:`<input data-f="${k}" value="${esc(o[k])}">`}</div>`}
+function bindFields(root,o){root.querySelectorAll('[data-f]').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{o[el.dataset.f]=el.value;mark()}))}
+const taskOpts=()=>[['','— مهمة جديدة / غير مسجلة —'],...S.tasks.map(t=>[t.id,t.t||'(بدون اسم)'])];
+
+const V={};
+/* ---- 1. TODAY ---- */
+const RATE=['','ممتاز','جيد','مقبول','ضعيف'];
+const OFF=4; // الجمعة إجازة
+const ACT_ST=['لم يبدأ','جارٍ','تم','متأخر'];
+const ACT_B=['عوقد الشمالية','الوادي','صلالة الوسطى / المعتزة','الحي التجاري','السعادة','السعادة نستو','الحصيلة','الإدارة العامة'];
+const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const SCHED={0:['الحي التجاري','التنظيم الإداري','الاجتماع الأسبوعي 4:00 م'],1:['عوقد الشمالية','صلالة الوسطى / المعتزة','الوادي'],2:['السعادة','السعادة نستو','الحصيلة'],3:['الحي التجاري','التنظيم الإداري'],4:[],5:['عوقد الشمالية','صلالة الوسطى / المعتزة','الوادي'],6:['السعادة','السعادة نستو','الحصيلة']};
+const SHORT=s=>s.replace('صلالة الوسطى / ','').replace(' الشمالية','');
+const schedB=i=>SCHED[i].filter(x=>BUILDINGS.includes(x));
+function sec(n,title,body,open){return `<details class="sec"${open?' open':''}><summary>${n}. ${title}</summary><div>${body}</div></details>`}
+function rateSel(o,k,label){return `<div><label>${label}</label><select data-f="${k}">${RATE.map(x=>`<option${x==(o[k]||'')?' selected':''}>${x}</option>`).join('')}</select></div>`}
+function newDay(){return {items:[],notes:'',issues:'',units:[],clean:{},linen:[],absent:[],assign:[],disc:{},req:[],comp:[],faults:[],rec:{next:'',mgmt:''}}}
+V.today=el=>{const w=W();
+ let dh='<div class="days">';DAYN.forEach((n,i)=>{const has=(w.days[i]?.items||[]).length;dh+=`<button data-d="${i}" class="${i==dayIdx?'on':''}" style="${i==OFF?'opacity:.55':''}">${n}${has?'<span class="dot"></span>':''}<small>${fmt(addD(wk,i))}</small><small>${i==OFF?'إجازة':SCHED[i].filter(x=>!x.startsWith('الاجتماع')).map(SHORT).join(' · ')}</small></button>`});dh+='</div>';
+ if(dayIdx==OFF){el.innerHTML=`${dh}<div class="card" style="text-align:center;padding:40px"><div class="big">الجمعة – يوم إجازة</div><p class="hint">لا يوجد تقرير يومي لهذا اليوم.</p></div>`;el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{dayIdx=+b.dataset.d;render()});return}
+ const D=w.days[dayIdx]=Object.assign(newDay(),w.days[dayIdx]||{});
+ if(!D.units.length)schedB(dayIdx).forEach(x=>D.units.push({b:x,ready:0,cleaning:0,maint:0,note:''}));
+ el.innerHTML=`<div class="tip">التقرير اليومي للمشرف العام – يُعبّأ <b>نهاية كل يوم</b>. اضغط على أي قسم لفتحه.</div>${dh}
+ <div class="card" style="padding:10px 16px"><b style="color:var(--teal-d)">جدول اليوم:</b> ${SCHED[dayIdx].map(x=>`<span class="pill" style="font-size:13px;padding:2px 10px">${x}</span>`).join(' ')}</div>
+ ${(()=>{const dv=iso(addD(wk,dayIdx)),L=S.actions.filter(a=>a.date===dv||(dv===iso(TODAY)&&isLate(a)));return `<div class="card"><h2>مهام اليوم من خطة المعلقات (${L.length})</h2><p class="hint">علّم ✓ عند الإنجاز، أو انقل المهمة ليوم آخر.</p>${L.length?`<div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${L.map(actRow).join('')}</tbody></table></div>`:'<p class="empty">لا توجد مهام لهذا اليوم</p>'}<div class="row"><button class="btn s" id="addSideD">+ مهمة جانبية لهذا اليوم</button></div></div>`})()}
+ <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+  <div class="kpi"><b id="kPct">0%</b><span>نسبة إنجاز اليوم</span></div>
+  <div class="kpi"><b id="kTime">0</b><span>وقت العمل</span></div>
+  <div class="kpi"><b id="kCnt">0</b><span>أعمال منجزة</span></div></div>
+ ${sec(1,'مهام اليوم والوقت','<div class="row" style="margin:0 0 10px"><button class="btn s" id="addRoutine">+ إضافة المهام اليومية المتكررة</button></div><div id="it"></div>',true)}
+ ${sec(2,'حالة الشقق','<p class="hint">عدد الشقق في كل بناية حسب حالتها.</p><div id="un"></div>')}
+ ${sec(3,'مستوى النظافة العامة',`<div class="grid2">${rateSel(D.clean,'lobby','الممرات والمداخل')}${rateSel(D.clean,'elev','المصاعد')}${rateSel(D.clean,'facade','الواجهات')}${rateSel(D.clean,'wc','دورات المياه العامة')}</div><label>ملاحظات</label><textarea data-c="clean">${esc(D.clean.note)}</textarea>`)}
+ ${sec(4,'ملاحظات البياضات والأثاث','<p class="hint">أي تقصير في البياضات أو عيب في الأثاث داخل الشقق.</p><div id="ln"></div>')}
+ ${sec(5,'الموظفون والانضباط',`<label style="font-weight:700;color:var(--ink)">الغياب والتأخير</label><div id="ab"></div>
+   <label style="font-weight:700;color:var(--ink);margin-top:14px">توزيع الأعمال على العمال</label><div id="as"></div>
+   <label style="font-weight:700;color:var(--ink);margin-top:14px">المظهر العام والانضباط</label>
+   <div class="grid3">${rateSel(D.disc,'uniform','الالتزام بالزي الرسمي')}${rateSel(D.disc,'safety','معايير السلامة')}${rateSel(D.disc,'hygiene','النظافة الشخصية')}</div>`)}
+ ${sec(6,'ملاحظات وشكاوى النزلاء',`<label style="font-weight:700;color:var(--ink)">طلبات النزلاء</label><div id="rq"></div>
+   <label style="font-weight:700;color:var(--ink);margin-top:14px">الشكاوى</label><div id="cm"></div>
+   <label style="font-weight:700;color:var(--ink);margin-top:14px">الأعطال والطوارئ</label><div id="fl"></div>`)}
+ ${sec(7,'التوصيات والإجراءات التصحيحية',`<div class="grid2"><div><label>مقترحات لتحسين العمل غداً</label><textarea data-r="next">${esc(D.rec.next)}</textarea></div><div><label>ملاحظات للإدارة تحتاج متابعة</label><textarea data-r="mgmt">${esc(D.rec.mgmt)}</textarea></div></div>`)}`;
+ el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{dayIdx=+b.dataset.d;render()});
+ bindActs(el,render);const asd=el.querySelector('#addSideD');if(asd)asd.onclick=()=>{S.actions.push({id:uid(),b:schedB(dayIdx)[0]||ACT_B[ACT_B.length-1],t:'',d:'',who:'عبدالسلام حامد',exec:[],date:iso(addD(wk,dayIdx)),s:'لم يبدأ',kind:'جانبية',note:''});mark();render()};
+ // simple field bindings
+ el.querySelectorAll('[data-f]').forEach(s=>{const host=['lobby','elev','facade','wc'].includes(s.dataset.f)?D.clean:D.disc;s.onchange=()=>{host[s.dataset.f]=s.value;mark()}});
+ el.querySelector('[data-c]').oninput=e=>{D.clean.note=e.target.value;mark()};
+ el.querySelectorAll('[data-r]').forEach(t=>t.oninput=()=>{D.rec[t.dataset.r]=t.value;mark()});
+ const kp=()=>{const n=D.items.length,d=D.items.filter(x=>x.s==='تم').length,m=D.items.reduce((a,x)=>a+(+x.min||0),0);
+  el.querySelector('#kPct').textContent=(n?Math.round(d/n*100):0)+'%';el.querySelector('#kTime').textContent=hrs(m);el.querySelector('#kCnt').textContent=d+' / '+n};
+ const mk=(id,arr,cols,blank,lbl,cb)=>{const box=el.querySelector('#'+id),r=()=>{box.innerHTML=listTable(arr,cols,lbl);bindList(box,arr,blank,r,cb);cb&&cb()};r();return r};
+ const rIt=mk('it',D.items,[{k:'task',label:'المهمة',type:'select',opts:taskOpts,w:'160px'},{k:'t',label:'ما تم تنفيذه',type:'area',w:'180px'},{k:'b',label:'البناية',type:'select',opts:BUILDINGS,w:'115px'},{k:'min',label:'الوقت (دقيقة)',type:'num',w:'80px'},{k:'s',label:'الحالة',type:'select',opts:STAT,w:'80px'}],()=>({task:'',t:'',b:BUILDINGS[0],min:0,s:'تم'}),'إضافة عمل',kp);
+ mk('un',D.units,[{k:'b',label:'البناية',type:'select',opts:BUILDINGS.slice(2),w:'130px'},{k:'ready',label:'جاهزة للتسكين',type:'num',w:'80px'},{k:'cleaning',label:'تحت التنظيف',type:'num',w:'80px'},{k:'maint',label:'تحتاج صيانة',type:'num',w:'80px'},{k:'note',label:'ملاحظة',w:'140px'}],()=>({b:BUILDINGS[2],ready:0,cleaning:0,maint:0,note:''}),'إضافة بناية');
+ mk('ln',D.linen,[{k:'b',label:'البناية',type:'select',opts:BUILDINGS.slice(2),w:'120px'},{k:'unit',label:'رقم الشقة',w:'70px'},{k:'type',label:'النوع',type:'select',opts:['بياضات','أثاث'],w:'80px'},{k:'t',label:'الملاحظة',type:'area',w:'180px'},{k:'act',label:'الإجراء',type:'area',w:'140px'}],()=>({b:BUILDINGS[2],unit:'',type:'بياضات',t:'',act:''}),'إضافة ملاحظة');
+ mk('ab',D.absent,[{k:'name',label:'اسم الموظف',w:'130px'},{k:'st',label:'الحالة',type:'select',opts:['غائب','متأخر'],w:'80px'},{k:'sub',label:'البديل',w:'120px'},{k:'note',label:'ملاحظة',w:'140px'}],()=>({name:'',st:'غائب',sub:'',note:''}),'إضافة');
+ mk('as',D.assign,[{k:'who',label:'العامل / المجموعة',w:'130px'},{k:'b',label:'البناية',type:'select',opts:BUILDINGS,w:'115px'},{k:'t',label:'العمل الموكل',type:'area',w:'180px'},{k:'s',label:'الحالة',type:'select',opts:STAT,w:'80px'}],()=>({who:'',b:BUILDINGS[0],t:'',s:'تم'}),'إضافة');
+ mk('rq',D.req,[{k:'b',label:'البناية',type:'select',opts:BUILDINGS.slice(2),w:'115px'},{k:'unit',label:'الشقة',w:'60px'},{k:'t',label:'الطلب',type:'area',w:'170px'},{k:'resp',label:'الاستجابة',type:'select',opts:['تمت فوراً','تمت متأخرة','لم تتم'],w:'100px'}],()=>({b:BUILDINGS[2],unit:'',t:'',resp:'تمت فوراً'}),'إضافة طلب');
+ mk('cm',D.comp,[{k:'b',label:'البناية',type:'select',opts:BUILDINGS.slice(2),w:'115px'},{k:'unit',label:'الشقة',w:'60px'},{k:'t',label:'الشكوى',type:'area',w:'170px'},{k:'act',label:'الإجراء',type:'area',w:'140px'},{k:'st',label:'الحالة',type:'select',opts:['تم حلها','قيد المتابعة','صُعّدت للإدارة'],w:'110px'}],()=>({b:BUILDINGS[2],unit:'',t:'',act:'',st:'تم حلها'}),'إضافة شكوى');
+ mk('fl',D.faults,[{k:'b',label:'البناية',type:'select',opts:BUILDINGS.slice(2),w:'115px'},{k:'unit',label:'الشقة',w:'60px'},{k:'type',label:'النوع',type:'select',opts:['تكييف','تسريب مياه','كهرباء','أجهزة','أخرى'],w:'90px'},{k:'t',label:'الوصف',type:'area',w:'160px'},{k:'sent',label:'أُبلغت الصيانة',type:'select',opts:['نعم','لا'],w:'70px'},{k:'st',label:'الحالة',type:'select',opts:['تم الإصلاح','قيد الإصلاح','لم يبدأ'],w:'100px'}],()=>({b:BUILDINGS[2],unit:'',type:'تكييف',t:'',sent:'نعم',st:'قيد الإصلاح'}),'إضافة عطل');
+ el.querySelector('#addRoutine').onclick=()=>{const ex=new Set(D.items.map(x=>x.task));let n=0;
+  S.tasks.filter(t=>t.kind==='يومية متكررة'&&!ex.has(t.id)).forEach(t=>{D.items.push({task:t.id,t:'',b:t.b,min:+t.est||0,s:'تم'});n++});
+  if(!n)toast('لا توجد مهام يومية متكررة – أضفها من تبويب "مهامي"');else{mark();rIt()}};
+};
+
+/* ---- المهام والمعلقات ---- */
+const TODAY=(()=>{const d=new Date();d.setHours(12,0,0,0);return d})();
+const pd=s=>{if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)};
+const dLabel=s=>{const d=pd(s);return d?DAYN[(d.getDay()+6)%7]+' '+d.getDate()+'/'+(d.getMonth()+1):'بدون موعد'};
+const isLate=a=>a.s!=='تم'&&a.date&&pd(a.date)<TODAY;
+const execs=a=>Array.isArray(a.exec)?a.exec:(a.exec?String(a.exec).split(/\s*\+\s*/).filter(x=>x&&x!=='يُحدد'):[]);
+function dateOpts(cur){const o=[['','— بدون موعد —']];const st=addD(monday(TODAY),-7);for(let i=0;i<28;i++){const d=addD(st,i),v=iso(d);if(((d.getDay()+6)%7)===OFF)continue;o.push([v,dLabel(v)])}
+ if(cur&&!o.some(x=>x[0]===cur))o.push([cur,dLabel(cur)]);return o.map(([v,l])=>`<option value="${v}"${v===cur?' selected':''}>${l}${v===iso(TODAY)?' (اليوم)':''}</option>`).join('')}
+function chips(a,i){return `<div class="chips">${a.exec.map((n,j)=>`<span class="chip">${esc(n)}<b data-rmx="${i}" data-j="${j}" title="إزالة">×</b></span>`).join('')}<select data-addx="${i}" class="addx"><option value="">+ منفّذ</option>${S.staff.filter(s=>!a.exec.includes(s.name)).map(s=>`<option>${esc(s.name)}</option>`).join('')}</select></div>`}
+function actRow(a){const i=S.actions.indexOf(a),late=isLate(a);
+ return `<tr class="${a.s==='تم'?'rowdone':late?'rowlate':''}">
+ <td data-l="تم"><input type="checkbox" data-done="${i}"${a.s==='تم'?' checked':''} title="تم"></td>
+ <td data-l="البناية"><select data-f2="b" data-i="${i}">${ACT_B.map(o=>`<option value="${o}"${o===a.b?' selected':''}>${SHORT(o)}</option>`).join('')}</select></td>
+ <td data-l="المهمة" class="c-t"><textarea data-f2="t" data-i="${i}" placeholder="اكتب المهمة">${esc(a.t)}</textarea>${a.kind==='جانبية'?'<span class="pill">جانبية</span>':''}${late?'<span class="pill" style="background:#fde8e6;color:var(--bad)">متأخرة</span>':''}</td>
+ <td data-l="التفاصيل" class="c-d"><textarea data-f2="d" data-i="${i}" placeholder="تفاصيل / متطلبات">${esc(a.d)}</textarea></td>
+ <td data-l="المنفّذ" class="c-x">${chips(a,i)}</td>
+ <td data-l="يوم التنفيذ"><select data-f2="date" data-i="${i}">${dateOpts(a.date)}</select></td>
+ <td data-l="الحالة"><select data-f2="s" data-i="${i}">${ACT_ST.map(o=>`<option${o===a.s?' selected':''}>${o}</option>`).join('')}</select></td>
+ <td class="c-del"><button class="btn x" data-delx="${i}" title="حذف">×</button></td></tr>`}
+const ACT_HEAD='<thead><tr><th style="width:30px">✓</th><th style="width:105px">البناية</th><th style="min-width:170px">المهمة</th><th style="min-width:150px">التفاصيل</th><th style="min-width:170px">المنفّذ</th><th style="width:150px">يوم التنفيذ</th><th style="width:90px">الحالة</th><th style="width:34px"></th></tr></thead>';
+function bindActs(root,rerender){
+ root.querySelectorAll('[data-f2]').forEach(x=>x.addEventListener(x.tagName==='SELECT'?'change':'input',()=>{const a=S.actions[+x.dataset.i];a[x.dataset.f2]=x.value;mark();if(x.tagName==='SELECT')rerender()}));
+ root.querySelectorAll('[data-done]').forEach(x=>x.onchange=()=>{S.actions[+x.dataset.done].s=x.checked?'تم':'لم يبدأ';mark();rerender()});
+ root.querySelectorAll('[data-addx]').forEach(x=>x.onchange=()=>{if(x.value){S.actions[+x.dataset.addx].exec.push(x.value);mark();rerender()}});
+ root.querySelectorAll('[data-rmx]').forEach(x=>x.onclick=()=>{S.actions[+x.dataset.rmx].exec.splice(+x.dataset.j,1);mark();rerender()});
+ root.querySelectorAll('[data-delx]').forEach(x=>{let armed=false;x.onclick=()=>{if(!armed){armed=true;x.textContent='؟';x.title='اضغط مرة أخرى للحذف';return}S.actions.splice(+x.dataset.delx,1);mark();rerender()}});
+}
+let actView='day';
+V.acts=el=>{const A=S.actions,c=s=>A.filter(a=>a.s===s).length,late=A.filter(isLate);
+ const groups={};A.forEach(a=>{const k=isLate(a)?'0late':(a.date||'9none');(groups[k]=groups[k]||[]).push(a)});
+ const keys=Object.keys(groups).sort();
+ const body=actView==='day'?keys.map(k=>`<div class="card"${k==='0late'?' style="border-color:#f1b5ae"':''}><h2 style="${k==='0late'?'color:var(--bad)':''}">${k==='0late'?'⚠ مهام متأخرة':k==='9none'?'بدون موعد':dLabel(k)+(k===iso(TODAY)?' – اليوم':'')} <span class="saveinfo">(${groups[k].length})</span></h2><div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${groups[k].map(actRow).join('')}</tbody></table></div></div>`).join('')
+  :ACT_B.map(bl=>{const L=A.filter(a=>a.b===bl);return L.length?`<div class="card"><h2>${bl} <span class="saveinfo">(${L.length})</span></h2><div style="overflow-x:auto"><table class="acttbl">${ACT_HEAD}<tbody>${L.map(actRow).join('')}</tbody></table></div></div>`:''}).join('');
+ el.innerHTML=`<div class="kpis"><div class="kpi"><b>${A.length}</b><span>إجمالي المهام</span></div><div class="kpi"><b>${c('تم')}</b><span>تم</span></div><div class="kpi"><b>${A.length-c('تم')}</b><span>متبقية</span></div><div class="kpi"><b style="color:var(--bad)">${late.length}</b><span>متأخرة</span></div></div>
+ <div class="row" style="margin:0 0 14px">
+  <button class="btn p" id="addSide">+ مهمة جانبية</button>
+  <button class="btn s" id="msgBtn">✉ رسائل الموظفين</button>
+  <button class="btn s" id="staffBtn">👥 قائمة الموظفين (${S.staff.length})</button>
+  <span style="margin-inline-start:auto" class="saveinfo">العرض:</span>
+  <button class="btn ${actView==='day'?'p':'s'}" data-view="day" style="padding:6px 12px">حسب اليوم</button>
+  <button class="btn ${actView==='bld'?'p':'s'}" data-view="bld" style="padding:6px 12px">حسب البناية</button></div>
+ <div id="panel"></div>${body||'<p class="empty">لا توجد مهام</p>'}`;
+ const rr=()=>V.acts(el);bindActs(el,rr);
+ el.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{actView=x.dataset.view;rr()});
+ el.querySelector('#addSide').onclick=()=>{A.push({id:uid(),b:ACT_B[ACT_B.length-1],t:'',d:'',who:'عبدالسلام حامد',exec:[],date:iso(TODAY),s:'لم يبدأ',kind:'جانبية',note:''});actView='day';mark();rr();setTimeout(()=>{const t=[...el.querySelectorAll('[data-f2="t"]')].find(x=>!x.value);t&&t.focus()},50)};
+ const panel=el.querySelector('#panel');
+ el.querySelector('#staffBtn').onclick=()=>{const r=()=>{panel.innerHTML=`<div class="card" style="border-color:var(--teal)"><h2>قائمة الموظفين</h2><p class="hint">الأسماء التي تظهر في خانة المنفّذ. رقم الواتساب اختياري (مثال 96891234567) لفتح الرسالة مباشرة.</p>${listTable(S.staff,[{k:'name',label:'الاسم',w:'150px'},{k:'role',label:'العمل / البناية',w:'150px'},{k:'phone',label:'رقم الواتساب',w:'130px'}],'إضافة موظف')}<div class="row"><button class="btn s" id="closeP">إغلاق</button></div></div>`;bindList(panel,S.staff,()=>({name:'',role:'',phone:''}),r);panel.querySelector('#closeP').onclick=rr};r()};
+ el.querySelector('#msgBtn').onclick=()=>{const today=iso(TODAY),names=[...new Set(A.flatMap(a=>a.exec))];
+  const msgs=names.map(n=>{const mine=A.filter(a=>a.exec.includes(n)&&a.s!=='تم');const td=mine.filter(a=>a.date===today),lt=mine.filter(isLate);if(!td.length&&!lt.length)return null;
+   let m=`السلام عليكم ${n}،\n`;if(td.length)m+=`\n*مهامك اليوم ${dLabel(today)}:*\n`+td.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t}${a.d?' ('+a.d+')':''}`).join('\n')+'\n';
+   if(lt.length)m+=`\n*مهام متأخرة لم تُنجز:*\n`+lt.map((a,i)=>`${i+1}. ${SHORT(a.b)} – ${a.t} (موعدها ${dLabel(a.date)})`).join('\n')+'\n';
+   m+=`\nنرجو إنجازها اليوم وإبلاغي عند الانتهاء.\nعبدالسلام حامد – المشرف العام\nنسائم صلالة`;const st=S.staff.find(s=>s.name===n);return {n,m,ph:(st?.phone||'').replace(/\D/g,''),cnt:td.length+lt.length}}).filter(Boolean);
+  panel.innerHTML=`<div class="card" style="border-color:var(--teal)"><h2>رسائل الموظفين – مهام اليوم والمتأخرة</h2><p class="hint">لكل موظف رسالة جاهزة. انسخها وأرسلها بالواتساب.</p>${msgs.length?msgs.map((x,i)=>`<div style="border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px"><b>${esc(x.n)}</b> <span class="saveinfo">(${x.cnt} مهام)</span><pre class="sum" style="margin:8px 0">${esc(x.m)}</pre><div class="row" style="margin:0"><button class="btn s" data-cp="${i}">نسخ الرسالة</button>${x.ph?`<a class="btn s" style="text-decoration:none" href="https://wa.me/${x.ph}?text=${encodeURIComponent(x.m)}" target="_blank">فتح في واتساب</a>`:''}</div></div>`).join(''):'<p class="empty">لا توجد مهام اليوم أو متأخرة على أي موظف.</p>'}<div class="row"><button class="btn s" id="closeP">إغلاق</button></div></div>`;
+  panel.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(msgs[+b.dataset.cp].m).then(()=>toast('تم نسخ الرسالة')).catch(()=>toast('حدد النص وانسخه يدوياً')));
+  panel.querySelector('#closeP').onclick=rr;panel.scrollIntoView({behavior:'smooth'})};
+};
+
+/* ---- 2. TASKS ---- */
+V.tasks=el=>{
+ el.innerHTML=`<div class="tip">هذه <b>قائمة مهام المشرف الثابتة</b> (تبقى من أسبوع لأسبوع). لكل مهمة: الوقت المتوقع، والجهات التي تتداخل معها، وفكرة لتطويرها. تُبنى في أول اجتماع وتُحدَّث كلما ظهرت مهمة جديدة.</div>
+ <div class="card"><h2>مهامي</h2><div id="tk"></div></div>`;
+ const tk=el.querySelector('#tk'),r=()=>{tk.innerHTML=listTable(S.tasks,[
+  {k:'t',label:'المهمة',type:'area',w:'170px'},
+  {k:'kind',label:'النوع',type:'select',opts:KINDS,w:'110px'},
+  {k:'area',label:'المجال',type:'select',opts:AREAS,w:'100px'},
+  {k:'b',label:'البناية',type:'select',opts:BUILDINGS,w:'115px'},
+  {k:'est',label:'الوقت المتوقع (دقيقة)',type:'num',w:'85px'},
+  {k:'ov',label:'متداخلة مع',type:'select',opts:OVER,w:'110px'},
+  {k:'ovd',label:'شرح التداخل',type:'area',w:'150px'},
+  {k:'dev',label:'كيف يمكن تطويرها',type:'area',w:'170px'}],'إضافة مهمة');
+  bindList(tk,S.tasks,()=>({id:uid(),t:'',kind:KINDS[0],area:AREAS[0],b:BUILDINGS[0],est:30,ov:OVER[0],ovd:'',dev:''}),r)};r();
+};
+
+/* ---- 3. WEEK PLAN (Monday meeting) ---- */
+V.plan=el=>{const w=W(),m=w.meet;
+ el.innerHTML=`<div class="tip">تُعبّأ في <b>اجتماع الاثنين</b> مع الإدارة: نسمع من المشرف، ونحدد أهداف الأسبوع، ثم ينفذها يومياً من تبويب "عملي اليوم".</div>
+ <div class="card"><h2>ما طرحه المشرف</h2>${field(m,'summary','ملخص حديثه ونقاطه العريضة')}
+ <div class="grid2">${field(m,'challenges','التحديات والمشاكل')}${field(m,'needs','احتياجاته من الإدارة')}</div></div>
+ <div class="card"><h2>جدول النزول الأسبوعي</h2><table><thead><tr><th style="width:110px">اليوم</th><th>البنايات / المهام</th></tr></thead><tbody>${[5,6,0,1,2,3,4].map(i=>`<tr><td><b>${DAYN[i]}</b></td><td>${i==OFF?'إجازة':SCHED[i].join(' – ')}</td></tr>`).join('')}</tbody></table></div>
+ <div class="card"><h2>أهداف الأسبوع</h2><p class="hint">3 إلى 5 أهداف، لكل هدف مقياس واضح ونسبة إنجاز يحدّثها خلال الأسبوع.</p><div id="g"></div></div>
+ <div class="card"><h2>مقترحات المشرف</h2><div id="p"></div></div>`;
+ bindFields(el,m);
+ const g=el.querySelector('#g'),r1=()=>{g.innerHTML=listTable(w.goals,[{k:'t',label:'الهدف',type:'area',w:'180px'},{k:'kpi',label:'كيف نقيسه',type:'area',w:'150px'},{k:'b',label:'البناية',type:'select',opts:BUILDINGS,w:'115px'},{k:'pri',label:'الأولوية',type:'select',opts:PRI,w:'80px'},{k:'pct',label:'الإنجاز %',type:'num',step:10,w:'70px'}],'إضافة هدف');bindList(g,w.goals,()=>({t:'',kpi:'',b:BUILDINGS[0],pri:PRI[0],pct:0}),r1)};r1();
+ const p=el.querySelector('#p'),r2=()=>{p.innerHTML=listTable(w.proposals,[{k:'t',label:'المقترح',type:'area',w:'200px'},{k:'why',label:'الفائدة المتوقعة',type:'area',w:'160px'},{k:'dec',label:'قرار الإدارة',type:'select',opts:['قيد الدراسة','معتمد','مؤجل','مرفوض'],w:'110px'}],'إضافة مقترح');bindList(p,w.proposals,()=>({t:'',why:'',dec:'قيد الدراسة'}),r2)};r2();
+};
+
+/* ---- 4. REVIEW ---- */
+V.review=el=>{const w=W();let items=[],daysIn=0;
+ Object.values(w.days).forEach(d=>{if(d.items?.length)daysIn++;items=items.concat(d.items||[])});
+ const totMin=items.reduce((a,x)=>a+(+x.min||0),0),done=items.filter(x=>x.s==='تم').length;
+ let nAbs=0,nComp=0,nFault=0,nOpen=0;Object.values(w.days).forEach(d=>{nAbs+=(d.absent||[]).length;nComp+=(d.comp||[]).length;nFault+=(d.faults||[]).length;nOpen+=(d.faults||[]).filter(f=>f.st!=='تم الإصلاح').length+(d.comp||[]).filter(c=>c.st!=='تم حلها').length});
+ const avg=w.goals.length?Math.round(w.goals.reduce((a,g)=>a+(+g.pct||0),0)/w.goals.length):0;
+ // per task: est vs actual
+ const per={};items.forEach(x=>{const k=x.task||'_';per[k]=per[k]||{n:0,min:0};per[k].n++;per[k].min+=+x.min||0});
+ let tt='<div style="overflow-x:auto"><table><thead><tr><th>المهمة</th><th>عدد مرات التنفيذ</th><th>إجمالي الوقت</th><th>متوسط الفعلي</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>';
+ const keys=Object.keys(per);if(!keys.length)tt+='<tr><td colspan="6" class="empty">لا توجد إدخالات يومية لهذا الأسبوع</td></tr>';
+ keys.forEach(k=>{const t=taskById(k),p=per[k],a=Math.round(p.min/p.n),e=t?+t.est||0:0,d=a-e;
+  tt+=`<tr><td>${t?esc(t.t):'مهام غير مسجلة'}</td><td>${p.n}</td><td>${hrs(p.min)}</td><td>${hrs(a)}</td><td>${t?hrs(e):'—'}</td><td class="${t&&d>0?'st-no':'st-done'}">${t?(d>0?'+':'')+d+' د':'—'}</td></tr>`});
+ tt+='</tbody></table></div>';
+ // per area
+ const ar={};items.forEach(x=>{const t=taskById(x.task),k=t?t.area:'أخرى';ar[k]=(ar[k]||0)+(+x.min||0)});
+ let at='';Object.entries(ar).sort((a,b)=>b[1]-a[1]).forEach(([k,m])=>{const p=totMin?Math.round(m/totMin*100):0;at+=`<tr><td>${k}</td><td>${hrs(m)}</td><td><div class="bar"><i style="width:${p}%"></i></div>${p}%</td></tr>`});
+ const ov=S.tasks.filter(t=>t.ov&&t.ov!=='لا يوجد'),dv=S.tasks.filter(t=>t.dev);
+ el.innerHTML=`<div class="kpis">
+ <div class="kpi"><b>${hrs(totMin)}</b><span>إجمالي وقت العمل المسجل</span></div>
+ <div class="kpi"><b>${daysIn} / 6</b><span>أيام تم إدخالها</span></div>
+ <div class="kpi"><b>${done} / ${items.length}</b><span>أعمال منجزة</span></div>
+ <div class="kpi"><b>${avg}%</b><span>متوسط إنجاز الأهداف</span></div></div>
+ <div class="kpis">
+ <div class="kpi"><b>${items.length?Math.round(done/items.length*100):0}%</b><span>نسبة الإنجاز الأسبوعية</span></div>
+ <div class="kpi"><b>${nAbs}</b><span>حالات غياب/تأخير</span></div>
+ <div class="kpi"><b>${nComp}</b><span>شكاوى نزلاء</span></div>
+ <div class="kpi"><b>${nFault}</b><span>أعطال (مفتوح: ${nOpen})</span></div></div>
+ <div class="card"><h2>الوقت حسب المهمة (الفعلي مقابل المتوقع)</h2>${tt}</div>
+ <div class="card"><h2>توزيع الوقت حسب المجال</h2><table><thead><tr><th>المجال</th><th>الوقت</th><th style="width:200px">النسبة</th></tr></thead><tbody>${at||'<tr><td colspan="3" class="empty">—</td></tr>'}</tbody></table></div>
+ <div class="grid2"><div class="card"><h2>المهام المتداخلة</h2>${ov.length?ov.map(t=>`<p style="margin:6px 0"><b>${esc(t.t)}</b> <span class="pill">${esc(t.ov)}</span><br><span class="saveinfo">${esc(t.ovd)}</span></p>`).join(''):'<p class="empty">لا يوجد</p>'}</div>
+ <div class="card"><h2>أفكار التطوير</h2>${dv.length?dv.map(t=>`<p style="margin:6px 0"><b>${esc(t.t)}</b><br><span class="saveinfo">${esc(t.dev)}</span></p>`).join(''):'<p class="empty">لا يوجد</p>'}</div></div>
+ <div class="card"><h2>تقييم الأسبوع (في اجتماع الاثنين التالي)</h2>
+ <div class="grid3"><div><label>التقييم العام</label><select data-f="score">${['','ممتاز','جيد جداً','جيد','يحتاج تحسين'].map(o=>`<option${o==w.review.score?' selected':''}>${o}</option>`).join('')}</select></div></div>
+ <div class="grid2">${field(w.review,'mgr','ملاحظات الإدارة')}${field(w.review,'next','ما ننقله للأسبوع القادم')}</div></div>
+ <div class="card"><h2>ملخص جاهز للنسخ (واتساب)</h2><pre class="sum" id="sum"></pre><div class="row"><button class="btn s" id="cp">نسخ الملخص</button></div></div>`;
+ bindFields(el,w.review);
+ const s=`*خطة العمل الأسبوعية – الإشراف العام*\nأسبوع ${fmt(wk)} – ${fmt(addD(wk,6))}\n\n*الأهداف:*\n`+(w.goals.map((g,i)=>`${i+1}. ${g.t} — ${g.pct||0}%`).join('\n')||'—')+
+ `\n\n*نسبة الإنجاز:* ${items.length?Math.round(done/items.length*100):0}%\n*وقت العمل المسجل:* ${hrs(totMin)}\n*أيام الإدخال:* ${daysIn} من 6\n*الأعمال المنجزة:* ${done} من ${items.length}\n*غياب/تأخير:* ${nAbs} · *شكاوى:* ${nComp} · *أعطال:* ${nFault} (مفتوح ${nOpen})`+(w.review.score?`\n*التقييم:* ${w.review.score}`:'')+(w.review.next?`\n\n*للأسبوع القادم:*\n${w.review.next}`:'');
+ el.querySelector('#sum').textContent=s;
+ el.querySelector('#cp').onclick=()=>navigator.clipboard.writeText(s).then(()=>toast('تم نسخ الملخص')).catch(()=>toast('حدد النص وانسخه يدوياً'));
+};
+
+/* ---- 5. REPORT ---- */
+function rateAvg(o){const v=['lobby','elev','facade','wc'].map(k=>o?.[k]).filter(Boolean);if(!v.length)return '—';const sc={'ممتاز':4,'جيد':3,'مقبول':2,'ضعيف':1},a=v.reduce((s,x)=>s+sc[x],0)/v.length;return a>=3.5?'ممتاز':a>=2.5?'جيد':a>=1.5?'مقبول':'ضعيف'}
+function repHTML(){const w=W();let items=[],daysIn=0,abs=[],comp=[],flt=[],lin=[],recs=[];const lastU={};
+ [0,1,2,3,5,6].forEach(i=>{const d=w.days[i];if(!d)return;if(d.items?.length)daysIn++;items=items.concat(d.items||[]);
+  const dn=DAYN[i]+' '+fmt(addD(wk,i)).slice(0,-5);
+  (d.absent||[]).forEach(x=>abs.push({...x,dn}));(d.comp||[]).forEach(x=>comp.push({...x,dn}));(d.faults||[]).forEach(x=>flt.push({...x,dn}));(d.linen||[]).forEach(x=>lin.push({...x,dn}));
+  (d.units||[]).forEach(u=>{if((+u.ready)+(+u.cleaning)+(+u.maint))lastU[u.b]={...u,dn}});if(d.rec?.mgmt)recs.push(dn+': '+d.rec.mgmt)});
+ const done=items.filter(x=>x.s==='تم').length,pct=items.length?Math.round(done/items.length*100):0,tot=items.reduce((a,x)=>a+(+x.min||0),0);
+ const T=(h,rows,empty)=>`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${h.length}" style="text-align:center;color:#777">${empty||'لا يوجد'}</td></tr>`}</tbody></table>`;
+ const dayRows=[0,1,2,3,5,6].map(i=>{const d=w.days[i]||{},it=d.items||[];return [DAYN[i]+' '+fmt(addD(wk,i)),SCHED[i].filter(x=>!x.startsWith('الاجتماع')).map(SHORT).join('، '),`${it.filter(x=>x.s==='تم').length} / ${it.length}`,hrs(it.reduce((a,x)=>a+(+x.min||0),0)),rateAvg(d.clean),(d.absent||[]).length,(d.comp||[]).length,(d.faults||[]).length]});
+ const ovd=S.tasks.filter(t=>t.ov&&t.ov!=='لا يوجد'),dev=S.tasks.filter(t=>t.dev);
+ let hn=0;
+ return `<div class="rep" id="rep">
+ <div class="rh"><img src="icons/logo-mark.png"><div><h1>التقرير الأسبوعي – الإشراف العام</h1><div class="meta">شركة العالمية السعيدة المتحدة ش.م.م – نسائم صلالة · المشرف العام: عبدالسلام حامد<br>الفترة: ${fmt(wk)} – ${fmt(addD(wk,6))} · مقدَّم إلى: المدير العام · تاريخ الإصدار: ${fmt(new Date())}</div></div></div>
+ <h3>${AR(++hn)}. الملخص</h3>${T(['نسبة الإنجاز','وقت العمل المسجل','أيام الإدخال','غياب / تأخير','شكاوى النزلاء','أعطال (مفتوحة)','التقييم العام'],[[pct+'%',hrs(tot),daysIn+' من 6',abs.length,comp.length,flt.length+' ('+flt.filter(f=>f.st!=='تم الإصلاح').length+')',w.review.score||'—']])}
+ <h3>${AR(++hn)}. المهام والمعلقات</h3>${T(['يوم التنفيذ','البناية','المهمة','التفاصيل','المنفّذ','النوع','الحالة'],[...S.actions].sort((x,y)=>(x.date||'9').localeCompare(y.date||'9')).map(a=>[dLabel(a.date),SHORT(a.b),a.t,a.d,a.exec.join('، ')||'—',a.kind,isLate(a)?'متأخرة':a.s]))}
+ <h3>${AR(++hn)}. أهداف الأسبوع</h3>${T(['#','الهدف','المؤشر','البناية','الأولوية','الإنجاز'],w.goals.map((g,i)=>[i+1,g.t,g.kpi,g.b,g.pri,(g.pct||0)+'%']))}
+ <h3>${AR(++hn)}. سجل العمل اليومي</h3>${T(['اليوم','البنايات','المنجز','الوقت','النظافة العامة','غياب','شكاوى','أعطال'],dayRows)}
+ <h3>${AR(++hn)}. حالة الشقق (آخر تحديث لكل بناية)</h3>${T(['البناية','جاهزة للتسكين','تحت التنظيف','تحتاج صيانة','ملاحظة','التاريخ'],Object.values(lastU).map(u=>[u.b,u.ready,u.cleaning,u.maint,u.note,u.dn]))}
+ <h3>${AR(++hn)}. الموظفون – الغياب والتأخير</h3>${T(['اليوم','الموظف','الحالة','البديل','ملاحظة'],abs.map(x=>[x.dn,x.name,x.st,x.sub,x.note]))}
+ <h3>${AR(++hn)}. ملاحظات البياضات والأثاث</h3>${T(['اليوم','البناية','الشقة','النوع','الملاحظة','الإجراء'],lin.map(x=>[x.dn,x.b,x.unit,x.type,x.t,x.act]))}
+ <h3>${AR(++hn)}. شكاوى النزلاء</h3>${T(['اليوم','البناية','الشقة','الشكوى','الإجراء','الحالة'],comp.map(x=>[x.dn,x.b,x.unit,x.t,x.act,x.st]))}
+ <h3>${AR(++hn)}. الأعطال والطوارئ</h3>${T(['اليوم','البناية','الشقة','النوع','الوصف','أُبلغت الصيانة','الحالة'],flt.map(x=>[x.dn,x.b,x.unit,x.type,x.t,x.sent,x.st]))}
+ <h3>${AR(++hn)}. المهام المتداخلة وأفكار التطوير</h3>${T(['المهمة','متداخلة مع','شرح التداخل','فكرة التطوير'],S.tasks.filter(t=>(t.ov&&t.ov!=='لا يوجد')||t.dev).map(t=>[t.t,t.ov,t.ovd,t.dev]))}
+ <h3>${AR(++hn)}. التوصيات وملاحظات للإدارة</h3>${T(['البند','التفاصيل'],[...recs.map(r=>['ملاحظة يومية',r]),...(w.review.mgr?[['ملاحظات الإدارة',w.review.mgr]]:[]),...(w.review.next?[['للأسبوع القادم',w.review.next]]:[])])}
+ <div class="sig"><div>المشرف العام<br>عبدالسلام حامد</div><div>مساعد المدير العام<br>علي البسيسي</div><div>اعتماد المدير العام<br>وضاح عبدالرقيب</div></div></div>`}
+V.report=el=>{el.innerHTML=`<div class="row noprint" style="margin:0 0 12px"><button class="btn p" id="pdfBtn">🖨 طباعة / حفظ PDF</button><span class="saveinfo">في نافذة الطباعة اختر «حفظ بصيغة PDF» لتحصل على ملف.</span></div><div style="overflow-x:auto">${repHTML()}</div>`;
+ el.querySelector('#pdfBtn').onclick=()=>window.print()};
+const DEMO_WK='2026-11-09';
+function demoBar(){const box=document.getElementById('demoBar');if(!S.demo){box.innerHTML='';return}
+ box.innerHTML=`<div class="tip" style="margin:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>تحتوي الصفحة على <b>بيانات تجريبية</b> لأسبوع 9/11 – 15/11/2026 للتجربة.</span><button class="btn s" id="dShow">عرض الأسبوع التجريبي</button><button class="btn s" id="dClr" style="border-color:var(--bad);color:var(--bad)">مسح البيانات التجريبية</button></div>`;
+ box.querySelector('#dShow').onclick=()=>{wk=monday(new Date(2026,10,9));dayIdx=0;render()};
+ let armed=false;box.querySelector('#dClr').onclick=e=>{if(!armed){armed=true;e.target.textContent='اضغط مرة أخرى للتأكيد';return}
+  delete S.weeks[DEMO_WK];S.tasks=S.tasks.filter(t=>!t.demo);S.demo=false;mark();render();toast('تم المسح – اضغط حفظ')}}
+function render(){demoBar();document.getElementById('weekLbl').textContent=`أسبوع ${fmt(wk)} – ${fmt(addD(wk,6))}`;
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));V[tab](document.getElementById('view'))}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+document.getElementById('prevW').onclick=()=>{wk=addD(wk,-7);render()};
+document.getElementById('nextW').onclick=()=>{wk=addD(wk,7);render()};
+
+/* ===== الحفظ في قاعدة البيانات (Google Sheets) ===== */
+let REV=LS.get('ns-sup-rev')||'',PIN=LS.get('ns-sup-pin')||'',USER=null,saving=false;
+function setSync(cls,t){const s=document.getElementById('syncBar');s.className=cls;document.getElementById('saveInfo').textContent=t}
+async function call(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});return r.json()}
+function applyServer(res){if(res.data){S=res.data;normalize();LS.set('ns-sup-cache',JSON.stringify(S))}REV=res.rev||'';LS.set('ns-sup-rev',REV)}
+async function load(quiet){if(!API)return;try{if(!quiet)setSync('busy','جارٍ التحميل...');const res=await call({action:'load',pin:PIN});
+  if(!res.ok){if(res.error==='pin'){showLogin('رقم الدخول غير صحيح');return}throw new Error(res.error)}
+  USER=res.user;showUser();if(res.data)applyServer(res);else{REV='';await save(true,'إنشاء البيانات الأولى')}
+  dirty=false;setSync('ok','محفوظ ✓');render()}catch(e){setSync('err','غير متصل – البيانات محفوظة على الجهاز')}}
+async function save(auto,note){if(!API){LS.set('ns-sup-cache',JSON.stringify(S));dirty=false;setSync('ok','محفوظ على هذا الجهاز');if(!auto)toast('تم الحفظ على هذا الجهاز');return}
+ if(saving){clearTimeout(window._as);window._as=setTimeout(()=>save(auto,note),1500);return}
+ saving=true;setSync('busy','جارٍ الحفظ...');S.savedAt=Date.now();
+ try{const res=await call({action:'save',pin:PIN,rev:REV,data:S,note:note||''});
+  if(res.ok){REV=res.rev;LS.set('ns-sup-rev',REV);dirty=false;setSync('ok','محفوظ ✓ '+new Date().toLocaleTimeString('ar-OM',{hour:'2-digit',minute:'2-digit'}));if(!auto)toast('تم الحفظ')}
+  else if(res.error==='conflict'){applyServer(res);dirty=false;render();setSync('ok','تم تحميل آخر نسخة');toast('عُدّلت البيانات من جهاز آخر – تم تحميل آخر نسخة، أعد تعديلك الأخير إن لزم')}
+  else if(res.error==='pin'){showLogin('انتهت الجلسة، أدخل رقم الدخول')}
+  else throw new Error(res.error)}
+ catch(e){setSync('err','لم يُحفظ – تحقق من الإنترنت');if(!auto)toast('تعذّر الحفظ – سيُعاد المحاولة')}
+ finally{saving=false}}
+function showUser(){const u=document.getElementById('userBox');if(USER){u.style.display='flex';document.getElementById('userName').textContent='مرحباً، '+USER.name}}
+function showLogin(err){document.getElementById('login').style.display='flex';document.getElementById('loginErr').textContent=err||'';setTimeout(()=>document.getElementById('pin').focus(),50)}
+document.getElementById('loginForm').onsubmit=async e=>{e.preventDefault();const p=document.getElementById('pin').value.trim();if(!p)return;
+ const btn=document.getElementById('loginBtn');btn.disabled=true;btn.textContent='جارٍ التحقق...';
+ try{const res=await call({action:'load',pin:p});if(res.ok){PIN=p;LS.set('ns-sup-pin',p);USER=res.user;document.getElementById('login').style.display='none';showUser();
+   if(res.data)applyServer(res);else{REV='';await save(true,'إنشاء البيانات الأولى')}setSync('ok','محفوظ ✓');render()}
+  else document.getElementById('loginErr').textContent=res.error==='pin'?'رقم الدخول غير صحيح':'خطأ: '+res.error}
+ catch(e){document.getElementById('loginErr').textContent='تعذّر الاتصال – تحقق من الإنترنت'}
+ btn.disabled=false;btn.textContent='دخول'};
+document.getElementById('logout').onclick=()=>{LS.del('ns-sup-pin');LS.del('ns-sup-cache');LS.del('ns-sup-rev');location.reload()};
+document.getElementById('saveBtn').onclick=()=>{clearTimeout(window._as);save(false)};
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&API&&PIN&&!dirty&&!saving)load(true)});
+render();
+if(!API){setSync('','وضع محلي – البيانات على هذا الجهاز فقط')}
+else if(!PIN){showLogin()}else{load()}
+</script>
+</body>
+</html>
