@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<meta name="robots" content="noindex">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<title>الشيكات الآجلة | Marsa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--teal:#287070;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;--bad:#A3261F;--gold:#B8892B;--fin:#5C4A1E;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 500px at 90% -10%,#E2EFEF 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.75 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+.bar-in{max-width:980px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:58px}
+.bar img{height:40px}.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 60px}
+h1{font-size:clamp(22px,5vw,30px);line-height:1.3;margin:6px 0 2px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--sh);margin:14px 0}
+.hero{background:linear-gradient(135deg,#3E3215,var(--fin));color:#fff;border:0}
+.hero .mute{color:rgba(255,255,255,.82)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat{background:rgba(255,255,255,.12);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font:700 20px "Inter"}.stat small{font-size:12px;opacity:.85}
+.prog{height:10px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:12px}.prog i{display:block;height:100%;background:#F2C14E;border-radius:99px;transition:width .3s}
+.fx{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.fxi{border:1px solid var(--line);border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:8px}
+.fxi small{display:block;color:var(--mute);font:600 11.5px "Inter";letter-spacing:.3px}
+.fxi b{display:block;font-size:14px;font-weight:600;unicode-bidi:plaintext}
+.fxi div{flex:1;min-width:0}
+.cp{border:1px solid var(--line);background:#F2F7F7;border-radius:10px;padding:4px 10px;font:600 12.5px var(--font);cursor:pointer;color:var(--deep);flex:none}
+.cp.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tools input,.tools select{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font:500 14px var(--font);background:#fff;color:var(--ink)}
+.tools input{flex:1;min-width:160px}
+.ch{border:1px solid var(--line);border-radius:18px;background:#fff;margin:10px 0;padding:12px 14px;box-shadow:var(--sh)}
+.ch.ok{background:#F3FAF6;border-color:#BFE3CF}
+.ch.warn{border-color:#E3B341}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.num{width:36px;height:36px;border-radius:11px;background:#F4EFE3;color:var(--fin);display:grid;place-items:center;font:700 14px "Inter";flex:none}
+.ch.ok .num{background:var(--ok);color:#fff}
+.k{display:flex;flex-direction:column;line-height:1.3}
+.k small{color:var(--mute);font-size:11.5px}.k b{font:700 15px "Inter"}
+.amt{margin-inline-start:auto;font:700 16px "Inter";color:var(--fin)}
+.memo{margin-top:8px;background:#FAFBFB;border:1px dashed var(--line);border-radius:12px;padding:8px 10px;font-size:13.5px;display:flex;gap:8px;align-items:flex-start}
+.memo span{flex:1;unicode-bidi:plaintext}
+.row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.done-t{margin-inline-start:auto;display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;cursor:pointer}
+.done-t input{width:20px;height:20px;accent-color:var(--ok)}
+.note{background:#FFF8E6;border-inline-start:4px solid #E3B341;padding:6px 10px;border-radius:10px;font-size:13px;margin-top:8px}
+.yr{margin:18px 4px 4px;font:700 15px "Inter";color:var(--fin)}
+.deny{text-align:center;padding:40px 18px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+@media(max-width:620px){.stats{grid-template-columns:repeat(2,1fr)}.fx{grid-template-columns:1fr}}
+@media print{.bar,.tools,.cp,.done-t,.noprint{display:none!important}.ch,.card{box-shadow:none;break-inside:avoid}.hero{background:#fff;color:#000;border:1px solid #999}.hero .mute{color:#333}.stat{background:#f3f3f3}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
+<button class="btn" onclick="window.print()">🖨️ طباعة</button><button class="btn pri" id="csvBtn">⬇️ CSV</button></div></header>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast">تم النسخ ✓</div>
+<script>
+(function(){
+var DATA=[{"no": 6801153, "d": "31/08/2026", "y": 2026, "m": "شيك رقم 6801153 تاريخ 31/8/2026 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2026", "n": ""}, {"no": 6801154, "d": "30/11/2026", "y": 2026, "m": "شيك رقم 6801154 تاريخ 30/11/2026 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2026", "n": ""}, {"no": 6801155, "d": "28/02/2027", "y": 2027, "m": "شيك رقم 6801155 تاريخ 28/2/2027 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2026 الى فبراير /2027", "n": ""}, {"no": 6801156, "d": "31/05/2027", "y": 2027, "m": "شيك رقم 6801156 تاريخ 31/5/2027 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2027", "n": ""}, {"no": 6801157, "d": "31/08/2027", "y": 2027, "m": "شيك رقم 6801157 تاريخ 31/8/2027 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2027", "n": ""}, {"no": 6801158, "d": "30/11/2027", "y": 2027, "m": "شيك رقم 6801158 تاريخ 30/11/2027 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2027", "n": ""}, {"no": 6801159, "d": "28/02/2028", "y": 2028, "m": "شيك رقم 6801159 تاريخ 28/2/2028 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2027 الى فبراير /2028", "n": ""}, {"no": 6801160, "d": "31/05/2028", "y": 2028, "m": "شيك رقم 6801160 تاريخ 31/5/2028 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2028", "n": ""}, {"no": 6801161, "d": "31/08/2028", "y": 2028, "m": "شيك رقم 6801161 تاريخ 31/8/2028 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2028", "n": ""}, {"no": 6801162, "d": "30/11/2028", "y": 2028, "m": "شيك رقم 6801162 تاريخ 30/11/2028 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2028", "n": ""}, {"no": 6801163, "d": "28/02/2029", "y": 2029, "m": "شيك رقم 6801163 تاريخ 28/2/2029 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2028 الى فبراير /2029", "n": ""}, {"no": 6801164, "d": "31/05/2029", "y": 2029, "m": "شيك رقم 6801164 تاريخ 31/5/2029 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2029", "n": ""}, {"no": 6801165, "d": "31/08/2029", "y": 2029, "m": "شيك رقم 6801165 تاريخ 31/8/2029 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2029", "n": ""}, {"no": 6801166, "d": "30/11/2029", "y": 2029, "m": "شيك رقم 6801166 تاريخ 30/11/2029 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2029", "n": ""}, {"no": 6801167, "d": "28/02/2030", "y": 2030, "m": "شيك رقم 6801167 تاريخ 28/2/2030 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2029 الى فبراير /2030", "n": ""}, {"no": 6801168, "d": "31/05/2030", "y": 2030, "m": "شيك رقم 6801168 تاريخ 31/5/2030 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2030", "n": ""}, {"no": 6801169, "d": "31/08/2030", "y": 2030, "m": "شيك رقم 6801169 تاريخ 31/8/2030 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2030", "n": ""}, {"no": 6801170, "d": "30/11/2030", "y": 2030, "m": "شيك رقم 6801170 تاريخ 30/11/2030 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2030", "n": ""}, {"no": 6801171, "d": "28/02/2031", "y": 2031, "m": "شيك رقم 6801171 تاريخ 28/2/2031 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2030 الى فبراير /2031", "n": ""}, {"no": 6801172, "d": "31/05/2031", "y": 2031, "m": "شيك رقم 6801172 تاريخ 31/5/2031 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2031", "n": ""}, {"no": 6801173, "d": "31/08/2031", "y": 2031, "m": "شيك رقم 6801173 تاريخ 31/8/2031 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2031", "n": ""}, {"no": 6801174, "d": "30/11/2031", "y": 2031, "m": "شيك رقم 6801174 تاريخ 30/11/2031 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2031", "n": ""}, {"no": 6801175, "d": "28/02/2032", "y": 2032, "m": "شيك رقم 6801175 تاريخ 28/2/2032 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2031 الى فبراير /2032", "n": ""}, {"no": 6801176, "d": "31/05/2032", "y": 2032, "m": "شيك رقم 6801176 تاريخ 31/5/2032 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2032", "n": ""}, {"no": 6801177, "d": "31/08/2032", "y": 2032, "m": "شيك رقم 6801177 تاريخ 31/8/2032 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2032", "n": ""}, {"no": 6801178, "d": "30/11/2032", "y": 2032, "m": "شيك رقم 6801178 تاريخ 30/11/2032 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2032", "n": ""}, {"no": 6801179, "d": "28/02/2033", "y": 2033, "m": "شيك رقم 6801179 تاريخ 28/2/2033 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2032 الى فبراير /2033", "n": ""}, {"no": 6801180, "d": "31/05/2033", "y": 2033, "m": "شيك رقم 6801180 تاريخ 31/5/2033 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2033", "n": ""}, {"no": 6801181, "d": "31/08/2033", "y": 2033, "m": "شيك رقم 6801181 تاريخ 31/8/2033 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2033", "n": ""}, {"no": 6801182, "d": "30/11/2033", "y": 2033, "m": "شيك رقم 6801182 تاريخ 30/11/2033 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2033", "n": ""}, {"no": 6801183, "d": "28/02/2034", "y": 2034, "m": "شيك رقم 6801183 تاريخ 28/2/2034 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2033 الى فبراير /2034", "n": ""}, {"no": 6801184, "d": "31/05/2034", "y": 2034, "m": "شيك رقم 6801184 تاريخ 31/5/2034 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2034", "n": ""}, {"no": 6801185, "d": "31/08/2034", "y": 2034, "m": "شيك رقم 6801185 تاريخ 31/8/2034 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2034", "n": ""}, {"no": 6801186, "d": "30/11/2034", "y": 2034, "m": "شيك رقم 6801186 تاريخ 30/11/2034 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2034", "n": ""}, {"no": 6801187, "d": "28/02/2035", "y": 2035, "m": "شيك رقم 6801187 تاريخ 28/2/2035 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2034 الى فبراير /2035", "n": ""}, {"no": 6801188, "d": "31/05/2035", "y": 2035, "m": "شيك رقم 6801188 تاريخ 31/5/2035 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2035", "n": ""}, {"no": 6801189, "d": "31/08/2035", "y": 2035, "m": "شيك رقم 6801189 تاريخ 31/8/2035 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2035", "n": ""}, {"no": 6801190, "d": "30/11/2035", "y": 2035, "m": "شيك رقم 6801190 تاريخ 30/11/2035 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2035", "n": ""}, {"no": 6801201, "d": "28/02/2036", "y": 2036, "m": "شيك رقم 6801201 تاريخ 28/2/2036 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2035 الى فبراير /2036", "n": "رقم الشيك غير ظاهر في الصورة - مستنتج من التسلسل، يرجى التأكد"}, {"no": 6801202, "d": "31/05/2036", "y": 2036, "m": "شيك رقم 6801202 تاريخ 31/5/2036 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2036", "n": ""}, {"no": 6801203, "d": "31/08/2036", "y": 2036, "m": "شيك رقم 6801203 تاريخ 31/8/2036 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2036", "n": ""}, {"no": 6801204, "d": "30/11/2036", "y": 2036, "m": "شيك رقم 6801204 تاريخ 30/11/2036 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2036", "n": ""}, {"no": 6801205, "d": "28/02/2037", "y": 2037, "m": "شيك رقم 6801205 تاريخ 28/2/2037 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2036 الى فبراير /2037", "n": ""}, {"no": 6801206, "d": "31/05/2037", "y": 2037, "m": "شيك رقم 6801206 تاريخ 31/5/2037 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2037", "n": ""}, {"no": 6801207, "d": "31/08/2037", "y": 2037, "m": "شيك رقم 6801207 تاريخ 31/8/2037 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2037", "n": ""}, {"no": 6801208, "d": "30/11/2037", "y": 2037, "m": "شيك رقم 6801208 تاريخ 30/11/2037 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2037", "n": ""}, {"no": 6801209, "d": "28/02/2038", "y": 2038, "m": "شيك رقم 6801209 تاريخ 28/2/2038 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2037 الى فبراير /2038", "n": ""}, {"no": 6801210, "d": "31/05/2038", "y": 2038, "m": "شيك رقم 6801210 تاريخ 31/5/2038 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2038", "n": ""}, {"no": 6801211, "d": "31/08/2038", "y": 2038, "m": "شيك رقم 6801211 تاريخ 31/8/2038 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2038", "n": ""}, {"no": 6801212, "d": "30/11/2038", "y": 2038, "m": "شيك رقم 6801212 تاريخ 30/11/2038 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2038", "n": ""}, {"no": 6801213, "d": "28/02/2039", "y": 2039, "m": "شيك رقم 6801213 تاريخ 28/2/2039 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2038 الى فبراير /2039", "n": ""}, {"no": 6801214, "d": "31/05/2039", "y": 2039, "m": "شيك رقم 6801214 تاريخ 31/5/2039 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2039", "n": ""}, {"no": 6801215, "d": "31/08/2039", "y": 2039, "m": "شيك رقم 6801215 تاريخ 31/8/2039 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2039", "n": ""}, {"no": 6801216, "d": "30/11/2039", "y": 2039, "m": "شيك رقم 6801216 تاريخ 30/11/2039 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2039", "n": ""}, {"no": 6801217, "d": "28/02/2040", "y": 2040, "m": "شيك رقم 6801217 تاريخ 28/2/2040 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2039 الى فبراير /2040", "n": ""}, {"no": 6801218, "d": "31/05/2040", "y": 2040, "m": "شيك رقم 6801218 تاريخ 31/5/2040 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2040", "n": ""}, {"no": 6801219, "d": "31/08/2040", "y": 2040, "m": "شيك رقم 6801219 تاريخ 31/8/2040 سداد ايجار مستحق بناية الحصيلة للفترة من شهر يونيو الى اغسطس /2040", "n": ""}, {"no": 6801220, "d": "30/11/2040", "y": 2040, "m": "شيك رقم 6801220 تاريخ 30/11/2040 سداد ايجار مستحق بناية الحصيلة للفترة من شهر سبتمبر الى نوفمبر /2040", "n": ""}, {"no": 6801221, "d": "28/02/2041", "y": 2041, "m": "شيك رقم 6801221 تاريخ 28/2/2041 سداد ايجار مستحق بناية الحصيلة للفترة من شهر ديسمبر /2040 الى فبراير /2041", "n": ""}, {"no": 6801222, "d": "31/05/2041", "y": 2041, "m": "شيك رقم 6801222 تاريخ 31/5/2041 سداد ايجار مستحق بناية الحصيلة للفترة من شهر مارس الى مايو /2041", "n": ""}];
+var AMT=20400, KEY='marsa_pdc_hasila_v1';
+var FIXED=[
+ ['PDC PAYEE','VEN00198 موردين اخرون ومتنوعة','VEN00198'],
+ ['PDC ENTITY TYPE','Vendor','Vendor'],
+ ['BANK ACCOUNT','NS-10701 بنك مسقط - ريال عماني - Bank Muscat','NS-10701'],
+ ['STATUS','PDC PENDING','PDC PENDING'],
+ ['ACCOUNT · DEBIT (مدين)','6418 مستحقات ايجارت بناية الحصيلة (الاوقاف)','6418'],
+ ['ACCOUNT · CREDIT (دائن)','NS-10701 بنك مسقط - ريال عماني - Bank Muscat','NS-10701']
+];
+var app=document.getElementById('app');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
+var allowed=U&&(U.role==='hr'||/علي|Ali/i.test(U.name||''));
+if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">🔒</div><h2>هذا القسم خاص</h2><p class="mute">سجّل الدخول من الصفحة الرئيسية لمرسى بحسابك.</p><a class="btn pri" href="./">الصفحة الرئيسية</a></div>';document.getElementById('csvBtn').style.display='none';return}
+var S={};try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var F={q:'',st:'all',y:'all'};
+function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:3})}
+function toast(t){var x=document.getElementById('toast');x.textContent=t||'تم النسخ ✓';x.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){x.classList.remove('on')},1200)}
+function copy(v,btn){var done=function(){toast();if(btn){btn.classList.add('done');setTimeout(function(){btn.classList.remove('done')},900)}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(done,function(){fb(v);done()})}else{fb(v);done()}}
+function fb(v){var t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(t)}
+var years=[];DATA.forEach(function(c){if(years.indexOf(c.y)<0)years.push(c.y)});
+function render(){
+  var done=DATA.filter(function(c){return S[c.no]}).length;
+  var rest=DATA.length-done;
+  var h='<h1>الشيكات الآجلة · إيجار بناية الحصيلة</h1><p class="mute">شيكات صادرة من بنك مسقط لصالح أوقاف بناية مصبح الظاهري، كل 3 أشهر، للإدخال في NetSuite (شيكات برسم التحصيل).</p>';
+  h+='<div class="card hero"><div class="stats"><div class="stat"><b>'+DATA.length+'</b><small>عدد الشيكات</small></div><div class="stat"><b>'+fmt(DATA.length*AMT)+'</b><small>الإجمالي (ر.ع)</small></div><div class="stat"><b>'+done+'</b><small>تم إدخالها</small></div><div class="stat"><b>'+rest+'</b><small>المتبقي ('+fmt(rest*AMT)+')</small></div></div><div class="prog"><i style="width:'+(done/DATA.length*100).toFixed(1)+'%"></i></div><p class="mute" style="margin:8px 0 0">من '+DATA[0].d+' إلى '+DATA[DATA.length-1].d+' · مبلغ كل شيك '+fmt(AMT)+' ر.ع</p></div>';
+  h+='<div class="card noprint"><b>البيانات الثابتة لكل شيك</b><p class="mute" style="margin:0 0 8px">نفسها في كل الشيكات — انسخها مرة وحدة.</p><div class="fx">';
+  FIXED.forEach(function(f,i){h+='<div class="fxi"><div><small>'+esc(f[0])+'</small><b>'+esc(f[1])+'</b></div><button class="cp" data-fx="'+i+'">نسخ</button></div>'});
+  h+='</div></div>';
+  h+='<div class="tools noprint"><input id="q" placeholder="🔍 ابحث برقم الشيك أو التاريخ" value="'+esc(F.q)+'"><select id="st"><option value="all">الكل</option><option value="rest">المتبقي</option><option value="done">تم إدخالها</option></select><select id="yf"><option value="all">كل السنوات</option>'+years.map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join('')+'</select></div>';
+  var list=DATA.filter(function(c){
+    if(F.st==='rest'&&S[c.no])return false;if(F.st==='done'&&!S[c.no])return false;
+    if(F.y!=='all'&&String(c.y)!==F.y)return false;
+    if(F.q&&(String(c.no)+' '+c.d).indexOf(F.q)<0)return false;return true});
+  var lastY=null;
+  list.forEach(function(c){
+    var i=DATA.indexOf(c)+1;
+    if(c.y!==lastY){h+='<div class="yr">'+c.y+'</div>';lastY=c.y}
+    h+='<div class="ch'+(S[c.no]?' ok':'')+(c.n?' warn':'')+'"><div class="top"><div class="num">'+i+'</div>'+
+      '<div class="k"><small>CHECK NO.</small><b>'+c.no+'</b></div><button class="cp" data-v="'+c.no+'">نسخ</button>'+
+      '<div class="k"><small>PDC DATE</small><b>'+c.d+'</b></div><button class="cp" data-v="'+c.d+'">نسخ</button>'+
+      '<div class="amt">'+fmt(AMT)+'</div><button class="cp" data-v="'+AMT.toFixed(3)+'">نسخ</button></div>'+
+      '<div class="memo"><span>'+esc(c.m)+'</span><button class="cp" data-m="'+c.no+'">نسخ البيان</button></div>'+
+      (c.n?'<div class="note">⚠️ '+esc(c.n)+'</div>':'')+
+      '<div class="row2"><label class="done-t"><input type="checkbox" data-done="'+c.no+'"'+(S[c.no]?' checked':'')+'> تم إدخاله في NetSuite</label></div></div>';
+  });
+  if(!list.length)h+='<div class="card mute" style="text-align:center">لا توجد شيكات بهذا الفلتر</div>';
+  app.innerHTML=h;
+  document.getElementById('st').value=F.st;document.getElementById('yf').value=F.y;
+  var q=document.getElementById('q');q.oninput=function(){F.q=q.value.trim();render();var n=document.getElementById('q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  document.getElementById('st').onchange=function(){F.st=this.value;render()};
+  document.getElementById('yf').onchange=function(){F.y=this.value;render()};
+}
+app.addEventListener('click',function(e){var b=e.target.closest('.cp');if(!b)return;
+  if(b.dataset.fx!=null)copy(FIXED[+b.dataset.fx][2],b);
+  else if(b.dataset.m){var c=DATA.filter(function(x){return String(x.no)===b.dataset.m})[0];copy(c.m,b)}
+  else copy(b.dataset.v,b)});
+app.addEventListener('change',function(e){var t=e.target;if(t.dataset&&t.dataset.done){if(t.checked)S[t.dataset.done]=new Date().toISOString();else delete S[t.dataset.done];save();render()}});
+document.getElementById('csvBtn').onclick=function(){
+  var rows=[['م','رقم الشيك','تاريخ الاستحقاق','المبلغ','البيان','تم الإدخال']];
+  DATA.forEach(function(c,i){rows.push([i+1,c.no,c.d,AMT.toFixed(3),c.m,S[c.no]?'نعم':'لا'])});
+  var csv='﻿'+rows.map(function(r){return r.map(function(v){v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')}).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='PDC_Hasila.csv';document.body.appendChild(a);a.click();a.remove()};
+render();
+})();
+</script>
+</body>
+</html>
