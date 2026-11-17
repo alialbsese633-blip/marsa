@@ -6,7 +6,8 @@
 const PINS = {
   '0000': { role: 'admin',      name: 'علي البسيسي' },     // ← غيّر الرقم
   '1111': { role: 'supervisor', name: 'عبدالسلام حامد' },  // ← غيّر الرقم
-  '2222': { role: 'manager',    name: 'وضاح عبدالرقيب' }   // ← غيّر الرقم (أو احذف السطر)
+  '2222': { role: 'manager',    name: 'وضاح عبدالرقيب' },  // ← غيّر الرقم (أو احذف السطر)
+  '3333': { role: 'marketing',  name: 'عبدالسلام البسيسي' } // ← غيّر الرقم – التسويق
 };
 
 function doGet() { return out({ ok: true, app: 'Nassayem Supervisor API' }); }

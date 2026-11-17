@@ -15,6 +15,7 @@ const NOTIFY = {
   EMAILS: {
     supervisor: 'bdalslamhfzaldyn@gmail.com',  // عبدالسلام حامد (مفعّل للتجربة)
     admin: '',                                   // علي البسيسي (اكتب بريدك لاحقاً)
+    marketing: '',                               // عبدالسلام البسيسي – التسويق (لاحقاً)
     manager: 'nssayemsalalah@gmail.com'            // وضاح عبدالرقيب (البريد المشترك مؤقتاً، يُغيَّر لاحقاً)
   }
 };
@@ -24,6 +25,7 @@ function recipientsFor(actorRole) {
   if (actorRole === 'supervisor') return ['admin', 'manager'];
   if (actorRole === 'manager') return ['admin', 'supervisor'];
   if (actorRole === 'admin') return ['supervisor'];
+  if (actorRole === 'marketing') return ['admin', 'supervisor'];
   return [];
 }
 

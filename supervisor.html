@@ -438,7 +438,7 @@ function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s=
  <div class="tcr"><button class="ck" data-ck="${i}" title="${done?'إلغاء الإنجاز':'تم الإنجاز'}">${done?'✓':''}</button>
  <div class="tb" data-op="${i}">
   <div class="tt">${a.t?esc(a.t):'<span class="ph">مهمة جديدة – اكتب عنوانها</span>'}</div>
-  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
+  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.who&&a.who!=='عبدالسلام حامد'?`<span>📨 من ${esc(a.who.split(' ').slice(0,2).join(' '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
   ${a.d&&!op?`<div class="td">${esc(a.d)}</div>`:''}
   ${a.note&&!op?`<div class="tn">📝 ${esc(a.note)}</div>`:''}
   ${(a.log||[]).length&&!op?(L=>`<div class="lg">💬 <b>${esc(L.by)}</b>: ${esc(L.t)} <small>· ${tAgo(L.at)}${a.log.length>1?' · '+a.log.length+' تحديثات':''}</small></div>`)(a.log[a.log.length-1]):''}
@@ -467,7 +467,7 @@ function bindCards(root,rr){
 }
 function tAgo(ms){const d=new Date(ms);return DAYN[(d.getDay()+6)%7]+' '+d.getDate()+'/'+(d.getMonth()+1)+' · '+d.toLocaleTimeString('ar-OM',{hour:'numeric',minute:'2-digit'})}
 function nextWork(d){d=addD(d,1);if(((d.getDay()+6)%7)===OFF)d=addD(d,1);return d}
-function newAct(date,b){const a={id:uid(),b:b||'الإدارة العامة',t:'',d:'',who:'عبدالسلام حامد',exec:[],date:date,s:'لم يبدأ',kind:'جانبية',note:''};S.actions.push(a);OPEN=a.id;mark();return a}
+function newAct(date,b){const a={id:uid(),b:b||'الإدارة العامة',t:'',d:'',who:USER?USER.name:'عبدالسلام حامد',exec:[],date:date,s:'لم يبدأ',kind:'جانبية',note:''};S.actions.push(a);OPEN=a.id;mark();return a}
 
 /* ---- الرئيسية: اليوم ---- */
 V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date().getHours(),nm=(USER&&USER.name||'').split(' ')[0];
@@ -476,7 +476,8 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
  ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
  <div class="prg"><div class="pb"><i style="width:${pct}%"></i></div><b>أنجزت ${done} من ${L.length}</b></div></div>
- <h3 class="hd">مهام اليوم <small>(${L.length})</small></h3>
+ ${(M=>M.length?`<h3 class="hd" style="color:#6a4fb3">📥 المهام الموجهة لك <small>(${M.length})</small></h3>${M.map(a=>tcard(a,true)).join('')}`:'')(USER&&USER.role!=='supervisor'?A.filter(a=>a.s!=='تم'&&a.exec.includes(USER.name)):[])}
+ <h3 class="hd">مهام الإشراف اليوم <small>(${L.length})</small></h3>
  ${L.length?L.map(a=>tcard(a)).join(''):'<div class="emp">لا توجد مهام مسجلة لليوم</div>'}
  <button class="addbig" id="addT">+ إضافة مهمة لليوم</button>
  ${late.length?`<h3 class="hd red">متأخرة من أيام سابقة <small>(${late.length})</small></h3>${late.map(a=>tcard(a,true)).join('')}`:''}
@@ -490,7 +491,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
 function focusOpen(el){setTimeout(()=>{const t=el.querySelector('.tc.open textarea[data-f2="t"]');if(t){t.focus();t.scrollIntoView({block:'center',behavior:'smooth'})}},60)}
 
 /* ---- مهامي: كل المهام ---- */
-V.acts=el=>{const A=S.actions,late=A.filter(isLate);
+V.acts=el=>{const A=S.actions,late=A.filter(isLate);if(actP===''&&!V._pinit&&USER&&USER.role==='marketing'){actP=USER.name}V._pinit=1;
  const PP=[...new Set(A.flatMap(a=>a.exec))];if(actP&&!PP.includes(actP))actP='';
  const SETS={open:A.filter(a=>a.s!=='تم'),late:late,done:A.filter(a=>a.s==='تم'),all:A},F=SETS[actF].filter(a=>!actP||a.exec.includes(actP));
  let body='';
@@ -693,7 +694,9 @@ function setSync(cls,t){const s=document.getElementById('syncBar');s.className=c
 async function call(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});return r.json()}
 function applyServer(res){if(res.data){S=res.data;normalize();LS.set('ns-sup-cache',JSON.stringify(S))}REV=res.rev||'';LS.set('ns-sup-rev',REV);if(migrate())setTimeout(()=>{mark();render()},50)}
 /* تحديث 16/11: ترتيب المهام حسب جدول النزول + المنفذين من ملف علي */
-function migrate(){S.mig=S.mig||[];if(S.mig.includes('m1611'))return false;
+function migrate(){S.mig=S.mig||[];let ch=false;
+ if(!S.mig.includes('m1711')){if(!S.staff.some(s=>s.name==='عبدالسلام البسيسي'))S.staff.push({name:'عبدالسلام البسيسي',role:'التسويق',phone:''});S.mig.push('m1711');ch=true}
+ if(S.mig.includes('m1611')){if(ch)LS.set('ns-sup-cache',JSON.stringify(S));return ch}
  const A='عبدالسلام حامد',W='وضاح عبدالرقيب',Al='علي محسن',M='محمد حامد';
  const P={a0:['2026-11-16',[A,Al,W]],a1:['2026-11-16',[W]],a2:['2026-11-16',[W,A]],a3:['2026-11-16',[W,A]],
   a4:['2026-11-17',[A]],a5:['2026-11-17',[A]],a8:['2026-11-17',[A]],a10:['2026-11-17',[A]],a11:['2026-11-17',[A]],
