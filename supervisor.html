@@ -438,7 +438,7 @@ function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s=
  <div class="tcr"><button class="ck" data-ck="${i}" title="${done?'إلغاء الإنجاز':'تم الإنجاز'}">${done?'✓':''}</button>
  <div class="tb" data-op="${i}">
   <div class="tt">${a.t?esc(a.t):'<span class="ph">مهمة جديدة – اكتب عنوانها</span>'}</div>
-  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.who&&a.who!=='عبدالسلام حامد'?`<span>📨 من ${esc(a.who.split(' ').slice(0,2).join(' '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
+  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.who&&a.kind==='جانبية'&&(!USER||a.who!==USER.name)?`<span>📨 من ${esc(a.who.split(' ').slice(0,2).join(' '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
   ${a.d&&!op?`<div class="td">${esc(a.d)}</div>`:''}
   ${a.note&&!op?`<div class="tn">📝 ${esc(a.note)}</div>`:''}
   ${(a.log||[]).length&&!op?(L=>`<div class="lg">💬 <b>${esc(L.by)}</b>: ${esc(L.t)} <small>· ${tAgo(L.at)}${a.log.length>1?' · '+a.log.length+' تحديثات':''}</small></div>`)(a.log[a.log.length-1]):''}
@@ -476,7 +476,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
  ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
  <div class="prg"><div class="pb"><i style="width:${pct}%"></i></div><b>أنجزت ${done} من ${L.length}</b></div></div>
- ${(M=>M.length?`<h3 class="hd" style="color:#6a4fb3">📥 المهام الموجهة لك <small>(${M.length})</small></h3>${M.map(a=>tcard(a,true)).join('')}`:'')(USER&&USER.role!=='supervisor'?A.filter(a=>a.s!=='تم'&&a.exec.includes(USER.name)):[])}
+ ${(M=>M.length?`<h3 class="hd" style="color:#6a4fb3">📥 المهام الموجهة لك <small>(${M.length})</small></h3>${M.map(a=>tcard(a,true)).join('')}`:'')(USER?A.filter(a=>a.s!=='تم'&&a.exec.includes(USER.name)):[])}
  <h3 class="hd">مهام الإشراف اليوم <small>(${L.length})</small></h3>
  ${L.length?L.map(a=>tcard(a)).join(''):'<div class="emp">لا توجد مهام مسجلة لليوم</div>'}
  <button class="addbig" id="addT">+ إضافة مهمة لليوم</button>
@@ -491,7 +491,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
 function focusOpen(el){setTimeout(()=>{const t=el.querySelector('.tc.open textarea[data-f2="t"]');if(t){t.focus();t.scrollIntoView({block:'center',behavior:'smooth'})}},60)}
 
 /* ---- مهامي: كل المهام ---- */
-V.acts=el=>{const A=S.actions,late=A.filter(isLate);if(actP===''&&!V._pinit&&USER&&USER.role==='marketing'){actP=USER.name}V._pinit=1;
+V.acts=el=>{const A=S.actions,late=A.filter(isLate);if(actP===''&&!V._pinit&&USER&&A.some(a=>a.exec.includes(USER.name))){actP=USER.name}V._pinit=1;
  const PP=[...new Set(A.flatMap(a=>a.exec))];if(actP&&!PP.includes(actP))actP='';
  const SETS={open:A.filter(a=>a.s!=='تم'),late:late,done:A.filter(a=>a.s==='تم'),all:A},F=SETS[actF].filter(a=>!actP||a.exec.includes(actP));
  let body='';
@@ -501,7 +501,7 @@ V.acts=el=>{const A=S.actions,late=A.filter(isLate);if(actP===''&&!V._pinit&&USE
  el.innerHTML=`<div class="seg">${[['open','المتبقية'],['late','المتأخرة'],['done','المنجزة'],['all','الكل']].map(([k,l])=>`<button data-fl="${k}" class="${actF===k?'on':''}">${l} <small>${SETS[k].length}</small></button>`).join('')}</div>
  ${PP.length?`<div class="seg sm"><button data-pp="" class="${actP?'':'on'}">كل المنفذين</button>${PP.map(n=>`<button data-pp="${esc(n)}" class="${actP===n?'on':''}">👷 ${esc(n)} <small>${A.filter(a=>a.s!=='تم'&&a.exec.includes(n)).length}</small></button>`).join('')}</div>`:''}
  <div class="seg sm"><button data-view="day" class="${actView==='day'?'on':''}">حسب اليوم</button><button data-view="bld" class="${actView==='bld'?'on':''}">حسب البناية</button></div>
- <button class="addbig" id="addSide">+ مهمة جديدة</button>
+ <button class="addbig" id="addSide">+ إضافة مهمة وإسنادها</button>
  ${body||'<div class="emp">لا توجد مهام هنا</div>'}`;
  const rr=()=>V.acts(el);bindCards(el,rr);
  el.querySelectorAll('[data-fl]').forEach(x=>x.onclick=()=>{actF=x.dataset.fl;rr()});
