@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<title>تطوير Booking.com | Marsa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="booking-data.js"></script>
+<style>
+:root{color-scheme:light;--teal:#287070;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;--bad:#A3261F;--warn:#B07A1E;--gold:#B8892B;--bk:#003580;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 500px at 90% -10%,#E2EFEF 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.75 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+.bar-in{max-width:960px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:58px}
+.bar img{height:40px}.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.wrap{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+h1{font-size:clamp(24px,5vw,32px);line-height:1.25;margin:6px 0 4px}
+h2{font-size:20px;margin:0 0 8px}h3{font-size:16.5px;margin:16px 0 6px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--sh);margin:14px 0}
+.hero{background:linear-gradient(135deg,var(--bk),#0A5B8C 55%,var(--teal));color:#fff;border:0}
+.hero .mute{color:rgba(255,255,255,.82)}
+.std{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.std span{background:rgba(255,255,255,.15);border-radius:99px;padding:4px 12px;font-size:13.5px;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat{background:rgba(255,255,255,.12);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font:700 21px "Inter"}.stat small{font-size:12px;opacity:.88}
+.prog{height:10px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:12px}.prog i{display:block;height:100%;background:#F2C14E;border-radius:99px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0;position:sticky;top:58px;background:var(--paper);z-index:5;scrollbar-width:none}
+.tab{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:600 14px var(--font);cursor:pointer;color:var(--ink);text-decoration:none}
+.tab.on{background:var(--c,var(--teal));color:#fff;border-color:transparent}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.bc{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:14px;background:#fff;box-shadow:var(--sh);border-top:5px solid var(--c)}
+.bc .top{display:flex;align-items:center;gap:8px}.bc b{font-size:17px}
+.pill{margin-inline-start:auto;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#EEF4F4;color:var(--mute);flex:none}
+.pill.pilot{background:#FFF3D6;color:#7A5426}.pill.next{background:#E5EEF8;color:#2B5C8A}.pill.done{background:#E3F3EA;color:var(--ok)}.pill.hold{background:#EEE;color:#777}
+.mini{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--mute);margin-top:6px}.mini b{color:var(--ink);font:700 15px "Inter";font-size:15px}
+.bar2{height:8px;background:#EEF4F4;border-radius:99px;overflow:hidden;margin-top:10px}.bar2 i{display:block;height:100%;background:var(--c)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.k{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#FBFDFD}
+.k small{display:block;color:var(--mute);font-size:12.5px}.k b{font:700 19px "Inter"}
+.k.bad b{color:var(--bad)}.k.ok b{color:var(--ok)}
+.split{display:flex;height:30px;border-radius:10px;overflow:hidden;margin:8px 0 4px;font-size:12.5px;font-weight:700;color:#fff}
+.split div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute)}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px}
+ul.an{margin:6px 0;padding-inline-start:20px}ul.an li{margin:5px 0}
+.pb{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;background:#fff}
+.pb .sv{flex:none;font-size:11.5px;font-weight:700;border-radius:99px;padding:2px 9px;margin-top:3px}
+.sv.high{background:#FBE9E7;color:var(--bad)}.sv.mid{background:#FFF3D6;color:#7A5426}.sv.low{background:#EEF4F4;color:var(--mute)}
+.pb.fixed{opacity:.55}.pb.fixed b{text-decoration:line-through}
+.pb .bd{flex:1}.pb small{display:block;color:var(--mute);font-size:13.5px}
+.tg{border:1px solid var(--line);background:#fff;border-radius:99px;padding:3px 10px;font:600 12px var(--font);cursor:pointer;color:var(--mute);flex:none}
+.tg.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+.stg{margin:14px 0 4px;font-weight:700;font-size:14.5px;color:var(--deep);display:flex;gap:8px;align-items:center}
+.stg span{width:26px;height:26px;border-radius:8px;background:var(--deep);color:#fff;display:grid;place-items:center;font:700 13px "Inter"}
+.st{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.st input{width:20px;height:20px;margin-top:4px;accent-color:var(--ok);flex:none}
+.st.ok .tx{text-decoration:line-through;color:var(--mute)}
+.st .tx{flex:1;font-size:15px}
+.ap{font-size:11.5px;font-weight:700;background:#FFF3D6;color:#7A5426;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.dt{font:12px "Inter";color:var(--ok);white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+.tw{overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:start;vertical-align:top}
+th{background:#F2F7F7;font-size:13.5px}
+td.n{font-family:"Inter";white-space:nowrap;unicode-bidi:plaintext}.k b,.mini b,.stat b{unicode-bidi:plaintext}
+td input{width:90px;border:1.5px solid #CFDDDD;border-radius:8px;padding:4px 6px;font:14px "Inter";background:#FBFDFD}
+.mt{display:flex;gap:10px;align-items:flex-start;border-inline-start:4px solid var(--c,var(--teal));background:#fff;border-radius:12px;padding:10px 12px;margin:8px 0;box-shadow:var(--sh)}
+.mt .w{flex:none;font-weight:700;min-width:96px}.mt small{display:block;color:var(--mute);font-size:12.5px;font-family:"Inter"}
+.mt.now{outline:2px solid #F2C14E}
+.meth{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.meth div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff}
+.meth b span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--bk);color:#fff;font:700 12px "Inter";margin-inline-end:6px}
+textarea{width:100%;min-height:110px;border:1.5px solid #CFDDDD;border-radius:12px;padding:10px;font:15px var(--font);background:#FBFDFD;resize:vertical}
+.tip{background:#FFF8E6;border-inline-start:4px solid #E3B341;padding:10px 12px;border-radius:10px;font-size:14.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cv{position:relative;border-radius:22px;overflow:hidden;min-height:300px;color:#fff;box-shadow:var(--sh);margin:14px 0;background:linear-gradient(135deg,var(--c),var(--deep));display:flex;align-items:flex-end}
+.cv .im{position:absolute;inset:0;background-size:cover;background-position:var(--pos,50% 50%)}
+.cv::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0,rgba(0,0,0,.15) 35%,rgba(6,24,30,.86) 100%)}
+.cv .ph0{position:absolute;inset:0;display:grid;place-items:center;font:700 120px var(--font);color:rgba(255,255,255,.1)}
+.cv .in{position:relative;z-index:1;padding:20px;width:100%;display:flex;gap:16px;align-items:flex-end}
+.cv .in>div:first-child{flex:1;min-width:0}
+.cv h1{margin:0;font-size:clamp(30px,7vw,44px);text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.cv .en{font:600 15px "Inter";letter-spacing:.5px;opacity:.85;margin-top:-2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:4px 11px;font-size:13px;font-weight:600;color:#fff;cursor:default}
+.chip.bkid{background:#003580;border-color:#003580;cursor:pointer;font-family:"Inter"}
+.chip.bkid em{font-style:normal;background:#FEBB02;color:#003580;border-radius:5px;padding:0 5px;font-weight:800;font-size:11px}
+.cv .upl{position:absolute;top:12px;inset-inline-start:12px;z-index:2;background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:5px 11px;font:600 12.5px var(--font);cursor:pointer}
+.ring{--p:0;width:92px;height:92px;flex:none;border-radius:50%;background:conic-gradient(#F2C14E calc(var(--p)*1%),rgba(255,255,255,.22) 0);display:grid;place-items:center}
+.ring div{width:72px;height:72px;border-radius:50%;background:rgba(6,24,30,.75);display:grid;place-items:center;text-align:center;line-height:1.1}
+.ring b{font:700 22px "Inter"}.ring small{font-size:10.5px;opacity:.85}
+.nx{border:0;background:linear-gradient(135deg,#FFF8E6,#fff);border-inline-start:6px solid #F2C14E}
+.nx .lb{font-size:12.5px;font-weight:700;color:#7A5426;letter-spacing:.3px}
+.nx .t{font-size:18px;font-weight:700;margin:4px 0 8px}
+.cheer{font-size:14.5px;color:var(--deep);background:#EAF3F3;border-radius:12px;padding:8px 12px;margin-top:10px}
+.jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:6px 0}
+.jump a{flex:none;font-size:13px;font-weight:600;text-decoration:none;color:var(--deep);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+.bc{padding:0;overflow:hidden;border-top:0}
+.bc .pic{height:150px;position:relative;background:linear-gradient(135deg,var(--c),var(--deep));background-size:cover;background-position:var(--pos,50% 50%);display:flex;align-items:flex-end;padding:10px 12px;color:#fff}
+.bc .pic::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(6,24,30,.8))}
+.bc .pic>*{position:relative;z-index:1}
+.bc .pic b{font-size:20px;flex:1}.bc .pic .chip{font-size:11.5px;padding:2px 8px}
+.bc .bd{padding:12px 14px}
+.bc .pic .pill{position:absolute;top:10px;inset-inline-start:10px;z-index:1}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--deep);color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;box-shadow:var(--sh);transition:.35s;z-index:50;max-width:90vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.deny{text-align:center;padding:50px 20px}
+.foot{margin-top:30px;font-size:12.5px;color:var(--mute);text-align:center}
+@media (max-width:640px){.stats,.kpis{grid-template-columns:repeat(2,1fr)}.grid,.meth{grid-template-columns:1fr}}
+@media print{.bar,.tabs,.row,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
+<a class="btn" href="#home">🏠 الرئيسية</a><a class="btn" href="#plan">🗓️ الخطة</a></div></header>
+<div class="wrap" id="app"></div><div class="toast" id="toast"></div>
+<script>
+(function(){
+var D=window.BKDEV,KEY='bkdev_v1',app=document.getElementById('app');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+var S=load();S.steps=S.steps||{};S.pb=S.pb||{};S.notes=S.notes||{};S.actual=S.actual||{};S.img=S.img||{};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* الصلاحية: علي (الموارد البشرية) والمدير العام */
+var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
+var allowed=U&&(U.role==='hr'||U.role==='gm'||/علي|Ali/i.test(U.name||''));
+if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">🔒</div><h2>هذا القسم خاص</h2><p class="mute">سجّل الدخول من الصفحة الرئيسية لمرسى بحسابك.</p><a class="btn pri" href="./">الصفحة الرئيسية</a></div>';return}
+
+var STAT={pilot:'قيد التنفيذ — تجربة',next:'التالي',later:'في الخطة',hold:'مؤجلة',done:'مكتملة'};
+var GN={};D.method.forEach(function(m){GN[m.k]=m.t});
+function B(id){for(var i=0;i<D.buildings.length;i++)if(D.buildings[i].id===id)return D.buildings[i];return null}
+function sk(b,i){return b.id+':'+i}
+function prog(b){if(!b.steps.length)return 0;var n=0;b.steps.forEach(function(s,i){if(S.steps[sk(b,i)])n++});return Math.round(n/b.steps.length*100)}
+function allProg(){var t=0,n=0;D.buildings.forEach(function(b){b.steps.forEach(function(s,i){t++;if(S.steps[sk(b,i)])n++})});return t?Math.round(n/t*100):0}
+function fmt(n,d){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function pic(b){return S.img[b.id]||b.img||''}
+function bkChip(b){return '<span class="chip bkid" data-copy="'+b.bid+'" title="نسخ رقم العقار"><em>B.</em> '+b.bid+'</span>'}
+function cheer(p,done,tot){if(tot===0)return '';if(p===0)return 'البداية أصعب خطوة — ابدأ بالأسهل، كل خطوة صغيرة تقرّب الضيف من الحجز.';if(p<34)return 'انطلقت 👏 أنجزت '+done+' من '+tot+'. حافظ على الإيقاع: خطوة واحدة يومياً تكفي.';if(p<67)return 'ممتاز 💪 تجاوزت الثلث. النتائج تظهر في لوحة Booking خلال أسبوعين من التغيير.';if(p<100)return 'اقتربت 🔥 بقيت '+(tot-done)+' خطوات فقط على اكتمال هذه البناية.';return 'اكتملت 🎉 هذه البناية جاهزة. الآن قِس النتائج وانتقل للبناية التالية.'}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on')},2600)}
+function tabs(cur){var h='<nav class="tabs"><a class="tab'+(cur==='home'?' on':'')+'" href="#home">نظرة عامة</a><a class="tab'+(cur==='plan'?' on':'')+'" href="#plan">الخطة والأهداف</a><a class="tab'+(cur==='method'?' on':'')+'" href="#method">الطريقة A→H</a>';
+  D.buildings.slice().sort(function(a,b){return a.order-b.order}).forEach(function(b){h+='<a class="tab'+(cur===b.id?' on':'')+'" style="--c:'+b.c+'" href="#b/'+b.id+'">'+esc(b.name)+'</a>'});return h+'</nav>'}
+
+function home(){
+  var tb=0,ts=0,tr=0;D.buildings.forEach(function(b){tb+=b.bk.n;ts+=Math.round(b.bk.n*b.bk.stay/100);tr+=b.bk.rev});
+  var h='<div class="card hero"><h1>تطوير Booking.com</h1><div class="mute">ملف كل بناية من الألف إلى الياء: البيانات، التحليل، المشاكل، الخطوات، والهدف. البيانات حتى '+esc(D.asof)+'.</div>'+
+  '<div class="std">'+D.standard.map(function(s){return '<span>🎯 '+esc(s)+'</span>'}).join('')+'</div>'+
+  '<div class="stats"><div class="stat"><b>'+fmt(tb)+'</b><small>حجز في 2026</small></div><div class="stat"><b>'+Math.round(ts/tb*100)+'%</b><small>انتهت بإقامة</small></div><div class="stat"><b>'+fmt(tr)+'</b><small>إيراد الإقامات (ر.ع)</small></div><div class="stat"><b>'+allProg()+'%</b><small>إنجاز الخطوات</small></div></div>'+
+  '<div class="prog"><i style="width:'+allProg()+'%"></i></div></div>'+tabs('home');
+  h+='<div class="card"><h2>البنايات بترتيب العمل</h2><div class="grid">';
+  D.buildings.slice().sort(function(a,b){return a.order-b.order}).forEach(function(b){var p=prog(b);
+    var im=pic(b);h+='<a class="bc" style="--c:'+b.c+'" href="#b/'+b.id+'"><div class="pic" style="'+(im?'background-image:url('+im+');':'')+'--pos:'+(b.pos||'50% 50%')+'"><span class="pill '+b.status+'">'+STAT[b.status]+'</span><b>'+b.order+'. '+esc(b.name)+'</b>'+bkChip(b)+'</div><div class="bd">'+
+    '<div class="mini"><span>التقييم <b>'+(b.kpi.rating||'—')+'</b></span><span>إقامة <b>'+b.bk.stay+'%</b></span><span>إلغاء <b>'+b.bk.canc+'%</b></span><span>إيراد <b>'+fmt(b.bk.rev)+'</b></span></div>'+
+    '<div class="bar2"><i style="width:'+p+'%"></i></div><div class="mute" style="font-size:12.5px;margin-top:4px">الخطوات '+p+'%</div></div></a>'});
+  h+='</div></div>';
+  h+='<div class="card"><h2>مقارنة البنايات</h2><div class="mute">من ملفات حجوزات يناير–نوفمبر 2026 ولوحة الترتيب (30 يوماً).</div><div class="tw"><table><tr><th>البناية</th><th>التقييم</th><th>الحجوزات</th><th>إقامة</th><th>إلغاء</th><th>عدم حضور</th><th>الإيراد ر.ع</th><th>نتيجة الصفحة</th><th>التحويل</th><th>التوفر</th></tr>';
+  D.buildings.forEach(function(b){var k=b.kpi;h+='<tr><td><a href="#b/'+b.id+'">'+esc(b.name)+'</a></td><td class="n">'+(k.rating||'—')+'</td><td class="n">'+b.bk.n+'</td><td class="n">'+b.bk.stay+'%</td><td class="n">'+b.bk.canc+'%</td><td class="n">'+b.bk.ns+'%</td><td class="n">'+fmt(b.bk.rev,1)+'</td><td class="n">'+(k.page?k.page+'%':'—')+'</td><td class="n">'+(k.conv?k.conv+'%':'—')+'</td><td class="n">'+(k.avail?k.avail+'%':'—')+'</td></tr>'});
+  h+='</table></div><p class="tip">أكبر مشكلة مشتركة: 3 من كل 4 حجوزات لا تنتهي بإقامة. الحي التجاري هو النموذج (45% إقامة)، والسعادة الأضعف (14%).</p></div>';
+  h+=backup();return h;
+}
+
+function backup(){return '<div class="card noprint"><h2>نسخة احتياطية</h2><div class="mute">التقدم محفوظ على هذا الجهاز. صدّر نسخة لنقلها لجهاز آخر.</div><div class="row"><button class="btn" id="exp">⬇️ تصدير التقدم</button><label class="btn">⬆️ استيراد<input type="file" id="imp" accept=".json" hidden></label></div></div>'}
+
+function plan(){
+  var t=new Date(),h='<div class="card hero"><h1>خطة التنفيذ والأهداف</h1><div class="mute">13 أسبوعاً من 19 نوفمبر 2026 إلى 17 فبراير 2027. الأهداف مقترحة وقابلة للتحقيق من نقطة البداية الحالية، وتُراجع بعد 30 يوماً.</div></div>'+tabs('plan');
+  h+='<div class="card"><h2>الهدف خلال 90 يوماً</h2><div class="tw"><table><tr><th>المؤشر</th><th>الآن</th><th>الهدف</th></tr>';
+  D.groupGoals.forEach(function(g){h+='<tr><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td></tr>'});
+  h+='</table></div><p class="mute">لا أحد يضمن عدد الحجوزات؛ الهدف هو ما يمكن تحقيقه إذا نُفّذت الخطوات واعتُمدت الأسعار.</p></div>';
+  h+='<div class="card"><h2>الجدول الزمني</h2>';
+  D.plan.forEach(function(p,i){h+='<div class="mt'+(i===0?' now':'')+'" style="--c:'+(i<2?'#B8892B':'#287070')+'"><div class="w">'+esc(p.w)+'<small>'+esc(p.from)+' – '+esc(p.to)+'</small></div><div><b>'+esc(p.b)+'</b><div style="font-size:14.5px">'+esc(p.t)+'</div></div></div>'});
+  h+='</div><div class="card"><h2>الروتين الثابت</h2><h3>يومياً (15 دقيقة)</h3><ul class="an">'+D.routine.daily.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><h3>أسبوعياً</h3><ul class="an">'+D.routine.weekly.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+  h+='<div class="card"><h2>أهداف كل بناية</h2><div class="mute">اكتب الرقم الفعلي في عمود "الفعلي" عند كل مراجعة.</div><div class="tw"><table><tr><th>البناية</th><th>المؤشر</th><th>الآن</th><th>الهدف</th><th>الفعلي</th></tr>';
+  D.buildings.forEach(function(b){b.goals.forEach(function(g,i){var k=b.id+':'+i;h+='<tr><td>'+(i===0?'<b>'+esc(b.name)+'</b>':'')+'</td><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td><td><input data-act="'+k+'" value="'+esc(S.actual[k]||'')+'"></td></tr>'})});
+  h+='</table></div></div><div class="row"><button class="btn" onclick="print()">🖨️ طباعة الخطة</button></div>';
+  return h;
+}
+
+function method(){
+  var h='<div class="card hero"><h1>الطريقة الموحدة A → H</h1><div class="mute">نفس الخطوات لكل بناية، بنفس الترتيب، حتى يكون العمل قابلاً للتكرار والقياس.</div></div>'+tabs('method')+'<div class="card"><div class="meth">';
+  D.method.forEach(function(m){h+='<div><b><span>'+m.k+'</span>'+esc(m.t)+'</b><div style="font-size:14.5px;margin-top:4px">'+esc(m.d)+'</div></div>'});
+  return h+'</div><p class="tip">أي خطوة عليها علامة "تحتاج موافقة" لا تُنفَّذ في Booking إلا بعد موافقة المدير العام. السياسات والأسعار لا تُغيَّر بدون اعتماد.</p></div>';
+}
+
+function building(id){
+  var b=B(id);if(!b)return home();var k=b.kpi,p=prog(b);
+  var done=0;b.steps.forEach(function(x,i){if(S.steps[sk(b,i)])done++});var im=pic(b),nx=-1;for(var j=0;j<b.steps.length;j++)if(!S.steps[sk(b,j)]){nx=j;break}
+  var h='<div class="cv" style="--c:'+b.c+';--pos:'+(b.pos||'50% 50%')+'">'+(im?'<div class="im" style="background-image:url('+im+')"></div>':'<div class="ph0">'+esc(b.name.replace(/^ال/,'').charAt(0))+'</div>')+
+  '<label class="upl noprint">📷 '+(im?'تغيير الصورة':'أضف صورة الفرع')+'<input type="file" accept="image/*" data-img="'+b.id+'" hidden></label>'+
+  '<div class="in"><div><h1>'+esc(b.name)+'</h1><div class="en">'+esc(b.en||'')+' · Nassayem Salalah</div><div class="chips">'+bkChip(b)+'<span class="chip">'+STAT[b.status]+'</span>'+(b.kpi.rating?'<span class="chip">⭐ '+b.kpi.rating+'</span>':'')+(b.kpi.rank?'<span class="chip">🏆 '+esc(b.kpi.rank)+'</span>':'')+'</div></div>'+
+  '<div class="ring" style="--p:'+p+'"><div><span><b>'+p+'%</b><br><small>'+done+' / '+b.steps.length+'</small></span></div></div></div></div>'+tabs(id);
+  if(b.units)h+='<div class="mute" style="margin:4px 4px 0">🏢 '+esc(b.units)+'</div>';
+  h+='<div class="card nx">'+(nx>=0?'<div class="lb">👉 خطوتك التالية · '+esc(GN[b.steps[nx].g])+'</div><div class="t">'+esc(b.steps[nx].t)+(b.steps[nx].a?' <span class="ap">تحتاج موافقة</span>':'')+'</div><button class="btn pri" data-done="'+sk(b,nx)+'">✓ تمت</button>':'<div class="t">🎉 كل خطوات '+esc(b.name)+' مكتملة</div>')+'<div class="cheer">'+cheer(p,done,b.steps.length)+'</div></div>';
+  h+='<nav class="jump noprint"><a href="javascript:void 0" data-go="k">📊 المؤشرات</a><a href="javascript:void 0" data-go="a">🔍 التحليل</a>'+(b.problems.length?'<a href="javascript:void 0" data-go="p">⚠️ المشاكل</a>':'')+'<a href="javascript:void 0" data-go="s">✅ الخطوات</a>'+(b.goals.length?'<a href="javascript:void 0" data-go="g">🎯 الهدف</a>':'')+'<a href="javascript:void 0" data-go="n">📝 ملاحظات</a></nav>';
+  /* المؤشرات */
+  var ks=[];if(k.rating)ks.push(['التقييم',k.rating,k.rating<7.5?'bad':(k.rating>=8?'ok':'')]);if(k.page)ks.push(['نتيجة الصفحة',k.page+'%',k.page<90?'bad':'']);if(k.adr)ks.push(['متوسط السعر اليومي',k.adr+' ر.ع','']);if(k.conv)ks.push(['التحويل',k.conv+'%',k.conv<2.5?'bad':'ok']);
+  if(k.rank)ks.push(['الترتيب في صلالة',k.rank,'']);if(k.avail)ks.push(['التوفر',k.avail+'%',k.avail<70?'bad':'']);if(k.views)ks.push(['مشاهدات 30 يوماً',fmt(k.views),'']);if(k.visits)ks.push(['زيارات 30 يوماً',fmt(k.visits),'']);if(k.bk30!=null)ks.push(['حجوزات 30 يوماً',k.bk30,k.bk30<10?'bad':'']);if(k.ctr)ks.push(['نسبة النقر',k.ctr,'bad']);
+  ks.push(['تقييمات منشورة',b.rev.n+' · متوسط '+b.rev.avg,'']);ks.push(['إيراد الإقامات 2026',fmt(b.bk.rev,1)+' ر.ع','']);
+  h+='<div class="card" id="sec-k"><h2>📊 المؤشرات</h2><div class="kpis">'+ks.map(function(x){return '<div class="k '+x[2]+'"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>'}).join('')+'</div>';
+  h+='<h3>مصير '+b.bk.n+' حجزاً في 2026</h3><div class="split"><div style="width:'+b.bk.stay+'%;background:#1E7A4F">'+b.bk.stay+'%</div><div style="width:'+b.bk.ns+'%;background:#B07A1E">'+b.bk.ns+'%</div><div style="width:'+b.bk.canc+'%;background:#A3261F">'+b.bk.canc+'%</div></div>'+
+  '<div class="legend"><span><i style="background:#1E7A4F"></i>إقامة</span><span><i style="background:#B07A1E"></i>عدم حضور</span><span><i style="background:#A3261F"></i>إلغاء</span></div></div>';
+  /* التحليل */
+  h+='<div class="card" id="sec-a"><h2>🔍 التحليل</h2><ul class="an">'+b.analysis.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+  /* المشاكل */
+  if(b.problems.length){h+='<div class="card" id="sec-p"><h2>⚠️ المشاكل</h2><div class="mute">اضغط "تم الحل" عند معالجة المشكلة.</div>';
+    b.problems.forEach(function(x,i){var key=sk(b,i),on=!!S.pb[key];h+='<div class="pb'+(on?' fixed':'')+'"><span class="sv '+x.s+'">'+({high:'عالية',mid:'متوسطة',low:'منخفضة'})[x.s]+'</span><div class="bd"><b>'+esc(x.t)+'</b>'+(x.d?'<small>'+esc(x.d)+'</small>':'')+'</div><button class="tg'+(on?' on':'')+'" data-pb="'+key+'">'+(on?'✓ تم الحل':'تم الحل')+'</button></div>'});h+='</div>'}
+  /* الخطوات */
+  h+='<div class="card" id="sec-s"><h2>✅ الخطوات</h2><div class="mute">مرتبة حسب الطريقة A→H. تُحفظ مع تاريخ الإنجاز.</div>';
+  var last='';b.steps.forEach(function(s,i){var key=sk(b,i),d=S.steps[key];if(s.g!==last){h+='<div class="stg"><span>'+s.g+'</span>'+esc(GN[s.g])+'</div>';last=s.g}
+    h+='<label class="st'+(d?' ok':'')+'"><input type="checkbox" data-st="'+key+'"'+(d?' checked':'')+'><span class="tx">'+esc(s.t)+'</span>'+(s.a?'<span class="ap">تحتاج موافقة</span>':'')+(d?'<span class="dt">'+esc(d)+'</span>':'')+'</label>'});
+  h+='</div>';
+  /* الهدف */
+  if(b.goals.length){h+='<div class="card" id="sec-g"><h2>🎯 الهدف (90 يوماً)</h2><div class="tw"><table><tr><th>المؤشر</th><th>الآن</th><th>الهدف</th><th>الفعلي</th></tr>';
+    b.goals.forEach(function(g,i){var key=b.id+':'+i;h+='<tr><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td><td><input data-act="'+key+'" value="'+esc(S.actual[key]||'')+'"></td></tr>'});h+='</table></div></div>'}
+  /* الناقص والملاحظات */
+  if(b.missing.length)h+='<div class="card"><h2>📥 بيانات ناقصة</h2><ul class="an">'+b.missing.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+  h+='<div class="card" id="sec-n"><h2>📝 ملاحظات</h2><textarea data-note="'+b.id+'" placeholder="ما تم اليوم، قرار المدير، أرقام جديدة…">'+esc(S.notes[b.id]||'')+'</textarea></div>';
+  h+='<div class="row"><button class="btn" onclick="print()">🖨️ طباعة ملف '+esc(b.name)+'</button></div>';
+  return h;
+}
+
+function render(){
+  var r=(location.hash||'#home').slice(1),h;
+  if(r.indexOf('b/')===0)h=building(r.slice(2));else if(r==='plan')h=plan();else if(r==='method')h=method();else h=home();
+  app.innerHTML=h+'<div class="foot">مرسى · تطوير Booking.com · صُمّم وأُدير بواسطة علي البسيسي</div>';
+  var on=app.querySelector('.tab.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
+}
+app.addEventListener('change',function(e){var t=e.target;
+  if(t.dataset.st){var y=scrollY;if(t.checked)S.steps[t.dataset.st]=today();else delete S.steps[t.dataset.st];save();render();scrollTo(0,y);if(t.checked)toast('أحسنت ✓ خطوة أخرى نحو أعلى تقييم وإشغال')}
+  else if(t.dataset.img&&t.files[0]){var id=t.dataset.img,fr2=new FileReader();fr2.onload=function(){var im=new Image();im.onload=function(){var w=Math.min(1200,im.width),c=document.createElement('canvas');c.width=w;c.height=Math.round(im.height*w/im.width);c.getContext('2d').drawImage(im,0,0,c.width,c.height);S.img[id]=c.toDataURL('image/jpeg',.8);save();render();toast('تم حفظ صورة الفرع على هذا الجهاز')};im.src=fr2.result};fr2.readAsDataURL(t.files[0])}
+  else if(t.dataset.act!=null){S.actual[t.dataset.act]=t.value;save()}
+  else if(t.id==='imp'&&t.files[0]){var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);S=o;S.steps=S.steps||{};S.pb=S.pb||{};S.notes=S.notes||{};S.actual=S.actual||{};save();render();alert('تم الاستيراد')}catch(x){alert('الملف غير صالح')}};fr.readAsText(t.files[0])}
+});
+app.addEventListener('input',function(e){var t=e.target;if(t.dataset.note){S.notes[t.dataset.note]=t.value;save()}});
+app.addEventListener('click',function(e){var c=e.target.closest('[data-copy]');if(c){e.preventDefault();e.stopPropagation();try{navigator.clipboard.writeText(c.dataset.copy)}catch(x){}toast('نُسخ رقم العقار '+c.dataset.copy);return}
+  var dn=e.target.closest('[data-done]');if(dn){S.steps[dn.dataset.done]=today();save();render();toast('أحسنت ✓ انتقلنا للخطوة التالية');return}
+  var go=e.target.closest('[data-go]');if(go){var el=document.getElementById('sec-'+go.dataset.go);if(el)scrollTo({top:el.getBoundingClientRect().top+scrollY-120,behavior:'smooth'});return}
+  var t=e.target.closest('[data-pb]');if(t){var k=t.dataset.pb;if(S.pb[k])delete S.pb[k];else S.pb[k]=today();save();render();return}
+  if(e.target.id==='exp'){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='booking-dev-'+today()+'.json';a.click()}});
+window.addEventListener('hashchange',function(){render();scrollTo(0,0)});
+render();
+})();
+</script>
+</body>
+</html>
