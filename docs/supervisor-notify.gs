@@ -165,13 +165,69 @@ function alertRun(isMorning) {
 
 /* ===== التشغيل لمرة واحدة: شغّل setup من القائمة ===== */
 function setup() {
-  const mine = ['processQueue', 'morning', 'afternoon'];
+  const mine = ['processQueue', 'morning', 'afternoon', 'thursdayReport'];
   ScriptApp.getProjectTriggers().forEach(function (t) { if (mine.indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('processQueue').timeBased().everyMinutes(5).create();
   ScriptApp.newTrigger('morning').timeBased().atHour(8).nearMinute(0).everyDays(1).inTimezone(NOTIFY.TZ).create();
   ScriptApp.newTrigger('afternoon').timeBased().atHour(14).nearMinute(0).everyDays(1).inTimezone(NOTIFY.TZ).create();
+  ScriptApp.newTrigger('thursdayReport').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(18).nearMinute(0).inTimezone(NOTIFY.TZ).create();
   queueSheet();
 }
+
+
+/* ===== تقرير الخميس للمدير (دورة الاجتماع: من الاثنين إلى الاثنين) – يُرسل تلقائياً كل خميس 6 مساءً ===== */
+function thursdayReport() {
+  const to = ['manager', 'admin'].filter(function (r) { return NOTIFY.EMAILS[r]; });
+  if (!to.length) return;
+  const p = Utilities.formatDate(new Date(), NOTIFY.TZ, 'yyyy-MM-dd').split('-').map(Number);
+  const today = new Date(p[0], p[1] - 1, p[2]);
+  const mon = new Date(today); mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  const nmon = new Date(mon); nmon.setDate(mon.getDate() + 7);
+  const A = ymdOf(mon), B = ymdOf(nmon), T = ymdOf(today);
+  const all = ((readData(SpreadsheetApp.getActiveSpreadsheet()).data || {}).actions || []).filter(function (a) { return String(a.t || '').trim(); });
+  const W = all.filter(function (a) { return a.date && a.date >= A && a.date < B; });
+  const done = W.filter(function (a) { return a.s === 'تم'; });
+  const late = W.filter(function (a) { return a.s !== 'تم' && a.date <= T; })
+    .concat(all.filter(function (a) { return a.s !== 'تم' && a.date && a.date < A; }));
+  const rest = W.filter(function (a) { return a.s !== 'تم' && a.date > T; });
+  const pct = W.length ? Math.round(done.length / W.length * 100) : 0;
+  const th = 'style="background:#e6f3f2;color:#1a5d5b;padding:6px 8px;border:1px solid #d5e3e2;text-align:right;font-size:13px"';
+  const td = 'style="padding:6px 8px;border:1px solid #e3ecec;font-size:13px;vertical-align:top"';
+  function why(a) { const g = (a.log || []).slice(-1)[0]; return g ? g.by + ': ' + g.t : (a.note || 'لا يوجد سبب مسجل'); }
+  function table(head, rows) {
+    return '<table style="width:100%;border-collapse:collapse;margin:6px 0 14px">' +
+      '<tr>' + head.map(function (h) { return '<th ' + th + '>' + h + '</th>'; }).join('') + '</tr>' +
+      rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td ' + td + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
+  }
+  const h3 = function (t, c) { return '<h3 style="margin:16px 0 4px;font-size:15px;color:' + (c || '#1a5d5b') + '">' + t + '</h3>'; };
+  // المنفذون
+  const ppl = uniq([].concat.apply([], W.concat(late).map(function (a) { return a.exec || []; })));
+  const pr = ppl.map(function (n) {
+    const L = W.filter(function (a) { return (a.exec || []).indexOf(n) >= 0; });
+    const d = L.filter(function (a) { return a.s === 'تم'; }).length;
+    const l = late.filter(function (a) { return (a.exec || []).indexOf(n) >= 0; }).length;
+    return [n, String(L.length), String(d), String(l), L.length ? Math.round(d / L.length * 100) + '%' : '—'];
+  });
+  // التحديثات
+  const t0 = mon.getTime();
+  const logs = [].concat.apply([], all.map(function (a) { return (a.log || []).filter(function (g) { return g.at >= t0; }).map(function (g) { return { g: g, a: a }; }); }))
+    .sort(function (x, y) { return y.g.at - x.g.at; }).slice(0, 8);
+
+  let html = '<table style="width:100%;border-collapse:collapse;margin-bottom:6px"><tr>' +
+    [['مهام الدورة', W.length, '#1a5d5b'], ['منجزة', done.length, '#2e7d32'], ['متأخرة', late.length, '#b3261e'], ['متبقية حتى الاثنين', rest.length, '#b08d4f']]
+      .map(function (k) { return '<td style="text-align:center;padding:10px;border:1px solid #e3ecec"><div style="font-size:24px;font-weight:bold;color:' + k[2] + '">' + k[1] + '</div><div style="font-size:12px;color:#5f6f6f">' + k[0] + '</div></td>'; }).join('') +
+    '</tr></table><p style="font-size:14px;margin:8px 0">نسبة الإنجاز حتى اليوم: <b>' + pct + '%</b></p>';
+  if (pr.length) html += h3('أداء المنفذين') + table(['المنفّذ', 'المسند', 'المنجز', 'المتأخر', 'النسبة'], pr);
+  if (late.length) html += h3('⚠ المهام المتأخرة (' + late.length + ')', '#b3261e') + table(['البناية', 'المهمة', 'المنفّذ', 'الموعد', 'السبب / آخر تحديث'], late.map(function (a) { return [shortB(a.b), a.t, (a.exec || []).join('، '), dlabel(a.date), why(a)]; }));
+  if (rest.length) html += h3('📅 المتبقي حتى اجتماع الاثنين (' + rest.length + ')') + table(['البناية', 'المهمة', 'المنفّذ', 'الموعد'], rest.map(function (a) { return [shortB(a.b), a.t, (a.exec || []).join('، '), dlabel(a.date)]; }));
+  if (done.length) html += h3('✅ المنجز (' + done.length + ')', '#2e7d32') + table(['البناية', 'المهمة', 'المنفّذ'], done.map(function (a) { return [shortB(a.b), a.t, (a.exec || []).join('، ')]; }));
+  if (logs.length) html += h3('💬 آخر تحديثات الفريق') + table(['من', 'التحديث', 'المهمة'], logs.map(function (x) { return [x.g.by, x.g.t, x.a.t]; }));
+  if (!W.length && !late.length) html += '<p>لا توجد مهام مسجلة في هذه الدورة.</p>';
+
+  const title = 'تقرير الخميس – دورة ' + dlabel(A) + ' إلى ' + dlabel(B);
+  to.forEach(function (rc) { sendMail(rc, 'نسائم صلالة | ' + title + ' (' + pct + '%)', wrap(title, html)); });
+}
+function ymdOf(x) { return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); }
 
 /* رسالة تجريبية لكل من فُعّل بريده */
 function testEmail() {
