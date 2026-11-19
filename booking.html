@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="booking-data.js"></script>
+<script src="booking-lib.js"></script>
 <style>
 :root{color-scheme:light;--teal:#287070;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;--bad:#A3261F;--warn:#B07A1E;--gold:#B8892B;--bk:#003580;
   --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"IBM Plex Sans Arabic","Inter",-apple-system,"Segoe UI",Tahoma,sans-serif}
@@ -118,136 +119,248 @@ textarea{width:100%;min-height:110px;border:1.5px solid #CFDDDD;border-radius:12
 .foot{margin-top:30px;font-size:12.5px;color:var(--mute);text-align:center}
 @media (max-width:640px){.stats,.kpis{grid-template-columns:repeat(2,1fr)}.grid,.meth{grid-template-columns:1fr}}
 @media print{.bar,.tabs,.row,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.cv{min-height:230px}
+.nav2{display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:4px;margin:12px 0;position:sticky;top:62px;z-index:6;box-shadow:var(--sh);overflow-x:auto;scrollbar-width:none}
+.nav2 a{flex:1 0 auto;text-align:center;text-decoration:none;color:var(--mute);font-weight:600;font-size:14px;padding:8px 10px;border-radius:12px;white-space:nowrap}
+.nav2 a.on{background:var(--c,var(--teal));color:#fff}
+.nav2 a .cnt{font:700 11px "Inter";background:rgba(0,0,0,.08);border-radius:99px;padding:0 6px;margin-inline-start:4px}
+.nav2 a.on .cnt{background:rgba(255,255,255,.25)}
+[data-info]{cursor:pointer}
+.k{position:relative;transition:.15s}.k:hover,.k:active{border-color:var(--teal);background:#F2F8F8}
+.k::after,.hint::after{content:"؟";position:absolute;top:8px;inset-inline-end:10px;width:18px;height:18px;border-radius:50%;background:#EAF3F3;color:var(--teal);font:700 11px var(--font);display:grid;place-items:center}
+.k .vd{display:block;font-size:12px;margin-top:2px;font-weight:600}
+.vd.bad{color:var(--bad)}.vd.ok{color:var(--ok)}.vd.mid{color:#7A5426}
+.lead{font-size:15px;color:var(--mute);margin:0 0 10px}
+.st .tx{cursor:pointer}.st .i{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--teal);font-weight:700;cursor:pointer}
+.pb{cursor:pointer}.pb:hover{border-color:var(--teal)}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sg{border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;cursor:pointer;background:#fff}
+.sg b{display:block;font:700 15px "Inter";color:var(--bk)}.sg small{font-size:11.5px;color:var(--mute);display:block;line-height:1.35}
+.sg.ok{background:#E3F3EA;border-color:#BFE3CE}.sg.ok b{color:var(--ok)}
+.sg i{display:block;height:4px;border-radius:9px;background:#EEF4F4;margin-top:6px;overflow:hidden}.sg i u{display:block;height:100%;background:var(--ok)}
+.basic{border:1px solid var(--line);border-radius:14px;margin:8px 0;background:#fff}
+.basic summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none;display:flex;gap:8px}
+.basic summary::-webkit-details-marker{display:none}.basic summary::before{content:"＋";color:var(--teal)}
+.basic[open] summary::before{content:"－"}
+.basic p{margin:0;padding:0 14px 12px;font-size:15px}
+.gl{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.gl button{text-align:start;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;font:600 14.5px var(--font);color:var(--ink);cursor:pointer}
+.gl button small{display:block;color:var(--mute);font-weight:400;font-size:12.5px}
+.newb{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink);background:linear-gradient(135deg,#EAF3FF,#fff);border:1px solid #C9DCF5;border-radius:18px;padding:14px;margin:14px 0}
+.newb span{font-size:30px}.newb b{display:block}.newb small{color:var(--mute)}
+/* النافذة المنبثقة */
+.ov{position:fixed;inset:0;background:rgba(6,24,30,.45);z-index:60;opacity:0;pointer-events:none;transition:.2s}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:#fff;border-radius:22px 22px 0 0;max-height:86vh;overflow-y:auto;transform:translateY(105%);transition:.28s cubic-bezier(.2,.8,.2,1);padding:8px 18px calc(22px + env(safe-area-inset-bottom,0));box-shadow:0 -10px 40px rgba(0,0,0,.15);max-width:720px;margin:0 auto}
+.sheet.on{transform:none}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:#D5E0E0;margin:4px auto 10px}
+.sheet .x{position:sticky;top:0;float:left;border:0;background:#EEF4F4;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer}
+.sheet h2{font-size:21px;margin:4px 0 12px}
+.sheet .blk{border-radius:14px;padding:11px 13px;margin:10px 0;font-size:15px}
+.sheet .blk b.h{display:block;font-size:13px;margin-bottom:3px}
+.b1{background:#F2F7F7}.b1 b.h{color:var(--deep)}
+.b2{background:#FFF8E6}.b2 b.h{color:#7A5426}
+.b3{background:#E9F0FB}.b3 b.h{color:var(--bk)}
+.b4{background:#E3F3EA}.b4 b.h{color:var(--ok)}
+.sheet ol{margin:4px 0 0;padding-inline-start:22px}.sheet ol li{margin:6px 0}
+.big{font:700 34px "Inter";unicode-bidi:plaintext}
+@media (max-width:640px){.stages{grid-template-columns:repeat(4,1fr)}.gl{grid-template-columns:1fr}.nav2{top:60px}}
 </style>
 </head>
 <body>
 <header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span>
-<a class="btn" href="#home">🏠 الرئيسية</a><a class="btn" href="#plan">🗓️ الخطة</a></div></header>
-<div class="wrap" id="app"></div><div class="toast" id="toast"></div>
+<a class="btn" href="#learn">📘 تعلّم</a></div></header>
+<div class="wrap" id="app"></div><div class="toast" id="toast"></div><div class="ov" id="ov"></div><div class="sheet" id="sheet" role="dialog" aria-modal="true"><button class="x" aria-label="إغلاق">✕</button><div class="grab"></div><div id="shBody"></div></div>
 <script>
 (function(){
-var D=window.BKDEV,KEY='bkdev_v1',app=document.getElementById('app');
+var D=window.BKDEV,L=window.BKLIB,KEY='bkdev_v1',app=document.getElementById('app');
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
-var S=load();S.steps=S.steps||{};S.pb=S.pb||{};S.notes=S.notes||{};S.actual=S.actual||{};S.img=S.img||{};
+var S=load();function fix(){S.steps=S.steps||{};S.pb=S.pb||{};S.notes=S.notes||{};S.actual=S.actual||{};S.img=S.img||{}}fix();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
-/* الصلاحية: علي (الموارد البشرية) والمدير العام */
 var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
 var allowed=U&&(U.role==='hr'||U.role==='gm'||/علي|Ali/i.test(U.name||''));
 if(!allowed){app.innerHTML='<div class="deny card"><div style="font-size:44px">🔒</div><h2>هذا القسم خاص</h2><p class="mute">سجّل الدخول من الصفحة الرئيسية لمرسى بحسابك.</p><a class="btn pri" href="./">الصفحة الرئيسية</a></div>';return}
 
-var STAT={pilot:'قيد التنفيذ — تجربة',next:'التالي',later:'في الخطة',hold:'مؤجلة',done:'مكتملة'};
-var GN={};D.method.forEach(function(m){GN[m.k]=m.t});
+var STAT={pilot:'قيد التنفيذ',next:'التالي',later:'في الخطة',hold:'مؤجلة',done:'مكتملة'};
+var SEV={high:'عالية',mid:'متوسطة',low:'منخفضة'};
+var GN={},GD={};D.method.forEach(function(m){GN[m.k]=m.t;GD[m.k]=m.d});
+var BS=D.buildings.slice().sort(function(a,b){return a.order-b.order});
 function B(id){for(var i=0;i<D.buildings.length;i++)if(D.buildings[i].id===id)return D.buildings[i];return null}
 function sk(b,i){return b.id+':'+i}
-function prog(b){if(!b.steps.length)return 0;var n=0;b.steps.forEach(function(s,i){if(S.steps[sk(b,i)])n++});return Math.round(n/b.steps.length*100)}
-function allProg(){var t=0,n=0;D.buildings.forEach(function(b){b.steps.forEach(function(s,i){t++;if(S.steps[sk(b,i)])n++})});return t?Math.round(n/t*100):0}
+function cnt(b){var n=0;b.steps.forEach(function(s,i){if(S.steps[sk(b,i)])n++});return n}
+function prog(b){return b.steps.length?Math.round(cnt(b)/b.steps.length*100):0}
+function allProg(){var t=0,n=0;D.buildings.forEach(function(b){t+=b.steps.length;n+=cnt(b)});return t?Math.round(n/t*100):0}
 function fmt(n,d){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
 function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function pic(b){return S.img[b.id]||b.img||''}
-function bkChip(b){return '<span class="chip bkid" data-copy="'+b.bid+'" title="نسخ رقم العقار"><em>B.</em> '+b.bid+'</span>'}
-function cheer(p,done,tot){if(tot===0)return '';if(p===0)return 'البداية أصعب خطوة — ابدأ بالأسهل، كل خطوة صغيرة تقرّب الضيف من الحجز.';if(p<34)return 'انطلقت 👏 أنجزت '+done+' من '+tot+'. حافظ على الإيقاع: خطوة واحدة يومياً تكفي.';if(p<67)return 'ممتاز 💪 تجاوزت الثلث. النتائج تظهر في لوحة Booking خلال أسبوعين من التغيير.';if(p<100)return 'اقتربت 🔥 بقيت '+(tot-done)+' خطوات فقط على اكتمال هذه البناية.';return 'اكتملت 🎉 هذه البناية جاهزة. الآن قِس النتائج وانتقل للبناية التالية.'}
+function bkChip(b){return '<span class="chip bkid" data-copy="'+b.bid+'" title="اضغط لنسخ الرقم"><em>B.</em> '+b.bid+'</span>'}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on')},2600)}
-function tabs(cur){var h='<nav class="tabs"><a class="tab'+(cur==='home'?' on':'')+'" href="#home">نظرة عامة</a><a class="tab'+(cur==='plan'?' on':'')+'" href="#plan">الخطة والأهداف</a><a class="tab'+(cur==='method'?' on':'')+'" href="#method">الطريقة A→H</a>';
-  D.buildings.slice().sort(function(a,b){return a.order-b.order}).forEach(function(b){h+='<a class="tab'+(cur===b.id?' on':'')+'" style="--c:'+b.c+'" href="#b/'+b.id+'">'+esc(b.name)+'</a>'});return h+'</nav>'}
+function cheer(p,done,tot){if(!tot)return '';if(p===0)return 'البداية أصعب خطوة — ابدأ بالخطوة أدناه، وكل خطوة صغيرة تقرّب الضيف من الحجز.';if(p<34)return 'انطلقت 👏 أنجزت '+done+' من '+tot+'. خطوة واحدة يومياً تكفي.';if(p<67)return 'ممتاز 💪 تجاوزت الثلث. النتائج تظهر في لوحة Booking خلال أسبوعين من التغيير.';if(p<100)return 'اقتربت 🔥 بقيت '+(tot-done)+' خطوات على اكتمال هذه البناية.';return 'اكتملت 🎉 الآن قِس النتائج وانتقل للبناية التالية.'}
 
+/* ===== الشريط العلوي ===== */
+function topnav(cur){var h='<nav class="tabs"><a class="tab'+(cur==='home'?' on':'')+'" href="#home">🏠 الرئيسية</a><a class="tab'+(cur==='learn'?' on':'')+'" href="#learn">📘 تعلّم</a><a class="tab'+(cur==='plan'?' on':'')+'" href="#plan">🗓️ الخطة</a>';
+  BS.forEach(function(b){h+='<a class="tab'+(cur===b.id?' on':'')+'" style="--c:'+b.c+'" href="#b/'+b.id+'">'+esc(b.name)+'</a>'});return h+'</nav>'}
+
+/* ===== النافذة المنبثقة (شرح أي عنصر) ===== */
+var SH=null;
+function openSheet(html){document.getElementById('shBody').innerHTML=html;document.getElementById('ov').classList.add('on');var s=document.getElementById('sheet');s.classList.add('on');s.scrollTop=0}
+function closeSheet(){document.getElementById('ov').classList.remove('on');document.getElementById('sheet').classList.remove('on')}
+function blk(cls,h,body){return body?'<div class="blk '+cls+'"><b class="h">'+h+'</b>'+body+'</div>':''}
+function verdict(key,b){var k=b.kpi,v;
+  switch(key){case 'rating':v=k.rating>=8?['ok','ممتاز']:k.rating>=7.5?['mid','جيد ويمكن رفعه']:['bad','ضعيف — أولوية'];break;
+  case 'page':v=k.page>=100?['ok','مكتمل']:k.page>=90?['mid','قريب من الاكتمال']:['bad','ناقص كثيراً'];break;
+  case 'conv':v=k.conv>=3?['ok','جيد']:k.conv>=2.5?['mid','متوسط']:['bad','ضعيف'];break;
+  case 'avail':v=k.avail>=90?['ok','ممتاز']:k.avail>=70?['mid','يمكن فتح أيام أكثر']:['bad','أيام كثيرة مغلقة'];break;
+  case 'bk30':v=k.bk30>=20?['ok','جيد']:k.bk30>=10?['mid','متوسط']:['bad','قليل'];break;
+  case 'ctr':v=['bad','أقل من متوسط بناياتنا'];break;
+  case 'stay':v=b.bk.stay>=35?['ok','جيد']:b.bk.stay>=25?['mid','متوسط']:['bad','ضعيف — أكبر مشكلة'];break;
+  case 'canc':v=b.bk.canc<=40?['ok','مقبول']:b.bk.canc<=55?['mid','مرتفع']:['bad','مرتفع جداً'];break;
+  case 'ns':v=b.bk.ns<=15?['ok','مقبول']:b.bk.ns<=22?['mid','مرتفع']:['bad','مرتفع جداً'];break;
+  case 'rank':v=['ok','ظهور جيد'];break;default:v=null}
+  return v}
+function infoTerm(key,b,val){var g=L.glossary[key];if(!g)return;var v=b?verdict(key,b):null;
+  openSheet('<h2>'+esc(g.t)+'</h2>'+(val!=null?'<div class="big">'+esc(val)+'</div>'+(v?'<div class="vd '+v[0]+'" style="font-weight:700">'+v[1]+'</div>':''):'')+
+    blk('b1','📖 ما معناه؟',esc(g.what))+blk('b2','📏 متى يكون جيداً؟',esc(g.good))+blk('b4','🛠️ كيف نحسّنه؟',esc(g.how))+blk('b3','📍 أين أجده في Booking؟',esc(g.where)))}
+function infoStep(b,i){var s=b.steps[i],x=L.steps[s.k]||{},key=sk(b,i),d=S.steps[key];
+  openSheet('<div class="mute">'+esc(b.name)+' · المرحلة '+s.g+': '+esc(GN[s.g])+'</div><h2>'+esc(s.t)+'</h2>'+
+    (s.a?'<div class="blk b2"><b class="h">⚠️ تحتاج موافقة المدير العام</b>اعرضها على المدير أولاً، ولا تنفّذها في Booking قبل موافقته.</div>':'')+
+    blk('b1','💡 لماذا هذه الخطوة؟',esc(x.why))+
+    (x.how?'<div class="blk b4"><b class="h">🧭 كيف أنفّذها؟ خطوة بخطوة</b><ol>'+x.how.map(function(h){return '<li>'+esc(h)+'</li>'}).join('')+'</ol></div>':'')+
+    blk('b3','📍 أين في Booking؟',esc(x.where))+blk('b1','⏱️ الوقت المتوقع',esc(x.time))+(x.tip?blk('b2','🤝 أساعدك',esc(x.tip)):'')+
+    '<div class="row"><button class="btn '+(d?'':'pri')+'" data-tog="'+key+'">'+(d?'↩︎ إلغاء "تمت" ('+d+')':'✓ تمت هذه الخطوة')+'</button></div>')}
+function infoProblem(b,i){var p=b.problems[i],key=sk(b,i),on=S.pb[key];
+  var rel=[];b.steps.forEach(function(s,j){if(!S.steps[sk(b,j)])rel.push(j)});
+  openSheet('<span class="sv '+p.s+'" style="font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px">أهمية '+SEV[p.s]+'</span><h2>'+esc(p.t)+'</h2>'+
+    blk('b1','📖 التفاصيل',esc(p.d||'—'))+
+    blk('b2','❓ لماذا مهمة؟',p.s==='high'?'تؤثر مباشرة على عدد الإقامات أو التقييم، وحلها يعطي أكبر نتيجة. ابدأ بها.':p.s==='mid'?'تؤثر لكن بدرجة أقل، تُحل بعد المشاكل العالية.':'تحسين إضافي، تُحل عندما يتاح الوقت.')+
+    blk('b4','🛠️ الحل','موجود في تبويب "الخطوات" — كل خطوة فيها شرح التنفيذ. '+(rel.length?'باقي '+rel.length+' خطوة لم تُنجز.':'كل الخطوات منجزة.'))+
+    '<div class="row"><a class="btn pri" href="#b/'+b.id+'/steps" data-close>✅ اذهب للخطوات</a><button class="btn" data-pbt="'+key+'">'+(on?'↩︎ لم تُحل بعد':'✓ تم حل المشكلة')+'</button></div>')}
+function infoStage(k){openSheet('<h2>المرحلة '+k+': '+esc(GN[k])+'</h2>'+blk('b1','📖 ماذا تعني؟',esc(GD[k]))+blk('b2','📌 لماذا بالترتيب؟','نجمع البيانات أولاً حتى نعرف المشكلة، ثم نبدأ بما لا يحتاج موافقة لأنه سريع، ثم الأسعار والغرف بعد موافقة المدير، ثم الجودة والمتابعة.'))}
+function infoBasic(i){var x=L.basics[i];openSheet('<h2>'+esc(x.t)+'</h2>'+blk('b1','',esc(x.d)))}
+
+/* ===== الرئيسية ===== */
 function home(){
   var tb=0,ts=0,tr=0;D.buildings.forEach(function(b){tb+=b.bk.n;ts+=Math.round(b.bk.n*b.bk.stay/100);tr+=b.bk.rev});
-  var h='<div class="card hero"><h1>تطوير Booking.com</h1><div class="mute">ملف كل بناية من الألف إلى الياء: البيانات، التحليل، المشاكل، الخطوات، والهدف. البيانات حتى '+esc(D.asof)+'.</div>'+
+  var h='<div class="card hero"><h1>تطوير Booking.com</h1><div class="mute">ملف لكل بناية: ماذا يحدث، لماذا، وماذا نفعل خطوة بخطوة. البيانات حتى '+esc(D.asof)+'.</div>'+
   '<div class="std">'+D.standard.map(function(s){return '<span>🎯 '+esc(s)+'</span>'}).join('')+'</div>'+
-  '<div class="stats"><div class="stat"><b>'+fmt(tb)+'</b><small>حجز في 2026</small></div><div class="stat"><b>'+Math.round(ts/tb*100)+'%</b><small>انتهت بإقامة</small></div><div class="stat"><b>'+fmt(tr)+'</b><small>إيراد الإقامات (ر.ع)</small></div><div class="stat"><b>'+allProg()+'%</b><small>إنجاز الخطوات</small></div></div>'+
-  '<div class="prog"><i style="width:'+allProg()+'%"></i></div></div>'+tabs('home');
-  h+='<div class="card"><h2>البنايات بترتيب العمل</h2><div class="grid">';
-  D.buildings.slice().sort(function(a,b){return a.order-b.order}).forEach(function(b){var p=prog(b);
-    var im=pic(b);h+='<a class="bc" style="--c:'+b.c+'" href="#b/'+b.id+'"><div class="pic" style="'+(im?'background-image:url('+im+');':'')+'--pos:'+(b.pos||'50% 50%')+'"><span class="pill '+b.status+'">'+STAT[b.status]+'</span><b>'+b.order+'. '+esc(b.name)+'</b>'+bkChip(b)+'</div><div class="bd">'+
-    '<div class="mini"><span>التقييم <b>'+(b.kpi.rating||'—')+'</b></span><span>إقامة <b>'+b.bk.stay+'%</b></span><span>إلغاء <b>'+b.bk.canc+'%</b></span><span>إيراد <b>'+fmt(b.bk.rev)+'</b></span></div>'+
-    '<div class="bar2"><i style="width:'+p+'%"></i></div><div class="mute" style="font-size:12.5px;margin-top:4px">الخطوات '+p+'%</div></div></a>'});
+  '<div class="stats"><div class="stat" data-info="g:bk30"><b>'+fmt(tb)+'</b><small>حجز في 2026</small></div><div class="stat" data-info="g:stay"><b>'+Math.round(ts/tb*100)+'%</b><small>انتهت بإقامة ؟</small></div><div class="stat" data-info="g:rev"><b>'+fmt(tr)+'</b><small>إيراد الإقامات ر.ع ؟</small></div><div class="stat"><b>'+allProg()+'%</b><small>إنجاز الخطوات</small></div></div>'+
+  '<div class="prog"><i style="width:'+allProg()+'%"></i></div></div>'+topnav('home');
+  h+='<a class="newb" href="#learn"><span>📘</span><div><b>أول مرة تدير Booking؟ ابدأ من هنا</b><small>5 دقائق تفهم فيها كيف يعمل Booking وما معنى كل رقم.</small></div></a>';
+  h+='<div class="card"><h2>البنايات بترتيب العمل</h2><p class="lead">اضغط على البناية لفتح ملفها.</p><div class="grid">';
+  BS.forEach(function(b){var p=prog(b),im=pic(b);
+    h+='<a class="bc" style="--c:'+b.c+'" href="#b/'+b.id+'"><div class="pic" style="'+(im?'background-image:url('+im+');':'')+'--pos:'+(b.pos||'50% 50%')+'"><span class="pill '+b.status+'">'+STAT[b.status]+'</span><b>'+b.order+'. '+esc(b.name)+'</b>'+bkChip(b)+'</div><div class="bd">'+
+    '<div class="mini"><span>⭐ <b>'+(b.kpi.rating||'—')+'</b></span><span>إقامة <b>'+b.bk.stay+'%</b></span><span>إلغاء <b>'+b.bk.canc+'%</b></span></div>'+
+    '<div class="bar2"><i style="width:'+p+'%"></i></div><div class="mute" style="font-size:12.5px;margin-top:4px">أنجزت '+cnt(b)+' من '+b.steps.length+' خطوة</div></div></a>'});
   h+='</div></div>';
-  h+='<div class="card"><h2>مقارنة البنايات</h2><div class="mute">من ملفات حجوزات يناير–نوفمبر 2026 ولوحة الترتيب (30 يوماً).</div><div class="tw"><table><tr><th>البناية</th><th>التقييم</th><th>الحجوزات</th><th>إقامة</th><th>إلغاء</th><th>عدم حضور</th><th>الإيراد ر.ع</th><th>نتيجة الصفحة</th><th>التحويل</th><th>التوفر</th></tr>';
-  D.buildings.forEach(function(b){var k=b.kpi;h+='<tr><td><a href="#b/'+b.id+'">'+esc(b.name)+'</a></td><td class="n">'+(k.rating||'—')+'</td><td class="n">'+b.bk.n+'</td><td class="n">'+b.bk.stay+'%</td><td class="n">'+b.bk.canc+'%</td><td class="n">'+b.bk.ns+'%</td><td class="n">'+fmt(b.bk.rev,1)+'</td><td class="n">'+(k.page?k.page+'%':'—')+'</td><td class="n">'+(k.conv?k.conv+'%':'—')+'</td><td class="n">'+(k.avail?k.avail+'%':'—')+'</td></tr>'});
-  h+='</table></div><p class="tip">أكبر مشكلة مشتركة: 3 من كل 4 حجوزات لا تنتهي بإقامة. الحي التجاري هو النموذج (45% إقامة)، والسعادة الأضعف (14%).</p></div>';
-  h+=backup();return h;
+  h+='<div class="card"><h2>مقارنة البنايات</h2><p class="lead">اضغط على عنوان أي عمود لمعرفة معناه.</p><div class="tw"><table><tr><th>البناية</th><th data-info="g:rating">التقييم ؟</th><th data-info="g:stay">إقامة ؟</th><th data-info="g:canc">إلغاء ؟</th><th data-info="g:ns">عدم حضور ؟</th><th data-info="g:rev">الإيراد ر.ع ؟</th><th data-info="g:page">الصفحة ؟</th></tr>';
+  BS.forEach(function(b){var k=b.kpi;h+='<tr><td><a href="#b/'+b.id+'">'+esc(b.name)+'</a></td><td class="n">'+(k.rating||'—')+'</td><td class="n">'+b.bk.stay+'%</td><td class="n">'+b.bk.canc+'%</td><td class="n">'+b.bk.ns+'%</td><td class="n">'+fmt(b.bk.rev)+'</td><td class="n">'+(k.page?k.page+'%':'—')+'</td></tr>'});
+  h+='</table></div><p class="tip">3 من كل 4 حجوزات لا تنتهي بإقامة. الحي التجاري هو النموذج (45%)، والسعادة الأضعف (14%).</p></div>';
+  return h+backup();
 }
-
 function backup(){return '<div class="card noprint"><h2>نسخة احتياطية</h2><div class="mute">التقدم محفوظ على هذا الجهاز. صدّر نسخة لنقلها لجهاز آخر.</div><div class="row"><button class="btn" id="exp">⬇️ تصدير التقدم</button><label class="btn">⬆️ استيراد<input type="file" id="imp" accept=".json" hidden></label></div></div>'}
 
+/* ===== تعلّم ===== */
+function learn(){
+  var h='<div class="card hero"><h1>📘 تعلّم Booking من الصفر</h1><div class="mute">اقرأ الأساسيات الخمس أولاً، ثم ارجع للقاموس كلما رأيت رقماً لا تعرفه.</div></div>'+topnav('learn');
+  h+='<div class="card"><h2>1. الأساسيات</h2>'+L.basics.map(function(x){return '<details class="basic"><summary>'+esc(x.t)+'</summary><p>'+esc(x.d)+'</p></details>'}).join('')+'</div>';
+  h+='<div class="card"><h2>2. طريقة العمل: 8 مراحل لكل بناية</h2><p class="lead">اضغط أي مرحلة لشرحها.</p><div class="stages">';
+  D.method.forEach(function(m){h+='<div class="sg" data-info="m:'+m.k+'"><b>'+m.k+'</b><small>'+esc(m.t)+'</small></div>'});
+  h+='</div></div><div class="card"><h2>3. قاموس المؤشرات</h2><p class="lead">اضغط أي مصطلح.</p><div class="gl">';
+  Object.keys(L.glossary).forEach(function(k){var g=L.glossary[k];h+='<button data-info="g:'+k+'">'+esc(g.t)+'<small>'+esc(g.what.slice(0,60))+'…</small></button>'});
+  return h+'</div></div>';
+}
+
+/* ===== الخطة ===== */
 function plan(){
-  var t=new Date(),h='<div class="card hero"><h1>خطة التنفيذ والأهداف</h1><div class="mute">13 أسبوعاً من 19 نوفمبر 2026 إلى 17 فبراير 2027. الأهداف مقترحة وقابلة للتحقيق من نقطة البداية الحالية، وتُراجع بعد 30 يوماً.</div></div>'+tabs('plan');
+  var h='<div class="card hero"><h1>🗓️ خطة التنفيذ والأهداف</h1><div class="mute">13 أسبوعاً: من 19 نوفمبر 2026 إلى 17 فبراير 2027.</div></div>'+topnav('plan');
   h+='<div class="card"><h2>الهدف خلال 90 يوماً</h2><div class="tw"><table><tr><th>المؤشر</th><th>الآن</th><th>الهدف</th></tr>';
   D.groupGoals.forEach(function(g){h+='<tr><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td></tr>'});
   h+='</table></div><p class="mute">لا أحد يضمن عدد الحجوزات؛ الهدف هو ما يمكن تحقيقه إذا نُفّذت الخطوات واعتُمدت الأسعار.</p></div>';
   h+='<div class="card"><h2>الجدول الزمني</h2>';
   D.plan.forEach(function(p,i){h+='<div class="mt'+(i===0?' now':'')+'" style="--c:'+(i<2?'#B8892B':'#287070')+'"><div class="w">'+esc(p.w)+'<small>'+esc(p.from)+' – '+esc(p.to)+'</small></div><div><b>'+esc(p.b)+'</b><div style="font-size:14.5px">'+esc(p.t)+'</div></div></div>'});
   h+='</div><div class="card"><h2>الروتين الثابت</h2><h3>يومياً (15 دقيقة)</h3><ul class="an">'+D.routine.daily.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><h3>أسبوعياً</h3><ul class="an">'+D.routine.weekly.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
-  h+='<div class="card"><h2>أهداف كل بناية</h2><div class="mute">اكتب الرقم الفعلي في عمود "الفعلي" عند كل مراجعة.</div><div class="tw"><table><tr><th>البناية</th><th>المؤشر</th><th>الآن</th><th>الهدف</th><th>الفعلي</th></tr>';
-  D.buildings.forEach(function(b){b.goals.forEach(function(g,i){var k=b.id+':'+i;h+='<tr><td>'+(i===0?'<b>'+esc(b.name)+'</b>':'')+'</td><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td><td><input data-act="'+k+'" value="'+esc(S.actual[k]||'')+'"></td></tr>'})});
-  h+='</table></div></div><div class="row"><button class="btn" onclick="print()">🖨️ طباعة الخطة</button></div>';
-  return h;
+  return h+'<div class="row"><button class="btn" onclick="print()">🖨️ طباعة الخطة</button></div>';
 }
 
-function method(){
-  var h='<div class="card hero"><h1>الطريقة الموحدة A → H</h1><div class="mute">نفس الخطوات لكل بناية، بنفس الترتيب، حتى يكون العمل قابلاً للتكرار والقياس.</div></div>'+tabs('method')+'<div class="card"><div class="meth">';
-  D.method.forEach(function(m){h+='<div><b><span>'+m.k+'</span>'+esc(m.t)+'</b><div style="font-size:14.5px;margin-top:4px">'+esc(m.d)+'</div></div>'});
-  return h+'</div><p class="tip">أي خطوة عليها علامة "تحتاج موافقة" لا تُنفَّذ في Booking إلا بعد موافقة المدير العام. السياسات والأسعار لا تُغيَّر بدون اعتماد.</p></div>';
-}
-
-function building(id){
-  var b=B(id);if(!b)return home();var k=b.kpi,p=prog(b);
-  var done=0;b.steps.forEach(function(x,i){if(S.steps[sk(b,i)])done++});var im=pic(b),nx=-1;for(var j=0;j<b.steps.length;j++)if(!S.steps[sk(b,j)]){nx=j;break}
+/* ===== ملف البناية ===== */
+function building(id,view){
+  var b=B(id);if(!b)return home();var k=b.kpi,p=prog(b),done=cnt(b),im=pic(b);view=view||'start';
   var h='<div class="cv" style="--c:'+b.c+';--pos:'+(b.pos||'50% 50%')+'">'+(im?'<div class="im" style="background-image:url('+im+')"></div>':'<div class="ph0">'+esc(b.name.replace(/^ال/,'').charAt(0))+'</div>')+
   '<label class="upl noprint">📷 '+(im?'تغيير الصورة':'أضف صورة الفرع')+'<input type="file" accept="image/*" data-img="'+b.id+'" hidden></label>'+
-  '<div class="in"><div><h1>'+esc(b.name)+'</h1><div class="en">'+esc(b.en||'')+' · Nassayem Salalah</div><div class="chips">'+bkChip(b)+'<span class="chip">'+STAT[b.status]+'</span>'+(b.kpi.rating?'<span class="chip">⭐ '+b.kpi.rating+'</span>':'')+(b.kpi.rank?'<span class="chip">🏆 '+esc(b.kpi.rank)+'</span>':'')+'</div></div>'+
-  '<div class="ring" style="--p:'+p+'"><div><span><b>'+p+'%</b><br><small>'+done+' / '+b.steps.length+'</small></span></div></div></div></div>'+tabs(id);
-  if(b.units)h+='<div class="mute" style="margin:4px 4px 0">🏢 '+esc(b.units)+'</div>';
-  h+='<div class="card nx">'+(nx>=0?'<div class="lb">👉 خطوتك التالية · '+esc(GN[b.steps[nx].g])+'</div><div class="t">'+esc(b.steps[nx].t)+(b.steps[nx].a?' <span class="ap">تحتاج موافقة</span>':'')+'</div><button class="btn pri" data-done="'+sk(b,nx)+'">✓ تمت</button>':'<div class="t">🎉 كل خطوات '+esc(b.name)+' مكتملة</div>')+'<div class="cheer">'+cheer(p,done,b.steps.length)+'</div></div>';
-  h+='<nav class="jump noprint"><a href="javascript:void 0" data-go="k">📊 المؤشرات</a><a href="javascript:void 0" data-go="a">🔍 التحليل</a>'+(b.problems.length?'<a href="javascript:void 0" data-go="p">⚠️ المشاكل</a>':'')+'<a href="javascript:void 0" data-go="s">✅ الخطوات</a>'+(b.goals.length?'<a href="javascript:void 0" data-go="g">🎯 الهدف</a>':'')+'<a href="javascript:void 0" data-go="n">📝 ملاحظات</a></nav>';
-  /* المؤشرات */
-  var ks=[];if(k.rating)ks.push(['التقييم',k.rating,k.rating<7.5?'bad':(k.rating>=8?'ok':'')]);if(k.page)ks.push(['نتيجة الصفحة',k.page+'%',k.page<90?'bad':'']);if(k.adr)ks.push(['متوسط السعر اليومي',k.adr+' ر.ع','']);if(k.conv)ks.push(['التحويل',k.conv+'%',k.conv<2.5?'bad':'ok']);
-  if(k.rank)ks.push(['الترتيب في صلالة',k.rank,'']);if(k.avail)ks.push(['التوفر',k.avail+'%',k.avail<70?'bad':'']);if(k.views)ks.push(['مشاهدات 30 يوماً',fmt(k.views),'']);if(k.visits)ks.push(['زيارات 30 يوماً',fmt(k.visits),'']);if(k.bk30!=null)ks.push(['حجوزات 30 يوماً',k.bk30,k.bk30<10?'bad':'']);if(k.ctr)ks.push(['نسبة النقر',k.ctr,'bad']);
-  ks.push(['تقييمات منشورة',b.rev.n+' · متوسط '+b.rev.avg,'']);ks.push(['إيراد الإقامات 2026',fmt(b.bk.rev,1)+' ر.ع','']);
-  h+='<div class="card" id="sec-k"><h2>📊 المؤشرات</h2><div class="kpis">'+ks.map(function(x){return '<div class="k '+x[2]+'"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>'}).join('')+'</div>';
-  h+='<h3>مصير '+b.bk.n+' حجزاً في 2026</h3><div class="split"><div style="width:'+b.bk.stay+'%;background:#1E7A4F">'+b.bk.stay+'%</div><div style="width:'+b.bk.ns+'%;background:#B07A1E">'+b.bk.ns+'%</div><div style="width:'+b.bk.canc+'%;background:#A3261F">'+b.bk.canc+'%</div></div>'+
-  '<div class="legend"><span><i style="background:#1E7A4F"></i>إقامة</span><span><i style="background:#B07A1E"></i>عدم حضور</span><span><i style="background:#A3261F"></i>إلغاء</span></div></div>';
-  /* التحليل */
-  h+='<div class="card" id="sec-a"><h2>🔍 التحليل</h2><ul class="an">'+b.analysis.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
-  /* المشاكل */
-  if(b.problems.length){h+='<div class="card" id="sec-p"><h2>⚠️ المشاكل</h2><div class="mute">اضغط "تم الحل" عند معالجة المشكلة.</div>';
-    b.problems.forEach(function(x,i){var key=sk(b,i),on=!!S.pb[key];h+='<div class="pb'+(on?' fixed':'')+'"><span class="sv '+x.s+'">'+({high:'عالية',mid:'متوسطة',low:'منخفضة'})[x.s]+'</span><div class="bd"><b>'+esc(x.t)+'</b>'+(x.d?'<small>'+esc(x.d)+'</small>':'')+'</div><button class="tg'+(on?' on':'')+'" data-pb="'+key+'">'+(on?'✓ تم الحل':'تم الحل')+'</button></div>'});h+='</div>'}
-  /* الخطوات */
-  h+='<div class="card" id="sec-s"><h2>✅ الخطوات</h2><div class="mute">مرتبة حسب الطريقة A→H. تُحفظ مع تاريخ الإنجاز.</div>';
-  var last='';b.steps.forEach(function(s,i){var key=sk(b,i),d=S.steps[key];if(s.g!==last){h+='<div class="stg"><span>'+s.g+'</span>'+esc(GN[s.g])+'</div>';last=s.g}
-    h+='<label class="st'+(d?' ok':'')+'"><input type="checkbox" data-st="'+key+'"'+(d?' checked':'')+'><span class="tx">'+esc(s.t)+'</span>'+(s.a?'<span class="ap">تحتاج موافقة</span>':'')+(d?'<span class="dt">'+esc(d)+'</span>':'')+'</label>'});
-  h+='</div>';
-  /* الهدف */
-  if(b.goals.length){h+='<div class="card" id="sec-g"><h2>🎯 الهدف (90 يوماً)</h2><div class="tw"><table><tr><th>المؤشر</th><th>الآن</th><th>الهدف</th><th>الفعلي</th></tr>';
-    b.goals.forEach(function(g,i){var key=b.id+':'+i;h+='<tr><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td><td><input data-act="'+key+'" value="'+esc(S.actual[key]||'')+'"></td></tr>'});h+='</table></div></div>'}
-  /* الناقص والملاحظات */
-  if(b.missing.length)h+='<div class="card"><h2>📥 بيانات ناقصة</h2><ul class="an">'+b.missing.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
-  h+='<div class="card" id="sec-n"><h2>📝 ملاحظات</h2><textarea data-note="'+b.id+'" placeholder="ما تم اليوم، قرار المدير، أرقام جديدة…">'+esc(S.notes[b.id]||'')+'</textarea></div>';
-  h+='<div class="row"><button class="btn" onclick="print()">🖨️ طباعة ملف '+esc(b.name)+'</button></div>';
+  '<div class="in"><div><h1>'+esc(b.name)+'</h1><div class="en">'+esc(b.en||'')+' · Nassayem Salalah</div><div class="chips">'+bkChip(b)+'<span class="chip">'+STAT[b.status]+'</span>'+(k.rating?'<span class="chip">⭐ '+k.rating+'</span>':'')+'</div></div>'+
+  '<div class="ring" style="--p:'+p+'"><div><span><b>'+p+'%</b><br><small>'+done+' / '+b.steps.length+'</small></span></div></div></div></div>'+topnav(id);
+  var open=0;b.problems.forEach(function(x,i){if(!S.pb[sk(b,i)])open++});
+  var V=[['start','🚀 ابدأ'],['kpi','📊 الأرقام']];if(b.problems.length)V.push(['pb','⚠️ المشاكل',open]);V.push(['steps','✅ الخطوات',b.steps.length-done]);if(b.goals.length)V.push(['goal','🎯 الهدف']);V.push(['notes','📝 ملاحظات']);
+  h+='<nav class="nav2" style="--c:'+b.c+'">'+V.map(function(v){return '<a href="#b/'+b.id+'/'+v[0]+'" class="'+(view===v[0]?'on':'')+'">'+v[1]+(v[2]!=null?'<span class="cnt">'+v[2]+'</span>':'')+'</a>'}).join('')+'</nav>';
+  h+=({start:vStart,kpi:vKpi,pb:vPb,steps:vSteps,goal:vGoal,notes:vNotes}[view]||vStart)(b);
   return h;
 }
-
-function render(){
-  var r=(location.hash||'#home').slice(1),h;
-  if(r.indexOf('b/')===0)h=building(r.slice(2));else if(r==='plan')h=plan();else if(r==='method')h=method();else h=home();
-  app.innerHTML=h+'<div class="foot">مرسى · تطوير Booking.com · صُمّم وأُدير بواسطة علي البسيسي</div>';
-  var on=app.querySelector('.tab.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
+function nextIdx(b){for(var j=0;j<b.steps.length;j++)if(!S.steps[sk(b,j)])return j;return -1}
+function vStart(b){var nx=nextIdx(b),done=cnt(b),h='';
+  h+='<div class="card nx">'+(nx>=0?'<div class="lb">👉 خطوتك التالية · المرحلة '+b.steps[nx].g+': '+esc(GN[b.steps[nx].g])+'</div><div class="t">'+esc(b.steps[nx].t)+(b.steps[nx].a?' <span class="ap">تحتاج موافقة</span>':'')+'</div><div class="row"><button class="btn pri" data-info="s:'+b.id+':'+nx+'">📖 كيف أنفّذها؟</button><button class="btn" data-done="'+sk(b,nx)+'">✓ تمت</button></div>':'<div class="t">🎉 كل خطوات '+esc(b.name)+' مكتملة</div>')+'<div class="cheer">'+cheer(prog(b),done,b.steps.length)+'</div></div>';
+  h+='<div class="card"><h2>الوضع باختصار</h2><ul class="an">'+b.analysis.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'+(b.units?'<p class="mute">🏢 '+esc(b.units)+'</p>':'')+'</div>';
+  h+='<div class="card"><h2>تقدمك في المراحل</h2><p class="lead">اضغط أي مرحلة لمعرفة معناها.</p><div class="stages">';
+  D.method.forEach(function(m){var t=0,n=0;b.steps.forEach(function(s,i){if(s.g===m.k){t++;if(S.steps[sk(b,i)])n++}});
+    h+='<div class="sg'+(t&&n===t?' ok':'')+'" data-info="m:'+m.k+'"><b>'+m.k+'</b><small>'+esc(m.t)+'</small><small>'+(t?n+' / '+t:'—')+'</small><i><u style="width:'+(t?n/t*100:0)+'%"></u></i></div>'});
+  h+='</div></div>';
+  if(b.missing.length)h+='<div class="card"><h2>📥 أحتاج منك</h2><ul class="an">'+b.missing.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+  return h;
 }
+function vKpi(b){var k=b.kpi,ks=[];
+  function add(key,lab,val){var v=verdict(key,b);ks.push('<div class="k" data-info="g:'+key+':'+b.id+'"><small>'+lab+'</small><b>'+val+'</b>'+(v?'<span class="vd '+v[0]+'">'+v[1]+'</span>':'')+'</div>')}
+  if(k.rating)add('rating','التقييم',k.rating);if(k.page)add('page','نتيجة الصفحة',k.page+'%');if(k.conv)add('conv','التحويل',k.conv+'%');if(k.avail)add('avail','التوفر',k.avail+'%');
+  if(k.rank)add('rank','الترتيب في صلالة',k.rank);if(k.ctr)add('ctr','نسبة النقر',k.ctr);if(k.bk30!=null)add('bk30','حجوزات 30 يوماً',k.bk30);if(k.adr)add('adr','متوسط السعر اليومي',k.adr+' ر.ع');
+  if(k.views)add('views','مشاهدات 30 يوماً',fmt(k.views));if(k.visits)add('visits','زيارات 30 يوماً',fmt(k.visits));
+  add('reviews','التقييمات المنشورة',b.rev.n);add('rev','إيراد الإقامات 2026',fmt(b.bk.rev)+' ر.ع');
+  var h='<div class="card"><h2>📊 الأرقام</h2><p class="lead">اضغط أي رقم لتعرف معناه، وهل هو جيد، وكيف نحسّنه.</p><div class="kpis">'+ks.join('')+'</div></div>';
+  h+='<div class="card"><h2>ماذا حدث لـ '+b.bk.n+' حجزاً في 2026؟</h2><div class="split"><div style="width:'+b.bk.stay+'%;background:#1E7A4F">'+b.bk.stay+'%</div><div style="width:'+b.bk.ns+'%;background:#B07A1E">'+b.bk.ns+'%</div><div style="width:'+b.bk.canc+'%;background:#A3261F">'+b.bk.canc+'%</div></div>'+
+  '<div class="legend"><span data-info="g:stay:'+b.id+'"><i style="background:#1E7A4F"></i>إقامة ؟</span><span data-info="g:ns:'+b.id+'"><i style="background:#B07A1E"></i>عدم حضور ؟</span><span data-info="g:canc:'+b.id+'"><i style="background:#A3261F"></i>إلغاء ؟</span></div></div>';
+  return h}
+function vPb(b){var h='<div class="card"><h2>⚠️ المشاكل</h2><p class="lead">مرتبة من الأهم. اضغط أي مشكلة لترى تفاصيلها وحلها.</p>';
+  b.problems.forEach(function(x,i){var key=sk(b,i),on=!!S.pb[key];h+='<div class="pb'+(on?' fixed':'')+'" data-info="p:'+b.id+':'+i+'"><span class="sv '+x.s+'">'+SEV[x.s]+'</span><div class="bd"><b>'+esc(x.t)+'</b>'+(x.d?'<small>'+esc(x.d)+'</small>':'')+'</div>'+(on?'<span class="dt">✓ حُلّت</span>':'')+'</div>'});
+  return h+'</div>'}
+function vSteps(b){var h='<div class="card"><h2>✅ الخطوات</h2><p class="lead">اضغط نص الخطوة لترى الشرح والتنفيذ. علّم المربع عند الإنجاز.</p>',last='';
+  b.steps.forEach(function(s,i){var key=sk(b,i),d=S.steps[key];if(s.g!==last){h+='<div class="stg" data-info="m:'+s.g+'"><span>'+s.g+'</span>'+esc(GN[s.g])+'</div>';last=s.g}
+    h+='<div class="st'+(d?' ok':'')+'"><input type="checkbox" data-st="'+key+'"'+(d?' checked':'')+' aria-label="تمت"><span class="tx" data-info="s:'+b.id+':'+i+'">'+esc(s.t)+(s.a?' <span class="ap">تحتاج موافقة</span>':'')+(d?' <span class="dt">'+esc(d)+'</span>':'')+'</span><button class="i" data-info="s:'+b.id+':'+i+'" aria-label="شرح">؟</button></div>'});
+  return h+'</div><div class="row"><button class="btn" onclick="print()">🖨️ طباعة الخطوات</button></div>'}
+function vGoal(b){var h='<div class="card"><h2>🎯 الهدف خلال 90 يوماً</h2><p class="lead">اكتب الرقم الفعلي عند كل مراجعة (كل 30 يوماً).</p><div class="tw"><table><tr><th>المؤشر</th><th>الآن</th><th>الهدف</th><th>الفعلي</th></tr>';
+  b.goals.forEach(function(g,i){var key=b.id+':'+i;h+='<tr><td>'+esc(g.m)+'</td><td class="n">'+esc(g.now)+'</td><td class="n"><b>'+esc(g.goal)+'</b></td><td><input data-act="'+key+'" value="'+esc(S.actual[key]||'')+'"></td></tr>'});
+  return h+'</table></div></div>'}
+function vNotes(b){return '<div class="card"><h2>📝 ملاحظات</h2><p class="lead">ما تم اليوم، قرار المدير، أرقام جديدة… تُحفظ تلقائياً.</p><textarea data-note="'+b.id+'">'+esc(S.notes[b.id]||'')+'</textarea></div>'}
+
+/* ===== العرض والأحداث ===== */
+function render(){
+  var r=(location.hash||'#home').slice(1),h,parts=r.split('/');
+  if(parts[0]==='b')h=building(parts[1],parts[2]);else if(r==='plan')h=plan();else if(r==='learn')h=learn();else h=home();
+  app.innerHTML=h+'<div class="foot">مرسى · تطوير Booking.com · صُمّم وأُدير بواسطة علي البسيسي</div>';
+  var on=app.querySelector('.tabs .tab.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
+}
+function rerenderKeep(){var y=scrollY;render();scrollTo(0,y)}
+function handleInfo(v){var a=v.split(':');
+  if(a[0]==='g'){var b=a[2]?B(a[2]):null,val=null;if(b){var k=b.kpi,m={rating:k.rating,page:k.page+'%',conv:k.conv+'%',avail:k.avail+'%',rank:k.rank,ctr:k.ctr,bk30:k.bk30,adr:k.adr+' ر.ع',views:fmt(k.views||0),visits:fmt(k.visits||0),reviews:b.rev.n+' · متوسط '+b.rev.avg,rev:fmt(b.bk.rev)+' ر.ع',stay:b.bk.stay+'%',canc:b.bk.canc+'%',ns:b.bk.ns+'%'};val=m[a[1]]}infoTerm(a[1],b,val)}
+  else if(a[0]==='s')infoStep(B(a[1]),+a[2]);else if(a[0]==='p')infoProblem(B(a[1]),+a[2]);else if(a[0]==='m')infoStage(a[1]);
+}
+document.addEventListener('click',function(e){
+  var c=e.target.closest('[data-copy]');if(c){e.preventDefault();e.stopPropagation();try{navigator.clipboard.writeText(c.dataset.copy)}catch(x){}toast('نُسخ رقم العقار '+c.dataset.copy);return}
+  if(e.target.closest('[data-close]')||e.target.id==='ov'||e.target.closest('.sheet .x')){closeSheet();return}
+  var tg=e.target.closest('[data-tog]');if(tg){var k=tg.dataset.tog;if(S.steps[k])delete S.steps[k];else{S.steps[k]=today();toast('أحسنت ✓ خطوة أخرى نحو أعلى تقييم وإشغال')}save();closeSheet();rerenderKeep();return}
+  var pt=e.target.closest('[data-pbt]');if(pt){var k2=pt.dataset.pbt;if(S.pb[k2])delete S.pb[k2];else{S.pb[k2]=today();toast('رائع ✓ مشكلة أقل')}save();closeSheet();rerenderKeep();return}
+  var dn=e.target.closest('[data-done]');if(dn){S.steps[dn.dataset.done]=today();save();rerenderKeep();toast('أحسنت ✓ هذه خطوتك التالية الآن');return}
+  if(e.target.closest('input,textarea,label'))return;
+  var inf=e.target.closest('[data-info]');if(inf){e.preventDefault();handleInfo(inf.dataset.info);return}
+  if(e.target.id==='exp'){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='booking-dev-'+today()+'.json';a.click()}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()});
 app.addEventListener('change',function(e){var t=e.target;
-  if(t.dataset.st){var y=scrollY;if(t.checked)S.steps[t.dataset.st]=today();else delete S.steps[t.dataset.st];save();render();scrollTo(0,y);if(t.checked)toast('أحسنت ✓ خطوة أخرى نحو أعلى تقييم وإشغال')}
-  else if(t.dataset.img&&t.files[0]){var id=t.dataset.img,fr2=new FileReader();fr2.onload=function(){var im=new Image();im.onload=function(){var w=Math.min(1200,im.width),c=document.createElement('canvas');c.width=w;c.height=Math.round(im.height*w/im.width);c.getContext('2d').drawImage(im,0,0,c.width,c.height);S.img[id]=c.toDataURL('image/jpeg',.8);save();render();toast('تم حفظ صورة الفرع على هذا الجهاز')};im.src=fr2.result};fr2.readAsDataURL(t.files[0])}
+  if(t.dataset.st){if(t.checked){S.steps[t.dataset.st]=today();toast('أحسنت ✓ خطوة أخرى نحو أعلى تقييم وإشغال')}else delete S.steps[t.dataset.st];save();rerenderKeep()}
   else if(t.dataset.act!=null){S.actual[t.dataset.act]=t.value;save()}
-  else if(t.id==='imp'&&t.files[0]){var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);S=o;S.steps=S.steps||{};S.pb=S.pb||{};S.notes=S.notes||{};S.actual=S.actual||{};save();render();alert('تم الاستيراد')}catch(x){alert('الملف غير صالح')}};fr.readAsText(t.files[0])}
+  else if(t.dataset.img&&t.files[0]){var id=t.dataset.img,fr2=new FileReader();fr2.onload=function(){var im=new Image();im.onload=function(){var w=Math.min(1200,im.width),c=document.createElement('canvas');c.width=w;c.height=Math.round(im.height*w/im.width);c.getContext('2d').drawImage(im,0,0,c.width,c.height);S.img[id]=c.toDataURL('image/jpeg',.8);save();render();toast('تم حفظ صورة الفرع على هذا الجهاز')};im.src=fr2.result};fr2.readAsDataURL(t.files[0])}
+  else if(t.id==='imp'&&t.files[0]){var fr=new FileReader();fr.onload=function(){try{S=JSON.parse(fr.result);fix();save();render();toast('تم الاستيراد')}catch(x){toast('الملف غير صالح')}};fr.readAsText(t.files[0])}
 });
 app.addEventListener('input',function(e){var t=e.target;if(t.dataset.note){S.notes[t.dataset.note]=t.value;save()}});
-app.addEventListener('click',function(e){var c=e.target.closest('[data-copy]');if(c){e.preventDefault();e.stopPropagation();try{navigator.clipboard.writeText(c.dataset.copy)}catch(x){}toast('نُسخ رقم العقار '+c.dataset.copy);return}
-  var dn=e.target.closest('[data-done]');if(dn){S.steps[dn.dataset.done]=today();save();render();toast('أحسنت ✓ انتقلنا للخطوة التالية');return}
-  var go=e.target.closest('[data-go]');if(go){var el=document.getElementById('sec-'+go.dataset.go);if(el)scrollTo({top:el.getBoundingClientRect().top+scrollY-120,behavior:'smooth'});return}
-  var t=e.target.closest('[data-pb]');if(t){var k=t.dataset.pb;if(S.pb[k])delete S.pb[k];else S.pb[k]=today();save();render();return}
-  if(e.target.id==='exp'){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='booking-dev-'+today()+'.json';a.click()}});
-window.addEventListener('hashchange',function(){render();scrollTo(0,0)});
+window.addEventListener('hashchange',function(){closeSheet();var r=location.hash;render();if(r.split('/').length<3)scrollTo(0,0);else{var n=document.querySelector('.nav2');if(n&&n.getBoundingClientRect().top<0)scrollTo(0,n.offsetTop-70)}});
 render();
 })();
 </script>
