@@ -223,13 +223,13 @@ function verdict(key,b){var k=b.kpi,v;
 function infoTerm(key,b,val){var g=L.glossary[key];if(!g)return;var v=b?verdict(key,b):null;
   openSheet('<h2>'+esc(g.t)+'</h2>'+(val!=null?'<div class="big">'+esc(val)+'</div>'+(v?'<div class="vd '+v[0]+'" style="font-weight:700">'+v[1]+'</div>':''):'')+
     blk('b1','📖 ما معناه؟',esc(g.what))+blk('b2','📏 متى يكون جيداً؟',esc(g.good))+blk('b4','🛠️ كيف نحسّنه؟',esc(g.how))+blk('b3','📍 أين أجده في Booking؟',esc(g.where)))}
-function infoStep(b,i){var s=b.steps[i],x=L.steps[s.k]||{},key=sk(b,i),d=S.steps[key];
+function infoStep(b,i){var s=b.steps[i],x=(s.k&&L.steps[s.k])||{},key=sk(b,i),d=S.steps[key];
   openSheet('<div class="mute">'+esc(b.name)+' · المرحلة '+s.g+': '+esc(GN[s.g])+'</div><h2>'+esc(s.t)+'</h2>'+
     (s.a?'<div class="blk b2"><b class="h">⚠️ تحتاج موافقة المدير العام</b>اعرضها على المدير أولاً، ولا تنفّذها في Booking قبل موافقته.</div>':'')+
     blk('b1','💡 لماذا هذه الخطوة؟',esc(x.why))+
     (x.how?'<div class="blk b4"><b class="h">🧭 كيف أنفّذها؟ خطوة بخطوة</b><ol>'+x.how.map(function(h){return '<li>'+esc(h)+'</li>'}).join('')+'</ol></div>':'')+
     blk('b3','📍 أين في Booking؟',esc(x.where))+blk('b1','⏱️ الوقت المتوقع',esc(x.time))+(x.tip?blk('b2','🤝 أساعدك',esc(x.tip)):'')+
-    '<div class="row"><button class="btn '+(d?'':'pri')+'" data-tog="'+key+'">'+(d?'↩︎ إلغاء "تمت" ('+d+')':'✓ تمت هذه الخطوة')+'</button></div>')}
+    (x.how?'':'<div class="blk b2"><b class="h">🔄 الشرح لم يُحمَّل</b>اسحب الصفحة للتحديث أو أغلق مرسى وافتحه مرة أخرى.</div>')+'<div class="row"><button class="btn '+(d?'':'pri')+'" data-tog="'+key+'">'+(d?'↩︎ إلغاء "تمت" ('+d+')':'✓ تمت هذه الخطوة')+'</button></div>')}
 function infoProblem(b,i){var p=b.problems[i],key=sk(b,i),on=S.pb[key];
   var rel=[];b.steps.forEach(function(s,j){if(!S.steps[sk(b,j)])rel.push(j)});
   openSheet('<span class="sv '+p.s+'" style="font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px">أهمية '+SEV[p.s]+'</span><h2>'+esc(p.t)+'</h2>'+
