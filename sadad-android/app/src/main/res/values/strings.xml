@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="svc_label">سداد — تعبئة ONEIC</string>
+    <string name="svc_desc">يفتح قسم الكهرباء ← Quick Pay في تطبيق ONEIC ويكتب رقم العداد والمبلغ تلقائياً، ويتوقف قبل زر الدفع. لا يدفع أي شيء ولا يقرأ أي بيانات أخرى. يعمل فقط داخل تطبيق ONEIC.</string>
+</resources>

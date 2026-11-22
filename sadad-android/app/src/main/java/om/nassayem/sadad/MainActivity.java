@@ -69,6 +69,29 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface
+        public boolean autoReady() { return OneicService.isEnabled(MainActivity.this); }
+        @JavascriptInterface
+        public void startPay(String meter, String amount) {
+            runOnUiThread(() -> {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                cm.setPrimaryClip(ClipData.newPlainText("meter", meter));
+                if (OneicService.isEnabled(MainActivity.this)) OneicService.start(meter, amount);
+                openOneic();
+            });
+        }
+        @JavascriptInterface
+        public void openAccessibility() {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)); } catch (Exception e) { }
+            });
+        }
+        @JavascriptInterface
+        public void openAppInfo() {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { }
+            });
+        }
+        @JavascriptInterface
         public void open() { runOnUiThread(() -> openOneic()); }
         @JavascriptInterface
         public void copyAndOpen(String text) {
@@ -78,6 +101,12 @@ public class MainActivity extends Activity {
                 openOneic();
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (web != null) web.evaluateJavascript("window.onNativeResume&&onNativeResume()", null);
     }
 
     @Override
