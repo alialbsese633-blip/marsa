@@ -629,7 +629,7 @@ function deckSlides(w0){
  const out=[];let N=0;
  const sl=(title,sub,body,cls)=>{N++;out.push(`<section class="sl${cls?' '+cls:''}"><div class="in">${title?`<h2>${title}</h2><div class="sub">${sub||rng}</div>`:''}${body}</div><div class="ft"><span>نسائم صلالة · الإشراف العام · ${rng}</span><span>${N}</span><img src="icons/logo-full.png" alt=""></div></section>`)};
  // 1 الغلاف
- sl('','',`<img src="icons/logo-full.png" alt=""><h1>اجتماع الإشراف العام الأسبوعي</h1><div class="s1">مراجعة أسبوع ${rng}</div><div class="s2">المشرف العام: عبدالسلام حامد · تاريخ الاجتماع: ${DAYN[0]} ${fmt(n0)}</div>`,'cv');
+ sl('','',`<img src="icons/logo-full.png" alt=""><h1>اجتماع ${('0'+n0.getDate()).slice(-2)}/${('0'+(n0.getMonth()+1)).slice(-2)}/${n0.getFullYear()}</h1><div class="s1" style="margin-top:.4cqw">الإشراف العام الأسبوعي</div><div class="s1">مراجعة أسبوع ${rng}</div><div class="s2">المشرف العام: عبدالسلام حامد · تاريخ الاجتماع: ${DAYN[0]} ${fmt(n0)}</div>`,'cv');
  // 2 الملخص
  const ringC=pct>=80?'#2e7d32':pct>=50?'#c9a96e':'#b3261e';
  sl('ملخص الأسبوع','',`<div class="big"><div class="ring" style="background:conic-gradient(${ringC} ${pct*3.6}deg,#e6eeee 0)"><b>${pct}%</b></div>
@@ -673,7 +673,7 @@ function deckRender(){const box=document.getElementById('deck'),sl=deckSlides(DK
  box.querySelector('#dkX').onclick=deckClose;box.querySelector('#dkPrev').onclick=()=>mv(-1);box.querySelector('#dkNext').onclick=()=>mv(1);
  box.querySelector('#dkPw').onclick=()=>{DK.wk=addD(DK.wk,-7);DK.i=0;deckRender()};box.querySelector('#dkNw').onclick=()=>{DK.wk=addD(DK.wk,7);DK.i=0;deckRender()};
  box.querySelector('#dkFs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():box.requestFullscreen()}catch(e){toast('ملء الشاشة غير مدعوم هنا')}};
- box.querySelector('#dkPr').onclick=()=>window.print();
+ box.querySelector('#dkPr').onclick=()=>{const m=addD(DK.wk,7),t0=document.title;document.title='اجتماع '+('0'+m.getDate()).slice(-2)+'-'+('0'+(m.getMonth()+1)).slice(-2)+'-'+m.getFullYear();window.print();setTimeout(()=>document.title=t0,1500)};
  const w=box.querySelector('.dk-wrap');let x0=null;w.ontouchstart=e=>{x0=e.touches[0].clientX};w.ontouchend=e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)mv(dx>0?1:-1);x0=null};
  w.onclick=e=>{if(e.target.closest('.sl')){const r=w.getBoundingClientRect();mv(e.clientX<r.left+r.width/2?1:-1)}};
 }
