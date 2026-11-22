@@ -1,0 +1,39 @@
+{
+ "name": "سداد — نسائم صلالة",
+ "short_name": "سداد",
+ "description": "شحن عدادات الكهرباء مسبقة الدفع لفروع نسائم صلالة",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#f6f8f8",
+ "theme_color": "#1d6f72",
+ "lang": "ar",
+ "dir": "rtl",
+ "icons": [
+  {
+   "src": "icons/any-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/any-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/maskable-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "icons/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
