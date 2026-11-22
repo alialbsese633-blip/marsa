@@ -1,0 +1,24 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'om.nassayem.sadad'
+    compileSdk 34
+    defaultConfig {
+        applicationId "om.nassayem.sadad"
+        minSdk 24
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv("BUILD_NUMBER") ?: "1")
+        versionName "1." + (System.getenv("BUILD_NUMBER") ?: "1")
+    }
+    signingConfigs {
+        release {
+            storeFile file("sadad.keystore")
+            storePassword "sadad-nassayem"
+            keyAlias "sadad"
+            keyPassword "sadad-nassayem"
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.release }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

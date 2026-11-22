@@ -1,0 +1,56 @@
+name: Build Sadad APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sadad/**'
+      - 'sadad-android/**'
+      - '.github/workflows/sadad-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Copy web app into APK assets
+        run: |
+          mkdir -p sadad-android/app/src/main/assets
+          cp sadad/index.html sadad-android/app/src/main/assets/index.html
+
+      - name: Build APK
+        working-directory: sadad-android
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: gradle assembleRelease --no-daemon
+
+      - name: Rename APK
+        run: cp sadad-android/app/build/outputs/apk/release/app-release.apk Sadad.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sadad-APK
+          path: Sadad.apk
+
+      - name: Publish to release "sadad-latest"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: sadad-latest
+          name: سداد — آخر نسخة
+          body: "تطبيق سداد لشحن عدادات الكهرباء — نسخة رقم ${{ github.run_number }}"
+          files: Sadad.apk
+          make_latest: true

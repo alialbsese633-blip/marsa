@@ -347,9 +347,10 @@ function renderPay(){
  $("queue").innerHTML=S.q.map((id,k)=>{const u=U(id),r=S.res[id];
   return `<li class="${r==="ok"?"d":""} ${k===S.i&&!fin?"c":""}"><span><b>${lb(u)}</b> <span class="st" style="direction:ltr;display:inline-block">${u.meter}</span></span><span class="st">${r==="ok"?t("done"):r==="skip"?t("skipped"):fmt(+S.amts[id])+" "+t("omr")}</span></li>`;}).join("");
 }
-function copy(x){try{navigator.clipboard.writeText(x).catch(()=>fb(x))}catch(e){fb(x)}}
+function copy(x){if(window.Android){try{Android.copy(x);return}catch(e){}}try{navigator.clipboard.writeText(x).catch(()=>fb(x))}catch(e){fb(x)}}
 function fb(x){const i=document.createElement("textarea");i.value=x;i.style.position="fixed";i.style.opacity="0";document.body.appendChild(i);i.select();try{document.execCommand("copy")}catch(e){}i.remove();}
 $("open").onclick=(ev)=>{const u=U(S.q[S.i]);copy(String(u.meter));$("copied").textContent=t("copied")+u.meter;$("alt").style.display="";$("altAnd").style.display=isAndroid?"":"none";
+ if(window.Android){ev.preventDefault();try{Android.copyAndOpen(String(u.meter))}catch(e){}return;}
  if(isAndroid){ev.preventDefault();
   setTimeout(()=>{location.href=OPEN;},150);
   setTimeout(()=>{if(!document.hidden)location.href="market://launch?id=com.oneic.om";},1800);}};
@@ -366,7 +367,7 @@ function summary(){
 }
 $("cpsum").onclick=()=>{copy($("sum").textContent);$("cpsum").textContent=t("copiedAll");setTimeout(()=>$("cpsum").textContent=t("copySum"),2000);};
 $("restart").onclick=()=>{S.sel=[];S.amts={};go(2);};
-if(!matchMedia("(display-mode: standalone)").matches&&isAndroid&&/; wv\)|WhatsApp|FBAN|FBAV|Instagram/i.test(ua))$("wv").style.display="";
+if(!window.Android&&!matchMedia("(display-mode: standalone)").matches&&isAndroid&&/; wv\)|WhatsApp|FBAN|FBAV|Instagram/i.test(ua))$("wv").style.display="";
 applyLang();go(1);
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
