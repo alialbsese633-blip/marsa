@@ -130,7 +130,7 @@ public class OneicService extends AccessibilityService {
                 }
                 if (setText(acc, jobMeter)) {
                     step = S_TOTAL;
-                    acted();
+                    lastAction = System.currentTimeMillis() + 500;
                 }
                 return;
             }
@@ -164,7 +164,7 @@ public class OneicService extends AccessibilityService {
         if (n.getText() != null) b.append(n.getText()).append(' ');
         if (n.getContentDescription() != null) b.append(n.getContentDescription()).append(' ');
         if (android.os.Build.VERSION.SDK_INT >= 26 && n.getHintText() != null) b.append(n.getHintText());
-        return b.toString().trim();
+        return b.toString().replaceAll("\\s+", " ").trim();
     }
 
     static boolean matches(String txt, String[] keys) {
