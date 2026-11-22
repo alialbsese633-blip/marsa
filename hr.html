@@ -548,7 +548,7 @@ const encK=k=>String(k).replace(/:/g,'.'),decK=k=>String(k).startsWith('u.')?'u:
 
 function emptyState(session){
   return {v:2,settings:{...DEFAULT_SETTINGS},matrix:JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
-    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],debts:[],dbrep:[],alerts:[],
+    employees:[],requests:[],leaves:[],assets:[],cash:[],reviews:[],rewards:[],violations:[],attendance:[],complaints:[],advances:[],announcements:[],notifications:[],purchases:[],gsv:[],guests:[],rsv:[],rcv:[],rtn:[],xpn:[],units:[],ops:[],pyr:[],debts:[],dbrep:[],alerts:[],handovers:[],
     payroll:{},recon:{},ledger:{},policies:[],policyVersion:1,policyAcks:{},policyPrints:{},policySigned:{},accrued:'',
     audit:[],seq:{REQ:0,VIO:0,CMP:0,ANN:0,ADV:0,AST:0,CSH:0,RWD:0,PUR:0},
     session:session||{role:'hr',empId:null,supId:null}};
@@ -594,6 +594,7 @@ function flat(){
   Object.values(S.ledger||{}).forEach(r=>{if(r&&r.date)put('pay:LD'+r.date,{...r,id:'LD'+r.date})});
   /* التنبيهات المالية والشيكات: مفاتيح pay:AL<id> */
   (S.alerts||[]).forEach(r=>{if(r&&r.id)put('pay:AL'+r.id,r)});
+  (S.handovers||[]).forEach(r=>{if(r&&r.id)put('pay:HO'+r.id,r)});
   Object.keys(S.policyAcks||{}).forEach(k=>put('ack:'+encK(k),S.policyAcks[k]));
   Object.keys(S.policyPrints||{}).forEach(k=>put('prt:'+encK(k),S.policyPrints[k]));
   Object.keys(S.policySigned||{}).forEach(k=>{const g={...S.policySigned[k]};delete g.img;put('sig:'+encK(k),g)});
@@ -618,6 +619,7 @@ function buildFrom(docs,session){
     if(k.startsWith('pay:LD')){o=parse(k);if(o&&o.date)st.ledger[o.date]=o}
     else if(k.startsWith('pay:RC')){o=parse(k);if(o)rc[k.slice(4)]=o}
     else if(k.startsWith('pay:AL')){o=parse(k);if(o&&o.id)st.alerts.push(o)}
+    else if(k.startsWith('pay:HO')){o=parse(k);if(o&&o.id)st.handovers.push(o)}
     else if(k.startsWith('pay:')){o=parse(k);if(o)st.payroll[k.slice(4)]=o}
     else if(k.startsWith('ack:')){o=parse(k);if(o)st.policyAcks[decK(k.slice(4))]=o}
     else if(k.startsWith('prt:')){o=parse(k);if(o)st.policyPrints[decK(k.slice(4))]=o}
@@ -1375,7 +1377,7 @@ const IC={
  idc:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.7-2 2-3 3.5-3s2.8 1 3.5 3M14.5 10h4M14.5 14h3"/>',
  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11.3a1.5 1.5 0 0 0 1.5 1.2h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6"/>'
 };
-const NAV_IC={occ:'chart',recon:'scale',dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',assign:'flag',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',attach:'check',falerts:'alert',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rdebt:'chart',fdebt:'chart',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
+const NAV_IC={occ:'chart',recon:'scale',dash:'grid',newreq:'plus',approvals:'check',myreqs:'list',myleaves:'cal',mypay:'card',myviol:'alert',myassets:'key',mycomplaints:'mail',profile:'idc',policies:'book',team:'users',attendance:'clock',perf:'star',assets:'key',employees:'users',docs:'doc',leaves:'cal',complaints:'mail',payroll:'wallet',advances:'cash',announce:'mega',assign:'flag',spol:'book',authman:'shield',forms:'print',myforms:'print',archive:'archive',reports:'chart',reqreport:'list',plan:'flag',settings:'gear',audit:'hist',procurement:'cart',fdash:'grid',handover:'users',attach:'check',falerts:'alert',purreports:'chart',budgets:'wallet',finpol:'book',fincirc:'mega',finlet:'mail',fdemo:'flag',finreg:'archive',gsdash:'grid',gsprog:'cal',gsws:'book',gsinsp:'check',gsmnt:'key',gsplan:'flag',gsforms:'print',gsjd:'idc',gsteam:'users',gsrep:'chart',gseval:'star',gsno:'shield',punch:'clock',attrep:'clock',rdebt:'chart',fdebt:'chart',rhome:'grid',runits:'key',rbook:'cal',rcash:'cash',rpay:'cash',rret:'list',rstmt:'doc',rday:'chart',rno:'shield'};
 const svgIc=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||IC.grid}</svg>`;
 const EMOJI_RE=/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/u;
 function tidyButtons(root){$$('.btn',root).forEach(b=>{const t=b.firstChild;if(t&&t.nodeType===3){const n=t.nodeValue.replace(EMOJI_RE,'');if(n!==t.nodeValue)t.nodeValue=n}})}
@@ -1393,9 +1395,9 @@ const GS_NAV_FULL=[['gsdash','🏠','الرئيسية'],['gsprog','🗓️','خ�
 const GS_NAV={hr:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام'],['sep'],['gswk','📋','خطة المشرف الأسبوعية']]),gm:GS_NAV_FULL.concat([['gseval','⭐','تقييم المدير العام']]),sup:GS_NAV_FULL.concat([['gseval','⭐','تقييمي']]),acc:[['gsno','🔒','الإشراف الداخلي']],emp:[['gsno','🔒','الإشراف الداخلي']]};
 const APP_NAVS=()=>({hr:NAV,fin:FIN_NAV,gs:GS_NAV,rcp:RCP_NAV});
 const FIN_NAV={
- hr:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- acc:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
- gm:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ hr:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['handover','🤝','تسليم واستلام الفروع'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ acc:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['handover','🤝','تسليم واستلام الفروع'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
+ gm:[['fdash','🏠','لوحة الإدارة المالية'],['falerts','🔔','التنبيهات والشيكات'],['fdebt','📉','ردود المديونية'],['budgets','📒','الحسابات والموازنات'],['custody','👛','العهد'],['handover','🤝','تسليم واستلام الفروع'],['attach','📎','مطابقة المرفقات'],['ledger','🧾','يوميات الصندوق'],['recon','⚖️','المطابقات'],['occ','🏢','حركة البنايات'],['purreports','📊','تقارير المشتريات'],['sep'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['finlet','✉️','المراسلات المالية'],['finreg','🗂️','سجل الوثائق والأرقام'],['sep'],['fdemo','🧪','التجربة والدليل']],
  sup:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']],
  emp:[['fdash','🏠','لوحة الإدارة المالية'],['finpol','📘','السياسات المالية'],['fincirc','📣','التعاميم المالية'],['fdemo','🧪','التجربة والدليل']]
 };
@@ -1465,7 +1467,7 @@ function renderHeader(){
 /* ---------- اللغة (عربي / English) ---------- */
 let LANG=(()=>{try{return localStorage.getItem('marsa_lang')||'ar'}catch(e){return 'ar'}})();
 const tr=(ar,en)=>LANG==='en'&&en?en:ar;
-const NAV_EN={occ:'Building turnover',falerts:'Alerts & cheques',recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',attach:'Attachment matching',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',custody:'Custody balances',ledger:'Fund ledger',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
+const NAV_EN={occ:'Building turnover',falerts:'Alerts & cheques',recon:'Reconciliations',assign:'Assignments',rdebt:'Receivables',fdebt:'Receivables follow-up',punch:'Attendance punch',attrep:'Attendance & punches',rhome:'Home',runits:'Units',rbook:'Bookings',rcash:'Receipts & expenses',rret:'Returns',rpay:'Payment requests',rstmt:'Statement',rday:'Daily report',dash:'Dashboard',newreq:'New request',approvals:'Approvals',myreqs:'My requests',myleaves:'My leaves',mypay:'My payslips',myviol:'My violations',myassets:'My custody',mycomplaints:'My complaints',profile:'My profile',policies:'Policies',authman:'Authority Manual',team:'My team',attendance:'Attendance & violations',perf:'Performance',assets:'Custody',employees:'Employees',docs:'Document expiry',leaves:'Leaves',complaints:'Complaints',payroll:'Payroll',advances:'Advances',announce:'Announcements',spol:'Work policies',forms:'Forms',myforms:'My forms',archive:'Archive',reports:'Reports',reqreport:'Requests report',plan:'Roadmap',settings:'Settings',audit:'Audit log',procurement:'Purchase requests',attach:'Attachment matching',handover:'Branch handover',fdash:'Finance dashboard',purreports:'Procurement reports',budgets:'Accounts & budgets',custody:'Custody balances',ledger:'Fund ledger',finpol:'Financial policies',fincirc:'Financial circulars',finlet:'Financial letters',fdemo:'Trial & guide'};
 const ROLE_EN={rcp:'Reception',emp:'Employee',sup:'Supervisor',hr:'Human Resources',acc:'Accounting',gm:'General Manager'};
 const PH_EN={'لوحة الموارد البشرية':'HR Dashboard','لوحة المحاسبة':'Accounting Dashboard','لوحة المدير العام':'GM Dashboard','الموافقات':'Approvals','الموظفون':'Employees','الإجازات':'Leaves','الشكاوى':'Complaints','التقارير':'Reports','تقرير الطلبات':'Requests report','مسير الرواتب':'Payroll','طلب جديد':'New request','طلباتي':'My requests','ملفي الشخصي':'My profile','الإعدادات':'Settings','النماذج':'Forms','نماذجي':'My forms'};
 function applyLangShell(){
@@ -6675,6 +6677,90 @@ async function amRead(f){
     AM.min=all[0]||'';AM.max=all[all.length-1]||'';AM.d1=AM.min;AM.d2=AM.max;
     amRender();toast('تم تحميل '+res.rows.length+' بند')}
   catch(e){toast('تعذّرت قراءة الملف: '+(e&&e.message?e.message:e))}}
+
+/* ===================== تسليم واستلام الفروع (الإدارة المالية) ===================== */
+const HO_M={
+ A:['نقل كامل — المديونية تنتقل إلى ذمة المستلم','يستلم النقد والمديونيات كعهدة في ذمته، ويُخلى طرف المسلِّم.'],
+ B:['المديونية تبقى على المسلِّم — والمستلم يتابع','الأصل على المسلِّم، ومسؤولية المستلم المتابعة والتحصيل فقط.'],
+ C:['تقسيم حسب العمر — الحديثة للمستلم والمتعثرة للإدارة','المديونية الحديثة تنتقل للمستلم، والمتعثرة (60 يوماً فأكثر) تبقى على المسلِّم وتُرفع للإدارة لقرار الخصم.'],
+ D:['تسليم الصندوق (النقد) فقط','يستلم النقد فقط، والمديونيات خارج التسليم وتبقى مع المسلِّم.'],
+ E:['تسليم مؤقت (إجازة / تغطية)','المستلم أمين مؤقت على النقد حتى تاريخ العودة، والمسلِّم الأصلي يبقى المسؤول.']};
+const hoN=v=>Number(v)||0,hoAll=()=>S.handovers||(S.handovers=[]);
+const hoDiff=r=>Math.round((hoN(r.cash)-hoN(r.sys))*1000)/1000;
+function hoClauses(r){
+  const F=r.from||'............',T=r.to||'............',A=r.acct||'علي البسيسي',d=hoDiff(r),m=r.model,c=[];
+  const mt=money(r.cash)+' ر.ع',du=money(r.dues)+' ر.ع';
+  c.push('أنني اطّلعت على تقرير الصندوق وكشف المديونية المرفقين وفهمت جميع بنودهما.');
+  const mt2=d===0?'ووجدتها مطابقة لرصيد النظام':'ووجدت فرقاً عن رصيد النظام قدره '+money(Math.abs(d))+' ر.ع ('+(d<0?'عجز':'زيادة')+')';
+  if(m==='D')c.push(`أنني جردت النقد والمستندات بحضور الأخ / ${F} وبإشراف المحاسب / ${A}، ${mt2}، وتسلّمت النقد فقط وقدره (${mt}).`);
+  else if(m==='E')c.push(`أنني جردت النقد والمستندات بحضور الأخ / ${F} وبإشراف المحاسب / ${A}، ${mt2}، وتسلّمت النقد وقدره (${mt}) أمانةً مؤقتة${r.until?' حتى تاريخ '+nsD(r.until):''}.`);
+  else if(m==='B')c.push(`أنني جردت النقد والمستندات بحضور الأخ / ${F} وبإشراف المحاسب / ${A}، ${mt2}، وتسلّمت النقد (${mt}) واستلمت كشف المديونيات (${du}) للمتابعة.`);
+  else c.push(`أنني جردت المبالغ والمستندات بحضور الأخ / ${F} وبإشراف المحاسب / ${A}، ${mt2}، وتسلّمتها: نقد (${mt}) ومديونيات (${du}).`);
+  if(m!=='D'&&m!=='E')c.push('أنني اطّلعت على أسباب كل مديونية'+(m==='B'?' وتعهدت بمتابعتها.':' ووافقت عليها دون تحفّظ.'));
+  if(m==='A')c.push(`أنني أتحمّل المسؤولية الكاملة عن النقد والمديونيات كعهدة في ذمتي من تاريخ التوقيع، بدلاً من الأخ / ${F} الذي يُخلى طرفه، وأتحمّل أي عجز أو تقصير في التحصيل بعد هذا التاريخ.`);
+  if(m==='B')c.push(`أن المديونيات البالغة (${du}) تبقى معلّقة على الأخ / ${F} ويتحمّل أصلها، وأنني مسؤول عن متابعة تحصيلها وإبلاغ الإدارة فوراً بأي تعثر، دون أن تنتقل إلى ذمتي.`);
+  if(m==='C'){const o=Math.min(hoN(r.old),hoN(r.dues)),n=hoN(r.dues)-o;
+    c.push(`أن المديونيات الحديثة البالغة (${money(n)} ر.ع) تنتقل إلى ذمتي وأتحمّل تحصيلها، وأن المديونيات المتعثرة (60 يوماً فأكثر) البالغة (${money(o)} ر.ع) تبقى على الأخ / ${F} وتُرفع للإدارة لاتخاذ القرار.`)}
+  if(m==='D')c.push(`أن المديونيات البالغة (${du}) خارج هذا التسليم وتبقى على الأخ / ${F} ويتولى متابعتها بنفسه حتى تصفيتها.`);
+  if(m==='E')c.push(`أن الأخ / ${F} يبقى المسؤول الأصلي عن الصندوق والمديونيات، وأنني ألتزم بتسليم الصندوق إليه عند عودته وبحدود ما استلمته فقط.`);
+  if(d<0)c.push(`أن العجز البالغ (${money(-d)} ر.ع) يتحمله الأخ / ${F} ويلتزم بتسديده أو تسويته بقرار الإدارة، ولا يتحمله المستلم.`);
+  if(d>0)c.push(`أن الزيادة البالغة (${money(d)} ر.ع) تُورَّد للحسابات وتُقيَّد أمانة حتى تسويتها.`);
+  c.push('أنه لا يُعتدّ بأي اعتراض بعد التوقيع، وأن أي مديونية غير مدرجة في الكشف تبقى مسؤولية المسلِّم.');
+  return c}
+function hoDoc(r){const d=hoDiff(r),F=r.from||'............',T=r.to||'............',A=r.acct||'علي البسيسي';
+  const td='style="border:1px solid #ccc;padding:5px"';
+  return `<div class="doc">${offHead('إقرار تسليم واستلام – صندوق ومديونيات بناية '+r.branch,'Handover Acknowledgement – Cash & Outstanding Dues','REF-HO-'+r.id)}
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:12px"><tr>
+   <td ${td}>التاريخ<br><b>${nsD(r.date)}</b></td><td ${td}>رصيد النظام<br><b>${money(r.sys)}</b></td><td ${td}>النقد الفعلي<br><b>${money(r.cash)}</b></td>
+   <td ${td}>الفرق<br><b>${money(d)}</b></td><td ${td}>آخر قبض<br><b>${r.rcvAmt?money(r.rcvAmt)+' — '+nsD(r.rcvDate):'—'}</b></td><td ${td}>إجمالي المديونية<br><b>${money(r.dues)}</b></td></tr></table>
+  <p style="font-size:12.5px;line-height:2"><b>أنا الموقّع أدناه / ${esc(T)}</b>، رقم البطاقة ${esc(r.toId||'......................')}، أقرّ بما يلي:</p>
+  <ol style="font-size:12.5px;line-height:2;padding-inline-start:22px">${hoClauses(r).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+  ${r.note?`<p style="font-size:12px;line-height:1.9"><b>ملاحظات على المديونيات:</b> ${esc(r.note)}</p>`:''}
+  <p style="font-size:12.5px;line-height:2"><b>إقرار المسلِّم:</b> أنا / ${esc(F)}، سلّمت المبالغ والمستندات وكشف المديونية بالكامل ومطابقةً للتقرير${r.model==='A'||r.model==='C'?'، وأتحمّل صحة القيود وأسباب المديونيات عن الفترة السابقة للتسليم':''}.</p>
+  <p style="font-size:12.5px;line-height:2"><b>إفادة المحاسب:</b> أنا / ${esc(A)} – محاسب الشركة، تمت عملية التسليم أمامي وبإشرافي، والمبالغ مطابقة للتقرير والكشف المعتمدين${d?' عدا الفرق المذكور أعلاه':''}، وشُرحت أسباب المديونيات للمستلم قبل التوقيع.</p>
+  <table style="width:100%;margin-top:34px;font-size:11.5px"><tr>
+   <td style="text-align:center;width:25%">${esc(F)} (مسلِّم)<div style="margin-top:38px;border-top:1px solid #333"></div></td>
+   <td style="text-align:center;width:25%">${esc(T)} (مستلِم)<div style="margin-top:38px;border-top:1px solid #333"></div></td>
+   <td style="text-align:center;width:25%">${esc(A)} (محاسب)<div style="margin-top:38px;border-top:1px solid #333"></div></td>
+   <td style="text-align:center;width:25%">التاريخ: ${nsD(r.date)}<div style="margin-top:38px;border-top:1px solid #333"></div></td></tr></table>${offFoot()}</div>`}
+function hoForm(r){const e=!!r,x=r||{date:TODAY,branch:'',model:'A',acct:'علي البسيسي'};
+  const bl=BUILDINGS.filter(b=>b!=='الإدارة العامة');
+  const I=(id,l,v,t,ex)=>`<div class="fld"><label>${l}</label><input id="${id}" type="${t||'text'}" value="${esc(v==null?'':v)}" ${t==='number'?'step="0.001" inputmode="decimal"':''} ${ex||''}></div>`;
+  modal({title:e?'تعديل تسليم واستلام':'تسليم واستلام فرع جديد',sub:'أدخل البيانات فقط — يُنشأ الإقرار تلقائياً حسب النموذج',wide:true,
+   body:`<div class="grid g2"><div class="fld"><label>البناية</label><select id="hoB">${bl.map(b=>`<option ${x.branch===b?'selected':''}>${b}</option>`).join('')}</select></div>${I('hoD','تاريخ التسليم',x.date,'date')}</div>
+   <div class="fld"><label>نموذج التسليم</label><select id="hoM">${Object.keys(HO_M).map(k=>`<option value="${k}" ${x.model===k?'selected':''}>${HO_M[k][0]}</option>`).join('')}</select><div class="small muted" id="hoMd" style="margin-top:4px"></div></div>
+   <div class="grid g2"><datalist id="hoNm">${(S.employees||[]).map(p=>`<option value="${esc(p.name)}">`).join('')}</datalist>
+    <div class="fld"><label>المسلِّم</label><input id="hoF" list="hoNm" value="${esc(x.from||'')}"></div><div class="fld"><label>المستلِم</label><input id="hoT" list="hoNm" value="${esc(x.to||'')}"></div>
+    ${I('hoI','رقم بطاقة المستلم (اختياري)',x.toId)}${I('hoA','المحاسب',x.acct)}
+    ${I('hoS','رصيد النظام (ر.ع)',x.sys,'number')}${I('hoC','النقد الفعلي بعد الجرد (ر.ع)',x.cash,'number')}
+    ${I('hoRD','تاريخ آخر قبض',x.rcvDate,'date')}${I('hoRA','مبلغ آخر قبض (ر.ع)',x.rcvAmt,'number')}
+    ${I('hoU','إجمالي المديونية (ر.ع)',x.dues,'number')}<div id="hoOw">${I('hoO','منها متعثرة 60 يوماً فأكثر (ر.ع)',x.old,'number')}</div>
+    <div id="hoUw">${I('hoUt','تاريخ العودة / نهاية التغطية',x.until,'date')}</div></div>
+   <div class="fld"><label>ملاحظات على المديونيات (اختياري)</label><textarea id="hoN" rows="2">${esc(x.note||'')}</textarea></div>
+   <div class="note small" id="hoDf"></div>`,
+   foot:[{t:'💾 حفظ',cls:'good',fn:b=>hoSave(b,r,false)},{t:'💾🖨️ حفظ وطباعة',fn:b=>hoSave(b,r,true)}],
+   onMount:b=>{const up=()=>{const k=$('#hoM',b).value;$('#hoMd',b).textContent=HO_M[k][1];$('#hoOw',b).hidden=k!=='C';$('#hoUw',b).hidden=k!=='E';$('#hoUw',b).style.display=k==='E'?'':'none';$('#hoOw',b).style.display=k==='C'?'':'none';
+      const d=hoN($('#hoC',b).value)-hoN($('#hoS',b).value),el=$('#hoDf',b);el.textContent=($('#hoC',b).value===''||$('#hoS',b).value==='')?'':d===0?'✓ النقد مطابق لرصيد النظام':(d<0?'⚠️ عجز ':'⚠️ زيادة ')+money(Math.abs(d))+' ر.ع — سيُدرج في الإقرار تلقائياً'};
+     $$('input,select',b).forEach(i=>{i.oninput=up;i.onchange=up});up()}})}
+function hoSave(b,old,pr){const g=id=>fv(b,id);
+  if(!g('hoF')||!g('hoT')){toast('اكتب اسم المسلِّم والمستلِم');return false}
+  if(g('hoF')===g('hoT')){toast('المسلِّم والمستلِم لا يمكن أن يكونا نفس الشخص');return false}
+  if(g('hoS')===''||g('hoC')===''){toast('أدخل رصيد النظام والنقد الفعلي');return false}
+  const r={id:old?old.id:'H'+Date.now().toString(36),date:g('hoD')||TODAY,branch:g('hoB'),model:g('hoM'),from:g('hoF'),to:g('hoT'),toId:g('hoI'),acct:g('hoA')||'علي البسيسي',
+    sys:hoN(g('hoS')),cash:hoN(g('hoC')),rcvDate:g('hoRD'),rcvAmt:hoN(g('hoRA')),dues:hoN(g('hoU')),old:g('hoM')==='C'?hoN(g('hoO')):0,until:g('hoM')==='E'?g('hoUt'):'',note:g('hoN'),at:old?old.at:Date.now()};
+  const L=hoAll(),i=L.findIndex(z=>z.id===r.id);if(i>=0)L[i]=r;else L.push(r);save();render();toast('تم الحفظ');
+  if(pr)docLangPrint(()=>hoDoc(r),'إقرار تسليم واستلام — '+r.branch);return true}
+VIEWS.handover=()=>{const ed=ledCanEdit(),L=[...hoAll()].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.at-a.at);
+  if(!ed&&!['hr','gm','acc'].includes(role()))return ph('تسليم واستلام الفروع','')+'<div class="card"><div class="empty">هذا القسم للحسابات والإدارة</div></div>';
+  return ph('تسليم واستلام الفروع','أدخل الرصيد وآخر قبض وإجمالي المديونية، واختر نموذج التسليم — يُنشأ الإقرار جاهزاً للطباعة بثلاث لغات',ed?'<button class="btn" id="hoNew">➕ تسليم جديد</button>':'')+
+  `<div class="card">${L.length?`<div class="tw"><table><thead><tr><th>التاريخ</th><th>البناية</th><th>المسلِّم ← المستلِم</th><th>النموذج</th><th class="n">النقد</th><th class="n">المديونية</th><th class="n">الفرق</th><th></th></tr></thead><tbody>${L.map(r=>{const d=hoDiff(r);
+   return `<tr><td>${nsD(r.date)}</td><td><b>${esc(r.branch)}</b></td><td>${esc(r.from)} ← ${esc(r.to)}</td><td>${badge(esc(HO_M[r.model][0].split(' — ')[0]),r.model==='A'?'g':r.model==='E'?'w':'i')}</td><td class="n">${money(r.cash)}</td><td class="n">${money(r.dues)}</td><td class="n">${d?badge(money(d),'c'):'—'}</td>
+   <td style="white-space:nowrap"><button class="btn sm" data-hop="${r.id}">🖨️</button> ${ed?`<button class="btn sm sec" data-hoe="${r.id}">✏️</button> <button class="btn sm ghost" data-hod="${r.id}">🗑️</button>`:''}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا توجد عمليات تسليم بعد — اضغط «تسليم جديد»</div>'}</div>`};
+BIND.handover=()=>{const f=id=>hoAll().find(r=>r.id===id);
+  $('#hoNew')&&($('#hoNew').onclick=()=>hoForm());
+  $$('[data-hop]').forEach(b=>b.onclick=()=>{const r=f(b.dataset.hop);docLangPrint(()=>hoDoc(r),'إقرار تسليم واستلام — '+r.branch)});
+  $$('[data-hoe]').forEach(b=>b.onclick=()=>hoForm(f(b.dataset.hoe)));
+  $$('[data-hod]').forEach(b=>b.onclick=()=>{if(!confirm('حذف عملية التسليم هذه نهائياً؟'))return;const L=hoAll();L.splice(L.findIndex(r=>r.id===b.dataset.hod),1);save();render()})};
 
 VIEWS.fdemo=()=>ph('التجربة والدليل','جرّب دورة طلب الشراء كاملة بنفسك، وتعرّف على كل أقسام الإدارة المالية')+
  `<div class="card"><h2>🧪 تجربة طلب الشراء من البداية للنهاية</h2><p class="small" style="margin:6px 0 0;line-height:1.9">تنتقل تلقائياً بعد كل خطوة لشاشة الشخص التالي — كأنك تجلس مكانه — حتى آخر خطوة. التجربة على بيانات تجريبية <b>ولا يُحفظ منها شيء</b> في النظام.</p>
