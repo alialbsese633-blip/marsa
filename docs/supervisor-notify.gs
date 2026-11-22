@@ -41,7 +41,7 @@ function queueChanges(oldData, newData, user) {
   newA.forEach(function (a) {
     seen[a.id] = 1;
     const o = oldA[a.id];
-    if (!o) { row(a.id, 'new'); return; }
+    if (!o) { if (!a.mig) row(a.id, 'new'); return; }
     if ((o.s || '') !== (a.s || '')) row(a.id, 'status', o.s || '');
     if ((o.date || '') !== (a.date || '')) row(a.id, 'date', o.date || '');
     if (JSON.stringify(o.exec || []) !== JSON.stringify(a.exec || [])) row(a.id, 'exec');

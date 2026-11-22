@@ -460,7 +460,7 @@ V.today=el=>{const w=W();
 const TODAY=(()=>{const d=new Date();d.setHours(12,0,0,0);return d})();
 const pd=s=>{if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)};
 const dLabel=s=>{const d=pd(s);return d?DAYN[(d.getDay()+6)%7]+' '+d.getDate()+'/'+(d.getMonth()+1):'بدون موعد'};
-const isLate=a=>a.s!=='تم'&&a.date&&pd(a.date)<TODAY;
+const isLate=a=>a.s!=='تم'&&a.date&&pd(a.to||a.date)<TODAY;
 const execs=a=>Array.isArray(a.exec)?a.exec:(a.exec?String(a.exec).split(/\s*\+\s*/).filter(x=>x&&x!=='يُحدد'):[]);
 function dateOpts(cur){const o=[['','— بدون موعد —']];const st=addD(monday(TODAY),-7);for(let i=0;i<28;i++){const d=addD(st,i),v=iso(d);if(((d.getDay()+6)%7)===OFF)continue;o.push([v,dLabel(v)])}
  if(cur&&!o.some(x=>x[0]===cur))o.push([cur,dLabel(cur)]);return o.map(([v,l])=>`<option value="${v}"${v===cur?' selected':''}>${l}${v===iso(TODAY)?' (اليوم)':''}</option>`).join('')}
@@ -489,7 +489,7 @@ function tcard(a,showDate){const i=S.actions.indexOf(a),late=isLate(a),done=a.s=
  <div class="tcr"><button class="ck" data-ck="${i}" title="${done?'إلغاء الإنجاز':'تم الإنجاز'}">${done?'✓':''}</button>
  <div class="tb" data-op="${i}">
   <div class="tt">${a.t?esc(a.t):'<span class="ph">مهمة جديدة – اكتب عنوانها</span>'}</div>
-  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate?`<span>📅 ${dLabel(a.date)}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.who&&a.kind==='جانبية'&&(!USER||a.who!==USER.name)?`<span>📨 من ${esc(a.who.split(' ').slice(0,2).join(' '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
+  <div class="tm"><span class="bp">${esc(SHORT(a.b))}</span>${showDate||(a.to&&a.to!==a.date)?`<span>📅 ${dLabel(a.date)}${a.to&&a.to!==a.date?' ← '+dLabel(a.to):''}</span>`:''}${ex.length?`<span>👷 ${esc(ex.join('، '))}</span>`:''}${a.who&&a.kind==='جانبية'&&(!USER||a.who!==USER.name)?`<span>📨 من ${esc(a.who.split(' ').slice(0,2).join(' '))}</span>`:''}${ex.length>1?'<span class="shr">🤝 مشتركة</span>':''}${a.s==='جارٍ'?'<span class="prog">● جارٍ</span>':''}${late?'<span class="lt">متأخرة</span>':''}</div>
   ${a.d&&!op?`<div class="td">${esc(a.d)}</div>`:''}
   ${a.note&&!op?`<div class="tn">📝 ${esc(a.note)}</div>`:''}
   ${(a.log||[]).length&&!op?(L=>`<div class="lg">💬 <b>${esc(L.by)}</b>: ${esc(L.t)} <small>· ${tAgo(L.at)}${a.log.length>1?' · '+a.log.length+' تحديثات':''}</small></div>`)(a.log[a.log.length-1]):''}
@@ -523,7 +523,7 @@ function newAct(date,b){const a={id:uid(),b:b||'الإدارة العامة',t:'
 
 /* ---- الرئيسية: اليوم ---- */
 V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date().getHours(),nm=(USER&&USER.name||'').split(' ')[0];
- const L=A.filter(a=>a.date===td),late=A.filter(isLate),done=L.filter(a=>a.s==='تم').length,pct=L.length?Math.round(done/L.length*100):0;
+ const L=A.filter(a=>a.date===td||(a.to&&a.date<td&&a.to>=td&&a.s!=='تم')),late=A.filter(isLate),done=L.filter(a=>a.s==='تم').length,pct=L.length?Math.round(done/L.length*100):0;
  const nx=nextWork(TODAY),N=A.filter(a=>a.date===iso(nx));if(N.some(a=>a.id===OPEN))nxOpen=true;
  el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
  ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
@@ -816,6 +816,24 @@ function applyServer(res){if(res.data){S=res.data;normalize();LS.set('ns-sup-cac
 /* تحديث 16/11: ترتيب المهام حسب جدول النزول + المنفذين من ملف علي */
 function migrate(){S.mig=S.mig||[];let ch=false;
  if(!S.mig.includes('m1711')){if(!S.staff.some(s=>s.name==='عبدالسلام البسيسي'))S.staff.push({name:'عبدالسلام البسيسي',role:'التسويق',phone:''});S.mig.push('m1711');ch=true}
+ if(!S.mig.includes('m2211')){const W='وضاح عبدالرقيب',Al='علي محسن',AB='عبدالسلام البسيسي',N='نضال';
+  const T=[[1,'اعتماد الشروط والميزانية وتعيين مسؤول البرنامج',[W],'2026-11-23','2026-11-23','تم','نص ريال عن كل عميل آخر، ونص ريال لكل عميل حالي'],
+   [2,'فتح حساب «التزامات برنامج الولاء» واعتماد القيد',[Al],'2026-11-23','2026-11-24'],
+   [3,'نصوص رسائل الشات بوت وتصميم مواد الفروع',[AB],'2026-11-23','2026-11-24'],
+   [4,'حقول الولاء وسجل الحركات في NetSuite',[N],'2026-11-24','2026-11-24'],
+   [5,'تقديم قوالب واتساب لاعتماد Meta',[N],'2026-11-24','2026-11-24','لم يبدأ','أعلى خطر تأخير – يُقدَّم مبكراً'],
+   [6,'سكربت الاحتساب والإحالة والقيود الآلية',[N],'2026-11-24','2026-11-24'],
+   [7,'حقل رقم المُحيل وخانة الكوبون في شاشة الاستقبال',[N],'2026-11-25','2026-11-25'],
+   [8,'ربط NetSuite بالشات بوت',[N],'2026-11-25','2026-11-29'],
+   [9,'ورقة إرشادات مختصرة للاستقبال',[Al,W],'2026-11-24','2026-11-24'],
+   [10,'اختبار كامل ومراجعة القيود',[N],'2026-12-01','2026-12-01','لم يبدأ','بمشاركة الحسابات'],
+   [11,'تدريب موظفي الاستقبال',[Al,W],'2026-12-01','2026-12-01'],
+   [12,'طباعة وتوزيع مواد الفروع',[AB],'2026-11-29','2026-11-29'],
+   [13,'تفعيل البرنامج في كل الفروع',[AB],'2026-11-30','2026-11-30'],
+   [14,'رسالة إطلاق للعملاء السابقين عبر الشات بوت',[AB],'2026-11-30','2026-11-30'],
+   [15,'متابعة يومية للأرقام والمشاكل',[AB],'2026-11-30','2026-11-30']];
+  T.forEach(x=>{const a={id:'lp'+x[0],b:'الإدارة العامة',t:'برنامج الولاء - '+x[1],d:'',who:'علي محسن',exec:x[2].slice(),date:x[3],s:x[5]||'لم يبدأ',kind:'جانبية',note:x[6]||'',mig:'m2211'};if(x[4]!==x[3])a.to=x[4];if(!S.actions.some(y=>y.id===a.id))S.actions.push(a)});
+  if(!S.staff.some(s=>s.name===N))S.staff.push({name:N,role:'NetSuite',phone:''});S.mig.push('m2211');ch=true}
  if(S.mig.includes('m1611')){if(ch)LS.set('ns-sup-cache',JSON.stringify(S));return ch}
  const A='عبدالسلام حامد',W='وضاح عبدالرقيب',Al='علي محسن',M='محمد حامد';
  const P={a0:['2026-11-16',[A,Al,W]],a1:['2026-11-16',[W]],a2:['2026-11-16',[W,A]],a3:['2026-11-16',[W,A]],
