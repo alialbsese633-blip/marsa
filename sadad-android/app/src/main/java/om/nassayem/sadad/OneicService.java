@@ -175,7 +175,7 @@ public class OneicService extends AccessibilityService {
                 h.postDelayed(() -> {
                     AccessibilityNodeInfo r2 = getRootInActiveWindow();
                     AccessibilityNodeInfo b2 = r2 == null ? null : find(r2, ADD);
-                    if (b2 != null) { if (!click(b2)) tap(b2); }
+                    if (b2 != null) { log("ألمس زر إضافة"); if (!tap(b2)) click(b2); } else log("ما لقيت زر إضافة");
                 }, 400);
                 lastAction = System.currentTimeMillis() + 600;
             }
