@@ -315,7 +315,7 @@ body.rptOn{overflow:hidden}body.rptOn #rpt{display:block}
 .rp-bar{position:sticky;top:0;display:flex;gap:6px;align-items:center;padding:8px 10px;background:#123f3e;color:#fff;font-size:13px;flex-wrap:wrap;z-index:2}
 .rp-bar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer}
 .rp-bar button.g{background:#c9a96e;border-color:#c9a96e;color:#123f3e;font-weight:700}.rp-bar .sp{flex:1}
-.rp-page{width:297mm;max-width:100%;margin:12px auto;background:#fff;padding:12mm 12mm 10mm;box-shadow:0 4px 18px rgba(0,0,0,.12);color:#111;font-family:Readex,Tahoma,Arial,sans-serif;font-size:10pt;line-height:1.45}
+.rp-page{width:297mm;max-width:none;margin:12px auto;background:#fff;padding:12mm 12mm 10mm;box-shadow:0 4px 18px rgba(0,0,0,.12);color:#111;font-family:Readex,Tahoma,Arial,sans-serif;font-size:10pt;line-height:1.45}
 .rp-hd{display:flex;align-items:center;gap:14px;border-bottom:2px solid #1a5d5b;padding-bottom:8px;margin-bottom:10px}
 .rp-hd img{height:58px}
 .rp-hd .t{flex:1}.rp-hd h1{font-size:17pt;margin:0;color:#1a5d5b}.rp-hd .s{font-size:10pt;color:#444}
@@ -340,6 +340,20 @@ body.rptOn{overflow:hidden}body.rptOn #rpt{display:block}
  body.rptOn #rpt{position:static;display:block;background:#fff;overflow:visible}.rp-bar{display:none!important}
  .rp-page{width:auto;margin:0;padding:0;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .rp tr{break-inside:avoid}.rp thead{display:table-header-group}}
+
+/* ===== مؤقت الاجتماع ===== */
+#mtm{display:none;position:fixed;top:10px;left:10px;z-index:130;background:#123f3e;color:#fff;border-radius:16px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.3);font-family:Readex,Tahoma,sans-serif;min-width:190px}
+#mtm.on{display:block}
+#mtm .mtv{font-size:30px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:1px}
+#mtm .lb{font-size:11px;opacity:.75;text-align:center}
+#mtm .br{height:5px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;margin:5px 0}
+#mtm .br i{display:block;height:100%;background:#c9a96e}
+#mtm .bt{display:flex;gap:4px;justify-content:center}
+#mtm button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:8px;padding:4px 8px;font:inherit;font-size:12px;cursor:pointer}
+#mtm.warn{background:#8a6d1f}#mtm.over{background:#b3261e;animation:mtb 1s infinite}
+@keyframes mtb{50%{opacity:.75}}
+#mtm.min .br,#mtm.min .bt,#mtm.min .lb{display:none}#mtm.min .mtv{font-size:18px}
+@media print{#mtm{display:none!important}}
 @media print{#wkWrap,#backBar,nav#tabs{display:none!important}}
 </style>
 </head>
@@ -378,6 +392,7 @@ body.rptOn{overflow:hidden}body.rptOn #rpt{display:block}
 <div id="toast"></div>
 <div id="deck"></div>
 <div id="rpt"></div>
+<div id="mtm"></div>
 
 <script>
 const API=(window.SUP_CONFIG&&window.SUP_CONFIG.API_URL)||'';
@@ -561,7 +576,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
  ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
  <div class="prg"><div class="pb"><i style="width:${pct}%"></i></div><b>أنجزت ${done} من ${L.length}</b></div></div>
- ${ti===0?'<button class="addbig" id="goDeck" style="border-style:solid;background:#c9a96e;color:#123f3e;border-color:#c9a96e;margin-top:10px">📄 تجهيز تقرير اجتماع الاثنين</button>':''}
+ ${ti===0?'<button class="addbig" id="goDeck" style="border-style:solid;background:#c9a96e;color:#123f3e;border-color:#c9a96e;margin-top:10px">📄 تجهيز تقرير اجتماع الاثنين</button><button class="addbig" id="goTm" style="border-style:solid">⏱ بدء مؤقت الاجتماع (45 دقيقة)</button>':''}
  ${(M=>M.length?`<h3 class="hd" style="color:#6a4fb3">📥 المهام الموجهة لك <small>(${M.length})</small></h3>${M.map(a=>tcard(a,true)).join('')}`:'')(USER?A.filter(a=>a.s!=='تم'&&a.exec.includes(USER.name)):[])}
  <h3 class="hd">مهام الإشراف اليوم <small>(${L.length})</small></h3>
  ${L.length?L.map(a=>tcard(a)).join(''):'<div class="emp">لا توجد مهام مسجلة لليوم</div>'}
@@ -570,7 +585,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  ${USER&&USER.role!=='supervisor'&&hr>=15?'<button class="addbig" id="goEod" style="border-style:solid;background:#123f3e;color:#fff;border-color:#123f3e">🌙 تنبيهات نهاية اليوم</button>':''}
  ${N.length?`<details class="nx"${nxOpen?' open':''}><summary>مهام ${dLabel(iso(nx))} <small>(${N.length})</small></summary>${N.map(a=>tcard(a)).join('')}</details>`:''}`;
  const rr=()=>V.home(el);bindCards(el,rr);
- const gd=el.querySelector('#goDeck');if(gd)gd.onclick=()=>rptOpen();
+ const gd=el.querySelector('#goDeck');if(gd)gd.onclick=()=>rptOpen();const gt=el.querySelector('#goTm');if(gt)gt.onclick=mtOpen;
  const ge=el.querySelector('#goEod');if(ge)ge.onclick=()=>go('eod');
  const nd=el.querySelector('details.nx');if(nd)nd.ontoggle=()=>{nxOpen=nd.open};
  el.querySelector('#addT').onclick=()=>{const d=ti==OFF?nextWork(TODAY):TODAY,j=(d.getDay()+6)%7;newAct(iso(d),schedB(j)[0]);rr();focusOpen(el)};
@@ -699,11 +714,11 @@ function deckSlides(w0){
  return out;
 }
 function deckRender(){const box=document.getElementById('deck'),sl=deckSlides(DK.wk);DK.n=sl.length;DK.i=Math.min(DK.i,DK.n-1);
- box.innerHTML=`<div class="dk-bar"><button id="dkX">✕ إغلاق</button><button id="dkPw">‹</button><span class="wl">أسبوع ${fmt(DK.wk)}</span><button id="dkNw">›</button><span class="sp"></span><button id="dkPrev">→ السابق</button><span class="wl" id="dkC"></span><button id="dkNext">التالي ←</button><span class="sp"></span><button id="dkFs">⛶ ملء الشاشة</button><button class="g" id="dkPr">🖨 PDF</button></div>
+ box.innerHTML=`<div class="dk-bar"><button id="dkX">✕ إغلاق</button><button id="dkPw">‹</button><span class="wl">أسبوع ${fmt(DK.wk)}</span><button id="dkNw">›</button><span class="sp"></span><button id="dkPrev">→ السابق</button><span class="wl" id="dkC"></span><button id="dkNext">التالي ←</button><span class="sp"></span><button id="dkTm">⏱ مؤقت</button><button id="dkFs">⛶ ملء الشاشة</button><button class="g" id="dkPr">🖨 PDF</button></div>
  <div class="dk-wrap">${sl.join('')}</div><div class="dk-hint">الأسهم أو السحب للتنقل · Esc للإغلاق</div>`;
  const show=()=>{box.querySelectorAll('.sl').forEach((s,k)=>s.classList.toggle('on',k===DK.i));box.querySelector('#dkC').textContent=`${DK.i+1} / ${DK.n}`};show();
  const mv=d=>{DK.i=Math.max(0,Math.min(DK.n-1,DK.i+d));show()};DK.mv=mv;
- box.querySelector('#dkX').onclick=deckClose;box.querySelector('#dkPrev').onclick=()=>mv(-1);box.querySelector('#dkNext').onclick=()=>mv(1);
+ box.querySelector('#dkX').onclick=deckClose;box.querySelector('#dkTm').onclick=mtOpen;box.querySelector('#dkPrev').onclick=()=>mv(-1);box.querySelector('#dkNext').onclick=()=>mv(1);
  box.querySelector('#dkPw').onclick=()=>{DK.wk=addD(DK.wk,-7);DK.i=0;deckRender()};box.querySelector('#dkNw').onclick=()=>{DK.wk=addD(DK.wk,7);DK.i=0;deckRender()};
  box.querySelector('#dkFs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():box.requestFullscreen()}catch(e){toast('ملء الشاشة غير مدعوم هنا')}};
  box.querySelector('#dkPr').onclick=()=>{const m=addD(DK.wk,7),t0=document.title;document.title='اجتماع '+('0'+m.getDate()).slice(-2)+'-'+('0'+(m.getMonth()+1)).slice(-2)+'-'+m.getFullYear();window.print();setTimeout(()=>document.title=t0,1500)};
@@ -738,7 +753,7 @@ function rptRender(){const w0=RP.wk,w1=addD(w0,6),mt=addD(w0,7),a=iso(w0),b=iso(
  const NX=A.filter(x=>x.s!=='تم'&&x.date>=iso(mt)&&x.date<=iso(addD(mt,6)));
  const head='<thead><tr><th style="width:3%">#</th><th style="width:8%">البناية</th><th style="width:22%">المهمة</th><th style="width:11%">المنفّذ</th><th style="width:7%">الموعد</th><th style="width:7%">تاريخ الإنجاز</th><th style="width:6%">التأخير</th><th style="width:6%">الحالة</th><th>سير العمل والملاحظات</th></tr></thead>';
  const nxRows=NX.map((x,i)=>`<tr><td class="c">${i+1}</td><td>${esc(SHORT(x.b))}</td><td><b>${esc(x.t)}</b></td><td>${esc((x.exec||[]).join('، ')||'—')}</td><td class="c">${dd2(pd(x.date))}${x.to&&x.to!==x.date?' – '+dd2(pd(x.to)):''}</td></tr>`).join('');
- document.getElementById('rpt').innerHTML=`<div class="rp-bar"><button id="rpX">✕ إغلاق</button><button id="rpPw">‹</button><b>أسبوع ${dd2(w0)}</b><button id="rpNw">›</button><span class="sp"></span><button class="g" id="rpPr">🖨 حفظ PDF</button></div>
+ document.getElementById('rpt').innerHTML=`<div class="rp-bar"><button id="rpX">✕ إغلاق</button><button id="rpPw">‹</button><b>أسبوع ${dd2(w0)}</b><button id="rpNw">›</button><span class="sp"></span><button id="rpTm">⏱ مؤقت</button><button class="g" id="rpPr">🖨 حفظ PDF</button></div>
  <div class="rp-page rp">
   <div class="rp-hd"><img src="icons/logo-full.png" alt="نسائم صلالة"><div class="t"><h1>اجتماع ${dd2(mt)}</h1><div class="s">تقرير متابعة مهام الإشراف العام – الأسبوع من ${dd2(w0)} إلى ${dd2(w1)}</div></div>
   <div class="m">شركة العالمية السعيدة المتحدة<br>نسائم صلالة للشقق المفروشة<br>تاريخ الإصدار: ${dd2(TODAY)}</div></div>
@@ -752,12 +767,37 @@ function rptRender(){const w0=RP.wk,w1=addD(w0,6),mt=addD(w0,7),a=iso(w0),b=iso(
   <div class="ft"><span>نسائم صلالة · الإشراف العام</span><span>التأخير يُحسب بالأيام من موعد المهمة حتى تاريخ إنجازها، أو حتى ${dd2(ref)} للمهام غير المنجزة</span></div>
  </div>`;
  const r=document.getElementById('rpt');
- r.querySelector('#rpX').onclick=rptClose;
+ r.querySelector('#rpX').onclick=rptClose;r.querySelector('#rpTm').onclick=mtOpen;
  r.querySelector('#rpPw').onclick=()=>{RP.wk=addD(RP.wk,-7);rptRender()};r.querySelector('#rpNw').onclick=()=>{RP.wk=addD(RP.wk,7);rptRender()};
  r.querySelector('#rpPr').onclick=()=>{const t0=document.title;document.title='اجتماع '+dd2(mt).replace(/\//g,'-');window.print();setTimeout(()=>document.title=t0,1500)};
 }
+
+/* ===== مؤقت الاجتماع (45 دقيقة افتراضياً) ===== */
+const MT={k:'ns-sup-mtimer',t:null};
+function mtGet(){try{return JSON.parse(localStorage.getItem(MT.k))||null}catch(e){return null}}
+function mtSet(o){try{o?localStorage.setItem(MT.k,JSON.stringify(o)):localStorage.removeItem(MT.k)}catch(e){}}
+function mtBeep(n){try{const c=new (window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.value=.25;o.start(c.currentTime+i*.4);o.stop(c.currentTime+i*.4+.25)}}catch(e){}try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}}
+function mtOpen(){let o=mtGet();if(!o){const m=prompt('مدة الاجتماع بالدقائق','45');if(m===null)return;const d=Math.max(1,parseInt(m)||45);o={dur:d*60000,start:Date.now(),paused:null,w:0,e:0};mtSet(o)}mtTick();clearInterval(MT.t);MT.t=setInterval(mtTick,500)}
+function mtTick(){const o=mtGet(),el=document.getElementById('mtm');if(!o){el.className='';el.innerHTML='';clearInterval(MT.t);return}
+ const now=o.paused||Date.now(),left=o.dur-(now-o.start),abs=Math.abs(left),mm=Math.floor(abs/60000),ss=Math.floor(abs%60000/1000);
+ if(left<=600000&&left>0&&!o.w){o.w=1;mtSet(o);mtBeep(2);toast('باقي 10 دقائق على نهاية الاجتماع')}
+ if(left<=0&&!o.e){o.e=1;mtSet(o);mtBeep(4);toast('انتهى وقت الاجتماع')}
+ const min=el.classList.contains('min');
+ el.className='on'+(left<=0?' over':left<=600000?' warn':'')+(min?' min':'');
+ el.innerHTML=`<div class="lb">⏱ مؤقت الاجتماع${o.paused?' – متوقف':''}</div><div class="mtv">${left<0?'+':''}${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}</div>
+ <div class="br"><i style="width:${Math.min(100,Math.max(0,(now-o.start)/o.dur*100))}%"></i></div>
+ <div class="bt"><button data-m="p">${o.paused?'▶ استئناف':'⏸ إيقاف'}</button><button data-m="a">+5</button><button data-m="r">↺</button><button data-m="n">${min?'⤢':'—'}</button><button data-m="x">✕</button></div>`;
+ el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const k=b.dataset.m,o=mtGet();if(!o)return;
+  if(k==='p'){if(o.paused){o.start+=Date.now()-o.paused;o.paused=null}else o.paused=Date.now();mtSet(o)}
+  else if(k==='a'){o.dur+=300000;o.e=0;if(o.dur-((o.paused||Date.now())-o.start)>600000)o.w=0;mtSet(o)}
+  else if(k==='r'){o.start=Date.now();o.paused=null;o.w=0;o.e=0;mtSet(o)}
+  else if(k==='n'){el.classList.toggle('min')}
+  else if(k==='x'){if(confirm('إنهاء مؤقت الاجتماع؟'))mtSet(null)}
+  mtTick()});
+}
+if(mtGet()){setTimeout(()=>{mtTick();MT.t=setInterval(mtTick,500)},300)}
 /* ---- المزيد ---- */
-const MORE=[['rpt','📄','تقرير الاجتماع الرسمي','صفحات PDF: كل مهمة، إنجازها، تأخيرها وملاحظاتها'],['deck','🎬','عرض اجتماع الاثنين','عرض تلقائي لما تم في الأسبوع'],['eod','🌙','تنبيهات نهاية اليوم','ملخص اليوم ورسائل التذكير الجاهزة'],['today','📝','التقرير اليومي المفصّل','الشقق، النظافة، الموظفين، الشكاوى'],['plan','🗓','اجتماع الاثنين والأهداف','ما طرحه المشرف وأهداف الأسبوع'],['msgs','✉','رسائل الموظفين','رسالة واتساب جاهزة لكل موظف'],['staff','👥','قائمة الموظفين','أسماء المنفذين وأرقامهم'],['tasks','📌','المهام الثابتة','مهام المشرف المتكررة والوقت'],['review','📊','التحليل والمتابعة','نسب الإنجاز والوقت'],['report','🖨','تقرير المدير PDF','تقرير أسبوعي جاهز للطباعة']];
+const MORE=[['timer','⏱','مؤقت الاجتماع','45 دقيقة مع تنبيه قبل النهاية بـ10 دقائق'],['rpt','📄','تقرير الاجتماع الرسمي','صفحات PDF: كل مهمة، إنجازها، تأخيرها وملاحظاتها'],['deck','🎬','عرض اجتماع الاثنين','عرض تلقائي لما تم في الأسبوع'],['eod','🌙','تنبيهات نهاية اليوم','ملخص اليوم ورسائل التذكير الجاهزة'],['today','📝','التقرير اليومي المفصّل','الشقق، النظافة، الموظفين، الشكاوى'],['plan','🗓','اجتماع الاثنين والأهداف','ما طرحه المشرف وأهداف الأسبوع'],['msgs','✉','رسائل الموظفين','رسالة واتساب جاهزة لكل موظف'],['staff','👥','قائمة الموظفين','أسماء المنفذين وأرقامهم'],['tasks','📌','المهام الثابتة','مهام المشرف المتكررة والوقت'],['review','📊','التحليل والمتابعة','نسب الإنجاز والوقت'],['report','🖨','تقرير المدير PDF','تقرير أسبوعي جاهز للطباعة']];
 V.more=el=>{el.innerHTML=`<div class="tiles">${MORE.map(([k,ic,t,s])=>`<button class="tile" data-go="${k}"><i>${ic}</i><b>${t}</b><small>${s}</small></button>`).join('')}</div>`;
  el.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))};
 V.staff=el=>{const r=()=>{el.innerHTML=`<div class="card"><h2>قائمة الموظفين</h2><p class="hint">الأسماء التي تظهر في خانة المنفّذ. رقم الواتساب اختياري (مثال 96891234567) لفتح الرسالة مباشرة.</p>${listTable(S.staff,[{k:'name',label:'الاسم',w:'150px'},{k:'role',label:'العمل / البناية',w:'150px'},{k:'phone',label:'رقم الواتساب',w:'130px'}],'إضافة موظف')}</div>`;bindList(el,S.staff,()=>({name:'',role:'',phone:''}),r)};r()};
@@ -875,7 +915,7 @@ function demoBar(){const box=document.getElementById('demoBar');if(!S.demo){box.
  let armed=false;box.querySelector('#dClr').onclick=e=>{if(!armed){armed=true;e.target.textContent='اضغط مرة أخرى للتأكيد';return}
   delete S.weeks[DEMO_WK];S.tasks=S.tasks.filter(t=>!t.demo);S.demo=false;mark();render();toast('تم المسح – اضغط حفظ')}}
 const MAIN=['home','acts','week','more'],WKV=['week','today','plan','review','report'],NARROW=['home','acts','week','more'];
-function go(t){if(t==='deck'){deckOpen();return}if(t==='rpt'){rptOpen();return}tab=t;OPEN=null;render();window.scrollTo(0,0)}
+function go(t){if(t==='timer'){mtOpen();return}if(t==='deck'){deckOpen();return}if(t==='rpt'){rptOpen();return}tab=t;OPEN=null;render();window.scrollTo(0,0)}
 function render(){demoBar();document.getElementById('weekLbl').textContent=`أسبوع ${fmt(wk)} – ${fmt(addD(wk,6))}`;
  const nt=MAIN.includes(tab)?tab:'more';document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===nt));
  document.getElementById('wkWrap').style.display=WKV.includes(tab)?'':'none';
