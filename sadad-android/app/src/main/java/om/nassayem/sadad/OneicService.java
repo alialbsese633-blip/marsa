@@ -11,25 +11,47 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Drives ONEIC: Home → Electricity → Quick Pay → Account Number → Total Outstanding
- * → Enter Amount → fills amount. Stops before the Pay button; never pays.
+ * ONEIC: Home → Electricity → Prepaid Recharge → adds every meter with "Add"
+ * → sets the amount → stops before "Continue". Never pays.
  */
 public class OneicService extends AccessibilityService {
 
-    static String jobMeter = null;
+    // ---------- job ----------
+    static List<String> jobMeters = null;
     static String jobAmount = null;
     static long jobStart = 0;
+    static final long BASE_TIMEOUT_MS = 30000;
 
-    static final long TIMEOUT_MS = 30000;
+    // ---------- labels (EN + AR) ----------
+    static final String[] ELECTRICITY = {"Electricity", "الكهرباء", "كهرباء"};
+    static final String[] WATER = {"Water", "المياه", "مياه", "الماء"};
+    static final String[] QUICK_PAY = {"Quick Pay", "الدفع السريع", "دفع سريع"};
+    static final String[] PREPAID = {"Prepaid Recharge", "إعادة الشحن", "اعادة الشحن", "الشحن المسبق", "شحن مسبق", "إعادة شحن", "اعادة شحن"};
+    static final String[] ADD = {"Add", "إضافة", "اضافة", "أضف", "اضف"};
+    static final String[] CONTINUE = {"Continue", "استمرار", "متابعة"};
+
+    static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2;
+    int step = S_NAV;
+    int idx = 0;
+    int addTries = 0;
+    int amountTries = 0;
+    long lastAction = 0;
+    final Handler h = new Handler(Looper.getMainLooper());
+
+    // ---------- diagnostics ----------
     static final StringBuilder DIAG = new StringBuilder();
     static String lastDump = "";
     int lastStep = -1;
@@ -39,24 +61,10 @@ public class OneicService extends AccessibilityService {
     static synchronized void log(String m) {
         String t = new java.text.SimpleDateFormat("HH:mm:ss", Locale.ROOT).format(new java.util.Date());
         DIAG.append(t).append("  ").append(m).append('\n');
-        if (DIAG.length() > 6000) DIAG.delete(0, DIAG.length() - 6000);
+        if (DIAG.length() > 8000) DIAG.delete(0, DIAG.length() - 8000);
     }
-    public static synchronized String diag() { return DIAG.toString() + "\n--- آخر شاشة ---\n" + lastDump; }
-    static final String[] ELECTRICITY = {"Electricity", "الكهرباء", "كهرباء"};
-    static final String[] WATER = {"Water", "المياه", "مياه"};
-    static final String[] QUICK_PAY = {"Quick Pay", "الدفع السريع", "دفع سريع"};
-    static final String[] PREPAID_RECHARGE = {"Prepaid Recharge", "شحن مسبق الدفع", "إعادة الشحن المسبق"};
-    static final String[] ACCOUNT_HINT = {"Account Number", "Account number", "رقم الحساب"};
-    static final String[] TOTAL_OUT = {"Total Outstanding", "إجمالي المستحقات", "المبلغ المستحق"};
-    static final String[] ENTER_AMOUNT = {"Enter Amount", "أدخل المبلغ", "إدخال المبلغ"};
-    static final String[] PAYING_AMOUNT = {"Paying Amount", "المبلغ المدفوع", "مبلغ الدفع"};
 
-    static final int S_HOME = 0, S_SHEET = 1, S_FILL = 2, S_TOTAL = 3, S_ENTER = 4, S_AMOUNT = 5;
-    int step = S_HOME;
-    long lastAction = 0;
-    int idleTicks = 0;
-    int pencilTries = 0;
-    final Handler h = new Handler(Looper.getMainLooper());
+    public static synchronized String diag() { return DIAG.toString() + "\n--- آخر شاشة ---\n" + lastDump; }
 
     public static boolean isEnabled(Context c) {
         String on = Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
@@ -66,147 +74,121 @@ public class OneicService extends AccessibilityService {
         return false;
     }
 
-    public static void start(String meter, String amount) {
-        log("بدء: عداد " + meter + " مبلغ " + amount);
-        jobMeter = meter;
+    public static void start(String metersCsv, String amount) {
+        List<String> l = new ArrayList<>();
+        for (String m : metersCsv.split("[,\\s]+")) if (!m.trim().isEmpty()) l.add(m.trim());
+        log("بدء: " + l.size() + " عداد " + l + " مبلغ " + amount);
+        jobMeters = l;
         jobAmount = amount;
         jobStart = System.currentTimeMillis();
+        reset = true;
     }
 
-    @Override
-    protected void onServiceConnected() { tick(); }
+    static boolean reset = false;
 
-    @Override
-    public void onAccessibilityEvent(AccessibilityEvent e) { }
+    @Override protected void onServiceConnected() { tick(); }
+    @Override public void onAccessibilityEvent(AccessibilityEvent e) { }
+    @Override public void onInterrupt() { }
 
-    @Override
-    public void onInterrupt() { }
-
-    void tick() {
-        h.removeCallbacksAndMessages(null);
-        h.postDelayed(this::loop, 350);
-    }
+    void tick() { h.removeCallbacksAndMessages(null); h.postDelayed(this::loop, 350); }
 
     void loop() {
-        try { run(); } catch (Exception ignored) { }
+        try { run(); } catch (Exception e) { log("خطأ: " + e); }
         tick();
     }
 
     void finish(String msg) {
-        log("انتهى عند الخطوة " + step + ": " + msg);
+        log("انتهى: " + msg);
         if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        jobMeter = null;
+        jobMeters = null;
         jobAmount = null;
-        step = S_HOME;
-        pencilTries = 0;
+        step = S_NAV;
     }
 
     void run() {
-        if (jobMeter == null) { step = S_HOME; return; }
-        if (System.currentTimeMillis() - jobStart > TIMEOUT_MS) {
-            finish(step >= S_TOTAL ? "سداد: تم إدخال الرقم ✓ أدخل المبلغ يدوياً واضغط Pay" : "سداد: ما قدرت أكمل التعبئة — الرقم منسوخ، الصقه يدوياً");
+        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; lastStep = -1; }
+        if (jobMeters == null) return;
+        long timeout = BASE_TIMEOUT_MS + jobMeters.size() * 6000L;
+        if (System.currentTimeMillis() - jobStart > timeout) {
+            finish(step == S_NAV ? "سداد: ما قدرت أوصل لإعادة الشحن — كمّل يدوياً"
+                    : "سداد: وقفت عند العداد " + (idx + 1) + " — كمّل يدوياً وراجع قبل الاستمرار");
             return;
         }
         AccessibilityNodeInfo root = getRootInActiveWindow();
         if (root == null || root.getPackageName() == null || !"com.oneic.om".contentEquals(root.getPackageName())) return;
-        if (step != lastStep) { log("الخطوة " + lastStep + " → " + step); lastStep = step; stepSince = System.currentTimeMillis(); dumped = false; }
-        if (!dumped && System.currentTimeMillis() - stepSince > 4000) { dump(root); dumped = true; log("علق في الخطوة " + step + " (تم حفظ الشاشة)"); }
-        if (System.currentTimeMillis() - lastAction < 700) return;
 
-        // Final stage: amount field after "Enter Amount"
-        if (step >= S_ENTER) {
-            AccessibilityNodeInfo amt = amountField(root);
-            if (amt != null && step <= S_AMOUNT) {
-                if (TextUtils.isEmpty(jobAmount)) { finish("سداد: أدخل المبلغ واضغط Pay"); return; }
-                if (setText(amt, jobAmount)) { finish("سداد: تمت التعبئة ✓ راجع المبلغ واضغط Pay"); return; }
-            }
-            if (amt == null && step == S_AMOUNT && find(root, PAYING_AMOUNT) != null) {
-                if (System.currentTimeMillis() - lastAction > 1200 && pencilTries < 3) {
-                    AccessibilityNodeInfo p = amountEditTarget(root);
-                    if (p != null) { log("ما فيه خانة مبلغ — ألمس أيقونة التعديل"); pencilTries++; tap(p); acted(); }
-                    else log("ما لقيت أيقونة تعديل المبلغ");
-                }
+        if (step != lastStep) { log("الخطوة " + lastStep + " → " + step); lastStep = step; stepSince = System.currentTimeMillis(); dumped = false; }
+        if (!dumped && System.currentTimeMillis() - stepSince > 5000) { dump(root); dumped = true; log("علق في الخطوة " + step + " (تم حفظ الشاشة)"); }
+        if (System.currentTimeMillis() - lastAction < 900) return;
+
+        AccessibilityNodeInfo addBtn = find(root, ADD);
+        AccessibilityNodeInfo meterField = meterField(root);
+        boolean onRecharge = addBtn != null && meterField != null;
+
+        if (step == S_NAV) {
+            if (onRecharge) { step = S_ADD; return; }
+            // Electricity sheet: Quick Pay + Prepaid Recharge (wide rows)
+            AccessibilityNodeInfo pre = findWide(root, PREPAID);
+            if (pre != null && findWide(root, QUICK_PAY) != null) {
+                if (tap(pre) || click(pre)) acted();
                 return;
             }
-            if (step == S_ENTER) {
-                AccessibilityNodeInfo b = find(root, ENTER_AMOUNT);
-                if (b != null && click(b)) { step = S_AMOUNT; acted(); }
+            AccessibilityNodeInfo el = find(root, ELECTRICITY);
+            if (el != null && find(root, WATER) != null) {
+                if (click(el)) acted();
             }
             return;
         }
 
-        // "Details" sheet visible → Enter Amount
-        AccessibilityNodeInfo enter = find(root, ENTER_AMOUNT);
-        if (enter != null && step >= S_FILL) {
-            if (click(enter)) { step = S_AMOUNT; acted(); }
+        if (step == S_ADD) {
+            if (!onRecharge) return;
+            if (idx >= jobMeters.size()) { step = S_AMOUNT; return; }
+            String m = jobMeters.get(idx);
+            if (chipExists(root, m, meterField)) {
+                log("أُضيف " + m);
+                idx++; addTries = 0;
+                return;
+            }
+            if (addTries >= 3) {
+                log("ما انضاف " + m + " بعد 3 محاولات — أتخطاه");
+                idx++; addTries = 0;
+                return;
+            }
+            addTries++;
+            if (setText(meterField, m)) {
+                h.postDelayed(() -> {
+                    AccessibilityNodeInfo r2 = getRootInActiveWindow();
+                    AccessibilityNodeInfo b2 = r2 == null ? null : find(r2, ADD);
+                    if (b2 != null) { if (!click(b2)) tap(b2); }
+                }, 400);
+                lastAction = System.currentTimeMillis() + 600;
+            }
             return;
         }
 
-        // Quick Pay screen: account field present
-        AccessibilityNodeInfo acc = accountField(root);
-        if (acc != null) {
-            if (step < S_TOTAL) {
-                // make sure the Electricity tab is active
-                if (step < S_FILL) {
-                    AccessibilityNodeInfo tab = find(root, ELECTRICITY);
-                    if (tab != null) click(tab);
-                    step = S_FILL;
-                    acted();
+        if (step == S_AMOUNT) {
+            AccessibilityNodeInfo amt = amountField(root, meterField);
+            if (amt != null) {
+                if (TextUtils.isEmpty(jobAmount) || setText(amt, jobAmount)) {
+                    List<String> extra = extraChips(root, meterField);
+                    String warn = extra.isEmpty() ? "" : "\n⚠️ فيه عدادات زيادة: " + extra;
+                    finish("سداد: تمت التعبئة ✓ راجع العدادات والمبلغ ثم اضغط استمرار" + warn);
                     return;
                 }
-                if (setText(acc, jobMeter)) {
-                    step = S_TOTAL;
-                    lastAction = System.currentTimeMillis() + 500;
-                }
+            } else if (amountTries < 2) {
+                AccessibilityNodeInfo t = amountTapTarget(root);
+                if (t != null) { log("ألمس خانة المبلغ"); tap(t); }
+                amountTries++;
+                acted();
                 return;
             }
-            if (step == S_TOTAL) {
-                AccessibilityNodeInfo tot = find(root, TOTAL_OUT);
-                if (tot == null) { log("ما لقيت Total Outstanding"); return; }
-                boolean ok = tap(tot) || click(tot);
-                if (ok) { step = S_ENTER; acted(); }
-            }
-            return;
-        }
-
-        // Electricity sheet: Quick Pay / Prepaid Recharge
-        AccessibilityNodeInfo qp = find(root, QUICK_PAY);
-        if (qp != null && find(root, PREPAID_RECHARGE) != null) {
-            if (click(qp)) { step = S_SHEET; acted(); }
-            return;
-        }
-
-        // Home grid: Electricity + Water
-        AccessibilityNodeInfo el = find(root, ELECTRICITY);
-        if (el != null && find(root, WATER) != null && step == S_HOME) {
-            if (click(el)) acted();
+            if (amountTries >= 2) finish("سداد: أضفت العدادات ✓ أدخل المبلغ يدوياً واضغط استمرار");
         }
     }
 
     void acted() { lastAction = System.currentTimeMillis(); }
 
-    static void dump(AccessibilityNodeInfo root) {
-        List<AccessibilityNodeInfo> l = new ArrayList<>();
-        all(root, l);
-        StringBuilder b = new StringBuilder();
-        int k = 0;
-        for (AccessibilityNodeInfo n : l) {
-            String lb = label(n);
-            CharSequence c = n.getClassName();
-            boolean ed = n.isEditable();
-            if (lb.isEmpty() && !ed && !n.isClickable()) continue;
-            Rect r = new Rect(); n.getBoundsInScreen(r);
-            b.append(c == null ? "?" : c.toString().replace("android.widget.", "").replace("android.view.", ""))
-             .append(n.isClickable() ? " [click]" : "").append(ed ? " [edit]" : "")
-             .append(n.isVisibleToUser() ? "" : " [hidden]")
-             .append(" \"").append(lb.length() > 60 ? lb.substring(0, 60) : lb).append("\" ")
-             .append(r.toShortString()).append('\n');
-            if (++k > 80) break;
-        }
-        lastDump = b.toString();
-    }
-
-    // ---------- node helpers ----------
+    // ---------- screen helpers ----------
 
     static String label(AccessibilityNodeInfo n) {
         StringBuilder b = new StringBuilder();
@@ -221,7 +203,7 @@ public class OneicService extends AccessibilityService {
         String t = txt.toLowerCase(Locale.ROOT);
         for (String k : keys) {
             String kk = k.toLowerCase(Locale.ROOT);
-            if (t.equals(kk) || t.startsWith(kk + " ") || t.startsWith(kk + "\n") || t.contains(kk) && t.length() < kk.length() + 25) return true;
+            if (t.equals(kk) || t.startsWith(kk + " ") || (t.contains(kk) && t.length() < kk.length() + 25)) return true;
         }
         return false;
     }
@@ -239,6 +221,28 @@ public class OneicService extends AccessibilityService {
         return null;
     }
 
+    int screenW() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        return dm.widthPixels;
+    }
+
+    /** Rows of the bottom sheet span almost the whole width (unlike the side drawer). */
+    AccessibilityNodeInfo findWide(AccessibilityNodeInfo root, String[] keys) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        int w = screenW();
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || !matches(label(n), keys)) continue;
+            AccessibilityNodeInfo p = n;
+            for (int i = 0; i < 4 && p != null; i++) {
+                Rect r = new Rect(); p.getBoundsInScreen(r);
+                if (r.width() > w * 0.8 && r.height() < w * 0.5) return p;
+                p = p.getParent();
+            }
+        }
+        return null;
+    }
+
     static List<AccessibilityNodeInfo> edits(AccessibilityNodeInfo root) {
         List<AccessibilityNodeInfo> l = new ArrayList<>(), out = new ArrayList<>();
         all(root, l);
@@ -249,45 +253,90 @@ public class OneicService extends AccessibilityService {
         return out;
     }
 
-    static AccessibilityNodeInfo accountField(AccessibilityNodeInfo root) {
+    /** The meter field is the top-most text field on the recharge screen. */
+    static AccessibilityNodeInfo meterField(AccessibilityNodeInfo root) {
         List<AccessibilityNodeInfo> e = edits(root);
-        if (e.isEmpty()) return null;
-        for (AccessibilityNodeInfo n : e) if (matches(label(n), ACCOUNT_HINT)) return n;
-        // Quick Pay screen has "Account number" label above the single field
-        if (find(root, ACCOUNT_HINT) != null && find(root, TOTAL_OUT) != null) return e.get(0);
-        return null;
+        AccessibilityNodeInfo best = null; int top = Integer.MAX_VALUE;
+        for (AccessibilityNodeInfo n : e) {
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (r.top < top) { top = r.top; best = n; }
+        }
+        return best;
     }
 
-    static AccessibilityNodeInfo amountField(AccessibilityNodeInfo root) {
-        if (find(root, PAYING_AMOUNT) == null) return null;
+    static AccessibilityNodeInfo amountField(AccessibilityNodeInfo root, AccessibilityNodeInfo meter) {
+        Rect mr = new Rect(); if (meter != null) meter.getBoundsInScreen(mr);
         for (AccessibilityNodeInfo n : edits(root)) {
-            String lb = label(n);
-            if (matches(lb, ACCOUNT_HINT)) continue;
-            if (jobMeter != null && lb.contains(jobMeter)) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (meter != null && r.equals(mr)) continue;
             return n;
         }
         return null;
     }
 
-    /** The amount row: the pencil icon / value to the right of "Paying Amount". */
-    static AccessibilityNodeInfo amountEditTarget(AccessibilityNodeInfo root) {
-        AccessibilityNodeInfo lbl = find(root, PAYING_AMOUNT);
-        if (lbl == null) return null;
-        Rect lr = new Rect(); lbl.getBoundsInScreen(lr);
+    /** A short number (the amount) in the middle of the screen, below the meter field. */
+    static AccessibilityNodeInfo amountTapTarget(AccessibilityNodeInfo root) {
         List<AccessibilityNodeInfo> l = new ArrayList<>();
         all(root, l);
-        AccessibilityNodeInfo best = null; int bestX = -1;
         for (AccessibilityNodeInfo n : l) {
-            if (!n.isVisibleToUser() || n == lbl) continue;
-            Rect r = new Rect(); n.getBoundsInScreen(r);
-            if (r.isEmpty() || r.centerY() < lr.top - 40 || r.centerY() > lr.bottom + 40) continue;
-            if (r.left < lr.right - 10) continue;
-            if (r.width() > 900) continue;
-            // rightmost element on the row = pencil icon
-            if (r.centerX() > bestX) { bestX = r.centerX(); best = n; }
+            String lb = label(n);
+            if (n.isVisibleToUser() && lb.matches("\\d{1,4}(\\.\\d+)?")) return n;
         }
-        return best;
+        return null;
     }
+
+    static final Pattern METER = Pattern.compile("\\d{8,12}");
+
+    static boolean chipExists(AccessibilityNodeInfo root, String m, AccessibilityNodeInfo field) {
+        Rect fr = new Rect(); if (field != null) field.getBoundsInScreen(fr);
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || n.isEditable()) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (field != null && Rect.intersects(r, fr) && r.height() < fr.height() * 2) continue;
+            if (label(n).contains(m)) return true;
+        }
+        return false;
+    }
+
+    List<String> extraChips(AccessibilityNodeInfo root, AccessibilityNodeInfo field) {
+        List<String> out = new ArrayList<>();
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || n.isEditable()) continue;
+            Matcher mt = METER.matcher(label(n));
+            while (mt.find()) {
+                String v = mt.group();
+                if (jobMeters != null && !jobMeters.contains(v) && !out.contains(v)) out.add(v);
+            }
+        }
+        return out;
+    }
+
+    static void dump(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        StringBuilder b = new StringBuilder();
+        int k = 0;
+        for (AccessibilityNodeInfo n : l) {
+            String lb = label(n);
+            CharSequence c = n.getClassName();
+            boolean ed = n.isEditable();
+            if (lb.isEmpty() && !ed && !n.isClickable()) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            b.append(c == null ? "?" : c.toString().replace("android.widget.", "").replace("android.view.", ""))
+                    .append(n.isClickable() ? " [click]" : "").append(ed ? " [edit]" : "")
+                    .append(n.isVisibleToUser() ? "" : " [hidden]")
+                    .append(" \"").append(lb.length() > 60 ? lb.substring(0, 60) : lb).append("\" ")
+                    .append(r.toShortString()).append('\n');
+            if (++k > 90) break;
+        }
+        lastDump = b.toString();
+    }
+
+    // ---------- actions ----------
 
     boolean setText(AccessibilityNodeInfo n, String text) {
         n.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
@@ -296,14 +345,6 @@ public class OneicService extends AccessibilityService {
         a.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
         boolean ok = n.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, a);
         log("كتابة \"" + text + "\": " + (ok ? "نجح" : "فشل"));
-        if (!ok) {
-            // fallback: select all + paste (meter is already on the clipboard)
-            Bundle sel = new Bundle();
-            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
-            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, n.getText() == null ? 0 : n.getText().length());
-            n.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, sel);
-            ok = n.performAction(AccessibilityNodeInfo.ACTION_PASTE);
-        }
         return ok;
     }
 
@@ -311,7 +352,7 @@ public class OneicService extends AccessibilityService {
         Rect r = new Rect();
         n.getBoundsInScreen(r);
         if (r.isEmpty()) return false;
-        log("لمس عند " + r.centerX() + "," + r.centerY());
+        log("لمس \"" + label(n) + "\" عند " + r.centerX() + "," + r.centerY());
         Path path = new Path();
         path.moveTo(r.centerX(), r.centerY());
         GestureDescription g = new GestureDescription.Builder()
@@ -326,13 +367,6 @@ public class OneicService extends AccessibilityService {
             if (p.isClickable() && p.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;
             p = p.getParent();
         }
-        Rect r = new Rect();
-        n.getBoundsInScreen(r);
-        if (r.isEmpty()) return false;
-        Path path = new Path();
-        path.moveTo(r.centerX(), r.centerY());
-        GestureDescription g = new GestureDescription.Builder()
-                .addStroke(new GestureDescription.StrokeDescription(path, 0, 60)).build();
-        return dispatchGesture(g, null, null);
+        return tap(n);
     }
 }

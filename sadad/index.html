@@ -212,6 +212,14 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:18px 16px 0}
     <div class="altl"><a href="https://apps.apple.com/om/app/oneic-pay/id1229477652" target="_blank">App Store</a><a href="https://play.google.com/store/apps/details?id=com.oneic.om" target="_blank">Google Play</a><a href="https://eservicesprd.oneic.ws/" target="_blank" data-t="site"></a></div></div>
    <div class="row2"><button class="btn ghost" id="skip" data-t="skip"></button><button class="btn" id="next" style="background:var(--ok)" data-t="paidNext"></button></div>
   </div>
+  <div class="card now" id="batchcard" style="display:none">
+   <div class="k" id="bk"></div>
+   <div class="unit" id="bunits" style="font-size:20px;line-height:1.5"></div>
+   <div class="money" style="margin-top:8px"><span id="bcalc"></span></div>
+   <a class="btn full" id="bopen" href="#" style="margin-top:16px"></a>
+   <div class="copied" id="bmsg"></div>
+   <div class="row2"><button class="btn ghost" id="bskip" data-t="skip"></button><button class="btn" id="bnext" style="background:var(--ok)" data-t="paidNext"></button></div>
+  </div>
   <div class="card" id="donecard" style="display:none">
    <div style="font-size:16px;font-weight:800;color:var(--ok);margin-bottom:10px" data-t="finished"></div>
    <pre id="sum"></pre>
@@ -238,7 +246,7 @@ ar:{title:"شحن عدادات الكهرباء",sub:"عدادات الدفع ا
  hint:"في ONEIC: اختر <b>Prepaid</b> ثم الصق الرقم في خانة <b>Account Number</b>. بعد ما تسدد ارجع لهذه الصفحة واضغط \"تم السداد\".",
  foot:"نسائم صلالة · العالمية السعيدة المتحدة",next:"التالي",start:"ابدأ السداد",selected:n=>`${n} محدد`,none:"لم تحدد شيئاً",tapHint:"اضغط على الشقق لتحديدها",
  nextHint:"اضغط التالي لإدخال المبلغ",nMeters:n=>`${n} عداد`,of:(a,b)=>`${a} من ${b} عداد`,paidToday:"شُحن اليوم",copied:"✓ تم نسخ ",done:"تم ✓",skipped:"تم التخطي",
- flat:"شقة ",sumTitle:"شحن عدادات الكهرباء",date:"التاريخ",meter:"عداد",notCharged:"لم تُشحن",copiedAll:"✓ تم النسخ",wvT:"⚠️ افتح هذا الملف في Chrome",wvD:"الصفحة مفتوحة داخل الواتساب أو عارض ملفات، وهذا يمنع فتح تطبيق ONEIC. اضغط ⋮ ثم «فتح في Chrome»، أو من مدير الملفات اختر «فتح باستخدام Chrome».",setT:"فعّل التعبئة التلقائية (مرة وحدة)",setD:"عشان سداد يفتح Quick Pay ويكتب رقم العداد والمبلغ في ONEIC لحاله. ما يدفع شيء — أنت تضغط Pay.",set1:"اضغط «فتح إعدادات إمكانية الوصول» تحت.",set2:"اختر «التطبيقات المثبتة» ← «سداد — تعبئة ONEIC» ← فعّله.",set3:"إذا كان رمادي ومقفل: اضغط «معلومات التطبيق» ← ⋮ فوق ← «السماح بالإعدادات المقيدة»، وارجع للخطوة 1.",setBtn:"فتح إعدادات إمكانية الوصول",setInfo:"معلومات التطبيق (إذا مقفل)",autoOk:"✓ التعبئة التلقائية مفعّلة",autoBtn:"فتح ONEIC وتعبئة تلقائية",notOpen:"ما انفتح؟ اضغط واحد من هذي:",site:"موقع ONEIC",sep:"، "},
+ flat:"شقة ",sumTitle:"شحن عدادات الكهرباء",date:"التاريخ",meter:"عداد",notCharged:"لم تُشحن",copiedAll:"✓ تم النسخ",wvT:"⚠️ افتح هذا الملف في Chrome",wvD:"الصفحة مفتوحة داخل الواتساب أو عارض ملفات، وهذا يمنع فتح تطبيق ONEIC. اضغط ⋮ ثم «فتح في Chrome»، أو من مدير الملفات اختر «فتح باستخدام Chrome».",setT:"فعّل التعبئة التلقائية (مرة وحدة)",setD:"عشان سداد يفتح Quick Pay ويكتب رقم العداد والمبلغ في ONEIC لحاله. ما يدفع شيء — أنت تضغط Pay.",set1:"اضغط «فتح إعدادات إمكانية الوصول» تحت.",set2:"اختر «التطبيقات المثبتة» ← «سداد — تعبئة ONEIC» ← فعّله.",set3:"إذا كان رمادي ومقفل: اضغط «معلومات التطبيق» ← ⋮ فوق ← «السماح بالإعدادات المقيدة»، وارجع للخطوة 1.",setBtn:"فتح إعدادات إمكانية الوصول",setInfo:"معلومات التطبيق (إذا مقفل)",autoOk:"✓ التعبئة التلقائية مفعّلة",autoBtn:"فتح ONEIC وتعبئة تلقائية",batch:(i,n)=>`دفعة ${i} من ${n}`,bOpen:"فتح ONEIC وتعبئة الدفعة",bMsg:"سداد يفتح «إعادة الشحن» ويضيف العدادات ويكتب المبلغ، وأنت راجع واضغط «استمرار».",perMeter:"لكل عداد",notOpen:"ما انفتح؟ اضغط واحد من هذي:",site:"موقع ONEIC",sep:"، "},
 en:{title:"Electricity Meter Recharge",sub:"Prepaid meters · ONEIC Pay",back:"Back",lang:"ع",s1:"Branch",s2:"Units",s3:"Amount",s4:"Pay",choose:"Choose branch",
  meters:"prepaid meters",search:"Unit or meter number",selAll:"Select all",unselAll:"Clear all",nores:"No matching results",amtEach:"Recharge amount per meter",omr:"OMR",
  unit:"Unit",rno:"Recharge No.",amount:"Amount",total:"Total",current:"Current meter",rnoCopy:"Recharge No. (copied)",acc:"Electricity Acc.",
@@ -246,7 +254,7 @@ en:{title:"Electricity Meter Recharge",sub:"Prepaid meters · ONEIC Pay",back:"B
  hint:"In ONEIC: choose <b>Prepaid</b>, then paste the number into <b>Account Number</b>. After paying, come back here and tap \"Paid\".",
  foot:"Nassayem Salalah · Al Alamiya Al Saeeda Al Muttahida",next:"Next",start:"Start paying",selected:n=>`${n} selected`,none:"Nothing selected",tapHint:"Tap units to select them",
  nextHint:"Tap Next to enter the amount",nMeters:n=>`${n} meters`,of:(a,b)=>`${a} of ${b} meters`,paidToday:"Paid today",copied:"✓ Copied ",done:"Done ✓",skipped:"Skipped",
- flat:"Flat ",sumTitle:"Electricity meter recharge",date:"Date",meter:"meter",notCharged:"Not recharged",copiedAll:"✓ Copied",wvT:"⚠️ Open this file in Chrome",wvD:"This page is open inside WhatsApp or a file viewer, which blocks opening the ONEIC app. Tap ⋮ then \"Open in Chrome\", or from your file manager choose \"Open with Chrome\".",setT:"Enable auto-fill (one time)",setD:"Lets Sadad open Quick Pay and type the meter number and amount in ONEIC. It never pays — you tap Pay.",set1:"Tap \"Open Accessibility settings\" below.",set2:"Choose \"Installed apps\" → \"سداد — تعبئة ONEIC\" → turn it on.",set3:"If it is greyed out: tap \"App info\" → ⋮ → \"Allow restricted settings\", then repeat step 1.",setBtn:"Open Accessibility settings",setInfo:"App info (if locked)",autoOk:"✓ Auto-fill is on",autoBtn:"Open ONEIC & auto-fill",notOpen:"Didn't open? Tap one of these:",site:"ONEIC website",sep:", "}};
+ flat:"Flat ",sumTitle:"Electricity meter recharge",date:"Date",meter:"meter",notCharged:"Not recharged",copiedAll:"✓ Copied",wvT:"⚠️ Open this file in Chrome",wvD:"This page is open inside WhatsApp or a file viewer, which blocks opening the ONEIC app. Tap ⋮ then \"Open in Chrome\", or from your file manager choose \"Open with Chrome\".",setT:"Enable auto-fill (one time)",setD:"Lets Sadad open Quick Pay and type the meter number and amount in ONEIC. It never pays — you tap Pay.",set1:"Tap \"Open Accessibility settings\" below.",set2:"Choose \"Installed apps\" → \"سداد — تعبئة ONEIC\" → turn it on.",set3:"If it is greyed out: tap \"App info\" → ⋮ → \"Allow restricted settings\", then repeat step 1.",setBtn:"Open Accessibility settings",setInfo:"App info (if locked)",autoOk:"✓ Auto-fill is on",autoBtn:"Open ONEIC & auto-fill",batch:(i,n)=>`Batch ${i} of ${n}`,bOpen:"Open ONEIC & fill batch",bMsg:"Sadad opens Prepaid Recharge, adds the meters and the amount. Review and tap Continue.",perMeter:"per meter",notOpen:"Didn't open? Tap one of these:",site:"ONEIC website",sep:", "}};
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let L=store.get("onic_lang")||"ar";
 const t=k=>T[L][k];
@@ -298,7 +306,7 @@ function bar(){
  else if(S.step===3){b.classList.add("on");$("binfo").innerHTML=`<b>${fmt(total())} ${t("omr")}</b>${t("nMeters")(S.sel.length)}`;$("go").textContent=t("start");$("go").disabled=!(total()>0);}
  else b.classList.remove("on");
 }
-$("go").onclick=()=>{if(S.step===2)go(3);else if(S.step===3){S.q=S.sel.filter(id=>+S.amts[id]>0);S.i=0;S.res={};go(4);}};
+$("go").onclick=()=>{if(S.step===2)go(3);else if(S.step===3){S.q=S.sel.filter(id=>+S.amts[id]>0);S.i=0;S.bi=0;S.res={};go(4);}};
 $("back").onclick=()=>go(S.step-1);
 
 function renderBr(){
@@ -347,7 +355,12 @@ function upd(){$("tot").textContent=fmt(total())+" "+t("omr");bar();}
 function setAll(v){$("amt").value=v;S.sel.forEach(id=>S.amts[id]=v);$("rows").querySelectorAll("input").forEach(i=>i.value=v);upd();}
 $("amt").oninput=()=>setAll($("amt").value);
 document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>setAll(b.dataset.v));
+const batchMode=()=>!!(window.Android&&Android.startBatch&&Android.autoReady&&(()=>{try{return Android.autoReady()}catch(e){return false}})());
+function batches(){const g={};S.q.forEach(id=>{const a=String(+S.amts[id]);(g[a]=g[a]||[]).push(id);});return Object.keys(g).map(a=>({amt:+a,ids:g[a]}));}
 function renderPay(){
+ const hn=document.querySelector('[data-t="hint"]');if(hn)hn.style.display=batchMode()?"none":"";
+ if(batchMode()){renderBatch();return;}
+ $("batchcard").style.display="none";
  const n=S.q.length,d=Object.keys(S.res).length;
  $("pcount").textContent=t("of")(Math.min(d,n),n);
  $("ptot").textContent=t("total")+" "+fmt(S.q.reduce((s,id)=>s+ +S.amts[id],0))+" "+t("omr");
@@ -361,6 +374,25 @@ function renderPay(){
  $("queue").innerHTML=S.q.map((id,k)=>{const u=U(id),r=S.res[id];
   return `<li class="${r==="ok"?"d":""} ${k===S.i&&!fin?"c":""}"><span><b>${lb(u)}</b> <span class="st" style="direction:ltr;display:inline-block">${u.meter}</span></span><span class="st">${r==="ok"?t("done"):r==="skip"?t("skipped"):fmt(+S.amts[id])+" "+t("omr")}</span></li>`;}).join("");
 }
+function renderBatch(){
+ const B=batches();S.B=B;if(S.bi===undefined)S.bi=0;
+ const n=S.q.length,d=Object.keys(S.res).length;
+ $("pcount").textContent=t("of")(Math.min(d,n),n);
+ $("ptot").textContent=t("total")+" "+fmt(S.q.reduce((s,id)=>s+ +S.amts[id],0))+" "+t("omr");
+ $("pbar").style.width=(n?d/n*100:0)+"%";
+ const fin=S.bi>=B.length;$("nowcard").style.display="none";$("batchcard").style.display=fin?"none":"";$("donecard").style.display=fin?"":"none";
+ if(!fin){const b=B[S.bi];
+  $("bk").textContent=t("batch")(S.bi+1,B.length);
+  $("bunits").textContent=b.ids.map(id=>lb(U(id))).join(" · ");
+  $("bcalc").innerHTML=`${b.ids.length} × <b>${fmt(b.amt)}</b> ${t("omr")} ${t("perMeter")} = <b>${fmt(b.amt*b.ids.length)}</b> ${t("omr")}`;
+  $("bopen").textContent=t("bOpen");$("bmsg").textContent=t("bMsg");}
+ else $("sum").textContent=summary();
+ $("queue").innerHTML=S.q.map(id=>{const u=U(id),r=S.res[id];
+  return `<li class="${r==="ok"?"d":""}"><span><b>${lb(u)}</b> <span class="st" style="direction:ltr;display:inline-block">${u.meter}</span></span><span class="st">${r==="ok"?t("done"):r==="skip"?t("skipped"):fmt(+S.amts[id])+" "+t("omr")}</span></li>`;}).join("");
+}
+$("bopen").onclick=ev=>{ev.preventDefault();const b=S.B[S.bi];try{Android.startBatch(b.ids.map(id=>String(U(id).meter)).join(","),String(b.amt))}catch(e){}};
+$("bnext").onclick=()=>{const b=S.B[S.bi];b.ids.forEach(id=>{S.res[id]="ok";paid[S.br+":"+id]=today();});store.set("onic_paid",JSON.stringify(paid));S.bi++;renderPay();window.scrollTo(0,0);};
+$("bskip").onclick=()=>{S.B[S.bi].ids.forEach(id=>S.res[id]="skip");S.bi++;renderPay();};
 function copy(x){if(window.Android){try{Android.copy(x);return}catch(e){}}try{navigator.clipboard.writeText(x).catch(()=>fb(x))}catch(e){fb(x)}}
 function fb(x){const i=document.createElement("textarea");i.value=x;i.style.position="fixed";i.style.opacity="0";document.body.appendChild(i);i.select();try{document.execCommand("copy")}catch(e){}i.remove();}
 $("open").onclick=(ev)=>{const u=U(S.q[S.i]);copy(String(u.meter));$("copied").textContent=t("copied")+u.meter;$("alt").style.display="";$("altAnd").style.display=isAndroid?"":"none";

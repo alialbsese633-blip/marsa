@@ -82,6 +82,15 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface
+        public void startBatch(String metersCsv, String amount) {
+            runOnUiThread(() -> {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                cm.setPrimaryClip(ClipData.newPlainText("meters", metersCsv.replace(",", "\n")));
+                if (OneicService.isEnabled(MainActivity.this)) OneicService.start(metersCsv, amount);
+                openOneic();
+            });
+        }
+        @JavascriptInterface
         public void openAccessibility() {
             runOnUiThread(() -> {
                 try { startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)); } catch (Exception e) { }
