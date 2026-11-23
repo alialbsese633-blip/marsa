@@ -55,6 +55,7 @@ public class OneicService extends AccessibilityService {
     int step = S_HOME;
     long lastAction = 0;
     int idleTicks = 0;
+    int pencilTries = 0;
     final Handler h = new Handler(Looper.getMainLooper());
 
     public static boolean isEnabled(Context c) {
@@ -97,6 +98,7 @@ public class OneicService extends AccessibilityService {
         jobMeter = null;
         jobAmount = null;
         step = S_HOME;
+        pencilTries = 0;
     }
 
     void run() {
@@ -117,6 +119,14 @@ public class OneicService extends AccessibilityService {
             if (amt != null && step <= S_AMOUNT) {
                 if (TextUtils.isEmpty(jobAmount)) { finish("سداد: أدخل المبلغ واضغط Pay"); return; }
                 if (setText(amt, jobAmount)) { finish("سداد: تمت التعبئة ✓ راجع المبلغ واضغط Pay"); return; }
+            }
+            if (amt == null && step == S_AMOUNT && find(root, PAYING_AMOUNT) != null) {
+                if (System.currentTimeMillis() - lastAction > 1200 && pencilTries < 3) {
+                    AccessibilityNodeInfo p = amountEditTarget(root);
+                    if (p != null) { log("ما فيه خانة مبلغ — ألمس أيقونة التعديل"); pencilTries++; tap(p); acted(); }
+                    else log("ما لقيت أيقونة تعديل المبلغ");
+                }
+                return;
             }
             if (step == S_ENTER) {
                 AccessibilityNodeInfo b = find(root, ENTER_AMOUNT);
@@ -250,9 +260,33 @@ public class OneicService extends AccessibilityService {
 
     static AccessibilityNodeInfo amountField(AccessibilityNodeInfo root) {
         if (find(root, PAYING_AMOUNT) == null) return null;
-        List<AccessibilityNodeInfo> e = edits(root);
-        for (AccessibilityNodeInfo n : e) if (!matches(label(n), ACCOUNT_HINT) && !label(n).contains(jobMeter == null ? "~" : jobMeter)) return n;
-        return e.isEmpty() ? null : e.get(e.size() - 1);
+        for (AccessibilityNodeInfo n : edits(root)) {
+            String lb = label(n);
+            if (matches(lb, ACCOUNT_HINT)) continue;
+            if (jobMeter != null && lb.contains(jobMeter)) continue;
+            return n;
+        }
+        return null;
+    }
+
+    /** The amount row: the pencil icon / value to the right of "Paying Amount". */
+    static AccessibilityNodeInfo amountEditTarget(AccessibilityNodeInfo root) {
+        AccessibilityNodeInfo lbl = find(root, PAYING_AMOUNT);
+        if (lbl == null) return null;
+        Rect lr = new Rect(); lbl.getBoundsInScreen(lr);
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        AccessibilityNodeInfo best = null; int bestX = -1;
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || n == lbl) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (r.isEmpty() || r.centerY() < lr.top - 40 || r.centerY() > lr.bottom + 40) continue;
+            if (r.left < lr.right - 10) continue;
+            if (r.width() > 900) continue;
+            // rightmost element on the row = pencil icon
+            if (r.centerX() > bestX) { bestX = r.centerX(); best = n; }
+        }
+        return best;
     }
 
     boolean setText(AccessibilityNodeInfo n, String text) {
