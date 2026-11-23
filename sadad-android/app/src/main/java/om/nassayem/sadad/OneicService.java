@@ -45,7 +45,8 @@ public class OneicService extends AccessibilityService {
     static final String[] ALREADY = {"already", "مضاف", "موجود", "تمت إضافة", "تمت اضافة", "مكرر", "exist"};
     static final String[] PAY_TITLE = {"الدفع", "Payment", "Pay"};
 
-    static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2, S_CONT = 3, S_WAIT = 4;
+    static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2, S_CONT = 3, S_WAIT = 4, S_SELECT = 5;
+    int selTries = 0;
     int contTries = 0;
     int step = S_NAV;
     int idx = 0;
@@ -114,7 +115,7 @@ public class OneicService extends AccessibilityService {
     }
 
     void run() {
-        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; contTries = 0; lastStep = -1; alreadyAt = 0; }
+        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; contTries = 0; selTries = 0; lastStep = -1; alreadyAt = 0; }
         if (jobMeters == null) return;
         long timeout = BASE_TIMEOUT_MS + jobMeters.size() * 6000L;
         if (System.currentTimeMillis() - jobStart > timeout) {
@@ -150,7 +151,7 @@ public class OneicService extends AccessibilityService {
 
         if (step == S_ADD) {
             if (!onRecharge) return;
-            if (idx >= jobMeters.size()) { step = S_AMOUNT; return; }
+            if (idx >= jobMeters.size()) { step = S_SELECT; selTries = 0; return; }
             String m = jobMeters.get(idx);
             if (chipExists(root, m, meterField)) {
                 log("أُضيف " + m);
@@ -181,11 +182,48 @@ public class OneicService extends AccessibilityService {
             return;
         }
 
+
+        if (step == S_SELECT) {
+            if (!onRecharge) return;
+            if (selTries == 0) { dump(root); log("حفظت شاشة العدادات"); }
+            if (selTries++ > 12) { log("تحديد: وصلت الحد"); step = S_AMOUNT; return; }
+            // 1) select every job meter chip that is not selected
+            for (String m : jobMeters) {
+                AccessibilityNodeInfo c = chip(root, m, meterField);
+                if (c == null) { log("ما لقيت كرت " + m); continue; }
+                if (!isOn(c)) {
+                    log("أحدد " + m);
+                    c.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+                    if (!click(c)) tap(c);
+                    acted();
+                    return;
+                }
+            }
+            // 2) unselect chips that are not part of this job
+            for (AccessibilityNodeInfo c : allChips(root, meterField)) {
+                String v = meterOf(c);
+                if (v != null && !jobMeters.contains(v) && isOn(c)) {
+                    log("ألغي تحديد " + v);
+                    c.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+                    if (!click(c)) tap(c);
+                    acted();
+                    return;
+                }
+            }
+            log("التحديد جاهز");
+            step = S_AMOUNT;
+            return;
+        }
+
         if (step == S_AMOUNT) {
             AccessibilityNodeInfo amt = amountField(root, meterField);
             if (amt != null) {
                 if (TextUtils.isEmpty(jobAmount) || setText(amt, jobAmount)) {
-                    List<String> extra = extraChips(root, meterField);
+                    List<String> extra = new ArrayList<>();
+                    for (AccessibilityNodeInfo c : allChips(root, meterField)) {
+                        String v = meterOf(c);
+                        if (v != null && !jobMeters.contains(v) && isOn(c) && !extra.contains(v)) extra.add(v);
+                    }
                     if (!extra.isEmpty()) {
                         finish("سداد: ⚠️ فيه عدادات زيادة في القائمة: " + extra + "\nشيلها ثم اضغط استمرار");
                         return;
@@ -359,6 +397,55 @@ public class OneicService extends AccessibilityService {
         return out;
     }
 
+
+    // ---------- chips ----------
+
+    static String meterOf(AccessibilityNodeInfo n) {
+        Matcher mt = METER.matcher(label(n));
+        return mt.find() ? mt.group() : null;
+    }
+
+    /** Smallest non-editable node that shows the meter number (the chip), lifted to its clickable container. */
+    static AccessibilityNodeInfo chip(AccessibilityNodeInfo root, String m, AccessibilityNodeInfo field) {
+        for (AccessibilityNodeInfo c : allChips(root, field)) if (m.equals(meterOf(c))) return c;
+        return null;
+    }
+
+    static List<AccessibilityNodeInfo> allChips(AccessibilityNodeInfo root, AccessibilityNodeInfo field) {
+        Rect fr = new Rect(); if (field != null) field.getBoundsInScreen(fr);
+        List<AccessibilityNodeInfo> l = new ArrayList<>(), out = new ArrayList<>();
+        all(root, l);
+        List<String> seen = new ArrayList<>();
+        for (AccessibilityNodeInfo n : l) {
+            if (n.isEditable()) continue;
+            String lb = label(n);
+            Matcher mt = METER.matcher(lb);
+            if (!mt.find()) continue;
+            if (lb.length() > 60) continue; // container listing many chips
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (field != null && Rect.intersects(r, fr) && r.height() < fr.height() * 2) continue;
+            String v = mt.group();
+            if (seen.contains(v)) continue;
+            seen.add(v);
+            AccessibilityNodeInfo p = n;
+            for (int i = 0; i < 3 && p != null && !p.isClickable() && !p.isCheckable(); i++) p = p.getParent();
+            out.add(p != null && (p.isClickable() || p.isCheckable()) ? p : n);
+        }
+        return out;
+    }
+
+    static boolean isOn(AccessibilityNodeInfo c) {
+        if (c.isChecked() || c.isSelected()) return true;
+        String lb = label(c).toLowerCase(Locale.ROOT);
+        if (lb.contains("selected") && !lb.contains("not selected") && !lb.contains("unselected")) return true;
+        if (lb.contains("محدد") && !lb.contains("غير محدد")) return true;
+        for (int i = 0; i < c.getChildCount(); i++) {
+            AccessibilityNodeInfo k = c.getChild(i);
+            if (k != null && (k.isChecked() || k.isSelected())) return true;
+        }
+        return false;
+    }
+
     static void dump(AccessibilityNodeInfo root) {
         List<AccessibilityNodeInfo> l = new ArrayList<>();
         all(root, l);
@@ -371,7 +458,7 @@ public class OneicService extends AccessibilityService {
             if (lb.isEmpty() && !ed && !n.isClickable()) continue;
             Rect r = new Rect(); n.getBoundsInScreen(r);
             b.append(c == null ? "?" : c.toString().replace("android.widget.", "").replace("android.view.", ""))
-                    .append(n.isClickable() ? " [click]" : "").append(ed ? " [edit]" : "")
+                    .append(n.isClickable() ? " [click]" : "").append(ed ? " [edit]" : "").append(n.isCheckable() ? " [checkable]" : "").append(n.isChecked() ? " [checked]" : "").append(n.isSelected() ? " [selected]" : "")
                     .append(n.isVisibleToUser() ? "" : " [hidden]")
                     .append(" \"").append(lb.length() > 60 ? lb.substring(0, 60) : lb).append("\" ")
                     .append(r.toShortString()).append('\n');
