@@ -41,9 +41,12 @@ public class OneicService extends AccessibilityService {
     static final String[] QUICK_PAY = {"Quick Pay", "الدفع السريع", "دفع سريع"};
     static final String[] PREPAID = {"Prepaid Recharge", "إعادة الشحن", "اعادة الشحن", "الشحن المسبق", "شحن مسبق", "إعادة شحن", "اعادة شحن"};
     static final String[] ADD = {"Add", "إضافة", "اضافة", "أضف", "اضف"};
-    static final String[] CONTINUE = {"Continue", "استمرار", "متابعة"};
+    static final String[] CONTINUE = {"Continue", "استمرار", "متابعة", "Proceed"};
+    static final String[] ALREADY = {"already", "مضاف", "موجود", "تمت إضافة", "تمت اضافة", "مكرر", "exist"};
+    static final String[] PAY_TITLE = {"الدفع", "Payment", "Pay"};
 
-    static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2;
+    static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2, S_CONT = 3, S_WAIT = 4;
+    int contTries = 0;
     int step = S_NAV;
     int idx = 0;
     int addTries = 0;
@@ -87,7 +90,12 @@ public class OneicService extends AccessibilityService {
     static boolean reset = false;
 
     @Override protected void onServiceConnected() { tick(); }
-    @Override public void onAccessibilityEvent(AccessibilityEvent e) { }
+    static long alreadyAt = 0;
+    @Override public void onAccessibilityEvent(AccessibilityEvent e) {
+        if (e == null || e.getText() == null) return;
+        String t = e.getText().toString().toLowerCase(Locale.ROOT);
+        for (String k : ALREADY) if (t.contains(k.toLowerCase(Locale.ROOT))) { alreadyAt = System.currentTimeMillis(); log("رسالة: " + t); break; }
+    }
     @Override public void onInterrupt() { }
 
     void tick() { h.removeCallbacksAndMessages(null); h.postDelayed(this::loop, 350); }
@@ -106,7 +114,7 @@ public class OneicService extends AccessibilityService {
     }
 
     void run() {
-        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; lastStep = -1; }
+        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; contTries = 0; lastStep = -1; alreadyAt = 0; }
         if (jobMeters == null) return;
         long timeout = BASE_TIMEOUT_MS + jobMeters.size() * 6000L;
         if (System.currentTimeMillis() - jobStart > timeout) {
@@ -149,6 +157,13 @@ public class OneicService extends AccessibilityService {
                 idx++; addTries = 0;
                 return;
             }
+            if (addTries > 0 && (anyLabel(root, ALREADY) || System.currentTimeMillis() - alreadyAt < 4000)) {
+                alreadyAt = 0;
+                log("ONEIC يقول " + m + " مضاف من قبل — أعتبره مضاف");
+                setText(meterField, "");
+                idx++; addTries = 0;
+                return;
+            }
             if (addTries >= 3) {
                 log("ما انضاف " + m + " بعد 3 محاولات — أتخطاه");
                 idx++; addTries = 0;
@@ -171,8 +186,11 @@ public class OneicService extends AccessibilityService {
             if (amt != null) {
                 if (TextUtils.isEmpty(jobAmount) || setText(amt, jobAmount)) {
                     List<String> extra = extraChips(root, meterField);
-                    String warn = extra.isEmpty() ? "" : "\n⚠️ فيه عدادات زيادة: " + extra;
-                    finish("سداد: تمت التعبئة ✓ راجع العدادات والمبلغ ثم اضغط استمرار" + warn);
+                    if (!extra.isEmpty()) {
+                        finish("سداد: ⚠️ فيه عدادات زيادة في القائمة: " + extra + "\nشيلها ثم اضغط استمرار");
+                        return;
+                    }
+                    step = S_CONT; acted();
                     return;
                 }
             } else if (amountTries < 2) {
@@ -183,10 +201,36 @@ public class OneicService extends AccessibilityService {
                 return;
             }
             if (amountTries >= 2) finish("سداد: أضفت العدادات ✓ أدخل المبلغ يدوياً واضغط استمرار");
+            return;
+        }
+
+        if (step == S_CONT) {
+            AccessibilityNodeInfo c = find(root, CONTINUE);
+            if (c == null) { if (++contTries > 6) finish("سداد: اضغط استمرار"); return; }
+            if (click(c)) { step = S_WAIT; acted(); }
+            return;
+        }
+
+        if (step == S_WAIT) {
+            // left the recharge screen → summary page reached
+            if (!onRecharge) { finish("سداد: جاهز ✓ راجع الملخص ثم اضغط استمرار للدفع"); return; }
+            if (++contTries > 10) finish("سداد: اضغط استمرار");
         }
     }
 
     void acted() { lastAction = System.currentTimeMillis(); }
+
+    /** Any node (toast/snackbar/dialog text) containing one of the keys. */
+    static boolean anyLabel(AccessibilityNodeInfo root, String[] keys) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        for (AccessibilityNodeInfo n : l) {
+            String t = label(n).toLowerCase(Locale.ROOT);
+            if (t.isEmpty() || t.length() > 200) continue;
+            for (String k : keys) if (t.contains(k.toLowerCase(Locale.ROOT))) return true;
+        }
+        return false;
+    }
 
     // ---------- screen helpers ----------
 
@@ -292,7 +336,7 @@ public class OneicService extends AccessibilityService {
         List<AccessibilityNodeInfo> l = new ArrayList<>();
         all(root, l);
         for (AccessibilityNodeInfo n : l) {
-            if (!n.isVisibleToUser() || n.isEditable()) continue;
+            if (n.isEditable()) continue;
             Rect r = new Rect(); n.getBoundsInScreen(r);
             if (field != null && Rect.intersects(r, fr) && r.height() < fr.height() * 2) continue;
             if (label(n).contains(m)) return true;
@@ -305,7 +349,7 @@ public class OneicService extends AccessibilityService {
         List<AccessibilityNodeInfo> l = new ArrayList<>();
         all(root, l);
         for (AccessibilityNodeInfo n : l) {
-            if (!n.isVisibleToUser() || n.isEditable()) continue;
+            if (n.isEditable()) continue;
             Matcher mt = METER.matcher(label(n));
             while (mt.find()) {
                 String v = mt.group();
