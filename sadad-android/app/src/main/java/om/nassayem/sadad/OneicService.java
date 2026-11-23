@@ -47,7 +47,13 @@ public class OneicService extends AccessibilityService {
 
     static final int S_NAV = 0, S_ADD = 1, S_AMOUNT = 2, S_CONT = 3, S_WAIT = 4, S_SELECT = 5;
     int selTries = 0;
+    List<String> probeList = null;
+    int probeIdx = 0, probePhase = 0, countBefore = -1;
     int contTries = 0;
+    boolean pendingAdd = false;
+    int stepperTaps = 0;
+    String lastVal = null;
+    double prevVal = -1;
     int step = S_NAV;
     int idx = 0;
     int addTries = 0;
@@ -115,7 +121,7 @@ public class OneicService extends AccessibilityService {
     }
 
     void run() {
-        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; contTries = 0; selTries = 0; lastStep = -1; alreadyAt = 0; }
+        if (reset) { reset = false; step = S_NAV; idx = 0; addTries = 0; amountTries = 0; contTries = 0; selTries = 0; probeList = null; probeIdx = 0; probePhase = 0; pendingAdd = false; stepperTaps = 0; lastVal = null; prevVal = -1; lastStep = -1; alreadyAt = 0; }
         if (jobMeters == null) return;
         long timeout = BASE_TIMEOUT_MS + jobMeters.size() * 6000L;
         if (System.currentTimeMillis() - jobStart > timeout) {
@@ -170,79 +176,89 @@ public class OneicService extends AccessibilityService {
                 idx++; addTries = 0;
                 return;
             }
+            if (pendingAdd) {
+                pendingAdd = false;
+                AccessibilityNodeInfo b2 = find(root, ADD);
+                if (b2 != null) { log("ألمس زر Add"); if (!tap(b2)) click(b2); }
+                else log("ما لقيت زر Add");
+                lastAction = System.currentTimeMillis() + 300;
+                return;
+            }
             addTries++;
             if (setText(meterField, m)) {
-                h.postDelayed(() -> {
-                    AccessibilityNodeInfo r2 = getRootInActiveWindow();
-                    AccessibilityNodeInfo b2 = r2 == null ? null : find(r2, ADD);
-                    if (b2 != null) { log("ألمس زر إضافة"); if (!tap(b2)) click(b2); } else log("ما لقيت زر إضافة");
-                }, 400);
-                lastAction = System.currentTimeMillis() + 600;
+                pendingAdd = true;
+                lastAction = System.currentTimeMillis() - 400;
             }
             return;
         }
-
 
         if (step == S_SELECT) {
             if (!onRecharge) return;
             if (selTries == 0) { dump(root); log("حفظت شاشة العدادات"); }
-            if (selTries++ > 12) { log("تحديد: وصلت الحد"); step = S_AMOUNT; return; }
-            // 1) select every job meter chip that is not selected
-            for (String m : jobMeters) {
-                AccessibilityNodeInfo c = chip(root, m, meterField);
-                if (c == null) { log("ما لقيت كرت " + m); continue; }
-                if (!isOn(c)) {
-                    log("أحدد " + m);
-                    c.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
-                    if (!click(c)) tap(c);
-                    acted();
-                    return;
-                }
+            if (selTries++ > 60) { log("تحديد: وصلت الحد"); step = S_AMOUNT; return; }
+            int count = selectedCount(root);
+            if (probeList == null) {
+                probeList = new ArrayList<>();
+                boolean allJob = true;
+                for (AccessibilityNodeInfo c : allChips(root, meterField)) { String v = meterOf(c); if (v != null) { probeList.add(v); if (!jobMeters.contains(v)) allJob = false; } }
+                log("كروت: " + probeList + " — المحدد " + count);
+                if (allJob && count == probeList.size()) { log("التحديد صحيح"); step = S_AMOUNT; return; }
+                if (count < 0) { log("ما لقيت عدد المحدد — أكمل"); step = S_AMOUNT; return; }
+                probeIdx = 0; probePhase = 0;
             }
-            // 2) unselect chips that are not part of this job
-            for (AccessibilityNodeInfo c : allChips(root, meterField)) {
-                String v = meterOf(c);
-                if (v != null && !jobMeters.contains(v) && isOn(c)) {
-                    log("ألغي تحديد " + v);
-                    c.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
-                    if (!click(c)) tap(c);
-                    acted();
-                    return;
-                }
+            if (probeIdx >= probeList.size()) { log("التحديد خلص — المحدد " + count); step = S_AMOUNT; return; }
+            String m = probeList.get(probeIdx);
+            AccessibilityNodeInfo c = chip(root, m, meterField);
+            if (c == null) { probeIdx++; probePhase = 0; return; }
+            boolean want = jobMeters.contains(m);
+            if (probePhase == 0) {
+                countBefore = count;
+                c.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+                if (!tap(c)) click(c);
+                probePhase = 1; acted();
+                return;
             }
-            log("التحديد جاهز");
-            step = S_AMOUNT;
+            if (count == countBefore) { if (probePhase++ > 4) { probeIdx++; probePhase = 0; } return; }
+            boolean nowOn = count > countBefore;
+            log(m + (nowOn ? " صار محدد" : " صار غير محدد") + (want ? " (مطلوب)" : " (مو مطلوب)"));
+            if (nowOn != want) { if (!tap(c)) click(c); acted(); }
+            probeIdx++; probePhase = 0;
             return;
         }
 
         if (step == S_AMOUNT) {
-            AccessibilityNodeInfo amt = amountField(root, meterField);
-            if (amt != null) {
-                if (TextUtils.isEmpty(jobAmount) || setText(amt, jobAmount)) {
-                    List<String> extra = new ArrayList<>();
-                    for (AccessibilityNodeInfo c : allChips(root, meterField)) {
-                        String v = meterOf(c);
-                        if (v != null && !jobMeters.contains(v) && isOn(c) && !extra.contains(v)) extra.add(v);
-                    }
-                    if (!extra.isEmpty()) {
-                        finish("سداد: ⚠️ فيه عدادات زيادة في القائمة: " + extra + "\nشيلها ثم اضغط استمرار");
-                        return;
-                    }
-                    step = S_CONT; acted();
-                    return;
-                }
-            } else if (amountTries < 2) {
-                AccessibilityNodeInfo t = amountTapTarget(root);
-                if (t != null) { log("ألمس خانة المبلغ"); tap(t); }
-                amountTries++;
-                acted();
-                return;
+            if (TextUtils.isEmpty(jobAmount)) { step = S_CONT; return; }
+            double target;
+            try { target = Double.parseDouble(jobAmount); } catch (Exception e) { step = S_CONT; return; }
+            AccessibilityNodeInfo val = amountValue(root);
+            if (val == null) { finish("سداد: أضفت العدادات ✓ أدخل المبلغ يدوياً واضغط Proceed"); return; }
+            double v;
+            try { v = Double.parseDouble(label(val)); } catch (Exception e) { finish("سداد: أدخل المبلغ يدوياً واضغط Proceed"); return; }
+            if (Math.abs(v - target) < 0.001) { log("المبلغ " + v + " ✓"); step = S_CONT; return; }
+            if (stepperTaps > 80) { finish("سداد: ما قدرت أضبط المبلغ — عدّله يدوياً واضغط Proceed"); return; }
+            if (label(val).equals(lastVal) && stepperTaps > 0 && System.currentTimeMillis() - lastAction < 1500) return;
+            AccessibilityNodeInfo[] pm = stepper(root, val);
+            if (pm == null) { finish("سداد: أدخل المبلغ يدوياً واضغط Proceed"); return; }
+            boolean up = v < target;
+            if (up && prevVal >= 0 && v > prevVal && v + (v - prevVal) > target + 0.001) {
+                finish("سداد: المبلغ الأقرب " + v + " — عدّله يدوياً واضغط Proceed"); return;
             }
-            if (amountTries >= 2) finish("سداد: أضفت العدادات ✓ أدخل المبلغ يدوياً واضغط استمرار");
+            prevVal = v;
+            lastVal = label(val);
+            stepperTaps++;
+            log("المبلغ " + v + " → " + (up ? "+" : "−"));
+            tap(up ? pm[1] : pm[0]);
+            lastAction = System.currentTimeMillis() - 500;
             return;
         }
 
         if (step == S_CONT) {
+            int cnt = selectedCount(root);
+            int want = new java.util.HashSet<>(jobMeters).size();
+            if (cnt >= 0 && cnt != want) {
+                finish("سداد: ⚠️ المحدد " + cnt + " عداد والمطلوب " + want + " — راجع العدادات ثم اضغط Proceed");
+                return;
+            }
             AccessibilityNodeInfo c = find(root, CONTINUE);
             if (c == null) { if (++contTries > 6) finish("سداد: اضغط استمرار"); return; }
             if (click(c)) { step = S_WAIT; acted(); }
@@ -277,7 +293,7 @@ public class OneicService extends AccessibilityService {
         if (n.getText() != null) b.append(n.getText()).append(' ');
         if (n.getContentDescription() != null) b.append(n.getContentDescription()).append(' ');
         if (android.os.Build.VERSION.SDK_INT >= 26 && n.getHintText() != null) b.append(n.getHintText());
-        return b.toString().replaceAll("\\s+", " ").trim();
+        return b.toString().replaceAll("[\\u200B-\\u200F\\u2060\\uFEFF]", "").replaceAll("\\s+", " ").trim();
     }
 
     static boolean matches(String txt, String[] keys) {
@@ -398,6 +414,70 @@ public class OneicService extends AccessibilityService {
     }
 
 
+
+
+    /** "( 3 Prepaid IDs has been selected )" → 3 ; -1 if not found. */
+    static int selectedCount(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        AccessibilityNodeInfo sel = null;
+        for (AccessibilityNodeInfo n : l) {
+            String t = label(n).toLowerCase(Locale.ROOT);
+            if (t.length() < 80 && (t.contains("selected") || t.contains("تم تحديد") || t.contains("محدد"))) {
+                if (METER.matcher(t).find()) continue;
+                Matcher mt = Pattern.compile("(\\d+)").matcher(t);
+                if (mt.find()) return Integer.parseInt(mt.group(1));
+                sel = n;
+                break;
+            }
+        }
+        if (sel == null) return -1;
+        Rect sr = new Rect(); sel.getBoundsInScreen(sr);
+        for (AccessibilityNodeInfo n : l) {
+            String lb = label(n);
+            if (!lb.matches("\\d{1,3}")) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (Math.abs(r.centerY() - sr.centerY()) < sr.height()) return Integer.parseInt(lb);
+        }
+        return -1;
+    }
+
+    // ---------- amount stepper ----------
+
+    /** The amount: a plain number shown between two image buttons (− and +). */
+    static AccessibilityNodeInfo amountValue(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || n.isEditable()) continue;
+            String lb = label(n);
+            if (!lb.matches("\\d{1,4}(\\.\\d+)?")) continue;
+            if (stepper(root, n) != null) return n;
+        }
+        return null;
+    }
+
+    /** [minus, plus]: clickable icons on the same row, left and right of the value. */
+    static AccessibilityNodeInfo[] stepper(AccessibilityNodeInfo root, AccessibilityNodeInfo val) {
+        Rect vr = new Rect(); val.getBoundsInScreen(vr);
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        AccessibilityNodeInfo left = null, right = null;
+        for (AccessibilityNodeInfo n : l) {
+            if (!n.isVisibleToUser() || !n.isClickable() || n == val) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            if (Math.abs(r.centerY() - vr.centerY()) > vr.height() / 2) continue;
+            if (r.width() > vr.width() * 2) continue;
+            if (r.right <= vr.left + 5 && (left == null || r.right > boundsRight(left))) left = n;
+            if (r.left >= vr.right - 5 && (right == null || r.left < boundsLeft(right))) right = n;
+        }
+        if (left == null || right == null) return null;
+        return new AccessibilityNodeInfo[]{left, right};
+    }
+
+    static int boundsRight(AccessibilityNodeInfo n) { Rect r = new Rect(); n.getBoundsInScreen(r); return r.right; }
+    static int boundsLeft(AccessibilityNodeInfo n) { Rect r = new Rect(); n.getBoundsInScreen(r); return r.left; }
+
     // ---------- chips ----------
 
     static String meterOf(AccessibilityNodeInfo n) {
@@ -421,7 +501,7 @@ public class OneicService extends AccessibilityService {
             String lb = label(n);
             Matcher mt = METER.matcher(lb);
             if (!mt.find()) continue;
-            if (lb.length() > 60) continue; // container listing many chips
+            if (lb.length() > 120) continue; // container listing many chips
             Rect r = new Rect(); n.getBoundsInScreen(r);
             if (field != null && Rect.intersects(r, fr) && r.height() < fr.height() * 2) continue;
             String v = mt.group();
