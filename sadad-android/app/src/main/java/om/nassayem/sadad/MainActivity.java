@@ -69,6 +69,8 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface
+        public String diag() { return OneicService.diag(); }
+        @JavascriptInterface
         public boolean autoReady() { return OneicService.isEnabled(MainActivity.this); }
         @JavascriptInterface
         public void startPay(String meter, String amount) {

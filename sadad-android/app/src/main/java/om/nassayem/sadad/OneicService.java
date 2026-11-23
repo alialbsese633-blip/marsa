@@ -30,6 +30,18 @@ public class OneicService extends AccessibilityService {
     static long jobStart = 0;
 
     static final long TIMEOUT_MS = 30000;
+    static final StringBuilder DIAG = new StringBuilder();
+    static String lastDump = "";
+    int lastStep = -1;
+    long stepSince = 0;
+    boolean dumped = false;
+
+    static synchronized void log(String m) {
+        String t = new java.text.SimpleDateFormat("HH:mm:ss", Locale.ROOT).format(new java.util.Date());
+        DIAG.append(t).append("  ").append(m).append('\n');
+        if (DIAG.length() > 6000) DIAG.delete(0, DIAG.length() - 6000);
+    }
+    public static synchronized String diag() { return DIAG.toString() + "\n--- آخر شاشة ---\n" + lastDump; }
     static final String[] ELECTRICITY = {"Electricity", "الكهرباء", "كهرباء"};
     static final String[] WATER = {"Water", "المياه", "مياه"};
     static final String[] QUICK_PAY = {"Quick Pay", "الدفع السريع", "دفع سريع"};
@@ -54,6 +66,7 @@ public class OneicService extends AccessibilityService {
     }
 
     public static void start(String meter, String amount) {
+        log("بدء: عداد " + meter + " مبلغ " + amount);
         jobMeter = meter;
         jobAmount = amount;
         jobStart = System.currentTimeMillis();
@@ -79,6 +92,7 @@ public class OneicService extends AccessibilityService {
     }
 
     void finish(String msg) {
+        log("انتهى عند الخطوة " + step + ": " + msg);
         if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
         jobMeter = null;
         jobAmount = null;
@@ -93,6 +107,8 @@ public class OneicService extends AccessibilityService {
         }
         AccessibilityNodeInfo root = getRootInActiveWindow();
         if (root == null || root.getPackageName() == null || !"com.oneic.om".contentEquals(root.getPackageName())) return;
+        if (step != lastStep) { log("الخطوة " + lastStep + " → " + step); lastStep = step; stepSince = System.currentTimeMillis(); dumped = false; }
+        if (!dumped && System.currentTimeMillis() - stepSince > 4000) { dump(root); dumped = true; log("علق في الخطوة " + step + " (تم حفظ الشاشة)"); }
         if (System.currentTimeMillis() - lastAction < 700) return;
 
         // Final stage: amount field after "Enter Amount"
@@ -136,7 +152,9 @@ public class OneicService extends AccessibilityService {
             }
             if (step == S_TOTAL) {
                 AccessibilityNodeInfo tot = find(root, TOTAL_OUT);
-                if (tot != null && click(tot)) { step = S_ENTER; acted(); }
+                if (tot == null) { log("ما لقيت Total Outstanding"); return; }
+                boolean ok = tap(tot) || click(tot);
+                if (ok) { step = S_ENTER; acted(); }
             }
             return;
         }
@@ -156,6 +174,27 @@ public class OneicService extends AccessibilityService {
     }
 
     void acted() { lastAction = System.currentTimeMillis(); }
+
+    static void dump(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = new ArrayList<>();
+        all(root, l);
+        StringBuilder b = new StringBuilder();
+        int k = 0;
+        for (AccessibilityNodeInfo n : l) {
+            String lb = label(n);
+            CharSequence c = n.getClassName();
+            boolean ed = n.isEditable();
+            if (lb.isEmpty() && !ed && !n.isClickable()) continue;
+            Rect r = new Rect(); n.getBoundsInScreen(r);
+            b.append(c == null ? "?" : c.toString().replace("android.widget.", "").replace("android.view.", ""))
+             .append(n.isClickable() ? " [click]" : "").append(ed ? " [edit]" : "")
+             .append(n.isVisibleToUser() ? "" : " [hidden]")
+             .append(" \"").append(lb.length() > 60 ? lb.substring(0, 60) : lb).append("\" ")
+             .append(r.toShortString()).append('\n');
+            if (++k > 80) break;
+        }
+        lastDump = b.toString();
+    }
 
     // ---------- node helpers ----------
 
@@ -222,6 +261,7 @@ public class OneicService extends AccessibilityService {
         Bundle a = new Bundle();
         a.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
         boolean ok = n.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, a);
+        log("كتابة \"" + text + "\": " + (ok ? "نجح" : "فشل"));
         if (!ok) {
             // fallback: select all + paste (meter is already on the clipboard)
             Bundle sel = new Bundle();
@@ -233,7 +273,20 @@ public class OneicService extends AccessibilityService {
         return ok;
     }
 
+    boolean tap(AccessibilityNodeInfo n) {
+        Rect r = new Rect();
+        n.getBoundsInScreen(r);
+        if (r.isEmpty()) return false;
+        log("لمس عند " + r.centerX() + "," + r.centerY());
+        Path path = new Path();
+        path.moveTo(r.centerX(), r.centerY());
+        GestureDescription g = new GestureDescription.Builder()
+                .addStroke(new GestureDescription.StrokeDescription(path, 0, 60)).build();
+        return dispatchGesture(g, null, null);
+    }
+
     boolean click(AccessibilityNodeInfo n) {
+        log("ضغط: \"" + label(n) + "\"");
         AccessibilityNodeInfo p = n;
         for (int i = 0; i < 6 && p != null; i++) {
             if (p.isClickable() && p.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true;

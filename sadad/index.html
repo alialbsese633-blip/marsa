@@ -166,6 +166,11 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:18px 16px 0}
   <div class="card" id="autoOk" style="display:none;padding:10px 14px;font-size:13px;color:var(--ok);font-weight:700" data-t="autoOk"></div>
   <div class="lbl" data-t="choose"></div>
   <div id="brs"></div>
+  <details class="card" id="diagBox" style="display:none;font-size:13px">
+   <summary style="cursor:pointer;font-weight:700;color:var(--teal-d)">سجل التشخيص (أرسله للدعم إذا وقفت التعبئة)</summary>
+   <pre id="diagTxt" style="direction:ltr;text-align:left;font-size:11px;max-height:260px;overflow:auto;margin-top:10px"></pre>
+   <button class="btn full" id="diagCp">نسخ السجل</button>
+  </details>
  </div>
 
  <div class="view" id="v2">
@@ -379,9 +384,10 @@ $("restart").onclick=()=>{S.sel=[];S.amts={};go(2);};
 if(!window.Android&&!matchMedia("(display-mode: standalone)").matches&&isAndroid&&/; wv\)|WhatsApp|FBAN|FBAV|Instagram/i.test(ua))$("wv").style.display="";
 function autoState(){if(!window.Android||!Android.autoReady)return;let r=false;try{r=Android.autoReady()}catch(e){}
  $("setup").style.display=r?"none":"";$("autoOk").style.display=r?"":"none";$("open").textContent=r?t("autoBtn"):t("openBtn");}
-window.onNativeResume=autoState;
+window.onNativeResume=()=>{autoState();if(window.Android&&Android.diag){try{$("diagBox").style.display="";$("diagTxt").textContent=Android.diag()}catch(e){}}};
+if(window.Android){$("diagCp").onclick=()=>{copy($("diagTxt").textContent);$("diagCp").textContent="✓ تم النسخ";}}
 if(window.Android){$("setAcc").onclick=()=>Android.openAccessibility();$("setInfo").onclick=()=>Android.openAppInfo();}
-applyLang();go(1);autoState();
+applyLang();go(1);onNativeResume();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
