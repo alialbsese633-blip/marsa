@@ -916,7 +916,7 @@ function demoBar(){const box=document.getElementById('demoBar');if(!S.demo){box.
   delete S.weeks[DEMO_WK];S.tasks=S.tasks.filter(t=>!t.demo);S.demo=false;mark();render();toast('تم المسح – اضغط حفظ')}}
 const MAIN=['home','acts','week','more'],WKV=['week','today','plan','review','report'],NARROW=['home','acts','week','more'];
 function xoRun(){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
- const rows=S.tasks.filter(a=>a.s!=='تم').map((a,i)=>[i+1,a.id,a.b||'',a.t||'',a.d||'',(a.exec&&a.exec.length?a.exec.join('، '):a.who||''),a.date||'',a.to||'',a.s||'',a.note||'']);
+ const rows=S.actions.filter(a=>a.s!=='تم').map((a,i)=>[i+1,a.id,a.b||'',a.t||'',a.d||'',(a.exec&&a.exec.length?a.exec.join('، '):a.who||''),a.date||'',a.to||'',a.s||'',a.note||'']);
  const h=['م','المعرّف','المبنى/القسم','المهمة','التفاصيل','المنفذ','تاريخ التنفيذ','الموعد النهائي','الحالة','ملاحظة'];
  const csv='\ufeff'+[h,...rows].map(r=>r.map(q).join(',')).join('\r\n');
  const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const l=document.createElement('a');l.href=u;l.download='المهام-غير-المنجزة.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
