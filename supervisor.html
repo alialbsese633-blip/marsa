@@ -308,6 +308,38 @@ body.deckOn{overflow:hidden}body.deckOn #deck{display:flex}
  body.deckOn>*:not(#deck){display:none!important}body.deckOn{padding:0!important;background:#fff}
  body.deckOn #deck{position:static;display:block;background:#fff}.dk-bar,.dk-hint{display:none!important}.dk-wrap{display:block;padding:0}
  .sl{display:block!important;width:297mm!important;height:167mm;aspect-ratio:auto;border-radius:0;box-shadow:none;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+/* ===== تقرير الاجتماع الرسمي ===== */
+#rpt{display:none;position:fixed;inset:0;z-index:110;background:#e9eeee;overflow:auto}
+body.rptOn{overflow:hidden}body.rptOn #rpt{display:block}
+.rp-bar{position:sticky;top:0;display:flex;gap:6px;align-items:center;padding:8px 10px;background:#123f3e;color:#fff;font-size:13px;flex-wrap:wrap;z-index:2}
+.rp-bar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer}
+.rp-bar button.g{background:#c9a96e;border-color:#c9a96e;color:#123f3e;font-weight:700}.rp-bar .sp{flex:1}
+.rp-page{width:297mm;max-width:100%;margin:12px auto;background:#fff;padding:12mm 12mm 10mm;box-shadow:0 4px 18px rgba(0,0,0,.12);color:#111;font-family:Readex,Tahoma,Arial,sans-serif;font-size:10pt;line-height:1.45}
+.rp-hd{display:flex;align-items:center;gap:14px;border-bottom:2px solid #1a5d5b;padding-bottom:8px;margin-bottom:10px}
+.rp-hd img{height:58px}
+.rp-hd .t{flex:1}.rp-hd h1{font-size:17pt;margin:0;color:#1a5d5b}.rp-hd .s{font-size:10pt;color:#444}
+.rp-hd .m{text-align:left;font-size:9pt;color:#444;line-height:1.6}
+.rp-sum{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #bfcfcf;margin:0 0 10px}
+.rp-sum div{padding:6px 8px;border-left:1px solid #bfcfcf;text-align:center}.rp-sum div:last-child{border-left:0}
+.rp-sum b{display:block;font-size:15pt;color:#1a5d5b}.rp-sum span{font-size:8.5pt;color:#444}
+.rp h2{font-size:11.5pt;margin:12px 0 5px;color:#1a5d5b;border-right:4px solid #1a5d5b;padding-right:7px}
+.rp table{width:100%;border-collapse:collapse;font-size:8.8pt}
+.rp th{background:#1a5d5b;color:#fff;font-weight:700;padding:5px 4px;border:1px solid #1a5d5b;text-align:center}
+.rp td{border:1px solid #c6d3d3;padding:4px 5px;vertical-align:top}
+.rp tr:nth-child(even) td{background:#f6f9f9}
+.rp td.c{text-align:center;white-space:nowrap}
+.rp .ok{color:#1b5e20;font-weight:700}.rp .bad{color:#b3261e;font-weight:700}.rp .wip{color:#8a6d1f;font-weight:700}
+.rp .lg{font-size:8.2pt;color:#333;background:none;padding:0;margin:0;border-radius:0}
+.rp .lg div{margin:1px 0}
+.rp .sig{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:18px;font-size:9.5pt;text-align:center}
+.rp .sig div{border-top:1px solid #555;padding-top:5px}
+.rp .ft{margin-top:10px;font-size:8pt;color:#666;display:flex;justify-content:space-between;border-top:1px solid #ddd;padding-top:4px}
+@media print{@page{size:A4 landscape;margin:8mm}
+ body.rptOn>*:not(#rpt){display:none!important}body.rptOn{padding:0!important;background:#fff}
+ body.rptOn #rpt{position:static;display:block;background:#fff;overflow:visible}.rp-bar{display:none!important}
+ .rp-page{width:auto;margin:0;padding:0;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .rp tr{break-inside:avoid}.rp thead{display:table-header-group}}
 @media print{#wkWrap,#backBar,nav#tabs{display:none!important}}
 </style>
 </head>
@@ -345,6 +377,7 @@ body.deckOn{overflow:hidden}body.deckOn #deck{display:flex}
 </form></div>
 <div id="toast"></div>
 <div id="deck"></div>
+<div id="rpt"></div>
 
 <script>
 const API=(window.SUP_CONFIG&&window.SUP_CONFIG.API_URL)||'';
@@ -528,7 +561,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  el.innerHTML=`<div class="hero"><div class="hi">${hr<12?'صباح الخير':'مساء الخير'}${nm?'، '+esc(nm):''}</div><div class="dt">${DAYN[ti]} ${fmt(TODAY)}</div>
  ${ti==OFF?'<div class="sch"><span>اليوم إجازة</span></div>':`<div class="sch">${SCHED[ti].map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
  <div class="prg"><div class="pb"><i style="width:${pct}%"></i></div><b>أنجزت ${done} من ${L.length}</b></div></div>
- ${ti===0?'<button class="addbig" id="goDeck" style="border-style:solid;background:#c9a96e;color:#123f3e;border-color:#c9a96e;margin-top:10px">🎬 تجهيز عرض اجتماع الاثنين</button>':''}
+ ${ti===0?'<button class="addbig" id="goDeck" style="border-style:solid;background:#c9a96e;color:#123f3e;border-color:#c9a96e;margin-top:10px">📄 تجهيز تقرير اجتماع الاثنين</button>':''}
  ${(M=>M.length?`<h3 class="hd" style="color:#6a4fb3">📥 المهام الموجهة لك <small>(${M.length})</small></h3>${M.map(a=>tcard(a,true)).join('')}`:'')(USER?A.filter(a=>a.s!=='تم'&&a.exec.includes(USER.name)):[])}
  <h3 class="hd">مهام الإشراف اليوم <small>(${L.length})</small></h3>
  ${L.length?L.map(a=>tcard(a)).join(''):'<div class="emp">لا توجد مهام مسجلة لليوم</div>'}
@@ -537,7 +570,7 @@ V.home=el=>{const ti=(TODAY.getDay()+6)%7,td=iso(TODAY),A=S.actions,hr=new Date(
  ${USER&&USER.role!=='supervisor'&&hr>=15?'<button class="addbig" id="goEod" style="border-style:solid;background:#123f3e;color:#fff;border-color:#123f3e">🌙 تنبيهات نهاية اليوم</button>':''}
  ${N.length?`<details class="nx"${nxOpen?' open':''}><summary>مهام ${dLabel(iso(nx))} <small>(${N.length})</small></summary>${N.map(a=>tcard(a)).join('')}</details>`:''}`;
  const rr=()=>V.home(el);bindCards(el,rr);
- const gd=el.querySelector('#goDeck');if(gd)gd.onclick=()=>deckOpen();
+ const gd=el.querySelector('#goDeck');if(gd)gd.onclick=()=>rptOpen();
  const ge=el.querySelector('#goEod');if(ge)ge.onclick=()=>go('eod');
  const nd=el.querySelector('details.nx');if(nd)nd.ontoggle=()=>{nxOpen=nd.open};
  el.querySelector('#addT').onclick=()=>{const d=ti==OFF?nextWork(TODAY):TODAY,j=(d.getDay()+6)%7;newAct(iso(d),schedB(j)[0]);rr();focusOpen(el)};
@@ -571,7 +604,7 @@ V.week=el=>{const A=S.actions;
   const L=A.filter(a=>a.date===v),dn=L.filter(a=>a.s==='تم').length;
   return `<div class="dayc${isT?' today':''}"><div class="dh"><b>${DAYN[i]} ${d.getDate()}/${d.getMonth()+1}${isT?' – اليوم':''}</b><span>${SCHED[i].map(SHORT).join(' · ')}</span>${L.length?`<small>${dn}/${L.length}</small>`:''}</div>
   ${L.map(a=>tcard(a)).join('')}<button class="addsm" data-addd="${v}" data-di="${i}">+ مهمة لهذا اليوم</button></div>`}).join('')+
-  `<div class="tiles" style="margin-top:6px"><button class="tile" data-go="deck"><i>🎬</i><b>تجهيز عرض الاجتماع</b><small>عرض تلقائي لما تم في الأسبوع</small></button><button class="tile" data-go="plan"><i>🗓</i><b>اجتماع الاثنين والأهداف</b><small>ما طرحه المشرف وأهداف الأسبوع</small></button><button class="tile" data-go="report"><i>🖨</i><b>تقرير المدير PDF</b><small>تقرير هذا الأسبوع</small></button></div>`;
+  `<div class="tiles" style="margin-top:6px"><button class="tile" data-go="rpt"><i>📄</i><b>تقرير الاجتماع الرسمي</b><small>PDF رسمي بكل المهام</small></button><button class="tile" data-go="deck"><i>🎬</i><b>عرض الاجتماع</b><small>عرض تلقائي لما تم في الأسبوع</small></button><button class="tile" data-go="plan"><i>🗓</i><b>اجتماع الاثنين والأهداف</b><small>ما طرحه المشرف وأهداف الأسبوع</small></button><button class="tile" data-go="report"><i>🖨</i><b>تقرير المدير PDF</b><small>تقرير هذا الأسبوع</small></button></div>`;
  const rr=()=>V.week(el);bindCards(el,rr);
  el.querySelectorAll('[data-addd]').forEach(x=>x.onclick=()=>{newAct(x.dataset.addd,schedB(+x.dataset.di)[0]);rr();focusOpen(el)});
  el.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go));
@@ -677,9 +710,54 @@ function deckRender(){const box=document.getElementById('deck'),sl=deckSlides(DK
  const w=box.querySelector('.dk-wrap');let x0=null;w.ontouchstart=e=>{x0=e.touches[0].clientX};w.ontouchend=e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)mv(dx>0?1:-1);x0=null};
  w.onclick=e=>{if(e.target.closest('.sl')){const r=w.getBoundingClientRect();mv(e.clientX<r.left+r.width/2?1:-1)}};
 }
-document.addEventListener('keydown',e=>{if(!document.body.classList.contains('deckOn'))return;if(e.key==='Escape')deckClose();else if(e.key==='ArrowLeft'||e.key===' '||e.key==='PageDown'){e.preventDefault();DK.mv&&DK.mv(1)}else if(e.key==='ArrowRight'||e.key==='PageUp'){e.preventDefault();DK.mv&&DK.mv(-1)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('rptOn')){rptClose();return}if(!document.body.classList.contains('deckOn'))return;if(e.key==='Escape')deckClose();else if(e.key==='ArrowLeft'||e.key===' '||e.key==='PageDown'){e.preventDefault();DK.mv&&DK.mv(1)}else if(e.key==='ArrowRight'||e.key==='PageUp'){e.preventDefault();DK.mv&&DK.mv(-1)}});
+
+/* ===== تقرير الاجتماع الرسمي (صفحات A4) ===== */
+const RP={wk:null};
+function rptOpen(){RP.wk=RP.wk||deckDefault();document.body.classList.add('rptOn');rptRender()}
+function rptClose(){document.body.classList.remove('rptOn');document.getElementById('rpt').innerHTML=''}
+const dd2=d=>('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
+const dayDiff=(a,b)=>Math.round((new Date(a.getFullYear(),a.getMonth(),a.getDate())-new Date(b.getFullYear(),b.getMonth(),b.getDate()))/864e5);
+function rptRender(){const w0=RP.wk,w1=addD(w0,6),mt=addD(w0,7),a=iso(w0),b=iso(w1),A=S.actions.filter(x=>String(x.t||'').trim());
+ const due=x=>pd(x.to||x.date);
+ const inW=x=>x.date&&((x.to||x.date)>=a)&&x.date<=b;
+ const OLD=A.filter(x=>x.s!=='تم'&&x.date&&(x.to||x.date)<a);
+ const L=A.filter(inW).concat(OLD).sort((x,y)=>String(x.date).localeCompare(String(y.date))||String(x.b).localeCompare(String(y.b)));
+ const ref=addD(mt,-1)<TODAY?addD(mt,-1):TODAY;
+ const row=(x,i)=>{const d=due(x),done=x.s==='تم',dt=done&&x.doneAt?new Date(x.doneAt):null;
+  let late='—',lc='';
+  if(done&&dt){const n=dayDiff(dt,d);late=n>0?n+' يوم':'في الموعد';lc=n>0?'bad':'ok'}
+  else if(done){late='—'}
+  else{const n=dayDiff(ref,d);if(n>0){late=n+' يوم';lc='bad'}else late='لم يحن'}
+  const st=done?'<span class="ok">منجزة</span>':x.s==='جارٍ'?'<span class="wip">جارية</span>':(d&&dayDiff(ref,d)>0?'<span class="bad">متأخرة</span>':'لم تبدأ');
+  const lg=(x.log||[]).map(g=>`<div>• ${dd2(new Date(g.at)).slice(0,5)} – ${esc(g.by.split(' ')[0])}: ${esc(g.t)}</div>`).join('');
+  const nt=[x.note?`<div>📝 ${esc(x.note)}</div>`:'',lg].join('')||'<span style="color:#888">لا توجد ملاحظات</span>';
+  return `<tr><td class="c">${i+1}</td><td>${esc(SHORT(x.b))}</td><td><b>${esc(x.t)}</b>${x.d?`<div style="color:#555;font-size:8pt">${esc(x.d)}</div>`:''}</td><td>${esc((x.exec||[]).join('، ')||'—')}</td><td class="c">${d?dd2(d):'—'}</td><td class="c">${dt?dd2(dt):done?'منجزة':'—'}</td><td class="c ${lc}">${late}</td><td class="c">${st}</td><td><div class="lg">${nt}</div></td></tr>`};
+ const D=L.filter(x=>x.s==='تم'),LT=L.filter(x=>x.s!=='تم'&&due(x)&&dayDiff(ref,due(x))>0),OP=L.filter(x=>x.s!=='تم'&&!LT.includes(x));
+ const pct=L.length?Math.round(D.length/L.length*100):0;
+ const NX=A.filter(x=>x.s!=='تم'&&x.date>=iso(mt)&&x.date<=iso(addD(mt,6)));
+ const head='<thead><tr><th style="width:3%">#</th><th style="width:8%">البناية</th><th style="width:22%">المهمة</th><th style="width:11%">المنفّذ</th><th style="width:7%">الموعد</th><th style="width:7%">تاريخ الإنجاز</th><th style="width:6%">التأخير</th><th style="width:6%">الحالة</th><th>سير العمل والملاحظات</th></tr></thead>';
+ const nxRows=NX.map((x,i)=>`<tr><td class="c">${i+1}</td><td>${esc(SHORT(x.b))}</td><td><b>${esc(x.t)}</b></td><td>${esc((x.exec||[]).join('، ')||'—')}</td><td class="c">${dd2(pd(x.date))}${x.to&&x.to!==x.date?' – '+dd2(pd(x.to)):''}</td></tr>`).join('');
+ document.getElementById('rpt').innerHTML=`<div class="rp-bar"><button id="rpX">✕ إغلاق</button><button id="rpPw">‹</button><b>أسبوع ${dd2(w0)}</b><button id="rpNw">›</button><span class="sp"></span><button class="g" id="rpPr">🖨 حفظ PDF</button></div>
+ <div class="rp-page rp">
+  <div class="rp-hd"><img src="icons/logo-full.png" alt="نسائم صلالة"><div class="t"><h1>اجتماع ${dd2(mt)}</h1><div class="s">تقرير متابعة مهام الإشراف العام – الأسبوع من ${dd2(w0)} إلى ${dd2(w1)}</div></div>
+  <div class="m">شركة العالمية السعيدة المتحدة<br>نسائم صلالة للشقق المفروشة<br>تاريخ الإصدار: ${dd2(TODAY)}</div></div>
+  <div class="rp-sum"><div><b>${L.length}</b><span>إجمالي المهام</span></div><div><b>${D.length}</b><span>منجزة</span></div><div><b style="color:#b3261e">${LT.length}</b><span>متأخرة</span></div><div><b>${OP.length}</b><span>جارية / لم يحن موعدها</span></div><div><b>${pct}%</b><span>نسبة الإنجاز</span></div></div>
+  <h2>أولاً: تفاصيل سير المهام</h2>
+  <table>${head}<tbody>${L.map(row).join('')||'<tr><td colspan="9" class="c">لا توجد مهام مسجلة لهذا الأسبوع</td></tr>'}</tbody></table>
+  ${NX.length?`<h2>ثانياً: مهام الأسبوع القادم (${dd2(mt)} – ${dd2(addD(mt,6))})</h2><table><thead><tr><th style="width:3%">#</th><th style="width:12%">البناية</th><th>المهمة</th><th style="width:20%">المنفّذ</th><th style="width:16%">الموعد</th></tr></thead><tbody>${nxRows}</tbody></table>`:''}
+  <h2>${NX.length?'ثالثاً':'ثانياً'}: القرارات والتوجيهات</h2>
+  <table><tbody>${[1,2,3,4].map(i=>`<tr><td class="c" style="width:3%">${i}</td><td style="height:22px"></td></tr>`).join('')}</tbody></table>
+  <div class="sig"><div>المشرف العام<br>عبدالسلام حامد</div><div>إعداد<br>علي البسيسي</div><div>اعتماد المدير العام<br>وضاح عبدالرقيب</div></div>
+  <div class="ft"><span>نسائم صلالة · الإشراف العام</span><span>التأخير يُحسب بالأيام من موعد المهمة حتى تاريخ إنجازها، أو حتى ${dd2(ref)} للمهام غير المنجزة</span></div>
+ </div>`;
+ const r=document.getElementById('rpt');
+ r.querySelector('#rpX').onclick=rptClose;
+ r.querySelector('#rpPw').onclick=()=>{RP.wk=addD(RP.wk,-7);rptRender()};r.querySelector('#rpNw').onclick=()=>{RP.wk=addD(RP.wk,7);rptRender()};
+ r.querySelector('#rpPr').onclick=()=>{const t0=document.title;document.title='اجتماع '+dd2(mt).replace(/\//g,'-');window.print();setTimeout(()=>document.title=t0,1500)};
+}
 /* ---- المزيد ---- */
-const MORE=[['deck','🎬','عرض اجتماع الاثنين','عرض تلقائي لما تم في الأسبوع'],['eod','🌙','تنبيهات نهاية اليوم','ملخص اليوم ورسائل التذكير الجاهزة'],['today','📝','التقرير اليومي المفصّل','الشقق، النظافة، الموظفين، الشكاوى'],['plan','🗓','اجتماع الاثنين والأهداف','ما طرحه المشرف وأهداف الأسبوع'],['msgs','✉','رسائل الموظفين','رسالة واتساب جاهزة لكل موظف'],['staff','👥','قائمة الموظفين','أسماء المنفذين وأرقامهم'],['tasks','📌','المهام الثابتة','مهام المشرف المتكررة والوقت'],['review','📊','التحليل والمتابعة','نسب الإنجاز والوقت'],['report','🖨','تقرير المدير PDF','تقرير أسبوعي جاهز للطباعة']];
+const MORE=[['rpt','📄','تقرير الاجتماع الرسمي','صفحات PDF: كل مهمة، إنجازها، تأخيرها وملاحظاتها'],['deck','🎬','عرض اجتماع الاثنين','عرض تلقائي لما تم في الأسبوع'],['eod','🌙','تنبيهات نهاية اليوم','ملخص اليوم ورسائل التذكير الجاهزة'],['today','📝','التقرير اليومي المفصّل','الشقق، النظافة، الموظفين، الشكاوى'],['plan','🗓','اجتماع الاثنين والأهداف','ما طرحه المشرف وأهداف الأسبوع'],['msgs','✉','رسائل الموظفين','رسالة واتساب جاهزة لكل موظف'],['staff','👥','قائمة الموظفين','أسماء المنفذين وأرقامهم'],['tasks','📌','المهام الثابتة','مهام المشرف المتكررة والوقت'],['review','📊','التحليل والمتابعة','نسب الإنجاز والوقت'],['report','🖨','تقرير المدير PDF','تقرير أسبوعي جاهز للطباعة']];
 V.more=el=>{el.innerHTML=`<div class="tiles">${MORE.map(([k,ic,t,s])=>`<button class="tile" data-go="${k}"><i>${ic}</i><b>${t}</b><small>${s}</small></button>`).join('')}</div>`;
  el.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))};
 V.staff=el=>{const r=()=>{el.innerHTML=`<div class="card"><h2>قائمة الموظفين</h2><p class="hint">الأسماء التي تظهر في خانة المنفّذ. رقم الواتساب اختياري (مثال 96891234567) لفتح الرسالة مباشرة.</p>${listTable(S.staff,[{k:'name',label:'الاسم',w:'150px'},{k:'role',label:'العمل / البناية',w:'150px'},{k:'phone',label:'رقم الواتساب',w:'130px'}],'إضافة موظف')}</div>`;bindList(el,S.staff,()=>({name:'',role:'',phone:''}),r)};r()};
@@ -797,7 +875,7 @@ function demoBar(){const box=document.getElementById('demoBar');if(!S.demo){box.
  let armed=false;box.querySelector('#dClr').onclick=e=>{if(!armed){armed=true;e.target.textContent='اضغط مرة أخرى للتأكيد';return}
   delete S.weeks[DEMO_WK];S.tasks=S.tasks.filter(t=>!t.demo);S.demo=false;mark();render();toast('تم المسح – اضغط حفظ')}}
 const MAIN=['home','acts','week','more'],WKV=['week','today','plan','review','report'],NARROW=['home','acts','week','more'];
-function go(t){if(t==='deck'){deckOpen();return}tab=t;OPEN=null;render();window.scrollTo(0,0)}
+function go(t){if(t==='deck'){deckOpen();return}if(t==='rpt'){rptOpen();return}tab=t;OPEN=null;render();window.scrollTo(0,0)}
 function render(){demoBar();document.getElementById('weekLbl').textContent=`أسبوع ${fmt(wk)} – ${fmt(addD(wk,6))}`;
  const nt=MAIN.includes(tab)?tab:'more';document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===nt));
  document.getElementById('wkWrap').style.display=WKV.includes(tab)?'':'none';
