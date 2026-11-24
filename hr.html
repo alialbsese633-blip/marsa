@@ -6533,7 +6533,8 @@ function amKey(r){return r.ref+'|'+r.amount+'|'+String(r.memo).slice(0,70)}
 function amPad(n){return (n<10?'0':'')+n}
 function amIso(v){if(v==null||v==='')return '';
   if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?d.y+'-'+amPad(d.m)+'-'+amPad(d.d):''}
-  const s=String(v),m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  const s=String(v).trim(),m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  const dm=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);if(dm)return dm[3]+'-'+amPad(+dm[2])+'-'+amPad(+dm[1]);
   const d=new Date(s);return isNaN(d.getTime())?'':d.getFullYear()+'-'+amPad(d.getMonth()+1)+'-'+amPad(d.getDate())}
 function amAr(s){if(!s)return '';const p=s.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s}
 function amIn(r){if(!r.iso)return true;if(AM.d1&&r.iso<AM.d1)return false;if(AM.d2&&r.iso>AM.d2)return false;return true}
@@ -6587,7 +6588,13 @@ function amList(){const ql=AM.q.trim().toLowerCase();const out=[];
     if(AM.f==='1'&&st!==1)return;if(AM.f==='2'&&st!==2)return;if(AM.f==='0'&&st!==0)return;if(AM.f==='p'&&st!==null)return;
     if(ql&&((r.memo+' '+r.ref+' '+r.inv+' '+amAr(r.iso)+' '+r.amount).toLowerCase().indexOf(ql)<0))return;
     out.push({r,i,st})});return out}
-function amTable(print){const L=amList();let sum=0;L.forEach(x=>sum+=x.r.amount);
+/* ترتيب الطباعة حسب رقم الحركة تصاعدياً (الأرقام أولاً، ثم ما ليس له رقم حسب التاريخ) */
+function amRefSort(L){const nv=x=>{const m=String(x.r.ref||'').match(/\d+/);return m?Number(m[0]):null};
+  return L.slice().sort((a,b)=>{const x=nv(a),y=nv(b);
+    if(x!=null&&y!=null&&x!==y)return x-y;if(x==null&&y!=null)return 1;if(x!=null&&y==null)return -1;
+    const c=String(a.r.ref).localeCompare(String(b.r.ref),'en',{numeric:true});if(c)return c;
+    return (a.r.iso||'').localeCompare(b.r.iso||'')||a.i-b.i})}
+function amTable(print){const L=print?amRefSort(amList()):amList();let sum=0;L.forEach(x=>sum+=x.r.amount);
   if(!L.length)return '<div class="empty">لا توجد بنود مطابقة للفلتر الحالي</div>';
   return `<div class="tw"><table><thead><tr><th style="width:34px">م</th><th>البيان</th><th style="width:92px">رقم الحركة</th><th style="width:100px">رقم الفاتورة</th><th class="n" style="width:92px">المبلغ</th><th style="width:${print?'86px':'180px'}">حالة المرفق</th><th style="width:120px">ملاحظة</th></tr></thead><tbody>${
   L.map((x,n)=>{const r=x.r,st=x.st,k=amKey(r),nt=AM.marks[k+'#n']||'';
@@ -6674,7 +6681,10 @@ async function amRead(f){
     AM.rows=res.rows;AM.title=res.title;AM.period=res.period;AM.f='all';AM.q='';
     AM.key=(res.title+'|'+res.period).replace(/\s+/g,' ').trim();amLoad();
     const all=res.rows.map(x=>x.iso).filter(Boolean).sort();
-    AM.min=all[0]||'';AM.max=all[all.length-1]||'';AM.d1=AM.min;AM.d2=AM.max;
+    /* المدى = من أول حركة إلى آخر حركة، ويتوسّع ليشمل فترة الملف المكتوبة في ترويسته (مثل 1 October - 23 November) */
+    const pp=String(res.period||'').split(/\s+(?:-|–|إلى|to)\s+/i).map(amIso).filter(Boolean).sort();
+    const ends=all.concat(pp).sort();
+    AM.min=ends[0]||'';AM.max=ends[ends.length-1]||'';AM.d1=AM.min;AM.d2=AM.max;
     amRender();toast('تم تحميل '+res.rows.length+' بند')}
   catch(e){toast('تعذّرت قراءة الملف: '+(e&&e.message?e.message:e))}}
 
