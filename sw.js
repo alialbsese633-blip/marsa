@@ -39,7 +39,7 @@ self.addEventListener('fetch', (e) => {
 
   if (url.origin !== location.origin) return;   // الخادم، يوتيوب…: مباشرة من الشبكة
 
-  const isDoc = req.mode === 'navigate' || /sunna-data\.js$|booking-[a-z]+\.js$|\.html?$|\/$|config\.js$|\.webmanifest$/.test(url.pathname);
+  const isDoc = req.mode === 'navigate' || /sunna-data\.js$|labor-data\.js$|booking-[a-z]+\.js$|\.html?$|\/$|config\.js$|\.webmanifest$/.test(url.pathname);
   if (isDoc) {
     /* الصفحات: الشبكة أولاً لتصلك آخر نسخة، لكن إن تأخرت الشبكة أكثر من 3 ثوانٍ تُفتح النسخة المحفوظة فوراً */
     e.respondWith(new Promise((resolve) => {

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F6F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مرسى Marsa">
+<link rel="apple-touch-icon" href="icons/m3-apple-180.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/m3-favicon-48.png">
+<title>قانون العمل: حقوقك وواجباتك | Marsa</title>
+<style>
+@font-face{font-family:'LReadex';src:url(fonts/readex-ar-400.woff2) format('woff2');font-weight:400;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'LReadex';src:url(fonts/readex-la-400.woff2) format('woff2');font-weight:400;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'LReadex';src:url(fonts/readex-ar-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'LReadex';src:url(fonts/readex-la-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'LReadex';src:url(fonts/readex-ar-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
+@font-face{font-family:'LReadex';src:url(fonts/readex-la-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+:root{color-scheme:light;--g:#1F5F5B;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;
+  --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"LReadex","IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 500px at 90% -10%,#E0EEEC 0,transparent 60%),var(--paper);color:var(--ink);font:16px/1.8 var(--font);-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:20;background:rgba(243,246,246,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0)}
+.bar-in{max-width:820px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:8px;min-height:58px}
+.bar img{height:40px}.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:700 14px var(--font);color:var(--ink);cursor:pointer;box-shadow:var(--sh);text-decoration:none;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.btn.pri{background:var(--g);color:#fff;border-color:var(--g)}.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.btn.sm{padding:6px 11px;font-size:13px}
+.wrap{max-width:820px;margin:0 auto;padding:14px 16px 70px}
+h1{font-size:clamp(23px,5vw,30px);line-height:1.35;margin:4px 0}
+h2{font-size:19px;margin:0 0 6px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--sh);margin:14px 0}
+.hero{background:linear-gradient(135deg,var(--deep),var(--g));color:#fff;border:0}
+.hero .mute{color:rgba(255,255,255,.85)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat{background:rgba(255,255,255,.13);border-radius:14px;padding:8px;text-align:center}
+.stat b{display:block;font-size:21px}.stat small{font-size:12px;opacity:.9}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:700 14px var(--font);cursor:pointer;color:var(--ink)}
+.tab.on{background:var(--g);color:#fff;border-color:transparent}
+.daynav{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.daynav b{font-size:17px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.pvc{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column}
+.pvc img{display:block;width:100%;height:auto;background:#eee;cursor:zoom-in}
+.pvc .b{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px;color:#fff}
+.done{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px;background:#E3F2EA;color:var(--ok)}
+.item{border-inline-start:5px solid var(--g);padding:14px 16px}
+.item h3{margin:2px 0 8px;font-size:18px}
+.item ul{margin:0;padding-inline-start:20px}.item li{font-weight:700;margin:4px 0}
+.item .src{margin-top:10px;font-size:13px;background:#F4F7F7;border-radius:10px;padding:6px 10px;color:var(--ink)}
+.item .src b{color:var(--mute)}
+.sec-h{display:flex;align-items:center;gap:10px;margin:18px 0 4px}
+.sec-h .n{font-size:13px;color:var(--mute)}
+input[type=search],input[type=date]{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:15px var(--font);background:#fff;color:var(--ink)}
+.sched{width:100%;border-collapse:collapse;font-size:14px}
+.sched td,.sched th{border-bottom:1px solid var(--line);padding:8px 6px;text-align:start;vertical-align:top}
+.sched tr.cur{background:#EAF4F2}
+.note{font-size:13px;color:var(--mute);background:#FFF8E6;border:1px solid #F1E2B8;border-radius:12px;padding:8px 12px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0));transform:translateX(-50%) translateY(30px);background:#10292B;color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.ov{position:fixed;inset:0;background:rgba(10,25,26,.85);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}.ov img{max-width:100%;max-height:100%;border-radius:12px}
+.foot{text-align:center;color:var(--mute);font-size:12px;margin-top:30px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><a href="./" aria-label="Marsa"><img src="icons/marsa-lockup.png" alt="مرسى Marsa"></a><span class="sp"></span><a class="btn sm" href="./">الرئيسية</a></div></header>
+<div class="wrap">
+  <section class="card hero">
+    <div class="mute">الموارد البشرية · نسائم صلالة</div>
+    <h1>⚖️ قانون العمل: حقوقك وواجباتك</h1>
+    <div class="mute">ملخص مبسّط من قانون العمل العُماني الصادر بالمرسوم السلطاني رقم 53/2023، مقسّم إلى: حقوق الموظف، واجبات الموظف، وشروط وأحكام العمل — مع المادة القانونية تحت كل بند.</div>
+    <div class="stats" id="stats"></div>
+  </section>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="view"></main>
+  <div class="foot">نسائم صلالة للشقق المفروشة · صُمّم وأُدير بواسطة علي البسيسي</div>
+</div>
+<div class="ov" id="ov"><img id="ovImg" alt=""></div>
+<div class="toast" id="toast"></div>
+<script src="labor-data.js"></script>
+<script>
+var U=null;try{U=JSON.parse(localStorage.getItem('marsa_user'))}catch(e){}
+var ADMIN=!!(U&&(U.role==='hr'||U.role==='gm'||/علي|Ali/i.test(U.name||'')));
+if(/[?&]admin=1/.test(location.search))ADMIN=true;
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pad(n){return ('0'+n).slice(-2)}
+function dkey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+var KEY='labor_state',S={};try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
+S.start=S.start||'2026-11-29';S.sent=S.sent||{};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* ===== ترتيب السلسلة: كل يوم 3 صور (حق، واجب، شرط) بالتناوب ===== */
+var SERIES=(function(){var q={r:[],d:[],c:[]};LAW.forEach(function(it,i){q[it.k].push(i)});
+  var all=[];['r','d','c'].forEach(function(k,o){q[k].forEach(function(i,n){all.push({i:i,f:(n+0.5)/q[k].length,o:o})})});
+  all.sort(function(a,b){return a.f-b.f||a.o-b.o});var out=all.map(function(x){return x.i});
+  out.forEach(function(i,n){LAW[i].no=n+1});return out})();
+var DAYS=Math.ceil(SERIES.length/3);
+function dayItems(d){return SERIES.slice(d*3,d*3+3)}
+function todayIdx(){var p=S.start.split('-');var st=Date.UTC(+p[0],+p[1]-1,+p[2]),n=new Date(),t=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());var d=Math.floor((t-st)/864e5);if(d<0)d=0;return d%DAYS}
+function dayDate(d){var p=S.start.split('-');var x=new Date(+p[0],+p[1]-1,+p[2]+d);return x}
+var DN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function fmtD(x){return DN[x.getDay()]+' '+x.getDate()+' '+MN[x.getMonth()]+' '+x.getFullYear()}
+function srcFull(i){return LAW_SRC+' — '+LAW[i].s}
+
+/* ===== رسم الصورة 1080×1350 ===== */
+var LAW_SRC_IMG='قانون العمل العُماني — المرسوم السلطاني رقم 53/2023';
+var W=1080,H=1350,LOGO=new Image(),PLOGO=new Image();LOGO.src='icons/logo-full.png';PLOGO.src='icons/parent-logo.png';
+var fontsReady=null;
+function loadAll(){if(fontsReady)return fontsReady;
+  fontsReady=Promise.all(['700 40px LReadex','500 30px LReadex','400 24px LReadex'].map(function(f){return document.fonts.load(f,'حقوق 2023 (12)')}).concat([LOGO,PLOGO].map(function(im){return im.complete&&im.naturalWidth?1:new Promise(function(r){im.onload=im.onerror=r})}))).catch(function(){});
+  return fontsReady}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function wrapT(x,t,maxW){var w=t.split(' '),lines=[],cur='';w.forEach(function(s){var tr=cur?cur+' '+s:s;if(x.measureText(tr).width>maxW&&cur){lines.push(cur);cur=s}else cur=tr});if(cur)lines.push(cur);return lines}
+function hexA(h,a){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+function render(i,dayNo,pos){
+  var it=LAW[i],C=LAW_CATS[it.k],col=C.c,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
+  x.direction='rtl';x.textBaseline='alphabetic';
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
+  /* إطار رسمي */
+  x.strokeStyle=col;x.lineWidth=4;rr(x,28,28,W-56,H-56,26);x.stroke();
+  x.strokeStyle=hexA(col,.25);x.lineWidth=1.5;rr(x,40,40,W-80,H-80,20);x.stroke();
+  /* الترويسة: الشعاران */
+  var lh=150;if(LOGO.naturalWidth){var lw=lh*LOGO.naturalWidth/LOGO.naturalHeight;x.drawImage(LOGO,W-70-lw,58,lw,lh)}
+  if(PLOGO.naturalWidth){var ph=112,pw=ph*PLOGO.naturalWidth/PLOGO.naturalHeight;x.drawImage(PLOGO,70,76,pw,ph)}
+  x.textAlign='center';x.fillStyle='#5E7475';x.font='500 25px LReadex';x.fillText('سلسلة التوعية بقانون العمل',W/2,118);
+  x.fillStyle=col;x.font='700 30px LReadex';x.fillText('اعرف حقوقك وواجباتك',W/2,162);
+  x.fillStyle=hexA(col,.35);x.fillRect(70,232,W-140,2);
+  /* شريط القسم */
+  rr(x,70,262,W-140,88,18);x.fillStyle=col;x.fill();
+  x.fillStyle='#fff';x.textAlign='right';x.font='700 42px LReadex';x.fillText(C.n,W-104,322);
+  x.textAlign='left';x.font='700 30px LReadex';x.fillStyle='rgba(255,255,255,.9)';x.fillText('بند رقم '+it.no,104,318);
+  /* العنوان */
+  x.textAlign='right';x.fillStyle='#10292B';
+  var R=W-90,y=440,tSize=60;x.font='700 '+tSize+'px LReadex';var tl=wrapT(x,it.t,W-180);
+  if(tl.length>2){tSize=50;x.font='700 '+tSize+'px LReadex';tl=wrapT(x,it.t,W-180)}
+  tl.forEach(function(l){x.fillText(l,R,y);y+=tSize*1.3});
+  x.fillStyle=col;rr(x,R-130,y-tSize*0.55,130,8,4);x.fill();y+=30;
+  /* النقاط — تكبير تلقائي حسب المساحة */
+  var top=y,bottom=1090,size=50,blocks,tot=0,lhh;
+  for(;size>=28;size-=2){x.font='700 '+size+'px LReadex';lhh=size*1.55;tot=0;blocks=it.p.map(function(p){var ls=wrapT(x,p,W-230);tot+=ls.length*lhh+size*0.6;return ls});if(top+tot<=bottom)break}
+  var yy=top+Math.max(0,(bottom-top-tot)/2)+size*0.95;
+  blocks.forEach(function(ls){x.fillStyle=col;rr(x,R-20,yy-size*0.62,20,20,5);x.fill();
+    x.fillStyle='#10292B';x.font='700 '+size+'px LReadex';ls.forEach(function(l){x.fillText(l,R-42,yy);yy+=lhh});yy+=size*0.6});
+  /* صندوق المصدر */
+  var by=1112,bh=130;rr(x,70,by,W-140,bh,18);x.fillStyle=hexA(col,.08);x.fill();
+  x.fillStyle=col;rr(x,W-82,by,12,bh,6);x.fill();
+  x.textAlign='right';x.fillStyle=col;x.font='700 27px LReadex';x.fillText('المصدر:',W-104,by+50);
+  x.fillStyle='#10292B';x.font='700 26px LReadex';x.fillText(LAW_SRC_IMG,W-214,by+50);
+  x.font='700 34px LReadex';x.fillStyle=col;x.fillText(it.s,W-104,by+104);
+  /* التذييل */
+  x.font='500 23px LReadex';x.fillStyle='#5E7475';x.textAlign='right';x.fillText('إدارة الموارد البشرية · نسائم صلالة',W-90,H-62);
+  x.textAlign='left';if(dayNo!=null)x.fillText('اليوم '+(dayNo+1)+' · '+(pos+1)+'/3',90,H-62);
+  return c}
+function blobOf(c){return new Promise(function(r){c.toBlob(r,'image/png')})}
+function posOf(i){var n=SERIES.indexOf(i);return {d:Math.floor(n/3),p:n%3}}
+async function fileOf(i){await loadAll();var o=posOf(i);var b=await blobOf(render(i,o.d,o.p));return new File([b],'labor-law-'+pad(o.d+1)+'-'+(o.p+1)+'.png',{type:'image/png'})}
+var IMGCACHE={};
+async function imgURL(i){if(IMGCACHE[i])return IMGCACHE[i];var f=await fileOf(i);IMGCACHE[i]=URL.createObjectURL(f);return IMGCACHE[i]}
+function download(f){var a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
+async function share(idxs){var files=[];for(var k=0;k<idxs.length;k++)files.push(await fileOf(idxs[k]));
+  try{if(navigator.canShare&&navigator.canShare({files:files})){await navigator.share({files:files});return true}}catch(e){if(e&&e.name==='AbortError')return null}
+  files.forEach(function(f,n){setTimeout(function(){download(f)},n*400)});toast('تم تحميل الصور ✓');return true}
+function textOf(i){var it=LAW[i];return '*'+LAW_CATS[it.k].n+' | '+it.t+'*\n'+it.p.map(function(p){return '▪️ *'+p+'*'}).join('\n')+'\n\n📖 المصدر: '+srcFull(i)}
+function copyText(i){var t=textOf(i);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('تم نسخ النص ✓')},fb);else fb();
+  function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('تم نسخ النص ✓')}catch(e){}a.remove()}}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast on';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='toast'},2200)}
+function isSent(i){return !!S.sent[i]}
+function setSent(i,v){if(v)S.sent[i]=dkey(new Date());else delete S.sent[i];save()}
+document.getElementById('ov').onclick=function(){this.className='ov'};
+async function zoom(i){document.getElementById('ovImg').src=await imgURL(i);document.getElementById('ov').className='ov on'}
+
+/* ===== الواجهات ===== */
+var TAB=ADMIN?'today':'r',DAY=todayIdx(),Q='';
+function tabsHtml(){var t=[];if(ADMIN)t.push(['today','📅 صور اليوم']);t.push(['r','⚖️ حقوق الموظف'],['d','🧭 واجبات الموظف'],['c','📜 الشروط والأحكام']);if(ADMIN)t.push(['plan','🗓️ جدول النشر']);
+  return t.map(function(a){return '<button class="tab'+(TAB===a[0]?' on':'')+'" data-t="'+a[0]+'">'+a[1]+'</button>'}).join('')}
+function stats(){var n={r:0,d:0,c:0};LAW.forEach(function(it){n[it.k]++});var sent=Object.keys(S.sent).length;
+  return [['حقوق',n.r],['واجبات',n.d],['شروط',n.c],ADMIN?['تم نشره',sent+'/'+LAW.length]:['أيام السلسلة',DAYS]].map(function(s){return '<div class="stat"><b>'+s[1]+'</b><small>'+s[0]+'</small></div>'}).join('')}
+function chip(k){return '<span class="chip" style="background:'+LAW_CATS[k].c+'">'+LAW_CATS[k].n+'</span>'}
+function viewToday(){
+  var idxs=dayItems(DAY),dt=dayDate(DAY);
+  var h='<section class="card"><div class="daynav"><button class="btn sm" id="prv">→ السابق</button><div style="text-align:center"><b>اليوم '+(DAY+1)+' من '+DAYS+'</b><div class="mute">'+fmtD(dt)+'</div></div><button class="btn sm" id="nxt">التالي ←</button></div>'+
+    '<div class="row" style="margin-top:12px;justify-content:center"><button class="btn pri" id="shAll">📤 مشاركة صور اليوم ('+idxs.length+')</button><button class="btn" id="dlAll">⬇️ تحميل الكل</button>'+(DAY!==todayIdx()?'<button class="btn" id="goT">العودة لليوم</button>':'')+'</div></section><div class="grid3">';
+  idxs.forEach(function(i,p){var it=LAW[i];h+='<div class="pvc"><img id="im'+i+'" alt="'+esc(it.t)+'" data-z="'+i+'"><div class="b"><div class="row">'+chip(it.k)+(isSent(i)?'<span class="done">✓ تم النشر</span>':'')+'</div><b>'+(p+1)+'. '+esc(it.t)+'</b><div class="mute">'+esc(it.s)+'</div><div class="row"><button class="btn sm" data-sh="'+i+'">مشاركة</button><button class="btn sm" data-dl="'+i+'">تحميل</button><button class="btn sm" data-cp="'+i+'">نسخ النص</button><button class="btn sm '+(isSent(i)?'':'ok')+'" data-sn="'+i+'">'+(isSent(i)?'إلغاء ✓':'تم النشر ✓')+'</button></div></div></div>'});
+  h+='</div><p class="note" style="margin-top:14px">💡 الطريقة: اضغط «مشاركة صور اليوم» واختر جروب واتساب، ثم «تم النشر» لكل صورة. الصور بمقاس 1080×1350 مناسب للواتساب.</p>';
+  document.getElementById('view').innerHTML=h;
+  idxs.forEach(function(i){imgURL(i).then(function(u){var e=document.getElementById('im'+i);if(e)e.src=u})});
+  document.getElementById('prv').onclick=function(){DAY=(DAY-1+DAYS)%DAYS;paint()};
+  document.getElementById('nxt').onclick=function(){DAY=(DAY+1)%DAYS;paint()};
+  var g=document.getElementById('goT');if(g)g.onclick=function(){DAY=todayIdx();paint()};
+  document.getElementById('shAll').onclick=function(){share(idxs).then(function(ok){if(ok){idxs.forEach(function(i){setSent(i,true)});paint()}})};
+  document.getElementById('dlAll').onclick=async function(){for(var k=0;k<idxs.length;k++){download(await fileOf(idxs[k]));await new Promise(function(r){setTimeout(r,400)})}};
+}
+function viewList(k){
+  var C=LAW_CATS[k],list=LAW.map(function(it,i){return i}).filter(function(i){var it=LAW[i];if(it.k!==k)return false;if(!Q)return true;return (it.t+' '+it.p.join(' ')+' '+it.s).indexOf(Q)>=0});
+  var h='<div class="sec-h"><h2 style="color:'+C.c+'">'+C.ic+' '+C.n+'</h2><span class="n">'+list.length+' بنداً</span></div><input type="search" id="q" placeholder="ابحث: إجازة، أجر، غياب، مكافأة…" value="'+esc(Q)+'">';
+  list.forEach(function(i,n){var it=LAW[i];h+='<article class="card item" style="border-inline-start-color:'+C.c+'"><h3>'+(n+1)+'. '+esc(it.t)+'</h3><ul>'+it.p.map(function(p){return '<li>'+esc(p)+'</li>'}).join('')+'</ul><div class="src"><b>المصدر:</b> '+esc(LAW_SRC)+' — <strong>'+esc(it.s)+'</strong></div>'+
+    '<div class="row" style="margin-top:10px"><button class="btn sm" data-z="'+i+'">🖼️ عرض كصورة</button>'+(ADMIN?'<button class="btn sm" data-sh="'+i+'">مشاركة</button><button class="btn sm" data-dl="'+i+'">تحميل</button>':'')+'<button class="btn sm" data-cp="'+i+'">نسخ النص</button>'+(ADMIN&&isSent(i)?'<span class="done">✓ نُشر '+S.sent[i]+'</span>':'')+'</div></article>'});
+  if(!list.length)h+='<p class="mute">لا توجد نتائج.</p>';
+  h+='<p class="note">هذا ملخص توعوي مبسّط، والمرجع عند أي خلاف هو النص الرسمي لقانون العمل ولوائحه التنفيذية.</p>';
+  document.getElementById('view').innerHTML=h;
+  var q=document.getElementById('q');q.oninput=function(){Q=q.value.trim();var p=q.selectionStart;viewList(k);var n=document.getElementById('q');n.focus();n.setSelectionRange(p,p)};
+}
+function viewPlan(){
+  var cur=todayIdx(),h='<section class="card"><h2>🗓️ جدول النشر</h2><div class="mute">'+LAW.length+' صورة على '+DAYS+' يوماً — 3 صور يومياً (حق، واجب، شرط). عند الانتهاء تبدأ السلسلة من جديد.</div><div style="margin-top:10px"><label class="mute">تاريخ بداية السلسلة</label><input type="date" id="st" value="'+S.start+'"></div></section><section class="card" style="padding:6px 10px"><table class="sched"><tr><th>اليوم</th><th>التاريخ</th><th>الصور</th></tr>';
+  for(var d=0;d<DAYS;d++){var ids=dayItems(d),dt=dayDate(d),all=ids.every(isSent);
+    h+='<tr class="'+(d===cur?'cur':'')+'"><td><b>'+(d+1)+'</b>'+(all?' ✅':'')+'</td><td>'+dt.getDate()+'/'+(dt.getMonth()+1)+'</td><td>'+ids.map(function(i){return '<div><span style="color:'+LAW_CATS[LAW[i].k].c+';font-weight:700">●</span> '+esc(LAW[i].t)+(isSent(i)?' ✓':'')+'</div>'}).join('')+'<button class="btn sm" data-day="'+d+'" style="margin-top:4px">فتح</button></td></tr>'}
+  h+='</table></section><div class="row"><button class="btn" id="rst">تصفير علامات النشر</button></div>';
+  document.getElementById('view').innerHTML=h;
+  document.getElementById('st').onchange=function(){if(this.value){S.start=this.value;save();DAY=todayIdx();paint()}};
+  document.getElementById('rst').onclick=function(){if(confirm('تصفير كل علامات «تم النشر»؟')){S.sent={};save();paint()}};
+}
+function paint(){
+  document.getElementById('stats').innerHTML=stats();document.getElementById('tabs').innerHTML=tabsHtml();
+  if(TAB==='today')viewToday();else if(TAB==='plan')viewPlan();else viewList(TAB);
+}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-t],[data-z],[data-sh],[data-dl],[data-cp],[data-sn],[data-day]');if(!b)return;
+  if(b.dataset.t){TAB=b.dataset.t;Q='';paint();window.scrollTo(0,0)}
+  else if(b.dataset.z!=null)zoom(+b.dataset.z);
+  else if(b.dataset.sh!=null){var i=+b.dataset.sh;share([i]).then(function(ok){if(ok&&ADMIN){setSent(i,true);paint()}})}
+  else if(b.dataset.dl!=null)fileOf(+b.dataset.dl).then(download);
+  else if(b.dataset.cp!=null)copyText(+b.dataset.cp);
+  else if(b.dataset.sn!=null){var j=+b.dataset.sn;setSent(j,!isSent(j));paint()}
+  else if(b.dataset.day!=null){DAY=+b.dataset.day;TAB='today';paint();window.scrollTo(0,0)}
+});
+loadAll().then(paint);paint();
+</script>
+</body>
+</html>
