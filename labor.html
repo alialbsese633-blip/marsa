@@ -16,6 +16,7 @@
 @font-face{font-family:'LReadex';src:url(fonts/readex-la-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
 @font-face{font-family:'LReadex';src:url(fonts/readex-ar-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200E}
 @font-face{font-family:'LReadex';src:url(fonts/readex-la-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'LAmiri';src:url(fonts/amiri-700.woff2) format('woff2');font-weight:700;font-display:swap}
 :root{color-scheme:light;--g:#1F5F5B;--deep:#16474A;--paper:#F3F6F6;--ink:#10292B;--mute:#5E7475;--line:#DDE8E8;--ok:#1E7A4F;
   --sh:0 1px 2px rgba(16,41,43,.05),0 8px 24px rgba(16,41,43,.08);--font:"LReadex","IBM Plex Sans Arabic",-apple-system,"Segoe UI",Tahoma,sans-serif}
 *,*::before,*::after{box-sizing:border-box}
@@ -112,49 +113,52 @@ var LAW_SRC_IMG='قانون العمل العُماني — المرسوم ال�
 var W=1080,H=1350,LOGO=new Image(),PLOGO=new Image();LOGO.src='icons/logo-full.png';PLOGO.src='icons/parent-logo.png';
 var fontsReady=null;
 function loadAll(){if(fontsReady)return fontsReady;
-  fontsReady=Promise.all(['700 40px LReadex','500 30px LReadex','400 24px LReadex'].map(function(f){return document.fonts.load(f,'حقوق 2023 (12)')}).concat([LOGO,PLOGO].map(function(im){return im.complete&&im.naturalWidth?1:new Promise(function(r){im.onload=im.onerror=r})}))).catch(function(){});
+  fontsReady=Promise.all(['700 40px LReadex','500 30px LReadex','400 24px LReadex','700 50px LAmiri'].map(function(f){return document.fonts.load(f,'حقوق 2023 (12)')}).concat([LOGO,PLOGO].map(function(im){return im.complete&&im.naturalWidth?1:new Promise(function(r){im.onload=im.onerror=r})}))).catch(function(){});
   return fontsReady}
 function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
 function wrapT(x,t,maxW){var w=t.split(' '),lines=[],cur='';w.forEach(function(s){var tr=cur?cur+' '+s:s;if(x.measureText(tr).width>maxW&&cur){lines.push(cur);cur=s}else cur=tr});if(cur)lines.push(cur);return lines}
 function hexA(h,a){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+var CATN={r:'حقوق الموظف',d:'واجبات الموظف',c:'شروط وأحكام العمل'},CATC={r:'ح',d:'و',c:'ش'};
+function refNo(it){return 'م.ب/ق.ع/'+('00'+it.no).slice(-3)}
 function render(i,dayNo,pos){
-  var it=LAW[i],C=LAW_CATS[it.k],col=C.c,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
+  var it=LAW[i],ink='#14282A',acc='#16474A',mute='#55686A',c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
   x.direction='rtl';x.textBaseline='alphabetic';
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
-  /* إطار رسمي */
-  x.strokeStyle=col;x.lineWidth=4;rr(x,28,28,W-56,H-56,26);x.stroke();
-  x.strokeStyle=hexA(col,.25);x.lineWidth=1.5;rr(x,40,40,W-80,H-80,20);x.stroke();
-  /* الترويسة: الشعاران */
-  var lh=150;if(LOGO.naturalWidth){var lw=lh*LOGO.naturalWidth/LOGO.naturalHeight;x.drawImage(LOGO,W-70-lw,58,lw,lh)}
-  if(PLOGO.naturalWidth){var ph=112,pw=ph*PLOGO.naturalWidth/PLOGO.naturalHeight;x.drawImage(PLOGO,70,76,pw,ph)}
-  x.textAlign='center';x.fillStyle='#5E7475';x.font='500 25px LReadex';x.fillText('سلسلة التوعية بقانون العمل',W/2,118);
-  x.fillStyle=col;x.font='700 30px LReadex';x.fillText('اعرف حقوقك وواجباتك',W/2,162);
-  x.fillStyle=hexA(col,.35);x.fillRect(70,232,W-140,2);
-  /* شريط القسم */
-  rr(x,70,262,W-140,88,18);x.fillStyle=col;x.fill();
-  x.fillStyle='#fff';x.textAlign='right';x.font='700 42px LReadex';x.fillText(C.n,W-104,322);
-  x.textAlign='left';x.font='700 30px LReadex';x.fillStyle='rgba(255,255,255,.9)';x.fillText('بند رقم '+it.no,104,318);
-  /* العنوان */
-  x.textAlign='right';x.fillStyle='#10292B';
-  var R=W-90,y=440,tSize=60;x.font='700 '+tSize+'px LReadex';var tl=wrapT(x,it.t,W-180);
-  if(tl.length>2){tSize=50;x.font='700 '+tSize+'px LReadex';tl=wrapT(x,it.t,W-180)}
-  tl.forEach(function(l){x.fillText(l,R,y);y+=tSize*1.3});
-  x.fillStyle=col;rr(x,R-130,y-tSize*0.55,130,8,4);x.fill();y+=30;
-  /* النقاط — تكبير تلقائي حسب المساحة */
-  var top=y,bottom=1090,size=50,blocks,tot=0,lhh;
-  for(;size>=28;size-=2){x.font='700 '+size+'px LReadex';lhh=size*1.55;tot=0;blocks=it.p.map(function(p){var ls=wrapT(x,p,W-230);tot+=ls.length*lhh+size*0.6;return ls});if(top+tot<=bottom)break}
-  var yy=top+Math.max(0,(bottom-top-tot)/2)+size*0.95;
-  blocks.forEach(function(ls){x.fillStyle=col;rr(x,R-20,yy-size*0.62,20,20,5);x.fill();
-    x.fillStyle='#10292B';x.font='700 '+size+'px LReadex';ls.forEach(function(l){x.fillText(l,R-42,yy);yy+=lhh});yy+=size*0.6});
-  /* صندوق المصدر */
-  var by=1112,bh=130;rr(x,70,by,W-140,bh,18);x.fillStyle=hexA(col,.08);x.fill();
-  x.fillStyle=col;rr(x,W-82,by,12,bh,6);x.fill();
-  x.textAlign='right';x.fillStyle=col;x.font='700 27px LReadex';x.fillText('المصدر:',W-104,by+50);
-  x.fillStyle='#10292B';x.font='700 26px LReadex';x.fillText(LAW_SRC_IMG,W-214,by+50);
-  x.font='700 34px LReadex';x.fillStyle=col;x.fillText(it.s,W-104,by+104);
+  /* إطار مزدوج رسمي */
+  x.strokeStyle=acc;x.lineWidth=3;x.strokeRect(30,30,W-60,H-60);x.lineWidth=1;x.strokeRect(40,40,W-80,H-80);
+  /* الترويسة */
+  var lh=140;if(LOGO.naturalWidth){var lw=lh*LOGO.naturalWidth/LOGO.naturalHeight;x.drawImage(LOGO,W-72-lw,58,lw,lh)}
+  if(PLOGO.naturalWidth){var ph=104,pw=ph*PLOGO.naturalWidth/PLOGO.naturalHeight;x.drawImage(PLOGO,72,76,pw,ph)}
+  x.textAlign='center';x.fillStyle=ink;x.font='700 40px LAmiri';x.fillText('إدارة الموارد البشرية',W/2,118);
+  x.fillStyle=mute;x.font='500 24px LReadex';x.fillText('نشرة توعوية بأحكام قانون العمل العُماني',W/2,162);
+  x.fillStyle=acc;x.fillRect(72,218,W-144,3);x.fillRect(72,226,W-144,1);
+  /* سطر المرجع */
+  x.font='500 22px LReadex';x.fillStyle=mute;x.textAlign='right';x.fillText('الرقم: '+refNo(it),W-76,264);
+  x.textAlign='left';if(dayNo!=null){var dt=dayDate(dayNo);x.fillText('التاريخ: '+dt.getDate()+'/'+(dt.getMonth()+1)+'/'+dt.getFullYear()+'م',76,264)}
+  /* عنوان القسم */
+  x.textAlign='center';x.fillStyle=acc;x.font='700 46px LAmiri';var cn=CATN[it.k];x.fillText(cn,W/2,338);
+  var cw=x.measureText(cn).width;x.fillRect(W/2+cw/2+24,322,150,2);x.fillRect(W/2-cw/2-174,322,150,2);
+  /* عنوان البند */
+  x.fillStyle=ink;var tSize=50;x.font='700 '+tSize+'px LReadex';var tt='البند ('+it.no+'): '+it.t,tl=wrapT(x,tt,W-200);
+  if(tl.length>1){tSize=44;x.font='700 '+tSize+'px LReadex';tl=wrapT(x,tt,W-200)}
+  var y=430;tl.forEach(function(l){x.fillText(l,W/2,y);y+=tSize*1.35});y+=6;
+  /* النص — بنود مرقمة */
+  var R=W-92,top=y,bottom=1080,size=46,blocks,tot=0,lhh;x.textAlign='right';
+  for(;size>=28;size-=2){x.font='700 '+size+'px LReadex';lhh=size*1.6;tot=0;blocks=it.p.map(function(p){var ls=wrapT(x,p,W-250);tot+=ls.length*lhh+size*0.55;return ls});if(top+tot<=bottom)break}
+  var yy=top+Math.max(0,(bottom-top-tot)/2)+size*0.95,AR='123456789';
+  blocks.forEach(function(ls,n){x.fillStyle=acc;x.font='700 '+size+'px LReadex';x.fillText(AR[n]+'.',R,yy);
+    x.fillStyle=ink;ls.forEach(function(l){x.fillText(l,R-size*1.15,yy);yy+=lhh});yy+=size*0.55});
+  /* المصدر */
+  var by=1100,bh=132;x.strokeStyle=acc;x.lineWidth=2;x.strokeRect(72,by,W-144,bh);
+  x.fillStyle=acc;x.fillRect(W-72-6,by,6,bh);
+  x.textAlign='right';x.fillStyle=acc;var fs=26;x.font='700 '+fs+'px LReadex';var lab='المصدر القانوني:',sw=x.measureText(lab).width;
+  while(fs>18){x.font='700 '+fs+'px LReadex';sw=x.measureText(lab).width;if(sw+x.measureText(LAW_SRC_IMG).width+16<=W-200)break;fs--}
+  x.fillText(lab,W-100,by+52);x.fillStyle=ink;x.fillText(LAW_SRC_IMG,W-116-sw,by+52);
+  x.font='700 34px LReadex';x.fillStyle=ink;x.fillText(it.s,W-100,by+106);
   /* التذييل */
-  x.font='500 23px LReadex';x.fillStyle='#5E7475';x.textAlign='right';x.fillText('إدارة الموارد البشرية · نسائم صلالة',W-90,H-62);
-  x.textAlign='left';if(dayNo!=null)x.fillText('اليوم '+(dayNo+1)+' · '+(pos+1)+'/3',90,H-62);
+  x.fillStyle=acc;x.fillRect(72,H-100,W-144,1);
+  x.font='500 21px LReadex';x.fillStyle=mute;x.textAlign='right';x.fillText('نسائم صلالة للشقق المفروشة — إدارة الموارد البشرية',W-76,H-64);
+  x.textAlign='left';if(dayNo!=null)x.fillText('نشرة اليوم '+(dayNo+1)+' ('+(pos+1)+' من 3)',76,H-64);
   return c}
 function blobOf(c){return new Promise(function(r){c.toBlob(r,'image/png')})}
 function posOf(i){var n=SERIES.indexOf(i);return {d:Math.floor(n/3),p:n%3}}
